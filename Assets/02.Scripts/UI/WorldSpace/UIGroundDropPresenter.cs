@@ -90,7 +90,7 @@ namespace UPlayGround.UI
                     drop.Item.icon, rarityColor, settings.labelFadeDuration,
                     () => _drops.TryPlayerCollect(captured));
                 view.Rect.localScale = Vector3.one * settings.labelScale;
-                view.ConfigureTail(settings.labelTailWidth, rarityColor);
+                view.ConfigureTail(settings.labelTailWidth, rarityColor, settings.labelTailOpacity);
                 drop.Transform.TryGetComponent<GroundDropRepresentation>(out var representation);
                 _entries.Add(drop.Id, new Entry { Drop = drop, Label = view, Representation = representation });
             }
@@ -108,9 +108,9 @@ namespace UPlayGround.UI
                 var settings = _drops.Settings;
                 Vector3 point = transform.position + Vector3.up * settings.labelHeight;
                 screen = _camera.WorldToScreenPoint(point);
-                // 연결선이 가리킬 지점: 공중에 뜬 메달 윗부분.
-                targetScreen = _camera.WorldToScreenPoint(transform.position
-                    + Vector3.up * (settings.tokenHoverHeight + settings.tokenSize * 0.55f));
+                targetScreen = _camera.WorldToScreenPoint(entry.Representation != null
+                    ? entry.Representation.LabelAnchorPosition
+                    : transform.position + Vector3.up * settings.tokenHoverHeight);
                 visible = screen.z > 0f && screen.x > 0f && screen.x < Screen.width && screen.y > 0f && screen.y < Screen.height
                     && (transform.position - player.transform.position).sqrMagnitude <= _drops.Settings.labelDistance * _drops.Settings.labelDistance
                     && !Physics.Linecast(_camera.transform.position, point, _drops.Settings.visibilityMask, QueryTriggerInteraction.Ignore);
@@ -134,7 +134,7 @@ namespace UPlayGround.UI
             _occupied.Add(rect);
             // 겹침 회피로 라벨이 밀려 올라가도 연결선이 원래 아이템 위치까지 이어지게 한다.
             RectTransformUtility.ScreenPointToLocalPointInRectangle(_canvas, targetScreen, null, out var target);
-            entry.Label.SetTailLength((position.y - size.y * 0.5f - target.y) / scale);
+            entry.Label.SetTailTarget((target - position) / scale);
         }
         private void FocusNearest()
         {

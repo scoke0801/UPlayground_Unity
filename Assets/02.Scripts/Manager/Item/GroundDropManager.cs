@@ -59,9 +59,7 @@ namespace UPlayGround.Manager
             List<ItemSaveEntry> resolved = inventory.ResolveDropItems(items);
             for (int i = 0; i < resolved.Count; i++)
             {
-                Vector2 offset = UnityEngine.Random.insideUnitCircle * Settings.scatterRadius;
-                Vector3 candidate = position + new Vector3(offset.x, 0f, offset.y);
-                if (!TryFindGround(candidate, out var ground)) ground = position;
+                Vector3 ground = FindDropPosition(position, map, resolved.Count);
                 var record = new GroundDropRecord
                 {
                     dropId = Guid.NewGuid().ToString("N"), sourceId = rewardSource, mapId = map,
@@ -229,6 +227,58 @@ namespace UPlayGround.Manager
                 Settings.groundMask, QueryTriggerInteraction.Ignore)) return false;
             position = hit.point + Vector3.up * Settings.surfaceOffset;
             return true;
+        }
+
+        private Vector3 FindDropPosition(Vector3 origin, string map, int dropCount)
+        {
+            // 간격을 확보하지 못해도 보상을 버리지 않고 안전한 후보 중 가장 빈 곳을 쓴다.
+            if (!TryFindGround(origin, out var center)) center = origin;
+            float spacing = Mathf.Max(0.01f, Settings.minimumDropSpacing);
+            float radius = Mathf.Min(Mathf.Max(0f, Settings.scatterRadius),
+                spacing * Mathf.Sqrt(Mathf.Max(1, dropCount)));
+            Vector3 best = center;
+            float bestClearance = FindNearestDropSqrDistance(center, map);
+            const int candidateCount = 24;
+            for (int attempt = 0; attempt < candidateCount; attempt++)
+            {
+                Vector2 offset = UnityEngine.Random.insideUnitCircle * radius;
+                Vector3 candidate = center + new Vector3(offset.x, 0f, offset.y);
+                if (!TryFindScatterGround(center, candidate, out var ground)) continue;
+                float clearance = FindNearestDropSqrDistance(ground, map);
+                if (clearance >= spacing * spacing) return ground;
+                if (clearance <= bestClearance) continue;
+                best = ground;
+                bestClearance = clearance;
+            }
+            return best;
+        }
+
+        private bool TryFindScatterGround(Vector3 center, Vector3 candidate, out Vector3 position)
+        {
+            position = candidate;
+            if (!Physics.Raycast(candidate + Vector3.up * Settings.groundProbeHeight, Vector3.down,
+                out var hit, Settings.groundProbeHeight + Settings.groundProbeDepth,
+                Settings.groundMask, QueryTriggerInteraction.Ignore)) return false;
+            position = hit.point + Vector3.up * Settings.surfaceOffset;
+            if (Mathf.Abs(position.y - center.y) > Settings.maximumScatterHeightDifference
+                || Vector3.Angle(hit.normal, Vector3.up) > Settings.maximumScatterSlope) return false;
+            // 모델 중심 높이에서 원천과 연결되는 점만 사용해 벽 뒤로 흩어지지 않게 한다.
+            Vector3 lift = Vector3.up * Settings.tokenHoverHeight;
+            return !Physics.Linecast(center + lift, position + lift,
+                Settings.groundMask | Settings.visibilityMask, QueryTriggerInteraction.Ignore);
+        }
+
+        private float FindNearestDropSqrDistance(Vector3 position, string map)
+        {
+            float nearest = float.PositiveInfinity;
+            foreach (var record in _records.Values)
+            {
+                if (record.collected || record.mapId != map) continue;
+                Vector3 other = WorldCoordinates.ToWorld(map, record.position.ToVector3());
+                Vector2 delta = new(position.x - other.x, position.z - other.z);
+                nearest = Mathf.Min(nearest, delta.sqrMagnitude);
+            }
+            return nearest;
         }
 
         private void RebuildVisible()

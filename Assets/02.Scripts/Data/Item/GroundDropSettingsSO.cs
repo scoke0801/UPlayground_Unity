@@ -26,6 +26,12 @@ namespace UPlayGround.Data.Item
         [Min(0.01f)] public float groundProbeDepth = 12f;
         [Min(0.01f)] public float surfaceOffset = 0.08f;
         [Min(0.01f)] public float scatterRadius = 0.6f;
+        [Tooltip("아이템 중심 사이의 목표 간격(m). 좁은 지형에서는 안전한 착지를 우선한다.")]
+        [Min(0.01f)] public float minimumDropSpacing = 0.55f;
+        [Tooltip("분산 착지점과 원천 바닥 사이에 허용할 높이 차이(m).")]
+        [Min(0f)] public float maximumScatterHeightDifference = 0.6f;
+        [Tooltip("분산 착지점의 최대 바닥 경사(도).")]
+        [Range(0f, 89f)] public float maximumScatterSlope = 45f;
         [Min(0.01f)] public float labelHeight = 0.55f;
         [Min(0f)] public float labelFadeDuration = 0.12f;
         public string pickupFxKey = "LootArrival";
@@ -38,9 +44,11 @@ namespace UPlayGround.Data.Item
         [Range(0.4f, 1.5f)] public float labelScale = 0.8f;
         [Tooltip("이름표 아래 연결선 두께(px).")]
         [Min(1f)] public float labelTailWidth = 2f;
+        [Tooltip("연결선 시작 불투명도. 아이템 쪽으로 갈수록 흐려진다.")]
+        [Range(0f, 1f)] public float labelTailOpacity = 0.32f;
 
         [Header("월드 표현")]
-        [Tooltip("아이콘 메달의 긴 변 크기(m).")]
+        [Tooltip("월드 모델과 아이콘 메달의 긴 변 크기(m).")]
         [Min(0.1f)] public float tokenSize = 0.55f;
         [Tooltip("바닥에서 메달 중심까지의 높이(m).")]
         [Min(0.05f)] public float tokenHoverHeight = 0.5f;

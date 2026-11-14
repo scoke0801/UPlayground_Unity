@@ -4,6 +4,10 @@
 
 > 조사 기준: 2026-11-11. 대상 목록과 경로는 조사 시점 기준이므로 Phase 0에서 다시 확인한다.
 
+현재 모델 연결 조사·이름표 연결선 변경과 미검증 항목은 [드롭 표현 작업 상태](../../../docs/work-status/drop-item-presentation.md)를 따른다.
+
+분산 배치와 공통 크기는 [분산·크기 개선 상태](../../../docs/work-status/drop-item-scatter-size.md)를 따른다. 본편 크기 원본은 GroundDropSettings SO의 tokenSize이며 원본 모델을 개별 축소하지 않는다. 새 드롭은 미획득품과 목표 간격을 확보하되 좁은 지형에서는 안전한 착지를 우선한다. 저장된 좌표·고정 씬 배치는 자동 재배치하지 않는다.
+
 ## 1. 목표와 완료 기준
 
 목표는 파일 생성이 아니라 **플레이어가 바닥의 아이템을 멀리서 보고 무엇인지 알아보는 것**이다.
@@ -58,7 +62,8 @@ Codex CLI는 비대화형 `codex exec`를 쓴다. 프롬프트는 manifest에 �
 월드 모델을 받아줄 코드가 없으면 모델을 만들어도 쓸 수 없다. 아래가 이미 있는지 확인하고, 없으면 **모델 제작 전에** 구현한다.
 
 - `ItemSO`에 선택 필드 `worldPrefab`(GameObject)을 둔다. 기존 필드·ID·GUID는 건드리지 않는다. 커스텀 인스펙터가 있으면 같이 반영한다.
-- `GroundDropRepresentation`이 `worldPrefab`이 있으면 아이콘 메달 대신 그 모델을 쓴다. 없으면 기존 메달을 폴백으로 유지한다.
+- `GroundDropRepresentation`은 `worldPrefab`을 우선한다. 비어 있는 장비는 `visualMode=Prefab`일 때 `equipmentPrefab`을 재사용한다. `CharacterBuiltIn` 장비나 모델 없는 아이템은 기존 메달로 대체한다.
+- 일반 메시와 SkinnedMeshRenderer의 메시 바운드를 함께 계산한다. 장착 프리팹·원본 재질은 수정하지 않고 생성된 표시 인스턴스의 물리·로직만 제거한다.
 - 모델은 **바운딩 박스 긴 변을 `tokenSize`에 맞춰 정규화**하고, 회전·부유·등장 투척·희귀도 링·빛기둥·이름표 연결선은 메달과 동일하게 유지한다.
 - 모델에 콜라이더·스크립트·애니메이터가 있어도 무시하거나 제거해 획득 판정에 영향을 주지 않게 한다.
 - 새 값이 필요하면 `GroundDropSettingsSO`에 두고, 이름·ID로 분기하는 코드는 쓰지 않는다.

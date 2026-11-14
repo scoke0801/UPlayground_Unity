@@ -19,8 +19,11 @@ MonoBehaviour:
   groundProbeHeight: 3
   groundProbeDepth: 12
   surfaceOffset: 0.08
-  scatterRadius: 0.6
-  labelHeight: 1.2
+  scatterRadius: 1.2
+  minimumDropSpacing: 0.55
+  maximumScatterHeightDifference: 0.6
+  maximumScatterSlope: 45
+  labelHeight: 0.75
   labelFadeDuration: 0.12
   pickupFxKey: LootArrival
   pickupFxLifetime: 1.2
@@ -30,3 +33,29 @@ MonoBehaviour:
   visibilityMask:
     serializedVersion: 2
     m_Bits: 8
+  tokenSize: 0.38
+  tokenHoverHeight: 0.35
+  tokenBobAmplitude: 0.04
+  launchHeight: 0.7
+  tossArcHeight: 0.55
+  rarityStyles:
+  - rarity: 1
+    beamHeight: 0
+    ringScale: 0.8
+    glowAlpha: 0.45
+  - rarity: 2
+    beamHeight: 0.8
+    ringScale: 0.9
+    glowAlpha: 0.5
+  - rarity: 3
+    beamHeight: 1.4
+    ringScale: 1
+    glowAlpha: 0.6
+  - rarity: 4
+    beamHeight: 2
+    ringScale: 1.15
+    glowAlpha: 0.7
+  - rarity: 5
+    beamHeight: 2.8
+    ringScale: 1.3
+    glowAlpha: 0.8

@@ -10,14 +10,14 @@ namespace UPlayGround
     /// 미획득 바닥 아이템의 월드 외형만 표시하며 지급 상태는 소유하지 않는다.
     /// 희귀도색 바닥 링과 빛기둥, 위에서 회전하며 떠 있는 아이콘 메달로 구성하고
     /// 원천 위치에서 튀어나와 착지하는 등장 연출을 재생한다.
-    /// ItemSO.worldPrefab이 있으면 메달 자리에 그 모델을 띄우고, 없으면 메달로 폴백한다.
+    /// ItemSO.worldPrefab, 장비의 장착 프리팹, 아이콘 메달 순서로 외형을 선택한다.
     /// 3D 모델이 없는 아이템도 같은 형태로 읽히도록 메달 방식을 택했다(아이콘만 카메라를 보게 하면 평면 스티커처럼 보인다).
     /// </summary>
     public sealed class GroundDropRepresentation : MonoBehaviour
     {
         private enum Phase { Toss, Landing, Idle }
 
-        // 빛기둥 스프라이트 폭(0.25m) 대비 배율. 기둥 굵기는 형태 계약이라 데이터로 빼지 않는다.
+        // 스프라이트 폭(0.25m)을 모델 긴 변의 절반에 맞추는 형태 배율.
         private const float BeamWidthScale = 2f;
 
         // 프리팹에 이미 연결된 아이콘 렌더러. 메달 앞면으로 재사용한다.
@@ -47,6 +47,11 @@ namespace UPlayGround
         /// <summary>착지 직후 연출이 잠깐 지난 뒤 이름표를 띄워도 되는 상태.</summary>
         public bool IsLabelReady => IsSettled && _settings != null && _landedTime >= _settings.labelRevealDelay;
 
+        /// <summary>부유와 착지 반동을 반영한 이름표 연결 위치.</summary>
+        public Vector3 LabelAnchorPosition => _token != null
+            ? _token.position + Vector3.up * (_settings.tokenSize * 0.55f)
+            : transform.position;
+
         /// <param name="launchWorldPosition">튀어나오는 시작 위치. null이면 투척 없이 제자리에서 나타난다.</param>
         public void Initialize(ItemSO item, GroundDropSettingsSO settings, Vector3? launchWorldPosition = null)
         {
@@ -58,7 +63,7 @@ namespace UPlayGround
             _bobPhase = Random.value * Mathf.PI * 2f;
             _spinAngle = Random.value * 360f;
 
-            BuildVisual(item.icon, item.worldPrefab);
+            BuildVisual(item);
 
             if (launchWorldPosition.HasValue)
             {
@@ -77,8 +82,12 @@ namespace UPlayGround
 
         private void OnDestroy() => GroundDropVisualDriver.Unregister(this);
 
-        private void BuildVisual(Sprite icon, GameObject worldPrefab)
+        private void BuildVisual(ItemSO item)
         {
+            var worldPrefab = item.worldPrefab;
+            if (worldPrefab == null && item is EquipmentSO equipment
+                && equipment.visualMode == EquipmentVisualMode.Prefab)
+                worldPrefab = equipment.equipmentPrefab;
             _visual = NewChild("Visual", transform).transform;
             _token = NewChild("Token", _visual).transform;
             _token.localPosition = Vector3.up * _settings.tokenHoverHeight;
@@ -89,7 +98,7 @@ namespace UPlayGround
             }
             else
             {
-                BuildMedal(icon);
+                BuildMedal(item.icon);
             }
             BuildGroundGlow();
         }
@@ -111,15 +120,13 @@ namespace UPlayGround
             {
                 var mesh = filters[i].sharedMesh;
                 if (mesh == null) continue;
-                var local = mesh.bounds;
-                for (int corner = 0; corner < 8; corner++)
-                {
-                    var p = local.center + Vector3.Scale(local.extents, new Vector3(
-                        (corner & 1) == 0 ? -1f : 1f, (corner & 2) == 0 ? -1f : 1f, (corner & 4) == 0 ? -1f : 1f));
-                    var inToken = _token.InverseTransformPoint(filters[i].transform.TransformPoint(p));
-                    if (!hasBounds) { bounds = new Bounds(inToken, Vector3.zero); hasBounds = true; }
-                    else bounds.Encapsulate(inToken);
-                }
+                EncapsulateModelBounds(filters[i].transform, mesh.bounds, ref bounds, ref hasBounds);
+            }
+            var skins = model.GetComponentsInChildren<SkinnedMeshRenderer>(true);
+            for (int i = 0; i < skins.Length; i++)
+            {
+                if (skins[i].sharedMesh == null) continue;
+                EncapsulateModelBounds(skins[i].transform, skins[i].sharedMesh.bounds, ref bounds, ref hasBounds);
             }
             if (!hasBounds)
             {
@@ -132,6 +139,18 @@ namespace UPlayGround
             model.transform.localScale *= scale;
             model.transform.localPosition -= bounds.center * scale;
             return true;
+        }
+
+        private void EncapsulateModelBounds(Transform meshTransform, Bounds local, ref Bounds bounds, ref bool hasBounds)
+        {
+            for (int corner = 0; corner < 8; corner++)
+            {
+                var point = local.center + Vector3.Scale(local.extents, new Vector3(
+                    (corner & 1) == 0 ? -1f : 1f, (corner & 2) == 0 ? -1f : 1f, (corner & 4) == 0 ? -1f : 1f));
+                var inToken = _token.InverseTransformPoint(meshTransform.TransformPoint(point));
+                if (!hasBounds) { bounds = new Bounds(inToken, Vector3.zero); hasBounds = true; }
+                else bounds.Encapsulate(inToken);
+            }
         }
 
         // 획득 판정은 루트 프리팹이 소유한다. 모델에 딸린 물리·로직이 판정이나 상태를 바꾸지 않게 표시 전용으로 만든다.
@@ -190,7 +209,8 @@ namespace UPlayGround
                 for (int i = 0; i < 2; i++)
                 {
                     var renderer = AddSprite("Beam" + i, _beam, GroundDropArt.Beam,
-                        WithAlpha(_rarityColor, _style.glowAlpha * 0.8f), -1, new Vector3(BeamWidthScale, 1f, 1f));
+                        WithAlpha(_rarityColor, _style.glowAlpha * 0.8f), -1,
+                        new Vector3(BeamWidthScale * _settings.tokenSize, 1f, 1f));
                     renderer.transform.localRotation = Quaternion.Euler(0f, 90f * i, 0f);
                     _beamRenderers[i] = renderer;
                 }

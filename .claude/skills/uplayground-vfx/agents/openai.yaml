@@ -1,0 +1,4 @@
+interface:
+  display_name: "UPlayground FX 제작"
+  short_description: "기존 Unity MCP로 전투·환경 FX를 제작하고 연결·가독성·수명을 검증"
+  default_prompt: "$uplayground-vfx를 사용해 요청한 FX를 기존 에셋과 연결 구조에 맞춰 제작하고 검증해줘."

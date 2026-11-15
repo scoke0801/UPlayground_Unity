@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Core.ReactiveEnvironment;
 using UPlayGround.Data.Save;
+using UPlayGround.Data.ReactiveEnvironment;
 using UPlayGround.Gameplay.World.ReactiveEnvironment;
 
 namespace UPlayGround.Manager
@@ -19,10 +20,33 @@ namespace UPlayGround.Manager
             public ReactiveEnvironmentSaveEntry record;
             public EnvironmentReaction reaction;
             public float sourceHeat, sourceWater;
+            public int rainSamples;
+            public IEnvironmentRainBatchTarget rainTarget;
+            public ReactiveEnvironmentDefinitionSO definition;
         }
 
         private Dictionary<(string, string), ReactiveEnvironmentSaveEntry> _environmentStates = new();
         private List<EnvironmentBinding> _environmentBindings = new();
+        private readonly Dictionary<ReactiveEnvironmentDefinitionSO, int> _environmentDefinitions = new();
+
+        private void RetainEnvironmentDefinition(EnvironmentBinding binding)
+        {
+            _environmentDefinitions.TryGetValue(binding.definition, out int count);
+            _environmentDefinitions[binding.definition] = count + 1;
+        }
+
+        private void ReleaseEnvironmentDefinition(EnvironmentBinding binding)
+        {
+            if (ReferenceEquals(binding.definition, null)) return;
+            if (_environmentDefinitions.TryGetValue(binding.definition, out int count))
+            {
+                if (count == 1) _environmentDefinitions.Remove(binding.definition);
+                else _environmentDefinitions[binding.definition] = count - 1;
+            }
+            binding.definition = null;
+        }
+        private readonly EnvironmentRainBatch _environmentRain = new();
+        private int _environmentRainCapacity;
         private readonly List<TerrainDetailReaction> _detailTerrains = new();
         /// <summary>셀을 소유하는 Terrain만 한 번 등록한다.</summary>
         public void RegisterDetailTerrain(TerrainDetailReaction terrain)
@@ -58,6 +82,9 @@ namespace UPlayGround.Manager
         }
         private Dictionary<(string, string), IEnvironmentReactionTarget> _environmentActiveKeys = new();
         private bool _isTickingEnvironment;
+        private bool _environmentNeedsFixedTick;
+        private bool _environmentRewardsPending;
+        internal void RequestEnvironmentFixedTick() => _environmentNeedsFixedTick = true;
         private float _environmentRemainder;
         public uint EnvironmentCollisionRevision { get; private set; }
         public uint EnvironmentShelterRevision { get; private set; }
@@ -80,15 +107,25 @@ namespace UPlayGround.Manager
             _isTickingEnvironment = true;
             try
             {
-                for (int i = 0; i < count; i++)
-                    if (_environmentBindings[i].target != null && _environmentBindings[i].target.IsAvailable) _environmentBindings[i].target.FixedTick(seconds);
+                if (_environmentNeedsFixedTick)
+                {
+                    _environmentNeedsFixedTick = false;
+                    for (int i = 0; i < count; i++)
+                    {
+                        var target = _environmentBindings[i].target;
+                        if (target == null || !target.HasPendingFixedTick || !target.IsAvailable) continue;
+                        target.FixedTick(seconds);
+                        _environmentNeedsFixedTick |= target.HasPendingFixedTick;
+                    }
+                }
                 foreach (var terrain in _detailTerrains) if (terrain != null) terrain.TickPresentation(seconds);
             }
             finally
             {
                 FlushEnvironmentMasks();
                 _isTickingEnvironment = false;
-                _environmentBindings.RemoveAll(binding => (binding.target == null || !binding.target.IsAvailable));
+                // 파괴된 Unity 참조의 전수 정리는 논리 tick에서 수행한다.
+                _environmentBindings.RemoveAll(binding => binding.target == null);
             }
         }
 
@@ -121,10 +158,17 @@ namespace UPlayGround.Manager
             try
             {
                 var binding = CreateEnvironmentBinding(target, record);
+                if (Application.isPlaying) _environmentRain.Reserve(_environmentRainCapacity + binding.rainSamples);
+                _environmentRainCapacity += binding.rainSamples;
                 _environmentBindings.Add(binding);
+                _environmentRewardsPending = true;
+                RetainEnvironmentDefinition(binding);
                 _environmentLookup.Add(target, binding);
                 _environmentActiveKeys[key] = target;
+                if (target is ReactiveEnvironmentObject sceneObject)
+                { sceneObject.AttachWorldState(this); sceneObject.AttachRainPositions(_environmentRain); }
                 target.ApplySnapshot(binding.reaction.State, binding.record.destruction);
+                _environmentNeedsFixedTick |= target.HasPendingFixedTick;
                 return true;
             }
             catch (ArgumentException error)
@@ -139,11 +183,20 @@ namespace UPlayGround.Manager
         {
             if (_environmentLookup.Remove(target, out var binding))
             {
+                if (target is ReactiveEnvironmentObject sceneObject) sceneObject.DetachRainPositions(_environmentRain);
+                ReleaseEnvironmentDefinition(binding);
+                _environmentRainCapacity -= binding.rainSamples;
                 CaptureEnvironment(binding);
                 _environmentActiveKeys.Remove((binding.record.mapId, binding.record.guid));
                 binding.target = null;
             }
-            if (!_isTickingEnvironment) _environmentBindings.RemoveAll(binding => (binding.target == null || !binding.target.IsAvailable));
+            if (!_isTickingEnvironment)
+                _environmentBindings.RemoveAll(binding =>
+                {
+                    if (binding.target != null && binding.target.IsAvailable) return false;
+                    ReleaseEnvironmentDefinition(binding);
+                    return true;
+                });
         }
 
         /// <summary>환경 입력 키의 중복을 제거하고 구조 피해를 즉시 커밋한다.</summary>
@@ -156,6 +209,7 @@ namespace UPlayGround.Manager
                 if (!binding.reaction.TryApplyImpact(attackId, sequence, damage, heat, water)) return false;
                 CaptureEnvironment(binding);
                 target.ApplySnapshot(binding.reaction.State, binding.record.destruction);
+                _environmentNeedsFixedTick |= target.HasPendingFixedTick;
                 return true;
             }
             return false;
@@ -172,6 +226,7 @@ namespace UPlayGround.Manager
                     payload.heatImpulse, payload.waterImpulse, payload.kind)) return false;
                 CaptureEnvironment(binding);
                 target.ApplySnapshot(binding.reaction.State, binding.record.destruction);
+                _environmentNeedsFixedTick |= target.HasPendingFixedTick;
                 return true;
             }
             return false;
@@ -181,56 +236,90 @@ namespace UPlayGround.Manager
         {
             if (deltaTime <= 0) return;
             using var profile = EnvironmentTickMarker.Auto();
+            float domainStep = 0.2f;
+            foreach (var entry in _environmentDefinitions)
+                domainStep = Mathf.Min(domainStep, entry.Key.tickSeconds);
+            _environmentRemainder += deltaTime;
+            // 논리 스텝과 대기 보상이 없는 프레임은 전체 목록을 순회하지 않는다.
+            if (_environmentRemainder < domainStep && !_environmentRewardsPending) return;
             _isTickingEnvironment = true;
             int count = _environmentBindings.Count;
             try
             {
-                float domainStep = 0.2f;
-                for (int i = 0; i < count; i++)
-                    if (_environmentBindings[i].target != null && _environmentBindings[i].target.IsAvailable)
-                        domainStep = Mathf.Min(domainStep, _environmentBindings[i].target.Definition.tickSeconds);
-                _environmentRemainder += deltaTime;
                 while (_environmentRemainder >= domainStep)
                 {
                     _environmentRemainder -= domainStep;
                     PrepareEnvironmentSources(domainStep);
-                    for (int i = 0; i < count; i++)
-                    {
-                        var binding = _environmentBindings[i];
-                        if ((binding.target == null || !binding.target.IsAvailable)) continue;
-                        float step = binding.target.Definition.tickSeconds;
-                        binding.record.tickRemainder += domainStep;
-                        ApplyEnvironmentSources(binding, domainStep);
-                        while (binding.record.tickRemainder >= step)
-                        {
-                            binding.record.tickRemainder -= step;
-                            binding.target.SampleRain(out float rain, out float exposure);
-                            binding.reaction.Tick(step, rain, exposure);
-                        }
-                        CaptureEnvironment(binding);
-                    }
+                    AdvanceEnvironmentReactions(domainStep, count);
                     // 모든 논리 결과를 계산한 뒤 표현·충돌 전이를 적용한다.
                     for (int i = 0; i < count; i++)
-                        if (_environmentBindings[i].target != null && _environmentBindings[i].target.IsAvailable)
+                        if (_environmentBindings[i].target != null)
+                        {
                             _environmentBindings[i].target.ApplySnapshot(_environmentBindings[i].record.state, _environmentBindings[i].record.destruction);
+                            _environmentNeedsFixedTick |= _environmentBindings[i].target != null
+                                && _environmentBindings[i].target.HasPendingFixedTick;
+                        }
                 }
+                _environmentRewardsPending = false;
                 for (int i = 0; i < count; i++)
                 {
                     var binding = _environmentBindings[i];
-                    if ((binding.target == null || !binding.target.IsAvailable)) continue;
+                    if (!binding.record.state.isBroken || binding.record.rewardCommitted) continue;
+                    if ((binding.target == null || !binding.target.IsAvailable))
+                    { _environmentRewardsPending = true; continue; }
                     CommitEnvironmentReward(binding);
+                    _environmentRewardsPending |= !binding.record.rewardCommitted;
                 }
             }
             finally
             {
                 _isTickingEnvironment = false;
-                _environmentBindings.RemoveAll(binding => (binding.target == null || !binding.target.IsAvailable));
+                _environmentBindings.RemoveAll(binding => binding.target == null);
             }
         }
 
-        private static void CaptureEnvironment(EnvironmentBinding binding)
+        private void AdvanceEnvironmentReactions(float domainStep, int count)
+        {
+            using var rainScope = _environmentRain.Begin();
+            // 순수 샘플만 먼저 모으고 동일 tick의 물리 결과를 논리 계산 전에 확정한다.
+            for (int i = 0; i < count; i++)
+            {
+                var binding = _environmentBindings[i];
+                if (binding.target == null) continue;
+                // 한 논리 스텝에서만 생존을 확인한다. 이후 비활성/파괴는 Unregister가 tombstone으로 반영한다.
+                if (!binding.target.IsAvailable)
+                {
+                    if (binding.target is ReactiveEnvironmentObject sceneObject) sceneObject.DetachRainPositions(_environmentRain);
+                    ReleaseEnvironmentDefinition(binding);
+                    binding.target = null;
+                    continue;
+                }
+                if (binding.rainSamples > 0
+                    && binding.record.tickRemainder + domainStep >= binding.target.Definition.tickSeconds)
+                    binding.rainTarget.CollectRainSamples(_environmentRain);
+            }
+            _environmentRain.Complete();
+            for (int i = 0; i < count; i++)
+            {
+                var binding = _environmentBindings[i];
+                if (binding.target == null) continue;
+                float step = binding.target.Definition.tickSeconds;
+                binding.record.tickRemainder += domainStep;
+                ApplyEnvironmentSources(binding, domainStep);
+                while (binding.record.tickRemainder >= step)
+                {
+                    binding.record.tickRemainder -= step;
+                    binding.target.SampleRain(out float rain, out float exposure);
+                    binding.reaction.Tick(step, rain, exposure);
+                }
+                CaptureEnvironment(binding);
+            }
+        }
+
+        private void CaptureEnvironment(EnvironmentBinding binding)
         {
             binding.record.state = binding.reaction.State;
+            _environmentRewardsPending |= binding.record.state.isBroken && !binding.record.rewardCommitted;
             binding.reaction.GetPendingInputs(out binding.record.pendingHeat, out binding.record.pendingWater, out binding.record.pendingContinuousWater);
         }
 
@@ -275,7 +364,9 @@ namespace UPlayGround.Manager
                 || !IsFiniteDirection(record.destruction.direction.ToVector3()))
                 throw new ArgumentException("저장된 파괴 포즈가 유효하지 않습니다.");
             reaction.RestorePendingInputs(record.pendingHeat, record.pendingWater, record.pendingContinuousWater);
-            return new EnvironmentBinding { target = target, record = record, reaction = reaction };
+            var rainTarget = target as IEnvironmentRainBatchTarget;
+            return new EnvironmentBinding { target = target, record = record, reaction = reaction, definition = target.Definition,
+                rainTarget = rainTarget, rainSamples = rainTarget != null ? rainTarget.RainSampleCapacity : 0 };
         }
 
         private void ExportEnvironment(WorldStateSaveData world)
@@ -319,15 +410,25 @@ namespace UPlayGround.Manager
                 var binding = CreateEnvironmentBinding(old.target, record);
                 bindings.Add(binding);
             }
+            int rainCapacity = 0;
+            foreach (var binding in bindings) rainCapacity += binding.rainSamples;
+            if (Application.isPlaying) _environmentRain.Reserve(rainCapacity);
             // 모든 활성 배치를 검증한 뒤 한 번에 교체하여 실패한 로드가 기존 상태를 지우지 않게 한다.
             _lightningStates = lightningStates;
             _environmentStates = states;
             _environmentRemainder = remainder;
             _environmentBindings = bindings;
+            _environmentRainCapacity = rainCapacity;
+            _environmentRain.ResetPositionRegistrations();
+            _environmentNeedsFixedTick = true;
+            _environmentRewardsPending = true;
+            _environmentDefinitions.Clear();
+            foreach (var binding in bindings) RetainEnvironmentDefinition(binding);
             _environmentLookup = new Dictionary<IEnvironmentReactionTarget, EnvironmentBinding>();
             _environmentActiveKeys = new Dictionary<(string, string), IEnvironmentReactionTarget>();
             foreach (var binding in bindings)
             {
+                if (binding.target is ReactiveEnvironmentObject sceneObject) sceneObject.AttachRainPositions(_environmentRain);
                 _environmentLookup.Add(binding.target, binding);
                 _environmentActiveKeys.Add((binding.record.mapId, binding.record.guid), binding.target);
             }

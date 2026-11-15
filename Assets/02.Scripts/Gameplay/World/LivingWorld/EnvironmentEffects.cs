@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using UPlayGround.Components;
+using UPlayGround.Gameplay.World.ReactiveEnvironment;
 
 namespace UPlayGround.Gameplay.World.LivingWorld
 {
@@ -28,18 +29,45 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         private ParticleSystem.Particle[] _rainParticles, _dustParticles, _snowParticles;
         private bool _initialized;
         private readonly RaycastHit[] _roofHits = new RaycastHit[32];
+        internal struct ShelterVolume
+        {
+            public Matrix4x4 worldToLocal;
+            public Vector3 center, half;
+            public Vector3 minimum, maximum;
+        }
+        private ShelterVolume[] _shelterVolumes = Array.Empty<ShelterVolume>();
+        private int _shelterVolumeCount;
+        [NonSerialized] private uint _shelterEpoch;
+        [NonSerialized] private uint _batchShelterEpoch;
+        [NonSerialized] private Vector2Int _batchShelterRange;
 
         /// <summary>I가 실제 지붕 레이어와 보호 볼륨을 연결한다. 물리 Trigger 진입은 요구하지 않는다.</summary>
         public void BindShelters(BoxCollider[] shelters, LayerMask roofLayers)
         {
             _shelters = shelters ?? Array.Empty<BoxCollider>();
             _roofLayers = roofLayers;
+            ReserveShelterVolumes();
             if (_initialized) ConfigureRoofCollision();
         }
 
         /// <summary>회전·크기가 있는 처마 보호 볼륨을 월드 좌표로 조회한다.</summary>
         public bool IsSheltered(Vector3 position)
         {
+            var batch = EnvironmentRainBatch.Current;
+            if (batch != null)
+            {
+                if (_shelterEpoch != batch.Epoch) CaptureShelterVolumes(batch.Epoch);
+                for (int i = 0; i < _shelterVolumeCount; i++)
+                {
+                    ref readonly var volume = ref _shelterVolumes[i];
+                    if (position.x < volume.minimum.x || position.x > volume.maximum.x
+                        || position.y < volume.minimum.y || position.y > volume.maximum.y
+                        || position.z < volume.minimum.z || position.z > volume.maximum.z) continue;
+                    Vector3 local = volume.worldToLocal.MultiplyPoint3x4(position) - volume.center;
+                    if (Mathf.Abs(local.x) <= volume.half.x && Mathf.Abs(local.y) <= volume.half.y && Mathf.Abs(local.z) <= volume.half.z) return true;
+                }
+                return false;
+            }
             foreach (BoxCollider shelter in _shelters)
             {
                 if (shelter == null || !shelter.enabled || !shelter.gameObject.activeInHierarchy) continue;
@@ -63,10 +91,38 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             return count == _roofHits.Length;
         }
 
+        internal EnvironmentRainBatch.Sample CollectRainSample(EnvironmentRainBatch batch, Vector3 position, Transform receiver)
+        {
+            if (_batchShelterEpoch != batch.Epoch && this == null) return batch.ExposedSample;
+            if (batch.TryEnqueue(this, position, receiver, _roofLayers, _roofProbeDistance, out var sample)) return sample;
+            // 저작 중 용량이 달라지거나 Edit Mode여도 기존 동기 결과를 보존한다.
+            return IsRainSheltered(position, receiver) ? batch.ShelteredSample : batch.ExposedSample;
+        }
+
+        /// <summary>같은 논리 tick의 현재 보호 볼륨을 배치 계산에 전달한다.</summary>
+        internal ShelterVolume[] GetShelterSnapshot(uint epoch, out int count)
+        {
+            if (_shelterEpoch != epoch) CaptureShelterVolumes(epoch);
+            count = _shelterVolumeCount;
+            return _shelterVolumes;
+        }
+
+        internal Vector2Int GetBatchShelterRange(EnvironmentRainBatch batch)
+        {
+            if (_batchShelterEpoch != batch.Epoch)
+            {
+                var volumes = GetShelterSnapshot(batch.Epoch, out int count);
+                _batchShelterRange = batch.RegisterShelterSnapshot(volumes, count);
+                _batchShelterEpoch = batch.Epoch;
+            }
+            return _batchShelterRange;
+        }
+
         /// <summary>씬 준비 후 전용 입자 버퍼와 지붕 충돌을 한 번 설정한다.</summary>
         public void Initialize()
         {
             if (_initialized) return;
+            ReserveShelterVolumes();
             _initialized = true;
             _rain = KeepOwned(_rain);
             _dust = KeepOwned(_dust);
@@ -79,6 +135,36 @@ namespace UPlayGround.Gameplay.World.LivingWorld
             InitializeStorm();
             ConfigureRoofCollision();
             StopEffects();
+        }
+
+        private void ReserveShelterVolumes()
+        {
+            if (_shelterVolumes.Length < _shelters.Length) _shelterVolumes = new ShelterVolume[_shelters.Length];
+            _shelterEpoch = 0;
+            _batchShelterEpoch = 0;
+        }
+
+        private void CaptureShelterVolumes(uint epoch)
+        {
+            ReserveShelterVolumes();
+            _shelterVolumeCount = 0;
+            foreach (var shelter in _shelters)
+                if (shelter != null && shelter.enabled && shelter.gameObject.activeInHierarchy)
+                {
+                    var matrix = shelter.transform.localToWorldMatrix;
+                    Vector3 half = shelter.size * 0.5f;
+                    // Collider.bounds는 물리 동기화 전 이동에서 이전 위치일 수 있다.
+                    Vector3 extents = new(
+                        Mathf.Abs(matrix.m00) * half.x + Mathf.Abs(matrix.m01) * half.y + Mathf.Abs(matrix.m02) * half.z,
+                        Mathf.Abs(matrix.m10) * half.x + Mathf.Abs(matrix.m11) * half.y + Mathf.Abs(matrix.m12) * half.z,
+                        Mathf.Abs(matrix.m20) * half.x + Mathf.Abs(matrix.m21) * half.y + Mathf.Abs(matrix.m22) * half.z);
+                    Vector3 center = matrix.MultiplyPoint3x4(shelter.center);
+                    extents += Vector3.one * 0.0005f;
+                    _shelterVolumes[_shelterVolumeCount++] = new ShelterVolume
+                    { worldToLocal = shelter.transform.worldToLocalMatrix, center = shelter.center, half = half,
+                        minimum = center - extents, maximum = center + extents };
+                }
+            _shelterEpoch = epoch;
         }
 
         private T KeepOwned<T>(T component) where T : Component

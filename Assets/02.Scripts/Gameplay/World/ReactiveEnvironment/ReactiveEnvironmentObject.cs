@@ -11,7 +11,7 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
 {
     /// <summary>기존 피격 경계를 환경 상태 작성자에 연결하고 저장된 표현만 적용한다.</summary>
     [DisallowMultipleComponent, RequireComponent(typeof(SceneEntityId))]
-    public sealed class ReactiveEnvironmentObject : MonoBehaviour, IDamageable, IEnvironmentReactionTarget, IReactiveGatheringTarget, IEnvironmentColliderFilter
+    public sealed class ReactiveEnvironmentObject : MonoBehaviour, IDamageable, IEnvironmentReactionTarget, IReactiveGatheringTarget, IEnvironmentColliderFilter, IEnvironmentRainBatchTarget
     {
         [SerializeField] private ReactiveEnvironmentDefinitionSO _definition;
         [SerializeField] private EnvironmentController _weather;
@@ -34,9 +34,13 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
         private Vector3 _hitAxis;
         private float _hitRemaining, _hitCooldown;
         private bool _wasFalling;
+        private bool _hasPendingCombustion;
+        public bool HasPendingFixedTick => _hasPendingCombustion || _hitRemaining > 0 || _hitCooldown > 0
+            || _wasFalling || _appliedDestruction != null && _appliedDestruction.isFalling;
         private bool _hasImpactPoint;
         private Vector3 _impactPoint;
         public bool IsAvailable => this != null;
+        public int RainSampleCapacity => _rainSamples != null ? _rainSamples.Length : 0;
         public string PersistenceSignature => null;
         public Transform OcclusionRoot => transform;
         /// <summary>명시한 피격 Collider만 전투 검출기에 허용한다.</summary>
@@ -63,10 +67,38 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
         private MaterialPropertyBlock _surfaceProperties;
         private Color[][] _surfaceColors;
         private WorldStateManager _world;
+        internal void AttachWorldState(WorldStateManager owner) => _world = owner;
+
+        [System.NonSerialized] private EnvironmentRainBatch _rainPositionOwner;
+        [System.NonSerialized] private EnvironmentRainPositions.Registration _rainPositions;
+        internal void AttachRainPositions(EnvironmentRainBatch batch)
+        {
+            if (ReferenceEquals(_rainPositionOwner, batch) && _rainPositions != null && _rainPositions.live) return;
+            if (!ReferenceEquals(_rainPositionOwner, null)) DetachRainPositions(_rainPositionOwner);
+            _rainPositionOwner = batch;
+            _rainPositions = batch.RegisterPositions(_rainSamples);
+        }
+        internal void DetachRainPositions(EnvironmentRainBatch batch)
+        {
+            if (!ReferenceEquals(_rainPositionOwner, batch)) return;
+            batch.ReleasePositions(_rainPositions); _rainPositions = null; _rainPositionOwner = null;
+        }
+
+        private void RequestFixedTickIfNeeded()
+        {
+            if (HasPendingFixedTick && _world != null) _world.RequestEnvironmentFixedTick();
+        }
         private GatheringActor _gathering;
         public System.Collections.Generic.List<UPlayGround.Data.Item.ItemDropList> GatheringDrops => _gathering != null ? _gathering.GetData()?.dropItems : null;
         private SceneEntityId _identity;
+        private Transform _rainReceiver;
+        private EnvironmentRainBatch.Sample[] _batchRainSamples;
+        private GameObject[] _rainSampleObjects;
+        private int _batchRainSampleCount;
+        private float _batchRain;
+        private uint _rainEpoch;
         private bool _hasStarted;
+        private bool _hasActorOwner;
         private bool _isBound;
         private ReactiveEnvironmentSurface _reactiveSurface;
         private ReactiveEnvironmentDestruction _destruction;
@@ -107,7 +139,13 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
 
         private void Awake()
         {
+            _rainReceiver = transform;
+            _batchRainSamples = new EnvironmentRainBatch.Sample[_rainSamples != null ? _rainSamples.Length : 0];
+            _rainSampleObjects = new GameObject[_batchRainSamples.Length];
+            for (int i = 0; i < _rainSampleObjects.Length; i++)
+                _rainSampleObjects[i] = _rainSamples[i] != null ? _rainSamples[i].gameObject : null;
             _identity = GetComponent<SceneEntityId>();
+            _hasActorOwner = GetComponentInParent<GameActor>(true) != null;
             _gathering = GetComponent<GatheringActor>();
             _destruction = GetComponent<ReactiveEnvironmentDestruction>();
             _destruction?.Initialize();
@@ -133,6 +171,7 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
             _reactiveSurface?.Release();
             if (_combustionEffects != null) foreach (var effect in _combustionEffects) effect.Release();
             _hitRemaining = _hitCooldown = 0; _wasFalling = false; _hasImpactPoint = false;
+            _hasPendingCombustion = false;
             if (_visualRoot != null) _visualRoot.localRotation = _visualRotation;
             _hasAppliedSnapshot = false;
         }
@@ -204,6 +243,15 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
         /// <summary>시각 품질·카메라 실내 여부와 독립적인 CPU 강수 입력.</summary>
         public void SampleRain(out float rain, out float exposure)
         {
+            var batch = EnvironmentRainBatch.Current;
+            if (batch != null && _rainEpoch == batch.Epoch)
+            {
+                rain = _batchRain; exposure = 0;
+                for (int i = 0; i < _batchRainSampleCount; i++)
+                    if (!batch.IsSheltered(_batchRainSamples[i])) exposure++;
+                if (_batchRainSampleCount > 0) exposure /= _batchRainSampleCount;
+                return;
+            }
             rain = _weather != null && _weather.IsReady ? _weather.Current.Rain : 0;
             exposure = 0;
             if (rain <= 0 || _rainSamples == null) return;
@@ -217,16 +265,51 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
             exposure = count > 0 ? exposure / count : 0;
         }
 
+        /// <summary>현재 tick의 위치와 강수를 모아 결과 조회에서 Transform을 다시 읽지 않는다.</summary>
+        public void CollectRainSamples(EnvironmentRainBatch batch)
+        {
+            _rainEpoch = 0;
+            if (_batchRainSamples == null || _rainSamples != null && _batchRainSamples.Length < _rainSamples.Length) return;
+            _rainEpoch = batch.Epoch;
+            _batchRain = batch.GetRain(_weather);
+            _batchRainSampleCount = 0;
+            if (_batchRain <= 0 || _rainSamples == null) return;
+            for (int i = 0; i < _rainSamples.Length; i++)
+            {
+                if (!batch.TryReadPosition(_rainPositions, i, out var position))
+                {
+                    if (_rainSampleObjects[i] == null) continue;
+                    position = _rainSamples[i].position;
+                }
+                // 작업이 유효한 앵커임을 확인한 경우 Unity 생존 조회를 반복하지 않는다.
+                if (!_rainSampleObjects[i].activeInHierarchy) continue;
+                _batchRainSamples[_batchRainSampleCount++] = _weather.CollectRainSample(batch, position, _rainReceiver);
+            }
+        }
+
         /// <summary>파괴 후에도 같은 상태와 잔여 연료를 유지하며 root는 살아 있게 둔다.</summary>
         public void ApplySnapshot(EnvironmentReactionState state, EnvironmentDestructionSaveState destruction = null)
         {
             if (_hasAppliedSnapshot && State.HasSameValues(state) && ReferenceEquals(_appliedDestruction, destruction))
-            { State = state; return; }
+            { State = state; RequestFixedTickIfNeeded(); return; }
+            // 평상시 젖음/건조는 구조·상처·연소 연출을 다시 연결할 필요가 없다.
+            if (_hasAppliedSnapshot && _reactiveSurface != null && _combustionEffects == null
+                && State.combustion == EnvironmentCombustion.Inactive && state.combustion == EnvironmentCombustion.Inactive
+                && !State.isBroken && !state.isBroken && State.durability == state.durability
+                && ReferenceEquals(_appliedDestruction, destruction))
+            {
+                State = state;
+                _reactiveSurface.Apply(state, _definition.reaction.maxDurability, _definition.reaction.initialFuel);
+                return;
+            }
             bool changed = (_hasAppliedSnapshot && State.isBroken != state.isBroken) || !_hasAppliedSnapshot && state.isBroken;
+            bool applyStructure = !_hasAppliedSnapshot || changed || !ReferenceEquals(_appliedDestruction, destruction);
+            bool applyFlame = !_hasAppliedSnapshot || State.combustion != state.combustion;
             State = state;
             _appliedDestruction = destruction;
             _hasAppliedSnapshot = true;
-            if (_definition.presentation != null && _burnAnchors != null)
+            if (_definition.presentation != null && _burnAnchors != null
+                && (state.combustion != EnvironmentCombustion.Inactive || _combustionEffects != null))
             {
                 if (_combustionEffects == null)
                 {
@@ -234,24 +317,35 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
                     for (int i = 0; i < _combustionEffects.Length; i++)
                         _combustionEffects[i] = new EnvironmentCombustionPresentation(_definition.presentation);
                 }
-                foreach (var effect in _combustionEffects) effect.Apply(state);
+                _hasPendingCombustion = false;
+                foreach (var effect in _combustionEffects)
+                {
+                    effect.Apply(state);
+                    _hasPendingCombustion |= effect.HasPendingPresentation;
+                }
             }
-            if (_definition.reaction.canBreak)
+            if (applyStructure && _definition.reaction.canBreak)
             {
                 _intact.SetActive(!state.isBroken);
                 _remnant.SetActive(state.isBroken);
             }
-            _destruction?.Apply(_definition.destruction, destruction ?? new EnvironmentDestructionSaveState(), state.isBroken);
+            if (applyStructure)
+                _destruction?.Apply(_definition.destruction, destruction ?? new EnvironmentDestructionSaveState(), state.isBroken);
             if (changed && _world != null)
                 _world.NotifyEnvironmentStructureChanged(this, GetReactionBounds());
-            if (_flame != null) _flame.SetActive(state.combustion == EnvironmentCombustion.Burning);
+            if (applyFlame && _flame != null) _flame.SetActive(state.combustion == EnvironmentCombustion.Burning);
+            RequestFixedTickIfNeeded();
             if (_definition.surfaceBackend == EnvironmentSurfaceBackend.ReactiveToon)
             {
-                _reactiveSurface ??= new ReactiveEnvironmentSurface(GetSurfaceBindings());
+                // 액터의 색/피격 표현을 공유하는 모델은 기존 슬롯 갱신 경로를 유지한다.
+                _reactiveSurface ??= new ReactiveEnvironmentSurface(GetSurfaceBindings(), !_hasActorOwner);
                 _reactiveSurface.Apply(state, _definition.reaction.maxDurability, _definition.reaction.initialFuel);
                 if (_impactAnchor != null && _definition.presentation != null)
-                    _reactiveSurface.ApplyWound(_hasImpactPoint ? _impactPoint : _impactAnchor.position,
-                        _definition.presentation.GetWoundRadius(1 - GetHealthPercent()));
+                {
+                    float radius = _definition.presentation.GetWoundRadius(1 - GetHealthPercent());
+                    if (radius > 0 || _reactiveSurface.HasWound)
+                        _reactiveSurface.ApplyWound(_hasImpactPoint ? _impactPoint : _impactAnchor.position, radius);
+                }
                 return;
             }
             Color tint = Color.Lerp(Color.white, _definition.wetTint, state.wetness);
@@ -324,13 +418,18 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
                 _visualRoot.localRotation = Quaternion.AngleAxis(angle, _hitAxis) * _visualRotation;
             }
             if (_combustionEffects == null) return;
+            if (!_hasPendingCombustion) return;
+            _hasPendingCombustion = false;
             int active = 0;
             foreach (var anchor in _burnAnchors) if (anchor != null && anchor.gameObject.activeInHierarchy) active++;
+            Vector2 wind = Wind;
             for (int i = 0; i < _combustionEffects.Length; i++)
             {
+                if (!_combustionEffects[i].HasPendingPresentation) continue;
                 var anchor = _burnAnchors[i];
                 if (anchor == null || !anchor.gameObject.activeInHierarchy) { _combustionEffects[i].Release(); continue; }
-                _combustionEffects[i].Tick(deltaTime, anchor.position, Wind, 1f / Mathf.Max(1, active));
+                _combustionEffects[i].Tick(deltaTime, anchor.position, wind, 1f / Mathf.Max(1, active));
+                _hasPendingCombustion |= _combustionEffects[i].HasPendingPresentation;
             }
         }
 
@@ -352,6 +451,7 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
             if (profile == null || _hitCooldown > 0) return;
             _hasImpactPoint = true; _impactPoint = point;
             _hitCooldown = profile.hitCooldown;
+            if (_world != null) _world.RequestEnvironmentFixedTick();
             if (!State.isBroken && _visualRoot != null)
             {
                 _hitAxis = _visualRoot.parent.InverseTransformDirection(Vector3.Cross(Vector3.up, direction));

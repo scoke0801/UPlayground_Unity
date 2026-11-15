@@ -100,6 +100,7 @@ namespace UPlayGround.State
             gameActor.Animator.OnMotionSetCompleted += OnInteractionMotionCompleted;
 
             handler.StartInteraction();
+            if (interactable.IsInteracting()) playerActor.NotifyPetBondActivity();
 
             if (_cachedData == null)
             {

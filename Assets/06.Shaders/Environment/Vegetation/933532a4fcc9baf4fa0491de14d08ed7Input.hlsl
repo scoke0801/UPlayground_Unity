@@ -16,6 +16,7 @@
 CBUFFER_START(UnityPerMaterial)
 
 float _EnvironmentReactionSupported;
+float _EnvironmentReactionBufferSupported, _EnvironmentReactionIndex;
 float4 _EnvState0, _EnvState1;
 float _FuelCoverage, _AllowFuelCoverage;
 float4 _WetTint, _CharTint, _FireColor;

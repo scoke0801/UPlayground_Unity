@@ -35,6 +35,7 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
         private readonly List<Material> _materials = new();
         private Cell[,] _cells;
         private EnvironmentCombustionPresentation[,] _patches;
+        private bool _presentationDirty, _hasPendingPresentation;
         public ReactiveEnvironmentDefinitionSO Definition => _definition;
         public int CellCount { get; private set; }
         public int DensityWrites { get; private set; }
@@ -183,6 +184,8 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
         public void TickPresentation(float seconds)
         {
             if (_patches == null || _cells == null) return;
+            if (!_presentationDirty && !_hasPendingPresentation) return;
+            _presentationDirty = _hasPendingPresentation = false;
             int side = Mathf.Max(1, _definition.presentation.terrainPatchCells);
             for (int pz = 0; pz < _patches.GetLength(0); pz++)
             for (int px = 0; px < _patches.GetLength(1); px++)
@@ -212,6 +215,7 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
                 effect.Apply(state);
                 effect.Tick(seconds, position / count, _weather.IsReady ? _weather.Current.Wind : Vector2.zero,
                     burning > 0 ? (float)burning / count : 1);
+                _hasPendingPresentation |= effect.HasPendingPresentation;
             }
         }
 
@@ -341,7 +345,7 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
         { if (value != null) { if (Application.isPlaying) Destroy(value); else DestroyImmediate(value); } }
 
         /// <summary>셀당 C# 객체만 두고 잎별 GameObject·Collider는 만들지 않는다.</summary>
-        private sealed class Cell : IEnvironmentReactionTarget, IDamageable
+        private sealed class Cell : IEnvironmentReactionTarget, IDamageable, IEnvironmentRainBatchTarget
         {
             private readonly TerrainDetailReaction _owner;
             private readonly int _x, _z;
@@ -350,12 +354,17 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
             private int _coverage = 255;
             private Color32 _maskColor;
             private EnvironmentReactionState _state;
+            private EnvironmentRainBatch.Sample _rainSample;
+            private float _batchRain;
+            private uint _rainEpoch;
             public EnvironmentReactionState PresentationState => _state;
             private bool _hasSnapshot;
             public bool HasDetails { get; }
             public Transform transform => _owner.transform;
             public Transform OcclusionRoot => null;
             public bool IsAvailable => _owner != null && _owner._runtime != null;
+            public bool HasPendingFixedTick => false;
+            public int RainSampleCapacity => 1;
             public string StableId { get; }
             public string PersistenceSignature { get; }
             public ReactiveEnvironmentDefinitionSO Definition => _owner._definition;
@@ -395,12 +404,28 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
             public bool IsAuthoringValid() => IsAvailable && HasDetails;
             public void SampleRain(out float rain, out float exposure)
             {
+                var batch = EnvironmentRainBatch.Current;
+                if (batch != null && _rainEpoch == batch.Epoch)
+                {
+                    rain = _batchRain;
+                    exposure = rain > 0 && !batch.IsSheltered(_rainSample) ? 1 : 0;
+                    return;
+                }
                 rain = _owner._weather.IsReady ? _owner._weather.Current.Rain : 0;
                 exposure = rain > 0 && !_owner._weather.IsRainSheltered(ReactionPosition, null) ? 1 : 0;
+            }
+
+            /// <summary>고정된 셀 표면 샘플을 현재 강수 묶음에 예약한다.</summary>
+            public void CollectRainSamples(EnvironmentRainBatch batch)
+            {
+                _rainEpoch = batch.Epoch;
+                _batchRain = batch.GetRain(_owner._weather);
+                if (_batchRain > 0) _rainSample = _owner._weather.CollectRainSample(batch, ReactionPosition);
             }
             public void ApplySnapshot(EnvironmentReactionState state, EnvironmentDestructionSaveState destruction = null)
             {
                 if (_hasSnapshot && _state.HasSameValues(state)) { _state = state; return; }
+                _owner._presentationDirty = true;
                 _hasSnapshot = true;
                 _state = state;
                 Color32 color = new Color(state.wetness, state.charAmount, 0,

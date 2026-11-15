@@ -160,6 +160,7 @@ namespace UPlayGround.EditorTools.Tests
             {
                 Assert.That(copy.isVariant, Is.False);
                 Assert.That(copy.shader, Is.SameAs(_material.shader));
+                Assert.That(copy.enableInstancing, Is.True);
                 Assert.That(copy.GetColor("_BaseColor"), Is.EqualTo(variant.GetColor("_BaseColor")));
                 Assert.That(copy.GetTexture("_BaseMap"), Is.SameAs(variant.GetTexture("_BaseMap")));
                 Assert.That(AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(variant.parent)),

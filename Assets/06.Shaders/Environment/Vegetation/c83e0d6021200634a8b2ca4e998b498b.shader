@@ -4,6 +4,8 @@ Shader "UPlayGround/Environment/Vegetation/c83e0d6021200634a8b2ca4e998b498b"
     {
 
         [HideInInspector] _EnvironmentReactionSupported("환경 반응 계약", Float) = 1
+        [HideInInspector] _EnvironmentReactionBufferSupported("공유 표현 버퍼", Float) = 1
+        [PerRendererData] [HideInInspector] _EnvironmentReactionIndex("표현 상태 인덱스", Float) = -1
         [HideInInspector] _EnvState0("젖음 그을림 손상 연소", Vector) = (0,0,0,0)
         [HideInInspector] _EnvState1("열", Vector) = (0,0,0,0)
         [HideInInspector] _FuelCoverage("잔여 연료", Float) = 1
@@ -56,6 +58,9 @@ Shader "UPlayGround/Environment/Vegetation/c83e0d6021200634a8b2ca4e998b498b"
             Tags { "LightMode" = "UniversalForward" }
 
             HLSLPROGRAM
+#pragma multi_compile _ _ENVIRONMENT_REACTION_BUFFER
+#pragma target 4.5 _ENVIRONMENT_REACTION_BUFFER
+
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile_fog
@@ -95,6 +100,7 @@ Shader "UPlayGround/Environment/Vegetation/c83e0d6021200634a8b2ca4e998b498b"
             CBUFFER_START(UnityPerMaterial)
 
 float _EnvironmentReactionSupported;
+float _EnvironmentReactionBufferSupported, _EnvironmentReactionIndex;
 float4 _EnvState0, _EnvState1;
 float _FuelCoverage, _AllowFuelCoverage;
 float4 _WetTint, _CharTint, _FireColor;

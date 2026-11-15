@@ -85,6 +85,7 @@ namespace UPlayGround
             if (HasReactiveOwner)
             {
                 if (!_reactiveTarget.TryGather(eventData.value)) return;
+                ActorSvc.Objects?.Player?.NotifyPetBondActivity();
                 ImpactOccurred?.Invoke(transform.position);
                 if (_interactableData.showInfoUI) ActorSvc.UI?.UpdateInteractionBoard(Mathf.CeilToInt(_reactiveTarget.GatheringHealth),
                     Mathf.CeilToInt(_reactiveTarget.GatheringMaximumHealth));
@@ -98,6 +99,7 @@ namespace UPlayGround
             ImpactOccurred?.Invoke(transform.position);
 
             PlayerActor player = ActorSvc.Objects.Player;
+            if (eventData.value > 0) player?.NotifyPetBondActivity();
             if (player != null && _interactableData.showShakeEffect)
             {
                 Shake(transform.position - player.transform.position);
@@ -126,6 +128,7 @@ namespace UPlayGround
         private void OnCatchFishEvent(PlayerInteractionEvent eventData)
         {
             if (_interactableData == null) return;
+            ActorSvc.Objects?.Player?.NotifyPetBondActivity();
 
             var items = Svc.Item.GetDropItemList(_interactableData.dropItems);
             Services.Get<IGroundDropService>().SpawnItems(items, transform.position, source: transform);

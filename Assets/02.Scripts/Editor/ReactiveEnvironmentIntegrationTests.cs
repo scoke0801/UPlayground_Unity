@@ -27,11 +27,18 @@ namespace UPlayGround.EditorTools.Tests
         private ReactiveEnvironmentDefinitionSO _definition;
         private EnvironmentDestructionRecipeSO _fixtureRecipe;
         private DropServices _drops;
+        private FieldInfo _quittingField;
+        private bool _previousQuitting;
 
         [SetUp]
         public void SetUp()
         {
             Assert.That(Application.isPlaying, Is.False);
+            // Play 종료 직후에도 fixture의 서비스 조회가 종료 상태에 묻히지 않게 한다.
+            _quittingField = typeof(Services).Assembly.GetType("UPlayGround.Manager.ManagerLifecycle")
+                .GetField("ApplicationIsQuitting", BindingFlags.Static | BindingFlags.Public);
+            _previousQuitting = (bool)_quittingField.GetValue(null);
+            _quittingField.SetValue(null, false);
             Assert.That(Services.TryGet<IItemService>(out _), Is.False, "실행 중인 서비스가 있는 환경에서는 실행하지 않습니다.");
             Assert.That(Services.TryGet<IGroundDropService>(out _), Is.False);
             _scene = EditorSceneManager.NewPreviewScene();
@@ -65,6 +72,93 @@ namespace UPlayGround.EditorTools.Tests
             if (_scene.IsValid()) { RegionOwnership.Unregister(_scene); EditorSceneManager.ClosePreviewScene(_scene); }
             if (_definition != null) UnityEngine.Object.DestroyImmediate(_definition);
             if (_fixtureRecipe != null) UnityEngine.Object.DestroyImmediate(_fixtureRecipe);
+            _quittingField?.SetValue(null, _previousQuitting);
+        }
+
+        [Test]
+        public void DefinitionStepIndexFollowsDuplicateRegistrationLoadAndRemoval()
+        {
+            var field = typeof(WorldStateManager).GetField("_environmentDefinitions", BindingFlags.Instance | BindingFlags.NonPublic);
+            var definitions = (System.Collections.IDictionary)field.GetValue(_world);
+            Assert.That(definitions.Count, Is.EqualTo(1));
+            Assert.That(definitions[_definition], Is.EqualTo(1));
+            Assert.That(_world.RegisterEnvironment(_target), Is.True);
+            Assert.That(definitions[_definition], Is.EqualTo(1));
+            var save = new WorldStateSaveData(); Invoke(_world, "ExportEnvironment", save);
+            Invoke(_world, "ImportEnvironment", save);
+            Assert.That(definitions[_definition], Is.EqualTo(1));
+            _world.UnregisterEnvironment(_target);
+            Assert.That(definitions.Count, Is.Zero);
+            Assert.That(_world.RegisterEnvironment(_target), Is.True);
+            Assert.That(definitions[_definition], Is.EqualTo(1));
+            _definition.tickSeconds = 0.1f;
+            Invoke(_world, "TickEnvironment", 0.15f);
+            var after = new WorldStateSaveData(); Invoke(_world, "ExportEnvironment", after);
+            Assert.That(after.reactiveEnvironment[0].state.revision, Is.GreaterThan(0));
+        }
+
+        [Test]
+        public void WetIdleSnapshotsUpdateSurfaceAndStillAllowIgnition()
+        {
+            var material = new Material(Shader.Find("UPlayGround/Environment/Reactive Toon"));
+            var profile = ScriptableObject.CreateInstance<EnvironmentPresentationProfileSO>();
+            try
+            {
+                var surface = Create("유휴 표면").AddComponent<MeshRenderer>();
+                surface.transform.SetParent(_target.transform, false); surface.sharedMaterial = material;
+                _definition.surfaceBackend = EnvironmentSurfaceBackend.ReactiveToon;
+                _definition.presentation = profile;
+                Set(_target, "_surfaceBindings", new[] { new EnvironmentSurfaceBinding { renderer = surface, slots = new[] { 0 } } });
+                Set(_target, "_burnAnchors", new[] { _target.transform });
+                var state = _target.State; state.wetness = 0.2f;
+                _target.ApplySnapshot(state);
+                state.wetness = 0.4f;
+                _target.ApplySnapshot(state);
+                Assert.That(_target.State.wetness, Is.EqualTo(0.4f));
+                var properties = new MaterialPropertyBlock(); surface.GetPropertyBlock(properties, 0);
+                Assert.That(properties.GetVector("_EnvState0").x, Is.EqualTo(0.4f));
+                Assert.That(_target.HasPendingFixedTick, Is.False);
+                state.heat = 1; state.combustion = Core.ReactiveEnvironment.EnvironmentCombustion.Burning;
+                _target.ApplySnapshot(state);
+                surface.GetPropertyBlock(properties, 0);
+                Assert.That(properties.GetVector("_EnvState0").w, Is.EqualTo(1));
+                Assert.That(_target.HasPendingFixedTick, Is.True);
+            }
+            finally { _definition.presentation = null; UnityEngine.Object.DestroyImmediate(profile); UnityEngine.Object.DestroyImmediate(material); }
+        }
+
+        [Test]
+        public void IdleFixedTicksSleepAndResumeForHitFireAndFalling()
+        {
+            Assert.That(_target.HasPendingFixedTick, Is.False);
+            Set(_target, "_hitCooldown", 0.1f);
+            Invoke(_world, "RequestEnvironmentFixedTick");
+            Assert.That(_target.HasPendingFixedTick, Is.True);
+            Invoke(_world, "FixedTickEnvironment", 0.2f);
+            Assert.That(_target.HasPendingFixedTick, Is.False);
+            var destruction = new EnvironmentDestructionSaveState { isFalling = true };
+            _target.ApplySnapshot(_target.State, destruction);
+            Assert.That(_target.HasPendingFixedTick, Is.True);
+            destruction.isFalling = false;
+            Assert.That(_target.HasPendingFixedTick, Is.False);
+            var profile = ScriptableObject.CreateInstance<EnvironmentPresentationProfileSO>();
+            try
+            {
+                _definition.presentation = profile;
+                Set(_target, "_burnAnchors", new[] { _target.transform });
+                var state = _target.State;
+                state.heat = 1; state.combustion = Core.ReactiveEnvironment.EnvironmentCombustion.Burning;
+                _target.ApplySnapshot(state, destruction);
+                Assert.That(_target.HasPendingFixedTick, Is.True);
+                state.combustion = Core.ReactiveEnvironment.EnvironmentCombustion.Cooling;
+                _target.ApplySnapshot(state, destruction);
+                Invoke(_world, "FixedTickEnvironment", Mathf.Max(profile.residualSeconds, profile.steamSeconds) + 0.1f);
+                Assert.That(_target.HasPendingFixedTick, Is.False);
+                state.combustion = Core.ReactiveEnvironment.EnvironmentCombustion.Burning;
+                _target.ApplySnapshot(state, destruction);
+                Assert.That(_target.HasPendingFixedTick, Is.True);
+            }
+            finally { _definition.presentation = null; UnityEngine.Object.DestroyImmediate(profile); }
         }
 
         [Test]
@@ -250,8 +344,11 @@ namespace UPlayGround.EditorTools.Tests
             var pending = new WorldStateSaveData();
             Invoke(_world, "ExportEnvironment", pending);
             Assert.That(pending.reactiveEnvironment[0].rewardCommitted, Is.False);
-            Invoke(_world, "TickEnvironment", 0.2f);
+            Invoke(_world, "TickEnvironment", 0.001f);
             Assert.That(_drops.created, Is.EqualTo(1));
+            Assert.That(_drops.calls, Is.EqualTo(1), "논리 tick 이전 프레임에도 파손 보상을 지연하지 않는다.");
+            Invoke(_world, "TickEnvironment", 0.001f);
+            Assert.That(_drops.calls, Is.EqualTo(1));
             Assert.That(pending.reactiveEnvironment[0].rewardCommitted, Is.False, "저장 스냅샷은 실행 상태의 별칭이 아니어야 합니다.");
             var restored = JsonConvert.DeserializeObject<WorldStateSaveData>(JsonConvert.SerializeObject(pending));
             Invoke(_world, "ImportEnvironment", restored);

@@ -39,6 +39,41 @@ namespace UPlayGround.EditorTools.Tests
         }
 
         [Test]
+        public void IdlePresentationSleepsAndWakesForFireAndResidualCleanup()
+        {
+            var profile = ScriptableObject.CreateInstance<EnvironmentPresentationProfileSO>();
+            var presentation = new EnvironmentCombustionPresentation(profile);
+            try
+            {
+                Assert.That(presentation.HasPendingPresentation, Is.False);
+                var state = new EnvironmentReactionState { fuel = 10 };
+                presentation.Apply(state);
+                Assert.That(presentation.HasPendingPresentation, Is.False, "평상시에는 서비스와 앵커를 조회하지 않는다.");
+                state.combustion = EnvironmentCombustion.Heating;
+                state.heat = profile.heatingSmokeThreshold - 0.01f;
+                presentation.Apply(state);
+                Assert.That(presentation.HasPendingPresentation, Is.False);
+                state.combustion = EnvironmentCombustion.Burning;
+                state.heat = 1;
+                presentation.Apply(state);
+                Assert.That(presentation.HasPendingPresentation, Is.True);
+                state.combustion = EnvironmentCombustion.Cooling;
+                state.wetness = 1;
+                presentation.Apply(state);
+                Assert.That(presentation.HasPendingPresentation, Is.True);
+                presentation.Tick(Mathf.Max(profile.residualSeconds, profile.steamSeconds) + 0.1f, Vector3.zero, Vector2.zero);
+                presentation.Apply(state);
+                Assert.That(presentation.HasPendingPresentation, Is.False, "반복 snapshot은 끝난 잔연을 깨우지 않는다.");
+                state.combustion = EnvironmentCombustion.Burning;
+                presentation.Apply(state);
+                Assert.That(presentation.HasPendingPresentation, Is.True, "재발화는 즉시 깨운다.");
+                presentation.Release();
+                Assert.That(presentation.HasPendingPresentation, Is.False);
+            }
+            finally { presentation.Release(); UnityEngine.Object.DestroyImmediate(profile); }
+        }
+
+        [Test]
         public void RepeatedSnapshotsDoNotRestartEmittersOrExtendResidualSmoke()
         {
             var profile = ScriptableObject.CreateInstance<EnvironmentPresentationProfileSO>();

@@ -11,6 +11,8 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
         Transform transform { get; }
         Transform OcclusionRoot { get; }
         bool IsAvailable { get; }
+        /// <summary>논리 반응과 별개로 물리 스텝에서 진행할 표현이 있는지 알린다.</summary>
+        bool HasPendingFixedTick => true;
         string StableId { get; }
         string PersistenceSignature { get; }
         ReactiveEnvironmentDefinitionSO Definition { get; }

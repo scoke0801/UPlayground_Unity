@@ -1,4 +1,4 @@
-﻿var catalog = UnityEditor.AssetDatabase.LoadAssetAtPath<UPlayGround.Data.ReactiveEnvironment.VegetationReactionCatalogSO>("Assets/10.Datas/Environment/Vegetation/Catalog.asset");
+var catalog = UnityEditor.AssetDatabase.LoadAssetAtPath<UPlayGround.Data.ReactiveEnvironment.VegetationReactionCatalogSO>("Assets/10.Datas/Environment/Vegetation/Catalog.asset");
 if (catalog == null) throw new System.InvalidOperationException("전환 대응표가 필요합니다.");
 var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
 var renderers = new System.Collections.Generic.List<UnityEngine.MeshRenderer>();
@@ -51,10 +51,10 @@ try
         if (mesh == null) { report.AppendLine("메시 누락: " + surface.original.name); continue; }
         var controlMesh = new UnityEngine.Mesh();
         controlMesh.vertices = new UnityEngine.Vector3[] { new UnityEngine.Vector3(-0.5f,0,0), new UnityEngine.Vector3(0.5f,0,0), new UnityEngine.Vector3(0.5f,1,0), new UnityEngine.Vector3(-0.5f,1,0) };
-        controlMesh.triangles = new int[] {0,2,1,0,3,2,0,1,2,0,2,3};
+        controlMesh.triangles = new int[] {0,2,1,0,3,2};
         controlMesh.uv = new UnityEngine.Vector2[] {new UnityEngine.Vector2(0,0),new UnityEngine.Vector2(1,0),new UnityEngine.Vector2(1,1),new UnityEngine.Vector2(0,1)};
         controlMesh.colors = new UnityEngine.Color[] {UnityEngine.Color.white,UnityEngine.Color.white,UnityEngine.Color.white,UnityEngine.Color.white};
-        controlMesh.RecalculateNormals(); controlMesh.RecalculateBounds();
+        controlMesh.RecalculateNormals(); controlMesh.tangents = new UnityEngine.Vector4[] {new UnityEngine.Vector4(1,0,0,1),new UnityEngine.Vector4(1,0,0,1),new UnityEngine.Vector4(1,0,0,1),new UnityEngine.Vector4(1,0,0,1)}; controlMesh.RecalculateBounds();
         mesh = controlMesh; slot = 0; sampleRenderer = null;
         var original = new UnityEngine.Material(surface.original);
         var reactive = new UnityEngine.Material(surface.reactive);
@@ -63,6 +63,7 @@ try
             foreach (string property in new[] {"_Dither_Fade","_Wind_Large_Intensity","_Wind_Small_Intensity","_UV_Pivot_Lock_Strangth"})
                 if (material.HasProperty(property)) material.SetFloat(property,0);
             if (material.HasProperty("_Alpha_Clip")) material.SetFloat("_Alpha_Clip",1);
+            if (material.HasProperty("_Color_Intensity")) material.SetFloat("_Color_Intensity",1);
             if (material.HasProperty("_Foliage_Map")) material.SetTexture("_Foliage_Map", UnityEngine.Texture2D.whiteTexture);
         }
         UnityEngine.Color[][] pixels = new UnityEngine.Color[4][];
@@ -141,7 +142,3 @@ finally
 report.AppendLine("checked=" + checkedCount + " empty=" + empty + " dryFailed=" + failed + " wetChanged=" + wetChanged + " burnChanged=" + burnChanged);
 System.IO.File.WriteAllText("output/ReactiveEnvironment/VegetationConversion-20261114/material-alpha-control.txt", report.ToString());
 return report.ToString();
-
-
-
-

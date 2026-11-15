@@ -98,3 +98,14 @@ EnvironmentPresentationProfileSO.maximumDistance는 기존 플레이어 거리 �
 낙뢰의 첫 수면은 `FootstepWaterSurface.TryRaycastDown`으로 조회 거리 안의 가장 높은 실제 삼각형/체적을 선택한다. 발소리·수영의 수역 우선순위는 물리 첫 면 선택에 쓰지 않는다. 바닥 Collider가 없어도 유효 수면 사건을 만들며, 더 높은 지붕/구조물이 있으면 물리 첫 면을 우선한다. 수면 사건은 열0이며 바닥을 가열하지 않는다.
 
 전수 조사는 `ReactiveEnvironmentWorldAudit.Write`를 사용한다. `terrainDetails`는 모든 Detail 레이어 전체 밀도·32픽셀 사용 타일·원본 GUID와 배율/인스턴싱을 포함한다. `pendingRoots`는 미분류와 `GatheringReview`를 합산한 후보 수다. GameActor 소유라는 이유만으로 채집물을 전환 제외 완료로 세지 않는다. VFX는 해당 논리 루트의 모든 Renderer가 입자/선/궤적일 때만 기존 표현 시스템으로 분류하며 메시가 섞인 루트는 계속 검토한다. [현재 상태](../../../docs/work-status/reactive-environment.md#통합-후속-조사와-수면-낙뢰-수정--2026-11-13)에서 원본 버전과 전환 전후 검증을 확인한다.
+## 원형 보존 식생 전수 저작
+
+LakeVillageWorld의 식생 정본은 `Assets/10.Datas/Environment/Vegetation/Catalog.asset`이다. 메시 원본 GUID별 프로필, 원본→파생 재질, 명시 배치 GlobalObjectId의 보호 정책, Terrain10층 대응 프리팹을 가진다. 이름 검색은 조사 후보 생성에만 사용하며 런타임 가연성·보상 분기로 사용하지 않는다.
+
+1. 실제 Editor/씬·컴파일·테스트·Play 상태를 확인한다. 다른 MCP 작업과 겹치거나 상태 응답의 Editor 필드가 비면 대기한다. 기존 사용자 변경과 원본/메타·씬 보호 사본을 먼저 기록한다.
+2. `VegetationReactionAuthoring.Collect`로 전체 LOD와 동일 프리팹의 꽃/잎을 한 반응 루트로 묶는다. 대응표 누락·비식생 제외·채집/퀘스트/수중 보호를 원본 목록과 대조한다. 대응표를 기준으로 센 수만으로 새 원본까지 자동 분류했다고 보지 않는다.
+3. `ApplyPlants`는 새 SceneEntityId의 소유 키를 일괄 초기화하며 기존 GUID와 일반 복제 검사를 유지한다. 실패 묶음은 Undo로 복구한다. 원본 형상·LOD·물리 Collider·Transform을 유지하고, 명시 슬롯의 파생 재질과 입력 trigger·열/비 샘플만 추가한다. 새 구성은 SceneObject로 보존하고 원본 prefab 참조만 RuntimeData로 Bake하지 않는다.
+4. `ApplyTerrain`은 모든 Detail층/구역을 저작한다. 실제 Play에서는 원본 TerrainData를 복제하고 파생 프리팹/재질·셀 마스크를 런타임에 연결하며 종료 때 원본 참조로 복구한다. 원본 밀도/프리팹/LOD를 직접 덮어쓰지 않는다.
+5. `Tools/ReactiveEnvironment/`의 연결·보존 감사와 GPU 비교를 사용하고 최종 씬을 재로드해 ID를 대조한다. GPU 원본 메시 비교와 별도 제어 입력은 구분한다. 데이터/소유 검사를 통과해도 실제 공격·미술·성능을 인수한 것은 아니다.
+
+[최종 적용/검증 근거와 성능 제약](../../../docs/work-status/reactive-environment.md#식생-전수-전환-결과--2026-11-14), [사용자 검수](../../../docs/work-status/reactive-environment-tests.md#lakevillageworld-식생-전수-전환-인수-전환-완료사용자-검수-대기-2026-11-14)를 따른다. 기존 재생성 원본 부재는 별도 해결 대상이며 재생성 후에는 배치 ID와 명시 보호 대응을 다시 대조해야 한다.

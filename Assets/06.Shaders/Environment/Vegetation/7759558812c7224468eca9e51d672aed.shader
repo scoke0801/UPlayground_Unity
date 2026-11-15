@@ -4,6 +4,8 @@ Properties
 {
 
         [HideInInspector] _EnvironmentReactionSupported("환경 반응 계약", Float) = 1
+        [HideInInspector] _EnvironmentReactionBufferSupported("공유 표현 버퍼", Float) = 1
+        [PerRendererData] [HideInInspector] _EnvironmentReactionIndex("표현 상태 인덱스", Float) = -1
         [HideInInspector] _EnvState0("젖음 그을림 손상 연소", Vector) = (0,0,0,0)
         [HideInInspector] _EnvState1("열", Vector) = (0,0,0,0)
         [HideInInspector] _FuelCoverage("잔여 연료", Float) = 1
@@ -110,6 +112,9 @@ AlphaToMask [_AlphaToMask]
 // Pass
 
 HLSLPROGRAM
+#pragma multi_compile _ _ENVIRONMENT_REACTION_BUFFER
+#pragma target 4.5 _ENVIRONMENT_REACTION_BUFFER
+
 
 // Pragmas
 #pragma target 2.0
@@ -399,6 +404,7 @@ return output;
 CBUFFER_START(UnityPerMaterial)
 
 float _EnvironmentReactionSupported;
+float _EnvironmentReactionBufferSupported, _EnvironmentReactionIndex;
 float4 _EnvState0, _EnvState1;
 float _FuelCoverage, _AllowFuelCoverage;
 float4 _WetTint, _CharTint, _FireColor;
@@ -982,6 +988,9 @@ ZWrite [_ZWrite]
 // Pass
 
 HLSLPROGRAM
+#pragma multi_compile _ _ENVIRONMENT_REACTION_BUFFER
+#pragma target 4.5 _ENVIRONMENT_REACTION_BUFFER
+
 
 // Pragmas
 #pragma target 4.5
@@ -1269,6 +1278,7 @@ return output;
 CBUFFER_START(UnityPerMaterial)
 
 float _EnvironmentReactionSupported;
+float _EnvironmentReactionBufferSupported, _EnvironmentReactionIndex;
 float4 _EnvState0, _EnvState1;
 float _FuelCoverage, _AllowFuelCoverage;
 float4 _WetTint, _CharTint, _FireColor;
@@ -1854,6 +1864,9 @@ ColorMask 0
 // Pass
 
 HLSLPROGRAM
+#pragma multi_compile _ _ENVIRONMENT_REACTION_BUFFER
+#pragma target 4.5 _ENVIRONMENT_REACTION_BUFFER
+
 
 // Pragmas
 #pragma target 2.0
@@ -2022,6 +2035,7 @@ return output;
 CBUFFER_START(UnityPerMaterial)
 
 float _EnvironmentReactionSupported;
+float _EnvironmentReactionBufferSupported, _EnvironmentReactionIndex;
 float4 _EnvState0, _EnvState1;
 float _FuelCoverage, _AllowFuelCoverage;
 float4 _WetTint, _CharTint, _FireColor;
@@ -2251,6 +2265,9 @@ ColorMask RG
 // Pass
 
 HLSLPROGRAM
+#pragma multi_compile _ _ENVIRONMENT_REACTION_BUFFER
+#pragma target 4.5 _ENVIRONMENT_REACTION_BUFFER
+
 
 // Pragmas
 #pragma target 3.5
@@ -2406,6 +2423,7 @@ return output;
 CBUFFER_START(UnityPerMaterial)
 
 float _EnvironmentReactionSupported;
+float _EnvironmentReactionBufferSupported, _EnvironmentReactionIndex;
 float4 _EnvState0, _EnvState1;
 float _FuelCoverage, _AllowFuelCoverage;
 float4 _WetTint, _CharTint, _FireColor;
@@ -2629,6 +2647,9 @@ ColorMask R
 // Pass
 
 HLSLPROGRAM
+#pragma multi_compile _ _ENVIRONMENT_REACTION_BUFFER
+#pragma target 4.5 _ENVIRONMENT_REACTION_BUFFER
+
 
 // Pragmas
 #pragma target 2.0
@@ -2791,6 +2812,7 @@ return output;
 CBUFFER_START(UnityPerMaterial)
 
 float _EnvironmentReactionSupported;
+float _EnvironmentReactionBufferSupported, _EnvironmentReactionIndex;
 float4 _EnvState0, _EnvState1;
 float _FuelCoverage, _AllowFuelCoverage;
 float4 _WetTint, _CharTint, _FireColor;
@@ -3019,6 +3041,9 @@ ZWrite On
 // Pass
 
 HLSLPROGRAM
+#pragma multi_compile _ _ENVIRONMENT_REACTION_BUFFER
+#pragma target 4.5 _ENVIRONMENT_REACTION_BUFFER
+
 
 // Pragmas
 #pragma target 2.0
@@ -3207,6 +3232,7 @@ return output;
 CBUFFER_START(UnityPerMaterial)
 
 float _EnvironmentReactionSupported;
+float _EnvironmentReactionBufferSupported, _EnvironmentReactionIndex;
 float4 _EnvState0, _EnvState1;
 float _FuelCoverage, _AllowFuelCoverage;
 float4 _WetTint, _CharTint, _FireColor;
@@ -3758,6 +3784,9 @@ Cull Off
 // Pass
 
 HLSLPROGRAM
+#pragma multi_compile _ _ENVIRONMENT_REACTION_BUFFER
+#pragma target 4.5 _ENVIRONMENT_REACTION_BUFFER
+
 
 // Pragmas
 #pragma target 2.0
@@ -3956,6 +3985,7 @@ return output;
 CBUFFER_START(UnityPerMaterial)
 
 float _EnvironmentReactionSupported;
+float _EnvironmentReactionBufferSupported, _EnvironmentReactionIndex;
 float4 _EnvState0, _EnvState1;
 float _FuelCoverage, _AllowFuelCoverage;
 float4 _WetTint, _CharTint, _FireColor;
@@ -4498,6 +4528,9 @@ Cull Off
 // Pass
 
 HLSLPROGRAM
+#pragma multi_compile _ _ENVIRONMENT_REACTION_BUFFER
+#pragma target 4.5 _ENVIRONMENT_REACTION_BUFFER
+
 
 // Pragmas
 #pragma target 2.0
@@ -4661,6 +4694,7 @@ return output;
 CBUFFER_START(UnityPerMaterial)
 
 float _EnvironmentReactionSupported;
+float _EnvironmentReactionBufferSupported, _EnvironmentReactionIndex;
 float4 _EnvState0, _EnvState1;
 float _FuelCoverage, _AllowFuelCoverage;
 float4 _WetTint, _CharTint, _FireColor;
@@ -4887,6 +4921,9 @@ Cull [_Cull]
 // Pass
 
 HLSLPROGRAM
+#pragma multi_compile _ _ENVIRONMENT_REACTION_BUFFER
+#pragma target 4.5 _ENVIRONMENT_REACTION_BUFFER
+
 
 // Pragmas
 #pragma target 2.0
@@ -5070,6 +5107,7 @@ return output;
 CBUFFER_START(UnityPerMaterial)
 
 float _EnvironmentReactionSupported;
+float _EnvironmentReactionBufferSupported, _EnvironmentReactionIndex;
 float4 _EnvState0, _EnvState1;
 float _FuelCoverage, _AllowFuelCoverage;
 float4 _WetTint, _CharTint, _FireColor;
@@ -5613,6 +5651,9 @@ ZWrite [_ZWrite]
 // Pass
 
 HLSLPROGRAM
+#pragma multi_compile _ _ENVIRONMENT_REACTION_BUFFER
+#pragma target 4.5 _ENVIRONMENT_REACTION_BUFFER
+
 
 // Pragmas
 #pragma target 2.0
@@ -5793,6 +5834,7 @@ return output;
 CBUFFER_START(UnityPerMaterial)
 
 float _EnvironmentReactionSupported;
+float _EnvironmentReactionBufferSupported, _EnvironmentReactionIndex;
 float4 _EnvState0, _EnvState1;
 float _FuelCoverage, _AllowFuelCoverage;
 float4 _WetTint, _CharTint, _FireColor;
@@ -6349,6 +6391,9 @@ ZWrite [_BUILTIN_ZWrite]
 // Pass
 
 HLSLPROGRAM
+#pragma multi_compile _ _ENVIRONMENT_REACTION_BUFFER
+#pragma target 4.5 _ENVIRONMENT_REACTION_BUFFER
+
 
 // Pragmas
 #pragma target 3.0
@@ -6588,6 +6633,7 @@ return output;
 CBUFFER_START(UnityPerMaterial)
 
 float _EnvironmentReactionSupported;
+float _EnvironmentReactionBufferSupported, _EnvironmentReactionIndex;
 float4 _EnvState0, _EnvState1;
 float _FuelCoverage, _AllowFuelCoverage;
 float4 _WetTint, _CharTint, _FireColor;
@@ -7216,6 +7262,9 @@ ZWrite Off
 // Pass
 
 HLSLPROGRAM
+#pragma multi_compile _ _ENVIRONMENT_REACTION_BUFFER
+#pragma target 4.5 _ENVIRONMENT_REACTION_BUFFER
+
 
 // Pragmas
 #pragma target 3.0
@@ -7454,6 +7503,7 @@ return output;
 CBUFFER_START(UnityPerMaterial)
 
 float _EnvironmentReactionSupported;
+float _EnvironmentReactionBufferSupported, _EnvironmentReactionIndex;
 float4 _EnvState0, _EnvState1;
 float _FuelCoverage, _AllowFuelCoverage;
 float4 _WetTint, _CharTint, _FireColor;
@@ -8084,6 +8134,9 @@ ZWrite [_BUILTIN_ZWrite]
 // Pass
 
 HLSLPROGRAM
+#pragma multi_compile _ _ENVIRONMENT_REACTION_BUFFER
+#pragma target 4.5 _ENVIRONMENT_REACTION_BUFFER
+
 
 // Pragmas
 #pragma target 4.5
@@ -8320,6 +8373,7 @@ return output;
 CBUFFER_START(UnityPerMaterial)
 
 float _EnvironmentReactionSupported;
+float _EnvironmentReactionBufferSupported, _EnvironmentReactionIndex;
 float4 _EnvState0, _EnvState1;
 float _FuelCoverage, _AllowFuelCoverage;
 float4 _WetTint, _CharTint, _FireColor;
@@ -8951,6 +9005,9 @@ ColorMask 0
 // Pass
 
 HLSLPROGRAM
+#pragma multi_compile _ _ENVIRONMENT_REACTION_BUFFER
+#pragma target 4.5 _ENVIRONMENT_REACTION_BUFFER
+
 
 // Pragmas
 #pragma target 3.0
@@ -9121,6 +9178,7 @@ return output;
 CBUFFER_START(UnityPerMaterial)
 
 float _EnvironmentReactionSupported;
+float _EnvironmentReactionBufferSupported, _EnvironmentReactionIndex;
 float4 _EnvState0, _EnvState1;
 float _FuelCoverage, _AllowFuelCoverage;
 float4 _WetTint, _CharTint, _FireColor;
@@ -9389,6 +9447,9 @@ ColorMask 0
 // Pass
 
 HLSLPROGRAM
+#pragma multi_compile _ _ENVIRONMENT_REACTION_BUFFER
+#pragma target 4.5 _ENVIRONMENT_REACTION_BUFFER
+
 
 // Pragmas
 #pragma target 3.0
@@ -9557,6 +9618,7 @@ return output;
 CBUFFER_START(UnityPerMaterial)
 
 float _EnvironmentReactionSupported;
+float _EnvironmentReactionBufferSupported, _EnvironmentReactionIndex;
 float4 _EnvState0, _EnvState1;
 float _FuelCoverage, _AllowFuelCoverage;
 float4 _WetTint, _CharTint, _FireColor;
@@ -9821,6 +9883,9 @@ Cull Off
 // Pass
 
 HLSLPROGRAM
+#pragma multi_compile _ _ENVIRONMENT_REACTION_BUFFER
+#pragma target 4.5 _ENVIRONMENT_REACTION_BUFFER
+
 
 // Pragmas
 #pragma target 3.0
@@ -10014,6 +10079,7 @@ return output;
 CBUFFER_START(UnityPerMaterial)
 
 float _EnvironmentReactionSupported;
+float _EnvironmentReactionBufferSupported, _EnvironmentReactionIndex;
 float4 _EnvState0, _EnvState1;
 float _FuelCoverage, _AllowFuelCoverage;
 float4 _WetTint, _CharTint, _FireColor;
@@ -10600,6 +10666,9 @@ Cull Off
 // Pass
 
 HLSLPROGRAM
+#pragma multi_compile _ _ENVIRONMENT_REACTION_BUFFER
+#pragma target 4.5 _ENVIRONMENT_REACTION_BUFFER
+
 
 // Pragmas
 #pragma target 3.0
@@ -10770,6 +10839,7 @@ return output;
 CBUFFER_START(UnityPerMaterial)
 
 float _EnvironmentReactionSupported;
+float _EnvironmentReactionBufferSupported, _EnvironmentReactionIndex;
 float4 _EnvState0, _EnvState1;
 float _FuelCoverage, _AllowFuelCoverage;
 float4 _WetTint, _CharTint, _FireColor;
@@ -11034,6 +11104,9 @@ Cull [_BUILTIN_CullMode]
 // Pass
 
 HLSLPROGRAM
+#pragma multi_compile _ _ENVIRONMENT_REACTION_BUFFER
+#pragma target 4.5 _ENVIRONMENT_REACTION_BUFFER
+
 
 // Pragmas
 #pragma target 3.0
@@ -11204,6 +11277,7 @@ return output;
 CBUFFER_START(UnityPerMaterial)
 
 float _EnvironmentReactionSupported;
+float _EnvironmentReactionBufferSupported, _EnvironmentReactionIndex;
 float4 _EnvState0, _EnvState1;
 float _FuelCoverage, _AllowFuelCoverage;
 float4 _WetTint, _CharTint, _FireColor;

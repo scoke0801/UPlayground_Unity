@@ -144,7 +144,7 @@ namespace UPlayGround.EditorTools
             if (material.isVariant) material.parent = null;
             material.shader = shader;
             material.SetFloat("_AllowFuelCoverage", 0);
-            material.enableInstancing = source.enableInstancing;
+            material.enableInstancing = true;
             return material;
         }
     }

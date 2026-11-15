@@ -7,6 +7,41 @@ namespace UPlayGround.Core.Tests
     public sealed class EnvironmentReactionTests
     {
         [Test]
+        public void StableDryStateAdvancesRevisionAndStillReactsToRainAndHeat()
+        {
+            var p = new EnvironmentReactionParameters();
+            var initial = new EnvironmentReactionState { fuel = p.initialFuel, durability = 50, charAmount = 0.25f };
+            var reaction = new EnvironmentReaction(p, initial);
+            reaction.Tick(0.2f, 0, 1);
+            initial.revision++;
+            Assert.That(reaction.State, Is.EqualTo(initial));
+            Assert.Throws<ArgumentOutOfRangeException>(() => reaction.Tick(0.2f, float.NaN, 1));
+            reaction.Tick(0.2f, 1, 1);
+            Assert.That(reaction.State.wetness, Is.GreaterThan(0));
+            var heated = new EnvironmentReaction(p, initial);
+            heated.TryApplyImpact(1, 0, 0, 1, 0);
+            heated.Tick(0.2f, 0, 1);
+            Assert.That(heated.State.combustion, Is.EqualTo(EnvironmentCombustion.Burning));
+            Assert.That(heated.State.fuel, Is.LessThan(p.initialFuel));
+        }
+
+        [Test]
+        public void DryFastPathDoesNotSkipEmptyFuelOrPendingBreakTransition()
+        {
+            var empty = new EnvironmentReaction(new EnvironmentReactionParameters(),
+                new EnvironmentReactionState { fuel = 0, durability = 100 });
+            empty.Tick(0.2f, 0, 0);
+            Assert.That(empty.State.combustion, Is.EqualTo(EnvironmentCombustion.Spent));
+            var nonFuel = new EnvironmentReaction(new EnvironmentReactionParameters { initialFuel = 0, canIgnite = false });
+            nonFuel.Tick(0.2f, 0, 0);
+            Assert.That(nonFuel.State.combustion, Is.EqualTo(EnvironmentCombustion.Inactive));
+            var broken = new EnvironmentReaction(new EnvironmentReactionParameters(),
+                new EnvironmentReactionState { fuel = 20, durability = 0 });
+            broken.Tick(0.2f, 0, 0);
+            Assert.That(broken.State.isBroken, Is.True);
+        }
+
+        [Test]
         public void ContinuousWaterRetainsItsCoolingCoefficientAcrossSave()
         {
             var p = new EnvironmentReactionParameters { cooling=0, wetCooling=0, evaporation=0, drying=0,

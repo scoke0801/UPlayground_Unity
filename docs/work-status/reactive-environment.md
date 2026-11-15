@@ -465,3 +465,71 @@ Collect의 전환 단위 후보는16,065개다. 이 수를 검수 완료한 독�
 본편 연결12,600/15,396개까지 저장 완료했다. 다음 묶음은 `batch-phase.txt`의17:03 씬 저장 시작에서 응답이 끊겼으며 `batch-latest.txt`·`converted-ids.tsv`는12,600개 완료 시점이다. 디스크 씬250,553,944바이트·17:02:45, 완료되지 않은 묶음을 완료 수에 포함하지 않는다.
 
 후속 조회에서 Unity MCP 도구가 제거됐다가 복구됐고, 인스턴스0·Unity 프로세스 없음으로 Editor 종료를 확인했다. 제한 환경으로 실행한 PID5952는 사용자 캐시/라이선스 접근 실패로 프로젝트 시작 전 정체되어 이 실행만 종료했다. 정상 환경 실행 전에 다른 단일 Editor PID31180이 시작된 것을 확인해 추가 실행을 건너뛰고 MCP 연결을 기다린다. 잠금/Library/Temp 삭제·추가 Editor·씬 덮어쓰기나 실패 묶음 재적용은 수행하지 않았다. 재개 후 실제 씬/구성을 조회해 남은 개체만 처리한다.
+
+## 식생 전수 전환 결과 — 2026-11-14
+
+**식생 연결·저장은 완료, 최종 플레이/미술·성능 인수는 보류다.** 실제 본편 `LakeVillageWorld.unity`의 원본별 식생15,396개와 Terrain10층 전체를 전환했다. 이 결과를 건물/바위 등 비식생을 포함한 W 전체 인수 또는 목표 기기 성능 통과로 확대하지 않는다.
+
+| 최종 범위 | 확인 결과 |
+|---|---|
+| 독립 식생 루트 | 15,396/15,396 연결·구성 유효, 누락0·중복 ID0 |
+| 활성/비활성 | 활성15,284·비활성112 모두 저작. Play에서 활성15,284개 전부 등록 |
+| 보호 정책 | 829개 비가연/비파괴. 명시 수중/퀘스트 배치793개와 원본/채집 시각 자식 정책을 포함하며 기존 채집 액터 소유권 유지 |
+| Terrain | 어댑터1개, Detail10층, 전체128×128셀 구역·셀당8픽셀. 실제 사용 셀3,188개 등록 |
+| 런타임 반응 대상 | 18,472 = 활성 개체15,284 + 사용 Terrain 셀3,188 |
+| 표현 | 원본 GUID 대응99종(명시 비식생 제외 포함), 파생 재질53개·Detail 프리팹10개·파생 셰이더12종, ShaderUtil 오류0 |
+| 원본/배치 보존 | 목록의 원본/메타332개 SHA256 변경0. 전체15,396루트의 위치·회전·크기·활성·기존 ID·새 저장 ID 재로드 비교 변경0 |
+
+### 검증 근거와 범위
+
+- [최종 재로드 감사](../../output/ReactiveEnvironment/VegetationConversion-20261114/final-audit-transaction.txt), [전수 연결](../../output/ReactiveEnvironment/VegetationConversion-20261114/connection-audit.txt), [배치/ID 보존](../../output/ReactiveEnvironment/VegetationConversion-20261114/preservation-audit.txt), [원본 해시](../../output/ReactiveEnvironment/VegetationConversion-20261114/original-hash-final.txt).
+- [EditMode47/47](../../output/ReactiveEnvironment/VegetationConversion-20261114/edit-47-final.json): 새 저작7건과 표면·통합 회귀. 지원 범위 밖 변경은 정상 컴파일/리로드로 검증했다. 전환 준비 중 StaffMagic 테스트의 namespace 해석 오류2곳만 `global::`로 명확히 했으며 해당 파일의 다른 작업 변경은 보존했다.
+- [실제 메시 GPU 비교](../../output/ReactiveEnvironment/VegetationConversion-20261114/material-gpu-comparison.txt): 유효 출력51개에서 건조 RGBA 차이0, 젖음/연소 변화51개. 원본/파생 모두 출력이 없던 PlantGraph 재질2개는 실제 메시 픽셀 동등성 통과 수에 포함하지 않는다. [별도 기준 입력](../../output/ReactiveEnvironment/VegetationConversion-20261114/material-alpha-control.txt)은 정상 법선/접선의 사각형과 흰 텍스처·알파 배율1·색 강도1·바람/위치 변형0의 임시 복제본에서 건조 차이0·젖음/연소 변화2/2를 확인했다. `_Alpha_Clip`은 생성 그래프에서 알파 배율이며 임계값이 아니다. 본편 재질 설정은 변경하지 않았다.
+- [실제 Editor Play 등록](../../output/ReactiveEnvironment/VegetationConversion-20261114/runtime-registration.txt), [상태/저장 API 시나리오](../../output/ReactiveEnvironment/VegetationConversion-20261114/runtime-state-probe.txt): 실제 본편의 가연 대상에 열 입력→Burning·그을림0.16·셰이더 연소1, 물 입력→젖음1·Cooling·셰이더 연소0을 확인했다. JSON 왕복과 비활성/재활성 후 동일 ID/상태를 확인했다. 이는 테스트 상태 배치와 직접 API 입력이며 일반 공격 조작/실제 저장 슬롯/지역 왕복 시험을 대신하지 않는다. 실행 전 환경 상태는 finally에서 복원했고 실제 저장 슬롯 기록은 하지 않았다.
+- Terrain은 원본과 다른 비영속 런타임 복제본·동일 복제본을 참조하는 TerrainCollider·마스크 연결10/10을 확인했다. [Play 종료](../../output/ReactiveEnvironment/VegetationConversion-20261114/runtime-cleanup.txt) 후 원본 TerrainData 참조와 런타임 셀/재질0 복구를 확인했다. [이전 씬 복원](../../output/ReactiveEnvironment/VegetationConversion-20261114/runtime-scene-restored.txt): CombatTestMap, Edit Mode, dirty=False.
+
+### 성능과 남은 인수
+
+[반복 tick 실측](../../output/ReactiveEnvironment/VegetationConversion-20261114/runtime-tick-cost.txt)은 일시정지한 Editor에서 실제 중앙 `TickEnvironment(0.2f)`를 직접5회 호출한167/174/158/159/170ms다. 초기 비용만의 문제가 아니며 전수 등록 시 기존 중앙 반응 경로의 부하가 크다. 이는 목표 기기 FPS/프레임 시간 판정이 아니지만 **성능 인수는 통과로 볼 수 없다.** 카메라 밖 반응·전파·저장을 끄거나 전수 대상을 누락시켜 수치를 낮추지 않았다. 전수 식생 저작 작업과 구분해 중앙 tick/차폐/표현 비용의 후속 최적화가 필요하다. 이번 요청 범위를 넘어 기존 시뮬레이션 계약을 임의 변경하지 않았다.
+
+[LV-V01~06 사용자 명세](reactive-environment-tests.md#lakevillageworld-식생-전수-전환-인수-전환-완료사용자-검수-대기-2026-11-14)의 실제 공격 입력·LOD/임포스터·채집/진행·KCC/Nav·지역/실제 저장 왕복·미술/청감은 사용자 테스트 대기다. 기존 재생성 원본 `LakeOfLifeScenario.unity` 부재는 별도 선행 제약으로 유지한다. 현재 본편 씬과 카탈로그를 전환했으며 누락된 원본의 자동 복구/월드 재생성 검증까지 완료한 것은 아니다.
+
+### 최종 정리
+
+최종 씬273,555,090바이트, 원본 보호 사본151,817,598바이트와 전수 조사61,860,705바이트는 사용자 미커밋/원본 대응을 보존하므로 유지한다. 일회성 비용 측정2개·시작/최종 적용 조립 스크립트2개와 재생성 가능한 중간 ShaderGraph 출력4개만 제거했다. 원본·메타·현재 산출물·실행/실패 근거와 재사용 감사 스크립트는 보존했다. 다른 작업의 파일·Editor 사용을 보존하고 테스트/컴파일/Play 중에는 대기했다. Player/Addressables 빌드·커밋·잠금/Library/Temp 삭제는 하지 않았다. [월드 위키](../wiki/world-art.md).
+
+최종 [준비표/단계 인계](../../output/harness/20261114-194121-292da023/review.md)·[정리 기록](../../output/ReactiveEnvironment/VegetationConversion-20261114/cleanup.json)·[Terrain 원본 dependency/밀도 최종 대조](../../output/ReactiveEnvironment/VegetationConversion-20261114/terrain-original-final.txt)를 연결한다. Terrain GUID/dependency hash는 전환 전과 같고10층 밀도 합520,856·Tree0을 유지한다.
+
+## 성능 검증 게이트 진행 — 2026-11-14
+
+전수 저작·연결·ID/원본 보존과 자동 기능 검증 단계는 완료했지만, 반복 tick158~174ms가 확인돼 플레이 경험 관점의 전체 목표는 아직 완료 처리하지 않는다. 현재 /goal은 활성 상태로 유지한다. 다음 단계는 실제 같은 월드에서 강수/차폐 조회·논리 반응·상태 캡처·표현 적용 비용을 분해해 병목을 확인하고, 원인에 맞춘 최소 변경과 같은 범위 재검증을 수행하는 것이다. 카메라 밖 반응/전파/저장을 끄거나 전환 수를 줄여 목표를 바꾸지 않는다. 장시간 자동 플레이나 목표 기기/미술의 사용자 판단을 대신하는 자동화는 추가하지 않는다.
+
+현재 Editor는 CombatTestMap·Edit Mode·dirty=False로 복원됐으며 식생 검증 소유 세션 표식도 해제했다. 다른 MCP 테스트/컴파일/Play와 겹치면 계속 대기한다. 최종 준비표194입력 누락0/해시 일치, 문서/근거 링크267개와 디렉터리 링크2개 포함 누락0, 대상 diff --check 통과를 확인했다. [링크 검사](../../output/ReactiveEnvironment/VegetationConversion-20261114/link-check.txt).
+
+## 강수 조회 최적화 진행 — 2026-11-14
+
+같은 본편18,472대상에서 강수 미리보기0/1로 조건을 고정해 분해했다. 기존 중앙 tick은 맑음15.5ms, 강수219.8~229.5ms였다. 강수의 동기 차폐 조회126.9~136.2ms, 표현58.7~63.1ms가 병목이었다. [이전 강수 조건](../../output/ReactiveEnvironment/VegetationConversion-20261114/runtime-stage-rain.txt).
+
+`EnvironmentRainBatch`는 논리 tick 안의 순수 샘플을 명시 수집하고 RaycastCommand로 같은 레이어·거리·자기 충돌 제외·32 hit 포화 판정을 묶는다. 처마 볼륨의 좌표 변환은 같은 tick 안에서만 스냅샷한다. 대상/셀은 현재 epoch의 샘플 표식을 재사용해 Transform 조회를 중복하지 않는다. tick 밖은 기존 동기 경로이며 다음 tick은 이동/파괴 후 지붕을 다시 조회한다. 등록/로드 때 버퍼를 확보하고 Dispose/OnDestroy에서 해제한다. 카메라/거리로 반응을 생략하지 않는다.
+
+[관련 EditMode52/52](../../output/ReactiveEnvironment/VegetationConversion-20261114/edit-rain-batch-52-final.json): 기존47건+지붕/회전·크기/이동·자기 충돌 제외·포화/기존 hit 제거·범위 밖·epoch/예외 수명·개체 샘플 재사용5건 통과. 최초 새4건은 Test Runner의 미저장 준비 씬에서 추가 씬을 만드는 fixture 오류였고, 두 번째는 Play 전용 CreateScene API 사용 오류였다. 둘 다 제품 기능 실패로 숨기지 않고 기록했으며 fixture가 만든 오브젝트만 직접 정리하도록 수정했다.
+
+[실제 동일 순간의 전수 비교](../../output/ReactiveEnvironment/VegetationConversion-20261114/runtime-rain-equivalence.txt):18,472대상의 동기/묶음 강수·노출 차이0, 양쪽 노출17,885. 이전 세션과1개 차이의 원인을 판정 변화로 단정하지 않고 동일 순간 대조로 검증했다. [샘플 재사용 후](../../output/ReactiveEnvironment/VegetationConversion-20261114/runtime-stage-after-sample-cache-rain.txt) 강수 중앙 tick111.7~116.1ms, 샘플 수집26.7~27.1ms·물리 job10.6~10.8ms·결과 조회1.2ms로 줄었다. 표현56.8~58.6ms가 남아 다음 단계에서 개체별 PropertyBlock 반복 갱신을 줄이는 방식을 검토한다. 전체 성능 목표는 여전히 미완료다.
+
+강수 최적화 단계 인계: 논리/물리 변경52/52·동일 순간 전수 판정 차이0과 같은 강수 조건의 tick 비용 감소를 근거로 다음 표현 단계로 간다. `EnvironmentRainBatch`/검사 meta를 보존하고, 새 단계 분해/강수 세부 비용 csx와 텍스트 결과는 다음 측정 입력으로 유지한다. 컴파일/Play 중 사용자 원본이나 씬을 저장하지 않았고 대상 diff --check 및 종료 뒤 leak 필터 Console0을 확인했다. 기술안은 [식생 표현 비용 대응](../../Assets/docs/design/world-art/environment/REACTIVE_ENVIRONMENT_INTEGRATION.md#전수-식생-표현-비용-대응-2026-11-14)에 기록했다. 표현 최적화와 최종 성능 재검증은 미완료이므로 /goal은 계속 활성 상태다.
+
+## 공유 표현 버퍼와 전환 최종 자동 검증 — 2026-11-14
+
+현재 판정: LakeVillageWorld 식생15,396/15,396개와 Terrain10층의 전수 연결·저장·자동 검증을 완료했다. 원본 형상·LOD·배치·저장 ID와 보호 정책829개를 유지한다. 최종 플레이·목표 기기 성능 인수는 LV-V01~06 사용자 테스트 대기이며, 이 단계 완료를 비식생을 포함한 W 전체 인수로 확대하지 않는다.
+
+[설계](../../Assets/docs/design/world-art/environment/REACTIVE_ENVIRONMENT_INTEGRATION.md#전수-식생-표현-비용-대응-2026-11-14)에 따라 `EnvironmentSurfaceStateBuffer`가 CPU 논리 상태의 표현 복사본을 전달한다. 지원 파생 셰이더에만 런타임 인덱스를 연결하고 변경 구간을 렌더 시작 전에 업로드한다. 액터 소유 표면·기존 셰이더·미지원 기기는 기존 PropertyBlock 경로를 유지한다. 원본 재질/MPB 복원, 마지막 임대 해제와 epoch 무효화, 버퍼 확장/재사용을 검증했다. 인덱스는 저장 데이터나 GUID를 대체하지 않는다. Terrain 셀 마스크·카메라 밖 화학·전파·저장은 유지한다.
+
+- [최종 관련 EditMode53/53](../../output/ReactiveEnvironment/VegetationConversion-20261114/edit-gpu-buffer-53-final.json): 강수5건, 버퍼 GPU 업로드/확장/재사용/종료1건, 기존 통합/표면/저작47건. 최초 통합3건은 Play 종료 후 공통 `ApplicationIsQuitting` 플래그가 서비스 조회를 차단해 실패했다. 제품 종료 정책은 바꾸지 않고 fixture가 실행 동안 초기화하고 이전 값을 복원하도록 수정했다. [종료 플래그 true 조건의 해당3건](../../output/ReactiveEnvironment/VegetationConversion-20261114/edit-post-play-fixture-3-final.json)도 통과하고 이전 플래그 복원을 확인했다. 최초 실패 결과는 `edit-gpu-buffer-53-first.json`에 보존한다.
+- [일반 draw GPU 대조](../../output/ReactiveEnvironment/VegetationConversion-20261114/material-gpu-buffer-comparison.txt): 실제 메시가 보인51재질에서 원본 건조 차이0, 젖음/연소 변화51, 기존 슬롯 방식과 버퍼 출력 차이0. 기존2개의 빈 메시 합성 캡처는 통과 수에 넣지 않는다.
+- [인스턴싱 GPU 대조](../../output/ReactiveEnvironment/VegetationConversion-20261114/material-gpu-instanced-comparison.txt): 원래 draw 조건을 맞추고 준비 렌더 후 읽었다. 실제 메시51재질의 버퍼/기존 방식 차이0, 원본 건조 차이0. 젖음 변화50/51·연소51/51이며 일반 draw의51/51과 혼합하지 않는다. 첫 draw에서 건조 출력이 검게 나온 검증 준비 문제는 준비 명령 반복 후 해소됐다. GPU 인덱스는0이 아닌1을 사용해 인덱스 누락을 숨기지 않았다. 모든 LOD/미술 품질의 사용자 인수를 대신하지 않는다.
+- [실제 Play 입력·저장 상태 대조](../../output/ReactiveEnvironment/VegetationConversion-20261114/runtime-state-probe.txt): 열→Burning/그을림0.16, 물→wet1/Cooling, GPU 버퍼 readback의 표현 값 일치, JSON 왕복/재등록 ID·상태 동일, Terrain 런타임 복제1·마스크10/10. 실제 저장 슬롯에는 쓰지 않고 baseline을 복원했다.
+- [강수 조건 실제 중앙 tick](../../output/ReactiveEnvironment/VegetationConversion-20261114/runtime-stage-after-gpu-rain.txt):18,472대상에서72.16/67.39/73.89ms. 초기 같은 강수 조건220~230ms와 샘플 재사용 후112~116ms에서 감소했다. 단계 분해의 표현9.65~10.00ms, 강수 수집26.64~28.69ms·job10.16~10.85ms가 남는다. [맑음](../../output/ReactiveEnvironment/VegetationConversion-20261114/runtime-stage-after-gpu-clear.txt)은 준비 포함27.14/20.33/18.38ms였다. Editor에서 일시정지 후 API를 호출한 비용이며 목표 기기 FPS 통과가 아니다. 별도 Player/Addressables 빌드는 실행하지 않았다.
+
+식생 전수 전환 요청의 구현과 필요한 자동 검증은 완료했다. 남은 LV-V01~06은 일반 입력·저장/지역 왕복·KCC/Nav·최종 LOD/미술·목표 기기 강수/화재 성능의 사용자 확인이다. 강수 tick 잔여67~74ms 때문에 성능 인수는 보류이며, 카메라 밖 대상을 생략해 수치를 낮추지 않았다. 기존 월드 재생성 원본 부재도 별도 미해결 사항으로 보존한다.
+
+최종 재대조: [GPU 단계 종료 감사](../../output/ReactiveEnvironment/VegetationConversion-20261114/final-gpu-stage-audit.txt)에서15,396루트의 ID·변환·활성 변경0/누락0, 전수 구성 유효/중복0, 버퍼 null·키워드 해제·씬 dirty=False였다. [Terrain·셰이더](../../output/ReactiveEnvironment/VegetationConversion-20261114/terrain-gpu-stage-final.txt)는 원본 GUID/의존 해시·밀도520,856/10층 유지와 파생12종 오류0이다. leak Console 필터0, 로컬 문서 링크 누락0을 확인했다. [부산물 정리](../../output/ReactiveEnvironment/VegetationConversion-20261114/cleanup-final.json)는 전환 전 보호 씬/목록·원본 해시·실패/최종 로그와 재검증 csx를 보존하고 추가 삭제가 없음을 기록한다. 마지막 Editor는 LakeVillageWorld Edit Mode이며 기존 사용자 변경·커밋 이력은 건드리지 않았다.

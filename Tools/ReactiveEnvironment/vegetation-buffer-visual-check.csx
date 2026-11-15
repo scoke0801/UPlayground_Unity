@@ -1,0 +1,149 @@
+var catalog = UnityEditor.AssetDatabase.LoadAssetAtPath<UPlayGround.Data.ReactiveEnvironment.VegetationReactionCatalogSO>("Assets/10.Datas/Environment/Vegetation/Catalog.asset");
+if (catalog == null) throw new System.InvalidOperationException("전환 대응표가 필요합니다.");
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+var renderers = new System.Collections.Generic.List<UnityEngine.MeshRenderer>();
+foreach (var root in scene.GetRootGameObjects()) renderers.AddRange(root.GetComponentsInChildren<UnityEngine.MeshRenderer>(true));
+var target = UnityEngine.RenderTexture.GetTemporary(64, 64, 24, UnityEngine.RenderTextureFormat.ARGB32, UnityEngine.RenderTextureReadWrite.Linear);
+var readback = new UnityEngine.Texture2D(64, 64, UnityEngine.TextureFormat.RGBA32, false, true);
+var previous = UnityEngine.RenderTexture.active;
+bool asynchronous = UnityEditor.ShaderUtil.allowAsyncCompilation;
+string[] globals = { "_MainLightPosition", "_MainLightColor", "unity_LightData", "_WorldSpaceCameraPos", "unity_FogParams", "unity_SHAr", "unity_SHAg", "unity_SHAb", "unity_SHBr", "unity_SHBg", "unity_SHBb", "unity_SHC", "unity_LODFade" };
+var savedGlobals = new UnityEngine.Vector4[globals.Length];
+for (int i = 0; i < globals.Length; i++) savedGlobals[i] = UnityEngine.Shader.GetGlobalVector(globals[i]);
+var bufferType = typeof(UPlayGround.Gameplay.World.ReactiveEnvironment.ReactiveEnvironmentSurface).Assembly.GetType("UPlayGround.Gameplay.World.ReactiveEnvironment.EnvironmentSurfaceStateBuffer");
+var bufferFlags = System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic;
+var bufferReset = bufferType.GetMethod("Reset", bufferFlags);
+bufferReset.Invoke(null, null);
+bufferType.GetMethod("Register", bufferFlags).Invoke(null, new object[] { UnityEngine.Vector4.one, UnityEngine.Vector4.zero, 1f }); int bufferIndex = (int)bufferType.GetMethod("Register", bufferFlags).Invoke(null, new object[] { UnityEngine.Vector4.zero, UnityEngine.Vector4.zero, 1f });
+var report = new System.Text.StringBuilder();
+int checkedCount = 0, empty = 0, failed = 0, wetChanged = 0, burnChanged = 0;
+try
+{
+    UnityEditor.ShaderUtil.allowAsyncCompilation = false;
+    foreach (var surface in catalog.surfaces)
+    {
+        System.IO.File.WriteAllText("output/ReactiveEnvironment/VegetationConversion-20261114/gpu-progress.txt", surface.original.name);
+        UnityEngine.Mesh mesh = null;
+        UnityEngine.MeshRenderer sampleRenderer = null;
+        int slot = -1;
+        foreach (var renderer in renderers)
+        {
+            var materials = renderer.sharedMaterials;
+            for (int i = 0; i < materials.Length; i++)
+                if (materials[i] == surface.original || materials[i] == surface.reactive)
+                {
+                    var filter = renderer.GetComponent<UnityEngine.MeshFilter>();
+                    if (filter != null && filter.sharedMesh != null && i < filter.sharedMesh.subMeshCount) { mesh = filter.sharedMesh; sampleRenderer = renderer; slot = i; break; }
+                }
+            if (mesh != null) break;
+        }
+        if (mesh == null)
+        {
+            foreach (var root in scene.GetRootGameObjects())
+            foreach (var terrain in root.GetComponentsInChildren<UnityEngine.Terrain>(true))
+            foreach (var prototype in terrain.terrainData.detailPrototypes)
+            {
+                if (prototype.prototype == null) continue;
+                var renderer = prototype.prototype.GetComponent<UnityEngine.MeshRenderer>();
+                var filter = prototype.prototype.GetComponent<UnityEngine.MeshFilter>();
+                if (renderer == null || filter == null || filter.sharedMesh == null) continue;
+                var materials = renderer.sharedMaterials;
+                for (int i = 0; i < materials.Length; i++)
+                    if (materials[i] == surface.original && i < filter.sharedMesh.subMeshCount) { mesh = filter.sharedMesh; sampleRenderer = renderer; slot = i; break; }
+            }
+        }
+        if (mesh == null) { report.AppendLine("메시 누락: " + surface.original.name); continue; }
+        var original = new UnityEngine.Material(surface.original);
+        var reactive = new UnityEngine.Material(surface.reactive);
+        UnityEngine.Color[][] pixels = new UnityEngine.Color[7][];
+        try
+        {
+            float dimension = UnityEngine.Mathf.Max(0.001f, mesh.bounds.size.x, mesh.bounds.size.y, mesh.bounds.size.z);
+            var orientation = UnityEngine.Quaternion.Euler(20,25,0);
+            var cameraPosition = mesh.bounds.center - orientation * UnityEngine.Vector3.forward * (dimension * 3);
+            var model = UnityEngine.Matrix4x4.identity;
+            for (int phase = 0; phase < 7; phase++)
+            {
+                int statePhase = phase >= 4 ? phase - 3 : phase; var material = phase == 0 ? original : reactive;
+                if (phase > 0) material.SetVector("_EnvState0", statePhase == 3 ? new UnityEngine.Vector4(0,1,0,1) : statePhase == 2 ? new UnityEngine.Vector4(1,0,0,0) : UnityEngine.Vector4.zero);
+                var block = new UnityEngine.MaterialPropertyBlock();
+                if (sampleRenderer != null && !UnityEditor.EditorUtility.IsPersistent(sampleRenderer))
+                {
+                    sampleRenderer.GetPropertyBlock(block, slot);
+                    if (block.isEmpty) sampleRenderer.GetPropertyBlock(block);
+                }
+                if (phase > 0) block.SetVector("_EnvState0", material.GetVector("_EnvState0"));
+                block.SetFloat("_EnvironmentReactionIndex", phase >= 4 ? bufferIndex : -1);
+if (phase >= 4)
+{
+    bufferType.GetMethod("Set", bufferFlags).Invoke(null, new object[] { bufferIndex, material.GetVector("_EnvState0"), UnityEngine.Vector4.zero, 1f });
+    bufferType.GetMethod("Flush", bufferFlags).Invoke(null, null);
+    block.SetVector("_EnvState0", UnityEngine.Vector4.zero);
+}
+int pass = material.FindPass("ForwardLit");
+                if (pass < 0) pass = material.FindPass("Universal Forward");
+                if (pass < 0) pass = material.FindPass("Forward");
+                if (pass < 0) pass = material.FindPass("Unlit");
+                if (pass < 0) pass = 0;
+                var commands = new UnityEngine.Rendering.CommandBuffer();
+                try
+                {
+                    commands.SetRenderTarget(target);
+                    commands.ClearRenderTarget(true, true, UnityEngine.Color.clear);
+                    var view = UnityEngine.Matrix4x4.Scale(new UnityEngine.Vector3(1,1,-1)) * UnityEngine.Matrix4x4.TRS(cameraPosition, orientation, UnityEngine.Vector3.one).inverse;
+                    commands.SetViewProjectionMatrices(view, UnityEngine.GL.GetGPUProjectionMatrix(UnityEngine.Matrix4x4.Ortho(-dimension * 0.65f, dimension * 0.65f, -dimension * 0.65f, dimension * 0.65f, dimension * 0.01f, dimension * 10), true));
+                    commands.SetGlobalVector("_MainLightPosition", new UnityEngine.Vector4(0.3f,0.8f,-0.6f,0));
+                    commands.SetGlobalVector("_MainLightColor", UnityEngine.Vector4.one);
+                    commands.SetGlobalVector("unity_LightData", new UnityEngine.Vector4(0,0,1,0));
+                    commands.SetGlobalVector("_WorldSpaceCameraPos", new UnityEngine.Vector4(cameraPosition.x,cameraPosition.y,cameraPosition.z,1));
+                    commands.SetGlobalVector("unity_FogParams", new UnityEngine.Vector4(0,0,0,1));
+                    commands.SetGlobalVector("unity_SHAr", new UnityEngine.Vector4(0,0,0,0.25f));
+                    commands.SetGlobalVector("unity_SHAg", new UnityEngine.Vector4(0,0,0,0.25f));
+                    commands.SetGlobalVector("unity_SHAb", new UnityEngine.Vector4(0,0,0,0.25f));
+                    for (int g = 8; g < globals.Length; g++) commands.SetGlobalVector(globals[g], UnityEngine.Vector4.zero);
+                    commands.SetGlobalVector("unity_LODFade", UnityEngine.Vector4.one);
+                    material.enableInstancing=true; block.SetFloatArray("_EnvironmentReactionIndex",new float[]{phase>=4?bufferIndex:-1}); commands.DrawMeshInstanced(mesh,slot,material,pass,new UnityEngine.Matrix4x4[]{model},1,block);
+                    UnityEngine.Graphics.ExecuteCommandBuffer(commands); UnityEngine.Graphics.ExecuteCommandBuffer(commands); UnityEngine.Graphics.ExecuteCommandBuffer(commands);
+                    UnityEngine.RenderTexture.active = target;
+                    readback.ReadPixels(new UnityEngine.Rect(0,0,64,64),0,0); readback.Apply();
+                    pixels[phase] = readback.GetPixels();
+                }
+                finally { commands.Release(); }
+            }
+            float bufferDifference = 0;
+for (int p = 1; p <= 3; p++)
+for (int pixel = 0; pixel < pixels[p].Length; pixel++)
+{
+    var delta = pixels[p][pixel] - pixels[p + 3][pixel];
+    bufferDifference = UnityEngine.Mathf.Max(bufferDifference, UnityEngine.Mathf.Abs(delta.r), UnityEngine.Mathf.Abs(delta.g), UnityEngine.Mathf.Abs(delta.b), UnityEngine.Mathf.Abs(delta.a));
+}
+if (bufferDifference > 0.008f) throw new System.Exception(surface.original.name + " buffer difference=" + bufferDifference);
+report.AppendLine(surface.original.name + " bufferMax=" + bufferDifference);
+int visible = 0; float dryDifference = 0, wetDifference = 0, burnDifference = 0;
+            for (int i = 0; i < pixels[0].Length; i++)
+            {
+                if (pixels[0][i].a > 0.1f) visible++;
+                var dry = pixels[0][i] - pixels[1][i]; var wet = pixels[1][i] - pixels[2][i];
+                dryDifference = UnityEngine.Mathf.Max(dryDifference, UnityEngine.Mathf.Abs(dry.r), UnityEngine.Mathf.Abs(dry.g), UnityEngine.Mathf.Abs(dry.b), UnityEngine.Mathf.Abs(dry.a));
+                wetDifference = UnityEngine.Mathf.Max(wetDifference, UnityEngine.Mathf.Abs(wet.r), UnityEngine.Mathf.Abs(wet.g), UnityEngine.Mathf.Abs(wet.b));
+                var burn = pixels[1][i] - pixels[3][i];
+                burnDifference = UnityEngine.Mathf.Max(burnDifference, UnityEngine.Mathf.Abs(burn.r), UnityEngine.Mathf.Abs(burn.g), UnityEngine.Mathf.Abs(burn.b));
+            }
+            if (visible == 0) empty++;
+            else { checkedCount++; if (dryDifference > 0.008f) failed++; if (wetDifference > 0.008f) wetChanged++; if (burnDifference > 0.008f) burnChanged++; }
+            report.AppendLine(surface.original.name + " visible=" + visible + " dryMax=" + dryDifference + " wetMax=" + wetDifference + " burnMax=" + burnDifference);
+        }
+        finally { UnityEngine.Object.DestroyImmediate(original); UnityEngine.Object.DestroyImmediate(reactive); }
+    }
+}
+finally
+{
+    bufferReset.Invoke(null, null); UnityEditor.ShaderUtil.allowAsyncCompilation = asynchronous;
+    for (int i = 0; i < globals.Length; i++) UnityEngine.Shader.SetGlobalVector(globals[i], savedGlobals[i]);
+    UnityEngine.RenderTexture.active = previous;
+    UnityEngine.RenderTexture.ReleaseTemporary(target);
+    UnityEngine.Object.DestroyImmediate(readback);
+}
+report.AppendLine("checked=" + checkedCount + " empty=" + empty + " dryFailed=" + failed + " wetChanged=" + wetChanged + " burnChanged=" + burnChanged);
+System.IO.File.WriteAllText("output/ReactiveEnvironment/VegetationConversion-20261114/material-gpu-instanced-comparison.txt", report.ToString());
+return report.ToString();

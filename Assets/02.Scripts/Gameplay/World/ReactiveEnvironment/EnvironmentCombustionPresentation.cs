@@ -21,6 +21,17 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
         public bool HasFlame => _flame != null;
         public bool HasSmoke => _smoke != null;
 
+        /// <summary>유휴 개체의 앵커·바람·카메라 조회를 생략하되 잔연 수명과 대여 반환은 유지한다.</summary>
+        public bool HasPendingPresentation => _hasState
+            && (_state.combustion != EnvironmentCombustion.Inactive
+                || !ReferenceEquals(_flame, null) || !ReferenceEquals(_smoke, null))
+            && _profile != null
+            && (HasFlame || HasSmoke
+                || _state.combustion == EnvironmentCombustion.Burning && _state.fuel > 0
+                || _state.combustion == EnvironmentCombustion.Heating && _state.heat >= _profile.heatingSmokeThreshold
+                || (_state.combustion == EnvironmentCombustion.Cooling || _state.combustion == EnvironmentCombustion.Spent)
+                    && _residualTime < Mathf.Max(_profile.residualSeconds, _profile.steamSeconds));
+
         public EnvironmentCombustionPresentation(EnvironmentPresentationProfileSO profile) => _profile = profile;
 
         /// <summary>반복 snapshot은 소화 타이머나 입자 재생을 초기화하지 않는다.</summary>
@@ -36,7 +47,7 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
         /// <summary>중앙 물리 tick에서만 수명·거리 예산을 갱신한다.</summary>
         public void Tick(float seconds, Vector3 position, Vector2 wind, float weight = 1)
         {
-            if (_profile == null || !_hasState) return;
+            if (!HasPendingPresentation) return;
             bool burning = _state.combustion == EnvironmentCombustion.Burning && _state.fuel > 0;
             bool residual = _state.combustion == EnvironmentCombustion.Cooling || _state.combustion == EnvironmentCombustion.Spent;
             if (residual) _residualTime += seconds;

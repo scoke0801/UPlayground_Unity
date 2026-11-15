@@ -16,6 +16,29 @@ namespace UPlayGround.EditorTools.Tests
         private const string ShaderName = "UPlayGround/Environment/Reactive Toon";
 
         [Test]
+        public void ZeroWoundKeepsHealthyRendererUntouchedAndClearsAnExistingWound()
+        {
+            var root = new GameObject("상처 없는 표면");
+            var material = NewMaterial();
+            ReactiveEnvironmentSurface surface = null;
+            try
+            {
+                var renderer = root.AddComponent<MeshRenderer>(); renderer.sharedMaterial = material;
+                surface = new ReactiveEnvironmentSurface(new Renderer[] { renderer });
+                surface.ApplyWound(Vector3.zero, 0);
+                Assert.That(renderer.HasPropertyBlock(), Is.False);
+                surface.ApplyWound(Vector3.zero, 0.3f);
+                var properties = new MaterialPropertyBlock();
+                renderer.GetPropertyBlock(properties, 0);
+                Assert.That(properties.GetVector("_EnvImpact").w, Is.EqualTo(0.3f));
+                surface.ApplyWound(Vector3.zero, 0);
+                renderer.GetPropertyBlock(properties, 0);
+                Assert.That(properties.GetVector("_EnvImpact").w, Is.Zero);
+            }
+            finally { surface?.Release(); UnityEngine.Object.DestroyImmediate(root); UnityEngine.Object.DestroyImmediate(material); }
+        }
+
+        [Test]
         public void EveryPassCompilesWithOpaqueAndNormalMapVariants()
         {
             var material = NewMaterial();

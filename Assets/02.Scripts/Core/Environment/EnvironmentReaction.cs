@@ -137,6 +137,17 @@ namespace UPlayGround.Core.ReactiveEnvironment
                 throw new ArgumentOutOfRangeException(nameof(seconds), "환경 tick 입력이 유효하지 않습니다.");
             var p = _parameters;
             var s = State;
+            // 입력 없는 마른 안정 상태도 tick 번호는 전진시키되 같은 화학 계산은 반복하지 않는다.
+            if (s.combustion == EnvironmentCombustion.Inactive && s.heat == 0 && s.wetness == 0
+                && p.initialFuel > 0 && s.fuel == p.initialFuel
+                && (!p.canBreak || s.isBroken || s.durability > 0)
+                && _pendingHeat == 0 && _pendingWater == 0 && _pendingContinuousWater == 0
+                && (rain == 0 || exposure == 0 || p.rainAcceptance == 0))
+            {
+                s.revision++;
+                State = s;
+                return;
+            }
             double water = _pendingWater;
             double continuousWater = _pendingContinuousWater;
             double heat = _pendingHeat;

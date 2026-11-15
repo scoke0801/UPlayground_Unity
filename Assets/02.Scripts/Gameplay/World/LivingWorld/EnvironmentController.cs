@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UPlayGround.Manager;
 using UPlayGround.UI;
+using UPlayGround.Gameplay.World.ReactiveEnvironment;
 
 namespace UPlayGround.Gameplay.World.LivingWorld
 {
@@ -96,6 +97,19 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         public bool IsReady { get; private set; }
         public uint Revision { get; private set; }
         public EnvironmentSchedule.Sample Current { get; private set; }
+        [NonSerialized] private uint _rainBatchEpoch;
+        [NonSerialized] private float _rainBatchValue;
+
+        /// <summary>같은 강수 스텝의 날씨는 생산자에서 한 번만 읽는다.</summary>
+        internal float ReadRainForBatch(uint epoch)
+        {
+            if (_rainBatchEpoch != epoch)
+            {
+                _rainBatchValue = this != null && IsReady ? Current.Rain : 0;
+                _rainBatchEpoch = epoch;
+            }
+            return _rainBatchValue;
+        }
         public float RainIntensity => Current.Rain;
         public float SnowIntensity => Current.Snow;
         public float LightningIntensity => _effects != null && IsReady ? _effects.LightningIntensity : 0;
@@ -188,6 +202,9 @@ namespace UPlayGround.Gameplay.World.LivingWorld
         /// <summary>비 표현과 환경 소화가 같은 차폐 원본을 조회하며 수신기 자체를 제외한다.</summary>
         public bool IsRainSheltered(Vector3 position, Transform receiverRoot = null) =>
             _effects != null && _effects.IsRainSheltered(position, receiverRoot);
+
+        internal EnvironmentRainBatch.Sample CollectRainSample(EnvironmentRainBatch batch, Vector3 position, Transform receiver = null) =>
+            batch.Collect(_effects, position, receiver);
 
         /// <summary>독립 검사에서도 실제 저장과 동일한 day/minute 입력을 사용한다.</summary>
         public bool EvaluateAt(int day, float minuteOfDay)

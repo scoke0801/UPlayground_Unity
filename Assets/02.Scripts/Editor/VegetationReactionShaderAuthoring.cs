@@ -14,6 +14,8 @@ namespace UPlayGround.EditorTools
         private const string Include = "Assets/06.Shaders/Environment/VegetationReaction.hlsl";
         private const string Properties = @"
         [HideInInspector] _EnvironmentReactionSupported(""환경 반응 계약"", Float) = 1
+        [HideInInspector] _EnvironmentReactionBufferSupported(""공유 표현 버퍼"", Float) = 1
+        [PerRendererData] [HideInInspector] _EnvironmentReactionIndex(""표현 상태 인덱스"", Float) = -1
         [HideInInspector] _EnvState0(""젖음 그을림 손상 연소"", Vector) = (0,0,0,0)
         [HideInInspector] _EnvState1(""열"", Vector) = (0,0,0,0)
         [HideInInspector] _FuelCoverage(""잔여 연료"", Float) = 1
@@ -27,6 +29,7 @@ namespace UPlayGround.EditorTools
 ";
         private const string Fields = @"
 float _EnvironmentReactionSupported;
+float _EnvironmentReactionBufferSupported, _EnvironmentReactionIndex;
 float4 _EnvState0, _EnvState1;
 float _FuelCoverage, _AllowFuelCoverage;
 float4 _WetTint, _CharTint, _FireColor;
@@ -58,9 +61,15 @@ float _UseEnvironmentCells;
                 text = text.Replace("float3 Color = CustomLighting379.rgb;", "float3 Color = CustomLighting379.rgb;\nfloat3 reactionEmission = 0;\nApplyVegetationReaction(WorldPosition, Color, reactionEmission);\nColor += reactionEmission;");
             }
             else throw new InvalidOperationException("미지원 셰이더: " + path);
-            File.WriteAllText(target, text);
+            File.WriteAllText(target, AddBufferVariants(text));
             AssetDatabase.ImportAsset(target, ImportAssetOptions.ForceSynchronousImport);
             return AssetDatabase.LoadAssetAtPath<Shader>(target);
+        }
+
+        private static string AddBufferVariants(string shader)
+        {
+            const string variants = "\n#pragma multi_compile _ _ENVIRONMENT_REACTION_BUFFER\n#pragma target 4.5 _ENVIRONMENT_REACTION_BUFFER\n";
+            return shader.Replace("HLSLPROGRAM", "HLSLPROGRAM" + variants).Replace("CGPROGRAM", "CGPROGRAM" + variants);
         }
 
         private static string GenerateGraph(string path)
@@ -121,7 +130,7 @@ float _UseEnvironmentCells;
             shader = shader.Replace("Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl", inputPath);
             shader = shader.Replace("Packages/com.unity.render-pipelines.universal/Shaders/LitForwardPass.hlsl", passPath);
             shader = shader.Replace("Packages/com.unity.render-pipelines.universal/Shaders/LitGBufferPass.hlsl", gbufferPath);
-            File.WriteAllText(target, shader);
+            File.WriteAllText(target, AddBufferVariants(shader));
             AssetDatabase.ImportAsset(target, ImportAssetOptions.ForceSynchronousImport);
             return AssetDatabase.LoadAssetAtPath<Shader>(target);
         }

@@ -46,11 +46,21 @@ namespace UPlayGround.Manager
         public void AfterInit() { }
         public void Dispose()
         {
+            _environmentRain.Dispose(); _environmentRainCapacity = 0;
             _detailTerrains.Clear(); _environmentLookup.Clear(); _environmentActiveKeys.Clear();
             _environmentBindings.Clear(); _environmentStates.Clear();
+            _environmentNeedsFixedTick = false;
+            _environmentRewardsPending = false;
+            _environmentDefinitions.Clear();
             _environmentEmitters.Clear(); _environmentSourceCells.Clear(); _environmentCellPool.Clear();
             OnEnvironmentStructureChanged = null;
             _lightningStates.Clear();
+        }
+
+        protected override void OnDestroy()
+        {
+            _environmentRain.Dispose();
+            base.OnDestroy();
         }
         public void OnUpdate() => TickEnvironment(Time.deltaTime);
         public void OnFixedUpdate() => FixedTickEnvironment(Time.fixedDeltaTime);

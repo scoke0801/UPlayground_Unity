@@ -1,0 +1,3 @@
+Katana: 준비 완료, 51f/30fps
+Bow: 준비 완료, 48f/30fps
+Spear: 준비 완료, 60f/30fps

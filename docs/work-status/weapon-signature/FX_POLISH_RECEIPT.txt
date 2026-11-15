@@ -1,0 +1,33 @@
+출처 | Assets/ExternalAssets/FX/Hovl Studio/AAA Projectiles Vol 1/Prefabs/Flash and hits/Flash 10 blue laser.prefab | 4f2f9845677ab3f49be1179d6bd15b78
+출처 | Assets/ExternalAssets/FX/Cartoon FX Remaster/CFXR Prefabs/Impacts/CFXR2 Ground Hit.prefab | 87ee7299dd44ed747af24dbb91bcd33b
+출처 | Assets/03.Prefabs/Weapon/GreatSword/GreatSword_001.prefab | c8fe355accfcad14b94743f854d1d943
+산출물 | Assets/03.Prefabs/Effects/Signature/Polish/Rock.asset
+산출물 | Assets/03.Prefabs/Effects/Signature/Polish/BladeShard.asset
+산출물 | Assets/03.Prefabs/Effects/Signature/Polish/GreatSword_Dissolve.mat
+산출물 | Assets/03.Prefabs/Effects/Signature/GreatSword_Signature.prefab
+출처 | Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Signature/GreatSword_Signature.asset | 9414b8d12cc545a4f845094e381e1ef3
+산출물 | Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Signature/GreatSword_Signature.asset
+산출물 | Assets/03.Prefabs/Effects/Signature/Polish/GreatSword_Disintegration.prefab
+출처 | Assets/03.Prefabs/Effects/Signature/Polish/GreatSword_Disintegration.prefab | 666b87c09418d71488b19e4d697964a9
+산출물 | Assets/03.Prefabs/Effects/Signature/Spear_Signature.prefab
+산출물 | Assets/03.Prefabs/Effects/Signature/SwordShield_Signature.prefab
+출처 | Assets/ExternalAssets/FX/Hovl Studio/Magic circles/Prefabs/Magic shield holy.prefab | 49f4a2628a72b0846afe42d196c02e6c
+산출물 | Assets/03.Prefabs/Effects/Signature/Spear_Impact_Signature.prefab
+산출물 | Assets/03.Prefabs/Effects/Signature/SwordShield_Impact_Signature.prefab
+산출물 | Assets/03.Prefabs/Effects/Signature/GreatSword_Impact_Signature.prefab
+산출물 | Assets/03.Prefabs/Effects/Signature/DualBlade_Signature.prefab
+산출물 | Assets/03.Prefabs/Effects/Signature/Polish/DoubleAxe_Impact.prefab
+산출물 | Assets/03.Prefabs/Effects/Signature/Polish/DoubleAxe_Dust.prefab
+출처 | Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Signature/DoubleAxe_Signature.asset | 038df759f14852943851270664580604
+산출물 | Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Signature/DoubleAxe_Signature.asset
+출처 | Assets/03.Prefabs/Effects/Signature/Polish/DoubleAxe_Impact.prefab | eed722a2d866429498e55c5a180fd764
+출처 | Assets/03.Prefabs/Effects/Signature/Polish/DoubleAxe_Dust.prefab | c017ecc337b2a36458b62166b9241e30
+산출물 | Assets/03.Prefabs/Effects/Signature/Polish/Whip_Rim.prefab
+출처 | Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Signature/Whip_Signature.asset | b4b5a28417ba0274197b7a9f5bdcd5bd
+산출물 | Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Signature/Whip_Signature.asset
+출처 | Assets/03.Prefabs/Effects/Signature/Whip_Signature.prefab | ad7e87c27f45e5042a3c610634722f2e
+출처 | Assets/03.Prefabs/Effects/Signature/Polish/Whip_Rim.prefab | 26f77a78664cae24c9958c6a01e5e76d
+산출물 | Assets/03.Prefabs/Effects/Signature/Polish/Whip_Impact.prefab
+출처 | Assets/03.Prefabs/Effects/Signature/Polish/Whip_Impact.prefab | c00f00593b119984fb38a8b2bce5e90f
+산출물 | Assets/03.Prefabs/Effects/Signature/Polish/Weapon_Trail.prefab
+출처 | Assets/03.Prefabs/Effects/Signature/Polish/Weapon_Trail.prefab | 414f2940e627e9548bc594ddd8af73b3

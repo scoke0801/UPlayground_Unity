@@ -1,0 +1,61 @@
+{
+  "result": {
+    "success": true,
+    "message": "Test job status retrieved.",
+    "error": null,
+    "data": {
+      "job_id": "791a37279c154350ae7786503e1c4881",
+      "status": "failed",
+      "mode": "PlayMode",
+      "started_unix_ms": 1794670277374,
+      "finished_unix_ms": 1794670297400,
+      "last_update_unix_ms": 1794670297400,
+      "progress": {
+        "completed": 12,
+        "total": 12,
+        "current_test_full_name": null,
+        "current_test_started_unix_ms": null,
+        "last_finished_test_full_name": "UPlayGround.UI.PlayModeTests.FaceStripPlayModeTests.느린_전투_시간에도_실시간으로_표시하고_자연_종료한다",
+        "last_finished_unix_ms": 1794670297377,
+        "stuck_suspected": false,
+        "editor_is_focused": false,
+        "run_in_background": true,
+        "focus_nudge_attempts": null,
+        "focus_nudge_limit": null,
+        "focus_nudge_status": null,
+        "blocked_reason": null,
+        "failures_so_far": [
+          {
+            "full_name": "UPlayGround.Ability.PlayModeTests.GameplayAbilityVerticalSlicePlayModeTests.Boss_Lian_간격압박_공격트리거는_상태와_Ability를_시작한다",
+            "message": "  Expected: null\r\n  But was:  StateTransitionRejected\r\n"
+          }
+        ],
+        "failures_capped": false
+      },
+      "error": null,
+      "result": {
+        "mode": "PlayMode",
+        "summary": {
+          "total": 12,
+          "passed": 11,
+          "failed": 1,
+          "skipped": 0,
+          "durationSeconds": 3.038328,
+          "resultState": "Failed(Child)"
+        },
+        "results": [
+          {
+            "name": "Boss_Lian_간격압박_공격트리거는_상태와_Ability를_시작한다",
+            "fullName": "UPlayGround.Ability.PlayModeTests.GameplayAbilityVerticalSlicePlayModeTests.Boss_Lian_간격압박_공격트리거는_상태와_Ability를_시작한다",
+            "state": "Failed",
+            "durationSeconds": 1.5337356,
+            "message": "  Expected: null\r\n  But was:  StateTransitionRejected\r\n",
+            "stackTrace": "at UPlayGround.Ability.PlayModeTests.GameplayAbilityVerticalSlicePlayModeTests+<Boss_Lian_간격압박_공격트리거는_상태와_Ability를_시작한다>d__6.MoveNext () [0x00447] in C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\Tests\\PlayMode\\Ability\\GameplayAbilityVerticalSlicePlayModeTests.cs:383\r\nat UnityEngine.TestTools.TestEnumerator+<Execute>d__7.MoveNext () [0x0004e] in .\\Library\\PackageCache\\com.unity.test-framework@bd7f943e9647\\UnityEngine.TestRunner\\NUnitExtensions\\Attributes\\TestEnumerator.cs:44\r\n",
+            "output": "[Services] 등록되지 않은 서비스 계약 요청: UPlayGround.Manager.IActorSimulationService\r\n[Services] 등록되지 않은 서비스 계약 요청: UPlayGround.Manager.IGameEventPublisher\r\n[Services] 등록되지 않은 서비스 계약 요청: UPlayGround.Manager.IActorSpawnTrackingService\r\n"
+          }
+        ]
+      }
+    },
+    "hint": null
+  }
+}

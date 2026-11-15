@@ -1,0 +1,169 @@
+{
+  "result": {
+    "success": true,
+    "message": "Test job status retrieved.",
+    "error": null,
+    "data": {
+      "job_id": "fe7924040457432081bd27be6e928c6e",
+      "status": "failed",
+      "mode": "PlayMode",
+      "started_unix_ms": 1794670994627,
+      "finished_unix_ms": 1794671012439,
+      "last_update_unix_ms": 1794671012439,
+      "progress": {
+        "completed": 13,
+        "total": 13,
+        "current_test_full_name": null,
+        "current_test_started_unix_ms": null,
+        "last_finished_test_full_name": "UPlayGround.UI.PlayModeTests.FaceStripPlayModeTests.느린_전투_시간에도_실시간으로_표시하고_자연_종료한다",
+        "last_finished_unix_ms": 1794671012378,
+        "stuck_suspected": false,
+        "editor_is_focused": false,
+        "run_in_background": true,
+        "focus_nudge_attempts": null,
+        "focus_nudge_limit": null,
+        "focus_nudge_status": null,
+        "blocked_reason": null,
+        "failures_so_far": [
+          {
+            "full_name": "UPlayGround.Ability.PlayModeTests.GameplayAbilityVerticalSlicePlayModeTests.Boss_Lian_간격압박_공격트리거는_상태와_Ability를_시작한다",
+            "message": "  Expected: null\r\n  But was:  StateTransitionRejected\r\n"
+          }
+        ],
+        "failures_capped": false
+      },
+      "error": null,
+      "result": {
+        "mode": "PlayMode",
+        "summary": {
+          "total": 13,
+          "passed": 12,
+          "failed": 1,
+          "skipped": 0,
+          "durationSeconds": 4.0546929,
+          "resultState": "Failed(Child)"
+        },
+        "results": [
+          {
+            "name": "Boss_Lian_간격압박_공격트리거는_상태와_Ability를_시작한다",
+            "fullName": "UPlayGround.Ability.PlayModeTests.GameplayAbilityVerticalSlicePlayModeTests.Boss_Lian_간격압박_공격트리거는_상태와_Ability를_시작한다",
+            "state": "Failed",
+            "durationSeconds": 2.3715296,
+            "message": "  Expected: null\r\n  But was:  StateTransitionRejected\r\n",
+            "stackTrace": "at UPlayGround.Ability.PlayModeTests.GameplayAbilityVerticalSlicePlayModeTests+<Boss_Lian_간격압박_공격트리거는_상태와_Ability를_시작한다>d__6.MoveNext () [0x00447] in C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\Tests\\PlayMode\\Ability\\GameplayAbilityVerticalSlicePlayModeTests.cs:383\r\nat UnityEngine.TestTools.TestEnumerator+<Execute>d__7.MoveNext () [0x0004e] in .\\Library\\PackageCache\\com.unity.test-framework@bd7f943e9647\\UnityEngine.TestRunner\\NUnitExtensions\\Attributes\\TestEnumerator.cs:44\r\n",
+            "output": "[Services] 등록되지 않은 서비스 계약 요청: UPlayGround.Manager.IActorSimulationService\r\n[Services] 등록되지 않은 서비스 계약 요청: UPlayGround.Manager.IGameEventPublisher\r\n[Services] 등록되지 않은 서비스 계약 요청: UPlayGround.Manager.IActorSpawnTrackingService\r\n"
+          },
+          {
+            "name": "DurationEffect는_시간_경과후_Modifier와_Tag를_정리한다",
+            "fullName": "UPlayGround.Ability.PlayModeTests.GameplayAbilityVerticalSlicePlayModeTests.DurationEffect는_시간_경과후_Modifier와_Tag를_정리한다",
+            "state": "Passed",
+            "durationSeconds": 0.1947495,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "GameplayEvent_Request는_상태승인후_Commit_End까지_왕복한다",
+            "fullName": "UPlayGround.Ability.PlayModeTests.GameplayAbilityVerticalSlicePlayModeTests.GameplayEvent_Request는_상태승인후_Commit_End까지_왕복한다",
+            "state": "Passed",
+            "durationSeconds": 0.0619043,
+            "message": null,
+            "stackTrace": null,
+            "output": "[Services] 등록되지 않은 서비스 계약 요청: UPlayGround.Manager.IPartyService\r\n"
+          },
+          {
+            "name": "Prepare부터_Payload_Commit_End까지_수직슬라이스가_정리된다",
+            "fullName": "UPlayGround.Ability.PlayModeTests.GameplayAbilityVerticalSlicePlayModeTests.Prepare부터_Payload_Commit_End까지_수직슬라이스가_정리된다",
+            "state": "Passed",
+            "durationSeconds": 0.0339505,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "착탄FX는_재활성화마다_한번재생하고_자기핸들만_해제한다",
+            "fullName": "UPlayGround.Ability.PlayModeTests.SignatureImpactCameraTests.착탄FX는_재활성화마다_한번재생하고_자기핸들만_해제한다",
+            "state": "Passed",
+            "durationSeconds": 0.010671,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "모델비활성은_살아있는시전자탄을_회수하지않는다",
+            "fullName": "UPlayGround.Ability.PlayModeTests.SignatureProjectileLifetimeTests.모델비활성은_살아있는시전자탄을_회수하지않는다",
+            "state": "Passed",
+            "durationSeconds": 0.0122296,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "사망회수정책은_선택한탄에만_적용하고_만료폭발을_만들지않는다(False)",
+            "fullName": "UPlayGround.Ability.PlayModeTests.SignatureProjectileLifetimeTests.사망회수정책은_선택한탄에만_적용하고_만료폭발을_만들지않는다(False)",
+            "state": "Passed",
+            "durationSeconds": 0.0021896,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "사망회수정책은_선택한탄에만_적용하고_만료폭발을_만들지않는다(True)",
+            "fullName": "UPlayGround.Ability.PlayModeTests.SignatureProjectileLifetimeTests.사망회수정책은_선택한탄에만_적용하고_만료폭발을_만들지않는다(True)",
+            "state": "Passed",
+            "durationSeconds": 0.0020188,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "지점투척은_비행접촉피해없이_착탄에서만_한번_맞힌다",
+            "fullName": "UPlayGround.Ability.PlayModeTests.SignatureProjectileLifetimeTests.지점투척은_비행접촉피해없이_착탄에서만_한번_맞힌다",
+            "state": "Passed",
+            "durationSeconds": 0.0140381,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "착탄예고는_목표지점에남고_사망회수와_풀재사용에서_중복되지않는다",
+            "fullName": "UPlayGround.Ability.PlayModeTests.SignatureProjectileLifetimeTests.착탄예고는_목표지점에남고_사망회수와_풀재사용에서_중복되지않는다",
+            "state": "Passed",
+            "durationSeconds": 0.0051396,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "화살비는_수명경계에서도_대상당6회를넘지않고_재대여하면_횟수가초기화된다",
+            "fullName": "UPlayGround.Ability.PlayModeTests.SignatureProjectileLifetimeTests.화살비는_수명경계에서도_대상당6회를넘지않고_재대여하면_횟수가초기화된다",
+            "state": "Passed",
+            "durationSeconds": 0.0073234,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "HUD가_꺼져도_독립_캔버스는_표시하고_토큰으로_닫힌다",
+            "fullName": "UPlayGround.UI.PlayModeTests.FaceStripPlayModeTests.HUD가_꺼져도_독립_캔버스는_표시하고_토큰으로_닫힌다",
+            "state": "Passed",
+            "durationSeconds": 0.2780305,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "느린_전투_시간에도_실시간으로_표시하고_자연_종료한다",
+            "fullName": "UPlayGround.UI.PlayModeTests.FaceStripPlayModeTests.느린_전투_시간에도_실시간으로_표시하고_자연_종료한다",
+            "state": "Passed",
+            "durationSeconds": 0.8783916,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          }
+        ]
+      }
+    },
+    "hint": null
+  }
+}

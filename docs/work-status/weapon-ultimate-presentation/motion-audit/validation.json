@@ -1,0 +1,38 @@
+{
+    "Date":  "2026-11-14",
+    "BindingCount":  10,
+    "MotionSetCount":  111,
+    "LocalLinksChecked":  79,
+    "BrokenLinks":  0,
+    "MissingReferencedAssets":  0,
+    "NonStringLocalIds":  0,
+    "Recipes":  [
+                    {
+                        "Character":  "Sera",
+                        "Prefix":  1.16241867,
+                        "Attack":  2.43333817,
+                        "Recovery":  0.07093016,
+                        "Total":  3.66668700,
+                        "ShiftedDonorStart":  1.81232107,
+                        "ShiftedDonorEnd":  1.95489917,
+                        "TargetStart":  1.81232107,
+                        "TargetEnd":  2.31232119,
+                        "EndDifference":  0.35742202
+                    },
+                    {
+                        "Character":  "Lili",
+                        "Prefix":  0.42353165,
+                        "Attack":  3.0,
+                        "Recovery":  0.24315535,
+                        "Total":  3.66668700,
+                        "ShiftedDonorStart":  1.81232107,
+                        "ShiftedDonorEnd":  2.31232095,
+                        "TargetStart":  1.81232107,
+                        "TargetEnd":  2.31232119,
+                        "EndDifference":  0.00000024
+                    }
+                ],
+    "RuntimeApplied":  false,
+    "PlayModeVerified":  false,
+    "EditorFinalState":  "MCP: No Unity Editor instances found"
+}

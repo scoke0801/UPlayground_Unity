@@ -6,12 +6,12 @@
 
 - [UI와 입력 저작](../../Assets/docs/guide/UI_UX_AUTHORING_GUIDE.md)
 - [펫 V2 설계](../../Assets/docs/design/ui-player/pet-system/PET_SYSTEM_V2_DESIGN.html), [V2 구현 기록](../work-status/pet-system/PET_SYSTEM_V2_IMPLEMENTATION.html)
-- [펫 V3 설계(전투 지원·성장 고도화)](../../Assets/docs/design/ui-player/pet-system/PET_SYSTEM_V3_DESIGN.html), [V3 상태·P1 검증·사용자 테스트](../work-status/pet-system/PET_SYSTEM_V3_STATUS.md)
+- [펫 V3 설계(전투 지원·성장 고도화)](../../Assets/docs/design/ui-player/pet-system/PET_SYSTEM_V3_DESIGN.html), [V3 상태·P1~P3 검증·사용자 테스트](../work-status/pet-system/PET_SYSTEM_V3_STATUS.md)
 - [지역 하늘 설계](../../Assets/docs/design/world-art/environment/REGIONAL_SKY_ATMOSPHERE_DESIGN.html), [하늘 후속 확인](../work-status/regional-sky/REGIONAL_SKY_FOLLOWUP_TEST_SPEC.html)
 
 ## 진행 기록
 
-펫 V3 P1(2026-11-14): [상태·최종 검증 원본·PV01~06](../work-status/pet-system/PET_SYSTEM_V3_STATUS.md). 응급 회복/기세/버팀의 정책 신호, 독립 GAS 쿨다운(45/10/15초)과 전역 8초, 세이브 v3 슬롯 1개·알 수 없는 ID 보존, 기존 FX·HUD 반응을 반영했다. **최종 저장 보완 후 EditMode46/46·PlayMode9/9·GA/GE30개 오류0·HUD 참조 정상**을 재확인해 이전 자동 재검증 차단을 해소했다. 전체 GAS 검사에는 범위 밖 오류7·경고599가 남아 있다. 실제 반응 체감·타이머 지원 대비 만족도·FX/HUD 시각 품질은 사용자 테스트 대기다. 유대·두 번째 슬롯·EnemyBroken은 후속 범위다.
+펫 V3 P1~P3(2026-11-14): [상태·최종 검증·사용자 테스트](../work-status/pet-system/PET_SYSTEM_V3_STATUS.md). 신호 지원·공용 유대 3원천·두 슬롯·가벼운 손놀림·브레이크 교란과 메뉴/HUD를 반영했다. 전체 구현 후 최종 펫 EditMode72/72·AI 회귀27/27·PlayMode16/16, 펫 GA/GE42개 오류0·경고0 및 UI 연결을 확인했다. 전수 GAS에는 범위 밖 오류7·경고599가 남아 있다. A/B는 Astra 재검토 후 보류 유지. 실제 반응·성장 속도·패드/화면·교란 밸런스는 사용자 테스트 대기다.
 
 공중 비행 입력 변경(2026-11-14): [입력 설계](../../Assets/docs/design/ui-player/GLIDING_INPUT_DESIGN.md)·[작업 상태](../work-status/gliding-input.md). 자동 순항·W 상승/S 하강·A/D 선회로 교체하고 카메라 피치 고도 조절과 S 전진 감속을 제거했다. 기존 속도·가속·도약/탑승 연결 범위는 유지한다. 정상 컴파일·관련 EditMode55/55·실행 SO 조회 통과. 실제 조작은 GI01~GI04 사용자 테스트 대기다.
 

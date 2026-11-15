@@ -1,0 +1,49 @@
+var folder="docs/work-status/weapon-ultimate-presentation/motion-audit";
+System.IO.Directory.CreateDirectory(folder);
+var previewType=System.Type.GetType("UPlayGround.Editor.P09Builder.P09PosePreview, Assembly-CSharp-Editor");
+var prefab=UnityEditor.AssetDatabase.LoadAssetAtPath<UnityEngine.GameObject>("Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Sera.prefab");
+var asset=UnityEditor.AssetDatabase.LoadAssetAtPath<UPlayGround.Animation.MotionSetAsset>("Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/GreatSword/Humanoid_GreatSwordAnimationSet_Skill_2.asset");
+var original=asset;asset=UnityEngine.Object.Instantiate(original);asset.hideFlags=UnityEngine.HideFlags.HideAndDontSave;
+var baseRoot="Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/GreatSword/Humanoid_GreatSwordAnimationSet_";
+var guard=UnityEditor.AssetDatabase.LoadAssetAtPath<UPlayGround.Animation.MotionSetAsset>(baseRoot+"Guard.asset");
+var attack=UnityEditor.AssetDatabase.LoadAssetAtPath<UPlayGround.Animation.MotionSetAsset>(baseRoot+"HeavyAttack_3.asset");
+var idle=UnityEditor.AssetDatabase.LoadAssetAtPath<UPlayGround.Animation.MotionSetAsset>(baseRoot+"Idle.asset");
+var prefix=original.motionSet.motions[0].events.First(e=>e.GetType().Name=="BeginCollisionEvent").startTime-attack.motionSet.motions[0].events.First(e=>e.GetType().Name=="BeginCollisionEvent").startTime;
+var tail=original.motionSet.TotalDuration-prefix-attack.motionSet.TotalDuration;
+asset.motionSet.motions=new System.Collections.Generic.List<UPlayGround.Animation.Motion>{
+new UPlayGround.Animation.Motion{ id="prep",motionClip=guard.motionSet.motions[0].motionClip,clipStartTime=0,clipEndTime=prefix,playbackSpeed=1 },
+new UPlayGround.Animation.Motion{ id="attack",motionClip=attack.motionSet.motions[0].motionClip,clipStartTime=0,clipEndTime=attack.motionSet.motions[0].motionClip.length,playbackSpeed=1 },
+new UPlayGround.Animation.Motion{ id="recovery",motionClip=idle.motionSet.motions[0].motionClip,clipStartTime=0,clipEndTime=tail,playbackSpeed=1 }};
+
+if(asset==null)throw new System.Exception("Missing preview asset");
+var utility=new UnityEditor.PreviewRenderUtility();
+object sampler=null;
+try{
+var go=utility.InstantiatePrefabInScene(prefab);
+go.transform.SetPositionAndRotation(UnityEngine.Vector3.zero,UnityEngine.Quaternion.identity);
+foreach(var mb in go.GetComponentsInChildren<UnityEngine.MonoBehaviour>(true))mb.enabled=false;
+go.SetActive(true);
+foreach(var tr in go.GetComponentsInChildren<UnityEngine.Transform>(true))if(tr.name=="InteractionObject")tr.gameObject.SetActive(false);
+sampler=System.Activator.CreateInstance(previewType,new object[]{go});
+utility.camera.orthographic=true;utility.camera.orthographicSize=1.5f;utility.camera.nearClipPlane=0.01f;utility.camera.farClipPlane=100f;
+utility.camera.transform.position=new UnityEngine.Vector3(4,2.3f,5);utility.camera.transform.LookAt(new UnityEngine.Vector3(0,1,0));
+utility.camera.clearFlags=UnityEngine.CameraClearFlags.SolidColor;utility.camera.backgroundColor=new UnityEngine.Color(.16f,.18f,.21f,1);
+utility.lights[0].intensity=1.3f;utility.lights[0].transform.rotation=UnityEngine.Quaternion.Euler(35,40,0);
+utility.lights[1].intensity=.6f;
+var sheet=new UnityEngine.Texture2D(384*6,384,UnityEngine.TextureFormat.RGB24,false);
+for(int i=0;i<6;i++){
+previewType.GetMethod("Sample").Invoke(sampler,new object[]{asset,UnityEngine.Mathf.Min(i/5f,.999f),null});
+var weaponPath="";
+if(weaponPath.Length>0){
+var wm=UnityEditor.AssetDatabase.LoadAssetAtPath<UPlayGround.Animation.MotionSetAsset>(weaponPath);
+foreach(var wa in go.GetComponentsInChildren<UnityEngine.Animator>(true))if(wa!=go.GetComponent<UnityEngine.Animator>())wm.motionSet.motions[0].motionClip.SampleAnimation(wa.gameObject,wm.motionSet.motions[0].motionClip.length*UnityEngine.Mathf.Min(i/5f,.999f));
+var flags=System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic;
+var skins=(System.Collections.Generic.List<UnityEngine.SkinnedMeshRenderer>)previewType.GetField("_skins",flags).GetValue(sampler);
+var meshes=(System.Collections.Generic.List<UnityEngine.Mesh>)previewType.GetField("_meshes",flags).GetValue(sampler);
+for(int j=0;j<skins.Count;j++)skins[j].BakeMesh(meshes[j]);
+}
+utility.BeginStaticPreview(new UnityEngine.Rect(0,0,384,384));utility.Render(true,false);var frame=utility.EndStaticPreview();sheet.SetPixels(i*384,0,384,384,frame.GetPixels());UnityEngine.Object.DestroyImmediate(frame);
+}
+sheet.Apply();System.IO.File.WriteAllBytes(folder+"/Sera_Recipe.png",sheet.EncodeToPNG());UnityEngine.Object.DestroyImmediate(sheet);
+return new{file=folder+"/Sera_Recipe.png",sceneDirty=UnityEngine.SceneManagement.SceneManager.GetActiveScene().isDirty};
+}finally{if(sampler!=null)((System.IDisposable)sampler).Dispose();utility.Cleanup();UnityEngine.Object.DestroyImmediate(asset);}

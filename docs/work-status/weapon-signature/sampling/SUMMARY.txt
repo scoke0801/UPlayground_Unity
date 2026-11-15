@@ -1,0 +1,13 @@
+Raon | samples=205 | duration=1.7 | root=(-0.09, 0.00, 8.00) | rootYaw=0 | feetRange=0.1529523..0.249294087 | maxPoseDisplacement=0.6878858
+Arin | samples=205 | duration=1.7 | root=(-0.09, 0.00, 8.00) | rootYaw=0 | feetRange=0.1571419..0.227157861 | maxPoseDisplacement=0.6278476
+Hwarin | samples=469 | duration=3.9 | root=(0.00, 0.00, 0.00) | rootYaw=0 | feetRange=0.0276389383..0.143679753 | maxPoseDisplacement=0.921904743
+SeolA | samples=193 | duration=1.5999999 | root=(0.00, 0.00, 0.00) | rootYaw=0 | feetRange=0.0640798..0.0672457 | maxPoseDisplacement=0.671565652
+Reine | samples=241 | duration=2 | root=(0.00, 0.00, 0.00) | rootYaw=0 | feetRange=0.0799998045..0.08000016 | maxPoseDisplacement=1.376071
+Yura | samples=181 | duration=1.5 | root=(0.00, 0.00, 0.00) | rootYaw=0 | feetRange=-0.0112290382..0.6028694 | maxPoseDisplacement=0.905253
+YeonHoa | samples=361 | duration=3 | root=(0.00, 0.00, 0.00) | rootYaw=0 | feetRange=0.06841798..0.07260044 | maxPoseDisplacement=0.5260569
+Myomyo | samples=361 | duration=3 | root=(0.00, 0.00, 0.00) | rootYaw=0 | feetRange=0.09335649..0.09713298 | maxPoseDisplacement=0.5876506
+Sera | samples=241 | duration=2 | root=(0.03, 0.00, -0.08) | rootYaw=0 | feetRange=-0.0357182324..0.177475691 | maxPoseDisplacement=1.27506483
+Lili | samples=241 | duration=2 | root=(0.02, 0.00, -0.07) | rootYaw=0 | feetRange=-0.0510891676..0.146911681 | maxPoseDisplacement=1.18805027
+Lian | samples=289 | duration=2.4 | root=(0.00, 0.00, 0.86) | rootYaw=0 | feetRange=0.110033631..0.151454091 | maxPoseDisplacement=1.00719965
+MyoRyeong | samples=241 | duration=2 | root=(0.00, 0.00, 0.00) | rootYaw=0 | feetRange=0.109214067..0.160347357 | maxPoseDisplacement=0.61904
+범위: 이벤트·KCC 도약·워프·무기 Generic 트랙·그립 접촉은 별도 검사. 루트와 몸의 유한 좌표·시각 상승만 측정.

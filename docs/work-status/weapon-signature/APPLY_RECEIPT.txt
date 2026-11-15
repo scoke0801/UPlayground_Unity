@@ -1,0 +1,1 @@
+9종 궁극기 연결 완료. 원본 MotionSet·Sequence·공유 Default 세트는 보존됨.

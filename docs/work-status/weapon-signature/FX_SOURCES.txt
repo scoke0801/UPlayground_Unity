@@ -1,0 +1,10 @@
+Assets/03.Prefabs/Weapon/Bow/Arrow_001.prefab | bb73d69521da7c94381a1df738e6481b
+Assets/03.Prefabs/Effects/Signature/Bow_Impact_Signature.prefab | d3151206226ff63489a3d16164fc9405
+Assets/ExternalAssets/FX/Hovl Studio/3D Lasers Pack/Prefabs/Laser beam 5 magic.prefab | 5ef207190f0475843a714c18f0be30a4
+Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Reine.prefab | e41d5219fdb05f843b7d0a1de1ba048c
+Assets/03.Prefabs/Weapon/Shield/Shield_001.prefab | e4d1b353608e138449a2022c1bd4d9df
+Assets/03.Prefabs/Weapon/GreatSword/GreatSword_001.prefab | c8fe355accfcad14b94743f854d1d943
+Assets/03.Prefabs/Effects/Signature/Bow_Signature.prefab | d7555e11e5aef4e4990f2f2de5dfbe1e
+Assets/03.Prefabs/Effects/Signature/DualBlade_Signature.prefab | 6bce2f64e04e8c24fb548e427dd18fea
+Assets/03.Prefabs/Effects/Signature/Spear_Signature.prefab | 50b67011247d77a44a83035bb1e21c90
+Assets/03.Prefabs/Effects/Signature/SwordShield_Signature.prefab | 119b852828c661c4aa1c223ed5c201cd

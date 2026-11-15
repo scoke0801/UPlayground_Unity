@@ -1,0 +1,5 @@
+시그니처 9종: 준비 데이터 검사 통과. 실제 포즈·미술·플레이 품질은 별도 확인 필요.
+Projectile_BowSignatureRain | errors=0 | 
+Projectile_DualBladeSignatureTornado | errors=0 | 
+Projectile_SpearSignatureFall | errors=0 | 
+Projectile_SwordShieldSignatureFall | errors=0 | 

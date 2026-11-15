@@ -1,0 +1,5 @@
+Bow | 1.6s | 30fps | Assets/ExternalAssets/AnimationOnly/RPG_Animations_Pack/Model/T-Pose.fbx
+Staff | 3s | 30fps | Assets/ExternalAssets/AnimationOnly/RPG_Animations_Pack/Model/T-Pose.fbx
+Spear | 2s | 30fps | Assets/ExternalAssets/AnimationOnly/Frank_Slash_Pack/Assets/Meshes/Frank_RPG_Spear_Unity.FBX
+SwordShield | 2s | 30fps | Assets/ExternalAssets/AnimationOnly/Frank_Slash_Pack/Assets/Meshes/Frank_Warrior_Skin.FBX
+Katana | 1.7s | 30fps | Assets/ExternalAssets/AnimationOnly/Frank_Slash_Pack/Assets/Meshes/Frank_Katana_Skin.FBX

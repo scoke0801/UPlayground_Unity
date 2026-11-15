@@ -1,0 +1,299 @@
+{
+  "result": {
+    "success": true,
+    "message": "Test job status retrieved.",
+    "error": null,
+    "data": {
+      "job_id": "df45c218603b477397339b8d67ca991a",
+      "status": "succeeded",
+      "mode": "EditMode",
+      "started_unix_ms": 1794666661413,
+      "finished_unix_ms": 1794666682536,
+      "last_update_unix_ms": 1794666682536,
+      "progress": {
+        "completed": 28,
+        "total": 28,
+        "current_test_full_name": null,
+        "current_test_started_unix_ms": null,
+        "last_finished_test_full_name": "UPlayGround.Combat.Tests.WeaponSlotVisibilityTests.ResetInvalidatesOldTokenWithoutReleasingNewRequest",
+        "last_finished_unix_ms": 1794666682293,
+        "stuck_suspected": false,
+        "editor_is_focused": false,
+        "run_in_background": true,
+        "focus_nudge_attempts": null,
+        "focus_nudge_limit": null,
+        "focus_nudge_status": null,
+        "blocked_reason": null,
+        "failures_so_far": [],
+        "failures_capped": false
+      },
+      "error": null,
+      "result": {
+        "mode": "EditMode",
+        "summary": {
+          "total": 28,
+          "passed": 28,
+          "failed": 0,
+          "skipped": 0,
+          "durationSeconds": 5.0728771,
+          "resultState": "Passed"
+        },
+        "results": [
+          {
+            "name": "Bow_다중투사체는_Damage_Poise_Break_총량을_보존한다(\"Bow.Ability.Skill.4\",3,155.0f,465.0f,166.0f)",
+            "fullName": "UPlayGround.Ability.Tests.AbilityDataIntegrityTests.Bow_다중투사체는_Damage_Poise_Break_총량을_보존한다(\"Bow.Ability.Skill.4\",3,155.0f,465.0f,166.0f)",
+            "state": "Passed",
+            "durationSeconds": 0.0336336,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "Bow_다중투사체는_Damage_Poise_Break_총량을_보존한다(\"Bow.Ability.Skill.5\",4,210.0f,630.0f,225.0f)",
+            "fullName": "UPlayGround.Ability.Tests.AbilityDataIntegrityTests.Bow_다중투사체는_Damage_Poise_Break_총량을_보존한다(\"Bow.Ability.Skill.5\",4,210.0f,630.0f,225.0f)",
+            "state": "Passed",
+            "durationSeconds": 0.0002112,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "모든_AttributeProfile은_고유한_AttributeId와_필수값을_가진다",
+            "fullName": "UPlayGround.Ability.Tests.AbilityDataIntegrityTests.모든_AttributeProfile은_고유한_AttributeId와_필수값을_가진다",
+            "state": "Passed",
+            "durationSeconds": 0.1177491,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "모든_GameplayAbility는_TaskGraph_또는_Request트리거를_가진다",
+            "fullName": "UPlayGround.Ability.Tests.AbilityDataIntegrityTests.모든_GameplayAbility는_TaskGraph_또는_Request트리거를_가진다",
+            "state": "Passed",
+            "durationSeconds": 0.3625219,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "시그니처_Ultimate는_일반형으로_실행하고_원본_시퀀스_Payload는_보존한다(\"Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Ultimate.asset\",Raon,3)",
+            "fullName": "UPlayGround.Ability.Tests.AbilityDataIntegrityTests.시그니처_Ultimate는_일반형으로_실행하고_원본_시퀀스_Payload는_보존한다(\"Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Ultimate.asset\",Raon,3)",
+            "state": "Passed",
+            "durationSeconds": 0.0081663,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "시그니처_Ultimate는_일반형으로_실행하고_원본_시퀀스_Payload는_보존한다(\"Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Ultimate.asset\",Hwarin,4)",
+            "fullName": "UPlayGround.Ability.Tests.AbilityDataIntegrityTests.시그니처_Ultimate는_일반형으로_실행하고_원본_시퀀스_Payload는_보존한다(\"Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Ultimate.asset\",Hwarin,4)",
+            "state": "Passed",
+            "durationSeconds": 0.0031517,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "태그_트리거_마이그레이션_데이터는_유효_AbilitySet에_한번씩_연결된다",
+            "fullName": "UPlayGround.Ability.Tests.AbilityDataIntegrityTests.태그_트리거_마이그레이션_데이터는_유효_AbilitySet에_한번씩_연결된다",
+            "state": "Passed",
+            "durationSeconds": 0.0707283,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "같은무기의_공유궁극기는_실행을공유하고_컷인만_각자의것을쓴다",
+            "fullName": "UPlayGround.Ability.Tests.SignatureAbilityDataTests.같은무기의_공유궁극기는_실행을공유하고_컷인만_각자의것을쓴다",
+            "state": "Passed",
+            "durationSeconds": 0.0072026,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "거대검은_본타시각에_지면에닿고_채찍은_몸과무기의_재생길이를_맞춘다",
+            "fullName": "UPlayGround.Ability.Tests.SignatureAbilityDataTests.거대검은_본타시각에_지면에닿고_채찍은_몸과무기의_재생길이를_맞춘다",
+            "state": "Passed",
+            "durationSeconds": 0.0101046,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "기존궁극기9개의_GUID와_새모션11개의_독립성을_보존한다",
+            "fullName": "UPlayGround.Ability.Tests.SignatureAbilityDataTests.기존궁극기9개의_GUID와_새모션11개의_독립성을_보존한다",
+            "state": "Passed",
+            "durationSeconds": 0.1757457,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "방패없는_궁극기동안은_반격을막고_피해감소를_한번적용한다",
+            "fullName": "UPlayGround.Ability.Tests.SignatureAbilityDataTests.방패없는_궁극기동안은_반격을막고_피해감소를_한번적용한다",
+            "state": "Passed",
+            "durationSeconds": 0.0028894,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "실제타격횟수와_장판틱을합산하면_각궁극기의_기준수치를_보존한다",
+            "fullName": "UPlayGround.Ability.Tests.SignatureAbilityDataTests.실제타격횟수와_장판틱을합산하면_각궁극기의_기준수치를_보존한다",
+            "state": "Passed",
+            "durationSeconds": 0.0067835,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "정규12명은_자기정의와_실제모델의_일반형궁극기와_컷인으로_연결된다",
+            "fullName": "UPlayGround.Ability.Tests.SignatureAbilityDataTests.정규12명은_자기정의와_실제모델의_일반형궁극기와_컷인으로_연결된다",
+            "state": "Passed",
+            "durationSeconds": 2.6865086,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "창_분리는_공유Default와_지팡이기반과_공통모션을_변경하지않는다",
+            "fullName": "UPlayGround.Ability.Tests.SignatureAbilityDataTests.창_분리는_공유Default와_지팡이기반과_공통모션을_변경하지않는다",
+            "state": "Passed",
+            "durationSeconds": 0.1804089,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "창_착탄은_비어있던Default대신_대검기준의_한번짜리_피해를쓴다",
+            "fullName": "UPlayGround.Ability.Tests.SignatureAbilityDataTests.창_착탄은_비어있던Default대신_대검기준의_한번짜리_피해를쓴다",
+            "state": "Passed",
+            "durationSeconds": 0.0009857,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "창과방패는_비행접촉으로_중복피해없이_지정시간에_한번폭발한다",
+            "fullName": "UPlayGround.Ability.Tests.SignatureAbilityDataTests.창과방패는_비행접촉으로_중복피해없이_지정시간에_한번폭발한다",
+            "state": "Passed",
+            "durationSeconds": 0.0007485,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "화살비와_토네이도는_독립된지면장판이며_최대틱수와_사망회수를_가진다",
+            "fullName": "UPlayGround.Ability.Tests.SignatureAbilityDataTests.화살비와_토네이도는_독립된지면장판이며_최대틱수와_사망회수를_가진다",
+            "state": "Passed",
+            "durationSeconds": 0.0007457,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "같은얼굴이벤트를_다른시전자가써도_이전종료가_새패널을닫지않는다",
+            "fullName": "UPlayGround.Combat.Tests.SignatureMotionEventTests.같은얼굴이벤트를_다른시전자가써도_이전종료가_새패널을닫지않는다",
+            "state": "Passed",
+            "durationSeconds": 0.0016631,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "대상없는_플레이어투사체는_높은발사점이아닌_액터루트의_전방을쓴다",
+            "fullName": "UPlayGround.Combat.Tests.SignatureMotionEventTests.대상없는_플레이어투사체는_높은발사점이아닌_액터루트의_전방을쓴다",
+            "state": "Passed",
+            "durationSeconds": 0.0003272,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "도약중력은_기존상승하강배율에_곱하고_구간끝에서_복구한다",
+            "fullName": "UPlayGround.Combat.Tests.SignatureMotionEventTests.도약중력은_기존상승하강배율에_곱하고_구간끝에서_복구한다",
+            "state": "Passed",
+            "durationSeconds": 0.0003715,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "얼굴이없는_정의는_패널을표시하지않는다",
+            "fullName": "UPlayGround.Combat.Tests.SignatureMotionEventTests.얼굴이없는_정의는_패널을표시하지않는다",
+            "state": "Passed",
+            "durationSeconds": 0.0003591,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "입력이동_이전구간종료가_새구간을_닫지않는다",
+            "fullName": "UPlayGround.Combat.Tests.SignatureMotionEventTests.입력이동_이전구간종료가_새구간을_닫지않는다",
+            "state": "Passed",
+            "durationSeconds": 0.0003098,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "플레이어전용_이벤트는_다른대상과_몬스터실행을_무시한다",
+            "fullName": "UPlayGround.Combat.Tests.SignatureMotionEventTests.플레이어전용_이벤트는_다른대상과_몬스터실행을_무시한다",
+            "state": "Passed",
+            "durationSeconds": 0.0003191,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "MainAndSubRequestsAreIndependent",
+            "fullName": "UPlayGround.Combat.Tests.WeaponSlotVisibilityTests.MainAndSubRequestsAreIndependent",
+            "state": "Passed",
+            "durationSeconds": 0.0006992,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "ModelCleanupRestoresBothSlotsWithoutChangingTheirActiveState",
+            "fullName": "UPlayGround.Combat.Tests.WeaponSlotVisibilityTests.ModelCleanupRestoresBothSlotsWithoutChangingTheirActiveState",
+            "state": "Passed",
+            "durationSeconds": 0.0004161,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "OverlappingRequestsRestoreOnlyAfterLastTokenAndPreserveDisabledRenderers",
+            "fullName": "UPlayGround.Combat.Tests.WeaponSlotVisibilityTests.OverlappingRequestsRestoreOnlyAfterLastTokenAndPreserveDisabledRenderers",
+            "state": "Passed",
+            "durationSeconds": 0.0003015,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "OwnerDeathRestoresHiddenWeapon",
+            "fullName": "UPlayGround.Combat.Tests.WeaponSlotVisibilityTests.OwnerDeathRestoresHiddenWeapon",
+            "state": "Passed",
+            "durationSeconds": 0.0002865,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "ResetInvalidatesOldTokenWithoutReleasingNewRequest",
+            "fullName": "UPlayGround.Combat.Tests.WeaponSlotVisibilityTests.ResetInvalidatesOldTokenWithoutReleasingNewRequest",
+            "state": "Passed",
+            "durationSeconds": 0.0002818,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          }
+        ]
+      }
+    },
+    "hint": null
+  }
+}

@@ -78,6 +78,7 @@
 | [몬스터 진영 전투 및 공동전투 영입 조우 구현 스펙](../../Assets/docs/design/combat/monster/MONSTER_VS_MONSTER_RECRUITMENT_ENCOUNTER_SPEC.md) · `design/combat/monster/MONSTER_VS_MONSTER_RECRUITMENT_ENCOUNTER_SPEC.md` | 전투 | 추가 |
 | [플레이어 스킬 시스템 개선 설계 문서](../../Assets/docs/design/combat/player/PLAYER_SKILL_SYSTEM_REDESIGN_PLAN.md) · `design/combat/player/PLAYER_SKILL_SYSTEM_REDESIGN_PLAN.md` | 전투 | 추가 |
 | [궁극기 연출 시스템 설계 문서](../../Assets/docs/design/combat/player/ULTIMATE_SEQUENCE_SYSTEM_DESIGN.md) · `design/combat/player/ULTIMATE_SEQUENCE_SYSTEM_DESIGN.md` | 전투 | 추가 |
+| [무기 9종 시그니처 스킬 클립 설계 문서](../../Assets/docs/design/combat/player/WEAPON_SIGNATURE_SKILL_CLIP_DESIGN.md) · `design/combat/player/WEAPON_SIGNATURE_SKILL_CLIP_DESIGN.md` | 전투 | 추가 |
 | [연출 스테이지 시스템 설계 v2](../../Assets/docs/design/content/presentation/CINEMATIC_STAGE_SYSTEM_DESIGN.html) · `design/content/presentation/CINEMATIC_STAGE_SYSTEM_DESIGN.html` | 콘텐츠 | 추가 |
 | [연출 스테이지(Cinematic Stage) 시스템 설계 문서](../../Assets/docs/design/content/presentation/CINEMATIC_STAGE_SYSTEM_DESIGN.md) · `design/content/presentation/CINEMATIC_STAGE_SYSTEM_DESIGN.md` | 콘텐츠 | 추가 |
 | [생명의 호수 DLG 연출 적용 설계](../../Assets/docs/design/content/presentation/LAKE_DIALOGUE_PRESENTATION_DESIGN.md) · `design/content/presentation/LAKE_DIALOGUE_PRESENTATION_DESIGN.md` | 콘텐츠 | 추가 |

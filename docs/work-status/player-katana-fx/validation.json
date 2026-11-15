@@ -1,0 +1,470 @@
+{
+  "date": "2026-11-14",
+  "scope": "PlayerModel_Raon / Set_Katana",
+  "status": "데이터 반영·격리 프리뷰·보조 검사 완료 / 사용자 Play 테스트 대기",
+  "sampling": "CombatMotionSampler / 120Hz / 현재 PlayerModel_Raon 및 실제 연결된 MotionSet. 이벤트 실행 없는 격리 프리팹 재생. 루프·블렌드·전투 중단·히트스톱 실측은 제외.",
+  "preview": "fx-preview.png (왼쪽→오른쪽, 위→아래, details.index 순서. 이벤트 발화 포즈에서 파티클 0.08초 수동 시뮬레이션. 실제 Game View 아님.)",
+  "validation": {
+    "events": 24,
+    "poseChecks": 93,
+    "errors": 0,
+    "details": [
+      {
+        "index": 1,
+        "path": "Assets/10.Datas/Ability/Player/Raon/Motion_Raon_Light_06_Flow.asset",
+        "hit": 0.18165651,
+        "start": 0.18165651,
+        "end": 0.481656522,
+        "kind": "kick",
+        "prefab": "Assets/03.Prefabs/FX/CombatHit_Enemy_LightAttack.prefab",
+        "position": "Foot_R",
+        "rotation": "Foot_R",
+        "scale": 1,
+        "assetHash": "0783aca91982069b0f9df4c6c799e27a"
+      },
+      {
+        "index": 2,
+        "path": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Test/Bokuse_Katana_JumpAttack_1.asset",
+        "hit": 0.26844576,
+        "start": 0.283333331,
+        "end": 0.5833334,
+        "kind": "slash",
+        "prefab": "Assets/ExternalAssets/FX/Hovl Studio/Sword slash VFX/Prefabs/Sword Slash 11.prefab",
+        "position": "(0.10, -0.08, -0.48)",
+        "rotation": "(343.40, 354.74, 214.48)",
+        "scale": 0.45,
+        "assetHash": "a8dc7bc070b1a756d2d1ab10784abe91"
+      },
+      {
+        "index": 3,
+        "path": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Test/Bokuse_Katana_JumpAttack_2.asset",
+        "hit": 0.136204645,
+        "start": 0.136204645,
+        "end": 0.436204672,
+        "kind": "slash",
+        "prefab": "Assets/ExternalAssets/FX/Hovl Studio/Sword slash VFX/Prefabs/Sword Slash 11.prefab",
+        "position": "(-0.13, 0.16, -0.45)",
+        "rotation": "(26.28, 9.34, 33.92)",
+        "scale": 0.45,
+        "assetHash": "df3d5be49665cd8d9d53c43e1228ceed"
+      },
+      {
+        "index": 4,
+        "path": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Test/Bokuse_Katana_JumpAttack_3.asset",
+        "hit": 0.23211816,
+        "start": 0.23211816,
+        "end": 0.5321182,
+        "kind": "slash",
+        "prefab": "Assets/ExternalAssets/FX/Hovl Studio/Sword slash VFX/Prefabs/Sword Slash 11.prefab",
+        "position": "(-0.40, -0.26, -0.13)",
+        "rotation": "(322.40, 80.98, 203.01)",
+        "scale": 0.45,
+        "assetHash": "8825ab0eb505fb0f6c1c5df5c78c7039"
+      },
+      {
+        "index": 5,
+        "path": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Test/Bokuse_Katana_JumpAttack_4.asset",
+        "hit": 0.188015953,
+        "start": 0.216666669,
+        "end": 0.516666651,
+        "kind": "slash",
+        "prefab": "Assets/ExternalAssets/FX/Hovl Studio/Sword slash VFX/Prefabs/Sword Slash 11.prefab",
+        "position": "(-0.25, 0.43, 0.01)",
+        "rotation": "(63.77, 74.84, 357.38)",
+        "scale": 0.45,
+        "assetHash": "c098c64dc3d515472585848a060dc88d"
+      },
+      {
+        "index": 6,
+        "path": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Test/Bokuse_Katana_JumpAttack_5.asset",
+        "hit": 0.245588362,
+        "start": 0.283333331,
+        "end": 0.5833334,
+        "kind": "slash",
+        "prefab": "Assets/ExternalAssets/FX/Hovl Studio/Sword slash VFX/Prefabs/Sword Slash 11.prefab",
+        "position": "(0.16, -0.23, 0.41)",
+        "rotation": "(339.69, 194.07, 31.10)",
+        "scale": 0.45,
+        "assetHash": "03ac08a243e2e2361ec7b2eed1ba901f"
+      },
+      {
+        "index": 7,
+        "path": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Test/Bokuse_Katana_JumpAttack_6.asset",
+        "hit": 0.146603778,
+        "start": 0.208333328,
+        "end": 0.5083333,
+        "kind": "slash",
+        "prefab": "Assets/ExternalAssets/FX/Hovl Studio/Sword slash VFX/Prefabs/Sword Slash 11.prefab",
+        "position": "(0.11, -0.48, -0.10)",
+        "rotation": "(292.79, 333.77, 116.12)",
+        "scale": 0.45,
+        "assetHash": "ab5c03f38386b3c421b0edfdb26fe146"
+      },
+      {
+        "index": 8,
+        "path": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Katana_JumpAttack_1.asset",
+        "hit": 0.4875,
+        "start": 0.491666645,
+        "end": 0.7916666,
+        "kind": "slash",
+        "prefab": "Assets/ExternalAssets/FX/Hovl Studio/Sword slash VFX/Prefabs/Sword Slash 11.prefab",
+        "position": "(-0.04, 0.48, 0.14)",
+        "rotation": "(63.77, 161.42, 261.68)",
+        "scale": 0.45,
+        "assetHash": "7d3d3a7b247bf926c75c93b13c3d70a7"
+      },
+      {
+        "index": 9,
+        "path": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Test/Bokuse_Katana_DashAttack_1_PlayerContact.asset",
+        "hit": 0.383839965,
+        "start": 0.383839965,
+        "end": 0.68384,
+        "kind": "slash",
+        "prefab": "Assets/ExternalAssets/FX/Hovl Studio/Sword slash VFX/Prefabs/Sword Slash 11.prefab",
+        "position": "(-0.01, 0.24, -0.44)",
+        "rotation": "(24.48, 352.13, 315.51)",
+        "scale": 0.45,
+        "assetHash": "1b3a4b8025065349ad2d3e33154fbfe7"
+      },
+      {
+        "index": 10,
+        "path": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Test/Bokuse_Katana_JumpDashAttack_1.asset",
+        "hit": 0.474999964,
+        "start": 0.575,
+        "end": 0.875,
+        "kind": "slash",
+        "prefab": "Assets/ExternalAssets/FX/Hovl Studio/Sword slash VFX/Prefabs/Sword Slash 11.prefab",
+        "position": "(-0.45, -0.05, -0.21)",
+        "rotation": "(0.09, 58.46, 26.31)",
+        "scale": 0.45,
+        "assetHash": "9df3ed645be186ccecd04f12ed6fcf79"
+      },
+      {
+        "index": 11,
+        "path": "Assets/10.Datas/Ability/Player/Raon/Motion_Raon_Entry_Flow.asset",
+        "hit": 0.383839965,
+        "start": 0.383839965,
+        "end": 0.68384,
+        "kind": "slash",
+        "prefab": "Assets/ExternalAssets/FX/Hovl Studio/Sword slash VFX/Prefabs/Sword Slash 11.prefab",
+        "position": "(-0.01, 0.24, -0.44)",
+        "rotation": "(24.48, 352.13, 315.51)",
+        "scale": 0.45,
+        "assetHash": "0f688d41cf7851e125499734dc55bfb2"
+      },
+      {
+        "index": 12,
+        "path": "Assets/10.Datas/Ability/Player/Raon/Motion_Raon_EntryAirborne_Flow.asset",
+        "hit": 0.128993392,
+        "start": 0.128993392,
+        "end": 0.4289934,
+        "kind": "slash",
+        "prefab": "Assets/ExternalAssets/FX/Hovl Studio/Sword slash VFX/Prefabs/Sword Slash 11.prefab",
+        "position": "(-0.05, 0.12, 0.48)",
+        "rotation": "(17.28, 165.08, 1.50)",
+        "scale": 0.45,
+        "assetHash": "2cda4fa3046e683d61f9dae3394c4830"
+      },
+      {
+        "index": 13,
+        "path": "Assets/10.Datas/Ability/Player/Raon/Motion_Raon_SwapEvade_Flow.asset",
+        "hit": 0.4,
+        "start": 0.4,
+        "end": 0.700000048,
+        "kind": "slash",
+        "prefab": "Assets/ExternalAssets/FX/Hovl Studio/Sword slash VFX/Prefabs/Sword Slash 11.prefab",
+        "position": "(0.26, 0.09, -0.41)",
+        "rotation": "(2.98, 333.68, 212.75)",
+        "scale": 0.45,
+        "assetHash": "51a3951abecbbd7380a3cfc330ab9802"
+      },
+      {
+        "index": 14,
+        "path": "Assets/10.Datas/Ability/Player/Raon/Motion_Raon_SwapSpecial_Flow.asset",
+        "hit": 1.20125818,
+        "start": 1.30000007,
+        "end": 1.60000014,
+        "kind": "slash",
+        "prefab": "Assets/ExternalAssets/FX/Hovl Studio/Sword slash VFX/Prefabs/Sword Slash 11.prefab",
+        "position": "(0.12, 0.14, 0.46)",
+        "rotation": "(18.47, 204.01, 152.19)",
+        "scale": 0.45,
+        "assetHash": "4a37b015d272278a4cfcbc9a94dcecf6"
+      },
+      {
+        "index": 15,
+        "path": "Assets/10.Datas/Ability/Player/Raon/Motion_Raon_SwapSpecial_Flow.asset",
+        "hit": 1.45068228,
+        "start": 1.45068228,
+        "end": 1.75068235,
+        "kind": "slash",
+        "prefab": "Assets/ExternalAssets/FX/Hovl Studio/Sword slash VFX/Prefabs/Sword Slash 11.prefab",
+        "position": "(-0.12, -0.10, 0.47)",
+        "rotation": "(350.40, 175.17, 149.80)",
+        "scale": 0.45,
+        "assetHash": "4a37b015d272278a4cfcbc9a94dcecf6"
+      },
+      {
+        "index": 16,
+        "path": "Assets/10.Datas/Ability/Player/Raon/Motion_Raon_SwapSpecial_Flow.asset",
+        "hit": 1.587031,
+        "start": 1.587031,
+        "end": 1.88703108,
+        "kind": "slash",
+        "prefab": "Assets/ExternalAssets/FX/Hovl Studio/Sword slash VFX/Prefabs/Sword Slash 11.prefab",
+        "position": "(0.32, 0.09, 0.37)",
+        "rotation": "(11.43, 212.29, 352.85)",
+        "scale": 0.45,
+        "assetHash": "4a37b015d272278a4cfcbc9a94dcecf6"
+      },
+      {
+        "index": 17,
+        "path": "Assets/10.Datas/Ability/Player/Raon/Motion_Raon_SwapSpecial_Flow.asset",
+        "hit": 2.2106328,
+        "start": 2.23333335,
+        "end": 2.5333333,
+        "kind": "slash",
+        "prefab": "Assets/ExternalAssets/FX/Hovl Studio/Sword slash VFX/Prefabs/Sword Slash 11.prefab",
+        "position": "(0.07, 0.09, -0.48)",
+        "rotation": "(9.06, 342.04, 338.17)",
+        "scale": 0.45,
+        "assetHash": "4a37b015d272278a4cfcbc9a94dcecf6"
+      },
+      {
+        "index": 18,
+        "path": "Assets/10.Datas/Ability/Player/Raon/Motion_Raon_ReturnCut.asset",
+        "hit": 0.4,
+        "start": 0.4,
+        "end": 0.700000048,
+        "kind": "slash",
+        "prefab": "Assets/ExternalAssets/FX/Hovl Studio/Sword slash VFX/Prefabs/Sword Slash 11.prefab",
+        "position": "(0.26, 0.09, -0.41)",
+        "rotation": "(2.98, 333.68, 212.75)",
+        "scale": 0.45,
+        "assetHash": "380d5f5dab4b0ea341b865aabe00994f"
+      },
+      {
+        "index": 19,
+        "path": "Assets/10.Datas/Ability/Player/Raon/Motion_Raon_CrossCut.asset",
+        "hit": 0.29715848,
+        "start": 0.29715848,
+        "end": 0.5971585,
+        "kind": "slash",
+        "prefab": "Assets/ExternalAssets/FX/Hovl Studio/Sword slash VFX/Prefabs/Sword Slash 11.prefab",
+        "position": "(0.38, -0.05, 0.31)",
+        "rotation": "(357.46, 222.11, 2.50)",
+        "scale": 0.45,
+        "assetHash": "14e8948b4bbc37198af7800b660f674c"
+      },
+      {
+        "index": 20,
+        "path": "Assets/10.Datas/Ability/Player/Raon/Motion_Raon_RisingCut.asset",
+        "hit": 0.128993392,
+        "start": 0.128993392,
+        "end": 0.4289934,
+        "kind": "slash",
+        "prefab": "Assets/ExternalAssets/FX/Hovl Studio/Sword slash VFX/Prefabs/Sword Slash 11.prefab",
+        "position": "(-0.05, 0.12, 0.48)",
+        "rotation": "(17.28, 165.08, 1.50)",
+        "scale": 0.45,
+        "assetHash": "09905b46dda6c7f4899eca5c304fece2"
+      },
+      {
+        "index": 21,
+        "path": "Assets/10.Datas/Ability/Player/Raon/Motion_Raon_ClosingCut.asset",
+        "hit": 0.282484,
+        "start": 0.282484,
+        "end": 0.582484,
+        "kind": "slash",
+        "prefab": "Assets/ExternalAssets/FX/Hovl Studio/Sword slash VFX/Prefabs/Sword Slash 11.prefab",
+        "position": "(-0.26, 0.02, 0.42)",
+        "rotation": "(355.09, 154.67, 212.04)",
+        "scale": 0.45,
+        "assetHash": "68aedef605aed93dd330e8600e402a33"
+      },
+      {
+        "index": 22,
+        "path": "Assets/10.Datas/Ability/Player/Raon/Motion_Raon_AirTurn.asset",
+        "hit": 0.188015953,
+        "start": 0.216666669,
+        "end": 0.516666651,
+        "kind": "slash",
+        "prefab": "Assets/ExternalAssets/FX/Hovl Studio/Sword slash VFX/Prefabs/Sword Slash 11.prefab",
+        "position": "(-0.25, 0.43, 0.01)",
+        "rotation": "(63.77, 74.84, 357.38)",
+        "scale": 0.45,
+        "assetHash": "ee0f95d8f0e5147e5053113e84f068ac"
+      },
+      {
+        "index": 23,
+        "path": "Assets/10.Datas/Ability/Player/Raon/Motion_Raon_AirFinish.asset",
+        "hit": 0.146603778,
+        "start": 0.208333328,
+        "end": 0.5083333,
+        "kind": "slash",
+        "prefab": "Assets/ExternalAssets/FX/Hovl Studio/Sword slash VFX/Prefabs/Sword Slash 11.prefab",
+        "position": "(0.11, -0.48, -0.10)",
+        "rotation": "(292.79, 333.77, 116.12)",
+        "scale": 0.45,
+        "assetHash": "0b732476fdd706ddf41183ca04924990"
+      },
+      {
+        "index": 24,
+        "path": "Assets/10.Datas/Ability/Player/Raon/Motion_Raon_DashEntry.asset",
+        "hit": 0.383839965,
+        "start": 0.383839965,
+        "end": 0.68384,
+        "kind": "slash",
+        "prefab": "Assets/ExternalAssets/FX/Hovl Studio/Sword slash VFX/Prefabs/Sword Slash 11.prefab",
+        "position": "(-0.01, 0.24, -0.44)",
+        "rotation": "(24.48, 352.13, 315.51)",
+        "scale": 0.45,
+        "assetHash": "3549a08a0ac318c79087863a778d078e"
+      }
+    ]
+  },
+  "structure": {
+    "assets": 21,
+    "errors": 1,
+    "warnings": 21,
+    "details": [
+      {
+        "path": "Assets/10.Datas/Ability/Player/Raon/Motion_Raon_Light_06_Flow.asset",
+        "issues": [
+          "Warning MOTION_ID_MISSING: Base 모션 0에 안정 ID가 없습니다."
+        ]
+      },
+      {
+        "path": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Test/Bokuse_Katana_JumpAttack_1.asset",
+        "issues": [
+          "Warning MOTION_ID_MISSING: Base 모션 0에 안정 ID가 없습니다."
+        ]
+      },
+      {
+        "path": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Test/Bokuse_Katana_JumpAttack_2.asset",
+        "issues": [
+          "Warning MOTION_ID_MISSING: Base 모션 0에 안정 ID가 없습니다.",
+          "Error EVENT_RANGE: Base/Motion 0 이벤트 2의 범위(0.122~0.622)가 유효하지 않습니다."
+        ]
+      },
+      {
+        "path": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Test/Bokuse_Katana_JumpAttack_3.asset",
+        "issues": [
+          "Warning MOTION_ID_MISSING: Base 모션 0에 안정 ID가 없습니다."
+        ]
+      },
+      {
+        "path": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Test/Bokuse_Katana_JumpAttack_4.asset",
+        "issues": [
+          "Warning MOTION_ID_MISSING: Base 모션 0에 안정 ID가 없습니다."
+        ]
+      },
+      {
+        "path": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Test/Bokuse_Katana_JumpAttack_5.asset",
+        "issues": [
+          "Warning MOTION_ID_MISSING: Base 모션 0에 안정 ID가 없습니다."
+        ]
+      },
+      {
+        "path": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Test/Bokuse_Katana_JumpAttack_6.asset",
+        "issues": [
+          "Warning MOTION_ID_MISSING: Base 모션 0에 안정 ID가 없습니다."
+        ]
+      },
+      {
+        "path": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Katana_JumpAttack_1.asset",
+        "issues": [
+          "Warning MOTION_ID_MISSING: Base 모션 0에 안정 ID가 없습니다."
+        ]
+      },
+      {
+        "path": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Test/Bokuse_Katana_DashAttack_1_PlayerContact.asset",
+        "issues": [
+          "Warning MOTION_ID_MISSING: Base 모션 0에 안정 ID가 없습니다."
+        ]
+      },
+      {
+        "path": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Test/Bokuse_Katana_JumpDashAttack_1.asset",
+        "issues": [
+          "Warning MOTION_ID_MISSING: Base 모션 0에 안정 ID가 없습니다."
+        ]
+      },
+      {
+        "path": "Assets/10.Datas/Ability/Player/Raon/Motion_Raon_Entry_Flow.asset",
+        "issues": [
+          "Warning MOTION_ID_MISSING: Base 모션 0에 안정 ID가 없습니다."
+        ]
+      },
+      {
+        "path": "Assets/10.Datas/Ability/Player/Raon/Motion_Raon_EntryAirborne_Flow.asset",
+        "issues": [
+          "Warning MOTION_ID_MISSING: Base 모션 0에 안정 ID가 없습니다."
+        ]
+      },
+      {
+        "path": "Assets/10.Datas/Ability/Player/Raon/Motion_Raon_SwapEvade_Flow.asset",
+        "issues": [
+          "Warning MOTION_ID_MISSING: Base 모션 0에 안정 ID가 없습니다."
+        ]
+      },
+      {
+        "path": "Assets/10.Datas/Ability/Player/Raon/Motion_Raon_SwapSpecial_Flow.asset",
+        "issues": [
+          "Warning MOTION_ID_MISSING: Base 모션 0에 안정 ID가 없습니다."
+        ]
+      },
+      {
+        "path": "Assets/10.Datas/Ability/Player/Raon/Motion_Raon_ReturnCut.asset",
+        "issues": [
+          "Warning MOTION_ID_MISSING: Base 모션 0에 안정 ID가 없습니다."
+        ]
+      },
+      {
+        "path": "Assets/10.Datas/Ability/Player/Raon/Motion_Raon_CrossCut.asset",
+        "issues": [
+          "Warning MOTION_ID_MISSING: Base 모션 0에 안정 ID가 없습니다."
+        ]
+      },
+      {
+        "path": "Assets/10.Datas/Ability/Player/Raon/Motion_Raon_RisingCut.asset",
+        "issues": [
+          "Warning MOTION_ID_MISSING: Base 모션 0에 안정 ID가 없습니다."
+        ]
+      },
+      {
+        "path": "Assets/10.Datas/Ability/Player/Raon/Motion_Raon_ClosingCut.asset",
+        "issues": [
+          "Warning MOTION_ID_MISSING: Base 모션 0에 안정 ID가 없습니다."
+        ]
+      },
+      {
+        "path": "Assets/10.Datas/Ability/Player/Raon/Motion_Raon_AirTurn.asset",
+        "issues": [
+          "Warning MOTION_ID_MISSING: Base 모션 0에 안정 ID가 없습니다."
+        ]
+      },
+      {
+        "path": "Assets/10.Datas/Ability/Player/Raon/Motion_Raon_AirFinish.asset",
+        "issues": [
+          "Warning MOTION_ID_MISSING: Base 모션 0에 안정 ID가 없습니다."
+        ]
+      },
+      {
+        "path": "Assets/10.Datas/Ability/Player/Raon/Motion_Raon_DashEntry.asset",
+        "issues": [
+          "Warning MOTION_ID_MISSING: Base 모션 0에 안정 ID가 없습니다."
+        ]
+      }
+    ]
+  },
+  "baseline": {
+    "baselineErrors": 1,
+    "baselineWarnings": 21,
+    "details": [
+      {
+        "path": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Test/Bokuse_Katana_JumpAttack_2.asset",
+        "message": "Base/Motion 0 이벤트 2의 범위(0.122~0.622)가 유효하지 않습니다."
+      }
+    ]
+  }
+}

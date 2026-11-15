@@ -1,0 +1,6 @@
+Katana_Signature_ForwardRoot | humanScale=0.8303174 | initialBodyYaw=260.770142 | RootT delta=(-9.510124, 0.000000, -1.545390) | 예상 월드 delta=(0,0,8), F15~21
+Katana_Raon_Signature_ForwardRoot | humanScale=0.8972275 | initialBodyYaw=260.770142 | RootT delta=(-8.800914, 0.000000, -1.430143) | 예상 월드 delta=(0,0,8), F15~21
+DoubleAxe_Signature_StationaryRoot | 평면 RootT 상수, yaw 추출 차단, RootQ·근육·클립 체인 구간 보존
+DualBlade_Signature_StationaryRoot | 평면 RootT 상수, yaw 추출 차단, RootQ·근육·클립 체인 구간 보존
+Spear는 공통 전신 상승의 RootT.y 상관관계 실측 전이라 변경하지 않았습니다.
+실제 Animator.deltaPosition·yaw 및 타격 구간은 120Hz 재측정해야 합니다.

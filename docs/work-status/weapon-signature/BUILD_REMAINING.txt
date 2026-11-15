@@ -1,0 +1,6 @@
+DoubleAxe: 준비 완료, 117f/30fps
+DualBlade: 준비 완료, 45f/30fps
+Staff: 준비 완료, 90f/30fps
+GreatSword: 준비 완료, 60f/30fps
+Whip: 준비 완료, 72f/30fps
+SwordShield: 준비 완료, 60f/30fps

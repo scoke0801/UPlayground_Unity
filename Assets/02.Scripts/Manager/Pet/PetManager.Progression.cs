@@ -34,7 +34,8 @@ namespace UPlayGround.Manager
                 reason = "지금은 바꿀 수 없어요.";
             else if (player.IsInCombat) reason = "싸움이 끝나면 바꿀 수 있어요.";
             else if (player.ActorController is UPlayGround.MovementController.PlayerMovementController movement
-                && (movement.IsSwimming || movement.IsTraversing))
+                && (movement.IsSwimming || movement.IsTraversing || movement.Motor == null
+                    || !movement.Motor.GroundingStatus.IsStableOnGround))
                 reason = "땅에 내려온 뒤 바꿀 수 있어요.";
             return reason == null;
         }
@@ -82,14 +83,19 @@ namespace UPlayGround.Manager
                 return false;
             }
         }
-        public bool TrySetSupport(string skillId)
+        public bool TrySetSupport(string skillId) => TrySetSupport(0, skillId);
+        public bool TrySetSupport(int slot, string skillId)
         {
-            if (!CanEdit(out _) || Catalog.skills.Find(skillId)?.supportAbility == null) return false;
-            if (_save.SelectedSupportId == skillId) return true;
+            if (!CanEdit(out _) || slot < 0 || slot >= SupportSlotCount) return false;
+            var skill = Catalog.skills.Find(skillId);
+            if (skill?.supportAbility == null) return false;
+            if (GetSupportId(slot) == skillId) return true;
+            for (int i = 0; i < SupportSlotCount; i++)
+                if (i != slot && Catalog.skills.Find(GetSupportId(i)) is { } other && other.family == skill.family) return false;
             ClearSupportEffects();
-            if (_save.supportSlots.Count == 0) _save.supportSlots.Add(skillId);
-            else _save.supportSlots[0] = skillId;
-            _save.selectedSupportId = skillId; MarkChanged(); return true;
+            while (_save.supportSlots.Count <= slot) _save.supportSlots.Add(null);
+            _save.supportSlots[slot] = skillId;
+            _save.selectedSupportId = _save.supportSlots[0]; MarkChanged(); return true;
         }
         public bool TrySetAutoPickup(bool enabled)
         {

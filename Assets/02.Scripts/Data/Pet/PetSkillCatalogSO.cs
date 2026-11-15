@@ -16,9 +16,13 @@ namespace UPlayGround.Data.Pet
         public const string Heal = "Pet.Skill.Heal";
         public const string AttackBuff = "Pet.Skill.AttackBuff";
         public const string DefenseBuff = "Pet.Skill.DefenseBuff";
-        public static readonly string[] SkillIds = { Pickup, PickupRange, Heal, AttackBuff, DefenseBuff };
+        public const string Disruption = "Pet.Skill.Disruption";
+        public static readonly string[] SkillIds = { Pickup, PickupRange, Heal, AttackBuff, DefenseBuff, Disruption };
         public const int MaxLevel = 5;
         public List<PetSkillDefinition> skills = new();
+        public PetBondProgressionSO bondProgression;
+        public GameplayAbilitySO signatureAbility;
+        public string signatureFxKey;
         [Min(0f)] public float lootLeashMargin = 2f;
         [Min(0f)] public float supportDistance = 10f;
         [Min(0f)] public float supportMinimumInterval = 8f;
@@ -35,7 +39,9 @@ namespace UPlayGround.Data.Pet
         }
     }
 
-    public enum PetSupportTriggerKind { HealthBelow, PerfectDefense, HeavyHitTaken }
+    public enum PetSupportTriggerKind { HealthBelow, PerfectDefense, HeavyHitTaken, EnemyBroken }
+    public enum PetSupportFamily { Recovery, Offense, Protection, Disruption }
+    public enum PetSupportTarget { Player, BrokenEnemy }
 
     /// <summary>지원 신호와 체력 조건을 같은 데이터 계약으로 평가한다.</summary>
     [Serializable]
@@ -70,6 +76,8 @@ namespace UPlayGround.Data.Pet
         public string displayName;
         public Sprite icon;
         public GameplayAbilitySO supportAbility;
+        public PetSupportFamily family;
+        public PetSupportTarget target;
         public PetSupportTriggerPolicy triggerPolicy = new();
         [Tooltip("지원이 발동될 때 플레이어 위치에서 재생할 FX 키. 비우면 재생하지 않는다.")]
         public string activateFxKey;
@@ -82,6 +90,7 @@ namespace UPlayGround.Data.Pet
         {
             var hash = new HashCode();
             hash.Add(skillId); hash.Add(supportAbility); hash.Add(activateFxKey); hash.Add(petActivateFxKey);
+            hash.Add(family); hash.Add(target);
             if (triggerPolicy != null)
             {
                 hash.Add(triggerPolicy.kind); hash.Add(triggerPolicy.threshold);
@@ -103,6 +112,8 @@ namespace UPlayGround.Data.Pet
                 var effect = level.Effect; hash.Add(effect);
                 if (effect == null) continue;
                 hash.Add(effect.durationSeconds); hash.Add(effect.healAmount); hash.Add(effect.healMaxHealthRatio);
+                if (effect is PetDisruptionEffectSO disruption)
+                { hash.Add(disruption.distractionSeconds); hash.Add(disruption.facingSharpness); }
                 foreach (var modifier in effect.modifiers)
                 {
                     if (modifier == null) { hash.Add(0); continue; }

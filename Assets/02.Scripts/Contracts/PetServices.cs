@@ -5,6 +5,16 @@ namespace UPlayGround.Manager
 {
     public enum PetRuntimeState { Unavailable, Loading, Ready, Suspended, Failed }
 
+    public interface IPetProgressionService : IGameService
+    {
+        int BondStage { get; }
+        int SupportSlotCount { get; }
+        int SignatureActivationVersion { get; }
+        int LastActivatedSupportSlot { get; }
+        string GetSupportId(int slot);
+        bool TrySetSupport(int slot, string skillId);
+    }
+
     /// <summary>저장 사본 생성 없이 지원 표시 상태를 전달한다.</summary>
     public interface IPetSupportFeedbackService : IGameService
     {

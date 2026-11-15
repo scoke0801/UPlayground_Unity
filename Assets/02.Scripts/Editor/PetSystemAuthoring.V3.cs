@@ -29,7 +29,7 @@ namespace UPlayGround.EditorTools
                 for (int i = 0; i < catalog.skills.Count; i++)
                 {
                     var skill = catalog.skills[i];
-                    if (skill.supportAbility == null) continue;
+                    if (skill.supportAbility == null || skill.target == PetSupportTarget.BrokenEnemy) continue;
                     ConfigureSupportPolicy(skill);
                     for (int j = 0; j < skill.levels.Count; j++)
                     {
@@ -70,16 +70,19 @@ namespace UPlayGround.EditorTools
             switch (skill.skillId)
             {
                 case PetSkillCatalogSO.Heal:
+                    skill.family = PetSupportFamily.Recovery;
                     skill.displayName = "응급 회복";
                     policy.kind = PetSupportTriggerKind.HealthBelow; policy.threshold = .35f; policy.internalCooldown = 45f;
                     skill.activateFxKey = "PlayerHeal";
                     break;
                 case PetSkillCatalogSO.AttackBuff:
+                    skill.family = PetSupportFamily.Offense;
                     skill.displayName = "기세";
                     policy.kind = PetSupportTriggerKind.PerfectDefense; policy.internalCooldown = 10f;
                     skill.activateFxKey = "playerFullChargeFX";
                     break;
                 case PetSkillCatalogSO.DefenseBuff:
+                    skill.family = PetSupportFamily.Protection;
                     skill.displayName = "버팀";
                     policy.kind = PetSupportTriggerKind.HeavyHitTaken; policy.internalCooldown = 15f;
                     skill.activateFxKey = "playerGuardFX";

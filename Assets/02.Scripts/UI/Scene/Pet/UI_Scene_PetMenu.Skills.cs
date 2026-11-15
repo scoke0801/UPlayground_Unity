@@ -19,6 +19,7 @@ namespace UPlayGround.UI
             { RefreshPreview(); _inDetail = true; if (_apply.interactable) SetDefaultFocus(_apply, true); });
             _apply?.onClick.AddListener(ApplyModel);
             _selectSkill?.onClick.AddListener(SelectSkill);
+            _selectSecondSkill?.onClick.AddListener(() => SelectSupportSlot(1));
             _upgrade?.onClick.AddListener(UpgradeSkill);
             _retrySave?.onClick.AddListener(() => { _pets?.RetrySave(); Refresh(); });
             if (_skillTemplate != null) _skillTemplate.gameObject.SetActive(false);
@@ -122,12 +123,39 @@ namespace UPlayGround.UI
             _selectSkill.GetComponentInChildren<TextMeshProUGUI>().text = passive ? "항상 적용"
                 : _selectedSkillId == PetSkillCatalogSO.Pickup ? (state.isAutoPickupEnabled ? "자동 줍기 끄기" : "자동 줍기 켜기")
                 : state.SelectedSupportId == _selectedSkillId ? "선택한 도움" : "이 도움 받기";
+            if (_selectSecondSkill != null)
+            {
+                int slots = catalog.bondProgression?.GetSlotCount(state.sharedBondPoints) ?? 1;
+                _selectSecondSkill.gameObject.SetActive(selected.supportAbility != null);
+                _selectSecondSkill.interactable = canEdit && slots > 1;
+                _selectSecondSkill.GetComponentInChildren<TextMeshProUGUI>().text = slots < 2 ? "유대 2단계에 열려요"
+                    : state.supportSlots.Count > 1 && state.supportSlots[1] == _selectedSkillId ? "두 번째 도움 받는 중" : "두 번째 도움으로";
+            }
+            if (selected.supportAbility != null)
+            {
+                string first = catalog.Find(state.SelectedSupportId)?.displayName ?? "비어 있음";
+                string second = state.supportSlots.Count > 1 ? catalog.Find(state.supportSlots[1])?.displayName ?? "비어 있음" : "비어 있음";
+                _skillDetail.text += $"\n\n함께 받는 도움   {first} / {second}";
+                _skillDetail.text += "\n다른 종류의 도움을 하나씩 고를 수 있어요.";
+                _skillDetail.text += DescribeSignature(catalog, (catalog.bondProgression?.GetStage(state.sharedBondPoints) ?? 1) >= 3);
+            }
+        }
+        private static string DescribeSignature(PetSkillCatalogSO catalog, bool unlocked)
+        {
+            var ability = catalog.signatureAbility;
+            if (ability == null || ability.variants.Count == 0 || ability.variants[0].targetEffects.Count == 0) return "";
+            var effect = ability.variants[0].targetEffects[0];
+            if (effect == null || effect.modifiers.Count == 0) return "";
+            return (unlocked ? "\n유대의 응원: " : "\n유대 3단계: ")
+                + $"도움을 받으면 {effect.durationSeconds:0.#}초 동안 공격 속도가 {effect.modifiers[0].value:P0} 빨라져요."
+                + $" 다시 힘을 주기까지 {ability.cooldown.durationSeconds:0.#}초가 걸려요.";
         }
         private static string DescribeTrigger(PetSupportTriggerPolicy policy) => policy.kind switch
         {
             PetSupportTriggerKind.HealthBelow => $"체력이 {policy.threshold:P0} 이하일 때 도와줘요.",
             PetSupportTriggerKind.PerfectDefense => "완벽하게 피하거나 막아내면 도와줘요.",
             PetSupportTriggerKind.HeavyHitTaken => "큰 공격에 맞으면 도와줘요.",
+            PetSupportTriggerKind.EnemyBroken => "적의 빈틈을 만들면 시선을 끌어줘요.",
             _ => ""
         };
         private static string Describe(string id, PetSkillLevel level)
@@ -136,6 +164,8 @@ namespace UPlayGround.UI
             if (id == PetSkillCatalogSO.Pickup) return $"다음 아이템 탐색까지 {level.explorationValue:0.#}초";
             if (id == PetSkillCatalogSO.PickupRange) return $"주변 {level.explorationValue:0.#}m 탐색";
             var effect = level.Effect;
+            if (effect is PetDisruptionEffectSO disruption)
+                return $"{disruption.distractionSeconds:0.#}초 동안 적의 시선을 끌고, {effect.durationSeconds:0.#}초 동안 자세 회복을 늦춰요.";
             if (id == PetSkillCatalogSO.Heal && effect != null) return $"최대 체력의 {effect.healMaxHealthRatio:P0} 회복";
             if (effect?.modifiers.Count != 1) return "정보가 없어요.";
             var modifier = effect.modifiers[0];
@@ -146,8 +176,16 @@ namespace UPlayGround.UI
         private void SelectSkill()
         {
             if (_selectedSkillId == PetSkillCatalogSO.Pickup) _pets.TrySetAutoPickup(!_pets.IsAutoPickupEnabled);
-            else _pets.TrySetSupport(_selectedSkillId);
+            else if (!_pets.TrySetSupport(_selectedSkillId)) _feedback = "같은 종류의 도움은 하나만 고를 수 있어요.";
+            else _feedback = "함께 받을 도움을 골랐어요.";
             Refresh(); SetDefaultFocus(_selectSkill, true);
+        }
+        private void SelectSupportSlot(int slot)
+        {
+            if (_pets is IPetProgressionService progression && !progression.TrySetSupport(slot, _selectedSkillId))
+                _feedback = "같은 종류의 도움은 하나만 고를 수 있어요.";
+            else _feedback = "함께 받을 도움을 골랐어요.";
+            Refresh(); SetDefaultFocus(_selectSecondSkill, true);
         }
         private void UpgradeSkill()
         {
@@ -172,7 +210,9 @@ namespace UPlayGround.UI
                 UIFocusNavigation.ConfigureVertical(_skillButtons, true);
                 ConfigureSkillGraphNavigation(firstAction);
                 var current = _skillButtons.Find(button => button.GetComponentInChildren<TextMeshProUGUI>().text.StartsWith("◆"));
-                LinkAction(_selectSkill, current, _upgrade != null && _upgrade.interactable ? _upgrade : _toggle);
+                LinkAction(_selectSkill, current, _selectSecondSkill != null && _selectSecondSkill.interactable ? _selectSecondSkill
+                    : _upgrade != null && _upgrade.interactable ? _upgrade : _toggle);
+                LinkAction(_selectSecondSkill, _selectSkill, _upgrade != null && _upgrade.interactable ? _upgrade : _toggle);
                 LinkAction(_upgrade, current, _toggle);
                 LinkBottom(_toggle, current); LinkBottom(_close, firstAction);
             }

@@ -34,6 +34,7 @@ namespace UPlayGround.UI
         [SerializeField] private Transform _skillRoot;
         [SerializeField] private TextMeshProUGUI _skillDetail;
         [SerializeField] private Button _selectSkill;
+        [SerializeField] private Button _selectSecondSkill;
         [SerializeField] private Button _upgrade;
         [SerializeField] private Button _retrySave;
         private readonly List<Button> _skillButtons = new();
@@ -102,6 +103,13 @@ namespace UPlayGround.UI
             PetDefinitionSO definition = _pets?.Catalog?.Find(owned?.petId);
             _name.text = definition?.actor != null ? definition.actor.displayName : "아직 동행하는 친구가 없어요";
             _bond.text = owned != null ? $"외형 {definition?.appearances.Count ?? 0}종    /    {_inventory?.Gold ?? 0:N0} G" : string.Empty;
+            if (save != null && _pets?.Catalog?.skills?.bondProgression is { } progression)
+            {
+                int stage = progression.GetStage(save.sharedBondPoints);
+                long goal = stage == 1 ? progression.secondSlotPoints : progression.signaturePoints;
+                _bond.text = $"유대 {stage}단계   {save.sharedBondPoints:N0}" + (stage < 3 ? $" / {goal:N0}" : "")
+                    + $"    /    {_inventory?.Gold ?? 0:N0} G";
+            }
             _status.text = _pets?.State == PetRuntimeState.Failed ? "지금은 함께할 수 없어요. 잠시 후 다시 불러 주세요." : string.Empty;
             _toggle.interactable = definition != null;
             _toggle.GetComponentInChildren<TextMeshProUGUI>().text = save?.isAccompanying == true ? "쉬게 하기" : "함께 다니기";

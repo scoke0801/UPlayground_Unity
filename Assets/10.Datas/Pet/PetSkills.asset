@@ -57,6 +57,8 @@ MonoBehaviour:
     displayName: "\uC751\uAE09 \uD68C\uBCF5"
     icon: {fileID: -2519354409239675539, guid: 0a584019d31c7234093baacf5c30613e, type: 3}
     supportAbility: {fileID: 11400000, guid: 2cc3b8552229bae43964d00b39341056, type: 2}
+    family: 0
+    target: 0
     triggerPolicy:
       kind: 0
       threshold: 0.35
@@ -65,6 +67,7 @@ MonoBehaviour:
       requiresCombat: 0
       hitTags: []
     activateFxKey: PlayerHeal
+    petActivateFxKey: playerFullChargeFX
     levels:
     - upgradeCost: 100
       explorationValue: 0
@@ -85,6 +88,8 @@ MonoBehaviour:
     displayName: "\uAE30\uC138"
     icon: {fileID: 3897598640252103091, guid: 74b29792a947faf4fb0f0c2527454f7b, type: 3}
     supportAbility: {fileID: 11400000, guid: 9ae7eea540a79f84aa0215644090a464, type: 2}
+    family: 1
+    target: 0
     triggerPolicy:
       kind: 1
       threshold: 0
@@ -93,6 +98,7 @@ MonoBehaviour:
       requiresCombat: 0
       hitTags: []
     activateFxKey: playerFullChargeFX
+    petActivateFxKey: playerFullChargeFX
     levels:
     - upgradeCost: 100
       explorationValue: 0
@@ -113,6 +119,8 @@ MonoBehaviour:
     displayName: "\uBC84\uD300"
     icon: {fileID: -122695671159018594, guid: 5ee731d61adade140a180c3bb76a2303, type: 3}
     supportAbility: {fileID: 11400000, guid: bd1e37faaec25c649bbe3df13360a978, type: 2}
+    family: 2
+    target: 0
     triggerPolicy:
       kind: 2
       threshold: 0
@@ -127,6 +135,7 @@ MonoBehaviour:
       - _tagName: Trigger.Player.Hit.Knockdown
       - _tagName: Trigger.Player.Hit.Grab
     activateFxKey: playerGuardFX
+    petActivateFxKey: playerFullChargeFX
     levels:
     - upgradeCost: 100
       explorationValue: 0
@@ -143,6 +152,40 @@ MonoBehaviour:
     - upgradeCost: 0
       explorationValue: 0
       ability: {fileID: 11400000, guid: a83a6301cd1c184498e13329f90a1ca2, type: 2}
+  - skillId: Pet.Skill.Disruption
+    displayName: "\uB2EC\uB824\uB4E4\uAE30"
+    icon: {fileID: 3912488240440798543, guid: 0d3e01bd5da9a704f8baf52ad837a8df, type: 3}
+    supportAbility: {fileID: 11400000, guid: 4bca01b01cc839f4c8cca47d49ffcc13, type: 2}
+    family: 3
+    target: 1
+    triggerPolicy:
+      kind: 3
+      threshold: 0
+      internalCooldown: 20
+      requiresCanSupport: 1
+      requiresCombat: 1
+      hitTags: []
+    activateFxKey: playerGuardFX
+    petActivateFxKey: playerFullChargeFX
+    levels:
+    - upgradeCost: 100
+      explorationValue: 0
+      ability: {fileID: 11400000, guid: 4bca01b01cc839f4c8cca47d49ffcc13, type: 2}
+    - upgradeCost: 250
+      explorationValue: 0
+      ability: {fileID: 11400000, guid: f7a2ef710cc271745a872836a1df9a13, type: 2}
+    - upgradeCost: 500
+      explorationValue: 0
+      ability: {fileID: 11400000, guid: 8984c2a6fffeca646884c94547742411, type: 2}
+    - upgradeCost: 1000
+      explorationValue: 0
+      ability: {fileID: 11400000, guid: fbca46d93d801d24995ee73b59a089ac, type: 2}
+    - upgradeCost: 0
+      explorationValue: 0
+      ability: {fileID: 11400000, guid: 577a8a7f68f6f5b449c11740be3c75a1, type: 2}
+  bondProgression: {fileID: 11400000, guid: f0c805e537b27fb489bdcc1d760f706f, type: 2}
+  signatureAbility: {fileID: 11400000, guid: fb47809b711ea344d83296e8c881f32b, type: 2}
+  signatureFxKey: playerFullChargeFX
   lootLeashMargin: 2
   supportDistance: 10
   supportMinimumInterval: 8

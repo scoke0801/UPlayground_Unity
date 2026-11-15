@@ -6,6 +6,8 @@ using UPlayGround.Data.Ability;
 using UPlayGround.Data.Pet;
 using UPlayGround.Manager;
 using UPlayGround.Gameplay.Tag;
+using UPlayGround.Components;
+using UPlayGround.Combat;
 
 namespace UPlayGround.Components.Pet
 {
@@ -23,14 +25,26 @@ namespace UPlayGround.Components.Pet
         private float _minimumIntervalEnds;
         private bool _isActivating;
         public int ActivationVersion { get; private set; }
+        public int SignatureActivationVersion { get; private set; }
+        public int LastActivatedSlot { get; private set; }
+        public event Action<PetSupportTriggerKind> SupportApplied;
         public bool IsAvailable => _catalog != null && _state != null
-            && _catalog.Find(_state.SelectedSupportId)?.supportAbility != null
+            && HasEquippedSupport()
             && _player != null && _player.IsAlive() && _pet != null
             && _pet.CanSupport && Time.timeScale > 0f && (_canReact == null || _canReact())
             && Vector3.SqrMagnitude(_pet.transform.position - _player.transform.position)
                 <= _catalog.supportDistance * _catalog.supportDistance
             && !Physics.Linecast(_pet.transform.position + Vector3.up * .3f,
                 _player.transform.position + Vector3.up, _catalog.supportObstructionMask, QueryTriggerInteraction.Ignore);
+
+        private bool HasEquippedSupport()
+        {
+            int count = Mathf.Min(_state.supportSlots.Count, _catalog.bondProgression?.GetSlotCount(_state.sharedBondPoints) ?? 1);
+            if (count == 0) return _catalog.Find(_state.SelectedSupportId)?.supportAbility != null;
+            for (int i = 0; i < count; i++)
+                if (_catalog.Find(_state.supportSlots[i])?.supportAbility != null) return true;
+            return false;
+        }
 
         public PetSupportController(PetSkillCatalogSO catalog, Func<bool> canReact = null)
         {
@@ -45,6 +59,12 @@ namespace UPlayGround.Components.Pet
                         string group = level.ability.cooldown.ResolveGroupId(level.ability.abilityId);
                         if (!_groups.Contains(group)) _groups.Add(group);
                     }
+            if (catalog.signatureAbility != null)
+            {
+                _abilities.Add(catalog.signatureAbility);
+                string group = catalog.signatureAbility.cooldown.ResolveGroupId(catalog.signatureAbility.abilityId);
+                if (!_groups.Contains(group)) _groups.Add(group);
+            }
         }
         public void Bind(PlayerActor player, PetSaveData state)
         {
@@ -74,6 +94,7 @@ namespace UPlayGround.Components.Pet
             _player.Effects.RestoreRuntimeState(state.supportEffects, ResolveEffect);
             _player.PassiveActivationSucceeded += OnPassiveActivation;
             _player.AbilitySystem.Runtime.Events.EventSent += OnGameplayEvent;
+            MonsterBreakSignals.Exposed += OnEnemyBroken;
         }
         public void Capture(PetSaveData state)
         {
@@ -112,6 +133,7 @@ namespace UPlayGround.Components.Pet
 
         private void Unsubscribe()
         {
+            MonsterBreakSignals.Exposed -= OnEnemyBroken;
             if (_player == null) return;
             _player.PassiveActivationSucceeded -= OnPassiveActivation;
             if (_player.AbilitySystem?.Runtime != null)
@@ -128,8 +150,12 @@ namespace UPlayGround.Components.Pet
         {
             if (_state == null || !data.Target.Equals(_player.AbilitySystem.Runtime.Handle)
                 || !data.EventTag.IsChildOf(new AbilityTagId(GameplayTags.Trigger_Player_Hit.TagName))) return;
-            var policy = _catalog.Find(_state.SelectedSupportId)?.triggerPolicy;
-            if (policy?.MatchesHit(data.EventTag) == true) TryActivate(PetSupportTriggerKind.HeavyHitTaken);
+            TryActivate(PetSupportTriggerKind.HeavyHitTaken, null, data.EventTag);
+        }
+        private void OnEnemyBroken(MonsterActor target, GameActor source, ulong sequence)
+        {
+            if (source != _player || target == null || !target.IsAlive() || !CombatRelationUtility.CanTarget(_player, target)) return;
+            TryActivate(PetSupportTriggerKind.EnemyBroken, target);
         }
         public void Tick(PetActor pet, PetSaveData state)
         {
@@ -137,43 +163,96 @@ namespace UPlayGround.Components.Pet
             TryActivate(PetSupportTriggerKind.HealthBelow);
         }
 
-        private void TryActivate(PetSupportTriggerKind signal)
+        private void TryActivate(PetSupportTriggerKind signal, MonsterActor enemy = null, AbilityTagId hitTag = default)
         {
             if (_isActivating || _state == null || _catalog == null || _player == null || !_player.IsAlive()
                 || _pet == null || Time.timeScale <= 0f || (_canReact != null && !_canReact())) return;
-            var skill = _catalog.Find(_state.SelectedSupportId);
+            int count = Mathf.Min(_state.supportSlots.Count, _catalog.bondProgression?.GetSlotCount(_state.sharedBondPoints) ?? 1);
+            for (int slot = 0; slot < count; slot++)
+            {
+                var selected = _catalog.Find(_state.supportSlots[slot]);
+                if (selected == null) continue;
+                bool duplicate = false;
+                for (int i = 0; i < slot; i++)
+                    if (_catalog.Find(_state.supportSlots[i]) is { } prior && prior.family == selected.family) duplicate = true;
+                if (duplicate || signal == PetSupportTriggerKind.HeavyHitTaken && selected.triggerPolicy?.MatchesHit(hitTag) != true) continue;
+                if (TryActivateSkill(selected, signal, enemy, slot)) return;
+            }
+        }
+        private bool TryActivateSkill(PetSkillDefinition skill, PetSupportTriggerKind signal, MonsterActor enemy, int slot)
+        {
             var policy = skill?.triggerPolicy;
             if (policy == null || (policy.requiresCanSupport && !IsAvailable)
                 || !policy.Matches(signal, _player.GetHealthPercent(), _player.IsInCombat)
-                || Time.time < _minimumIntervalEnds) return;
+                || Time.time < _minimumIntervalEnds) return false;
+            GameActor recipient = skill.target == PetSupportTarget.BrokenEnemy ? enemy : _player;
+            if (recipient == null) return false;
+            if (skill.target == PetSupportTarget.BrokenEnemy
+                && (Vector3.SqrMagnitude(_pet.transform.position - enemy.transform.position) > _catalog.supportDistance * _catalog.supportDistance
+                    || Physics.Linecast(_pet.transform.position + Vector3.up * .3f, enemy.transform.position + Vector3.up,
+                        _catalog.supportObstructionMask, QueryTriggerInteraction.Ignore))) return false;
             int level = 1;
             for (int i = 0; i < _state.skills.Count; i++)
                 if (_state.skills[i].skillId == skill.skillId) { level = _state.skills[i].level; break; }
             var definition = skill.GetLevel(level);
             var ability = definition?.ability;
-            if (ability == null) return;
+            if (ability == null) return false;
             if (_player.AbilitySystem.Runtime.Cooldowns.GetRemaining(ability.cooldown.ResolveGroupId(ability.abilityId)) > 0f
-                || _player.Effects.HasActiveEffect(definition.Effect)) return;
+                || recipient.Effects.HasActiveEffect(definition.Effect)) return false;
             _isActivating = true;
             try
             {
-                var result = _player.Abilities.TryPrepareAbility(ability, true, _player, out var handle, out _);
-                if (result != AbilityActivationResult.Success) return;
+                var result = _player.Abilities.TryPrepareAbility(ability, true, recipient, out var handle, out _);
+                if (result != AbilityActivationResult.Success) return false;
                 float previousHealth = _player.CurrentHealth;
+                float previousAttributes = EffectAttributeTotal(recipient, definition.Effect);
                 result = _player.Abilities.Commit(handle, _pet);
                 if (result == AbilityActivationResult.Success)
                 {
                     _player.Abilities.EndAbility(handle, true);
                     _minimumIntervalEnds = Time.time + _catalog.supportMinimumInterval;
                     ActivationVersion++;
+                    LastActivatedSlot = slot;
                     _player.NotifyHealingApplied(previousHealth);
+                    if (definition.Effect is PetDisruptionEffectSO disruption && enemy != null)
+                        enemy.ApplyPetDistraction(_pet, disruption);
                     string fxKey = skill.activateFxKey;
-                    if (!string.IsNullOrWhiteSpace(fxKey)) ActorSvc.Objects?.ShowFX(fxKey, _player.transform.position);
+                    if (!string.IsNullOrWhiteSpace(fxKey)) ActorSvc.Objects?.ShowFX(fxKey, recipient.transform.position);
                     if (!string.IsNullOrWhiteSpace(skill.petActivateFxKey)) ActorSvc.Objects?.ShowFX(skill.petActivateFxKey, _pet.transform.position);
+                    if (definition.Effect?.instantExecution == GameplayEffectInstantExecution.Healing
+                        || !Mathf.Approximately(previousAttributes, EffectAttributeTotal(recipient, definition.Effect))
+                        || definition.Effect is PetDisruptionEffectSO)
+                        SupportApplied?.Invoke(signal);
+                    TrySignature();
+                    return true;
                 }
                 else _player.Abilities.Abort(handle);
             }
             finally { _isActivating = false; }
+            return false;
+        }
+        private static float EffectAttributeTotal(GameActor recipient, GameplayEffectSO effect)
+        {
+            if (recipient.AbilitySystem == null || effect == null) return 0f;
+            float total = 0f;
+            for (int i = 0; i < effect.modifiers.Count; i++)
+                if (effect.modifiers[i] != null)
+                    total += recipient.AbilitySystem.Attributes.GetCurrent(new AttributeId(effect.modifiers[i].attributeId));
+            return total;
+        }
+        private void TrySignature()
+        {
+            var ability = _catalog.signatureAbility;
+            if (ability == null || (_catalog.bondProgression?.GetStage(_state.sharedBondPoints) ?? 1) < 3
+                || ability.variants.Count == 0 || ability.variants[0].targetEffects.Count == 0
+                || _player.Effects.HasActiveEffect(ability.variants[0].targetEffects[0])
+                || _player.AbilitySystem.Runtime.Cooldowns.GetRemaining(ability.cooldown.ResolveGroupId(ability.abilityId)) > 0f) return;
+            if (_player.Abilities.TryPrepareAbility(ability, true, _player, out var handle, out _) != AbilityActivationResult.Success) return;
+            if (_player.Abilities.Commit(handle, _pet) != AbilityActivationResult.Success)
+            { _player.Abilities.Abort(handle); return; }
+            _player.Abilities.EndAbility(handle, true);
+            SignatureActivationVersion++;
+            if (!string.IsNullOrWhiteSpace(_catalog.signatureFxKey)) ActorSvc.Objects?.ShowFX(_catalog.signatureFxKey, _pet.transform.position);
         }
         private GameplayEffectSO ResolveEffect(string id)
         {

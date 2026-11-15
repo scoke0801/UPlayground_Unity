@@ -9,7 +9,11 @@ namespace UPlayGround.Manager
         private void ClearSupportEffects() => _support?.ClearEffects(_save);
         private void TickSupport(PlayerActor player)
         {
-            _support ??= new PetSupportController(Catalog.skills, CanReactToSupport);
+            if (_support == null)
+            {
+                _support = new PetSupportController(Catalog.skills, CanReactToSupport);
+                _support.SupportApplied += OnBondSupport;
+            }
             _support.SetPet(_actor);
             _support.Bind(player, _save);
             _support.Tick(_actor, _save);

@@ -1,0 +1,66 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aee576d8a5d77324cb2ca9cd63c6de73, type: 3}
+  m_Name: GE_Pet_Disruption_L5
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Pet.PetDisruptionEffectSO
+  effectId: Pet.Effect.Disruption.L5
+  editorMemo: 
+  polarity: 2
+  presentation:
+    displayName: "\uB2EC\uB824\uB4E4\uAE30"
+    description: 
+    nameLocalizationKey: 
+    descriptionLocalizationKey: 
+    icon: {fileID: 3912488240440798543, guid: 0d3e01bd5da9a704f8baf52ad837a8df, type: 3}
+    showInHud: 1
+    hudPriority: 0
+    showRemainingTime: 1
+    showStackCount: 1
+  grantedElement: 0
+  elementPriority: 0
+  environmentHeatImpulse: 0
+  ignorePassiveDurationModifiers: 1
+  durationType: 1
+  instantExecution: 0
+  healAmount: 0
+  healMaxHealthRatio: 0
+  durationSeconds: 4
+  periodSeconds: 0
+  stackingKey: Pet.Support.Disruption
+  stackPolicy: 0
+  maxStackCount: 1
+  modifiers:
+  - attributeId: Vital.PoiseRecoveryDelay
+    modifierType: 0
+    value: 2
+    magnitudeSource: 0
+    sourceAttributeId: 
+    captureSource: 0
+    capturePolicy: 1
+    coefficient: 1
+    preAdd: 0
+    postAdd: 0
+    setByCallerKey: 
+    allowMissingSetByCaller: 0
+    setByCallerDefaultValue: 0
+    perLevel: 0
+  grantedTagIds: []
+  applicationChance: 1
+  requiredTagIds: []
+  blockedTagIds: []
+  immunityTags: []
+  dispelTags: []
+  grantedAbilities: []
+  removalPolicy: 0
+  savePolicy: 0
+  distractionSeconds: 1.8
+  facingSharpness: 8

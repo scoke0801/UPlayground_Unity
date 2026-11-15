@@ -12,7 +12,7 @@ namespace UPlayGround.Manager
 {
     /// <summary>펫 보유 상태와 씬·플레이어 준비를 조립한다. 이동 판단은 액터가 소유한다.</summary>
     public sealed partial class PetManager : BaseManager<PetManager>, IManager, IAsyncInitializableManager,
-        IUpdatableManager, ISaveable, ISaveCommitObserver, IPetService, IPetSupportFeedbackService
+        IUpdatableManager, ISaveable, ISaveCommitObserver, IPetService, IPetSupportFeedbackService, IPetProgressionService
     {
         public const string CatalogKey = "PetCatalog";
         private PetSaveData _save = new();
@@ -41,12 +41,13 @@ namespace UPlayGround.Manager
             catch (OperationCanceledException) { throw; }
             catch (Exception exception) { SetState(PetRuntimeState.Failed, exception.Message); }
         }
-        public void AfterInit() { _ready = true; _sceneType = SceneManager.Instance.CurrentSceneType; Reconcile(); }
+        public void AfterInit() { _ready = true; _sceneType = SceneManager.Instance.CurrentSceneType; SubscribeBond(); Reconcile(); }
         public void OnUpdate()
         {
             if (Time.unscaledTime < _nextDecision) return;
             _nextDecision = Time.unscaledTime + 0.25f;
             Reconcile();
+            TickBond();
         }
         public void OnFixedUpdate() { }
         public void OnLateUpdate() { }
@@ -190,10 +191,10 @@ namespace UPlayGround.Manager
             CaptureSupport(); data.pet = GetSnapshot(); _exportedRevision = _revision;
         }
         public void ImportSaveData(GameSaveData data)
-        { Despawn(); _support?.ClearEffects(_save); _support?.Dispose(_save); _support = null; _hasSave = true; _save = PetSaveRules.Normalize(data.pet); HasUnsavedChanges = false; FailureReason = null; SetState(PetRuntimeState.Suspended); }
+        { Despawn(); _support?.ClearEffects(_save); _support?.Dispose(_save); _support = null; _hasSave = true; _save = PetSaveRules.Normalize(data.pet); HasUnsavedChanges = false; FailureReason = null; SetState(PetRuntimeState.Suspended); if (_ready) SubscribeBond(); }
         public void ResetForNewGame()
-        { Despawn(); _support?.ClearEffects(_save); _support?.Dispose(_save); _support = null; _hasSave = false; SeedNewGame(); HasUnsavedChanges = false; FailureReason = null; SetState(PetRuntimeState.Suspended); }
-        public void Dispose() { Despawn(); _support?.Dispose(_save); _support = null; _ready = false; _suspensions.Clear(); Changed = null; Catalog = null; }
+        { Despawn(); _support?.ClearEffects(_save); _support?.Dispose(_save); _support = null; _hasSave = false; SeedNewGame(); HasUnsavedChanges = false; FailureReason = null; SetState(PetRuntimeState.Suspended); if (_ready) SubscribeBond(); }
+        public void Dispose() { if (_activityPlayer != null) _activityPlayer.PetBondActivity -= OnBondPlayerActivity; UnsubscribeBond(); Despawn(); _support?.Dispose(_save); _support = null; _ready = false; _suspensions.Clear(); Changed = null; Catalog = null; }
 
     }
 }

@@ -68,7 +68,7 @@ namespace UPlayGround.EditorTools
                 new[] { .08f, .10f, .12f, .14f, .16f }, new[] { .04f, .06f, .08f, .10f, .12f },
                 new[] { .06f, .09f, .12f, .15f, .18f } };
             int[] costs = { 100, 250, 500, 1000, 0 };
-            for (int skillIndex = 0; skillIndex < PetSkillCatalogSO.SkillIds.Length; skillIndex++)
+            for (int skillIndex = 0; skillIndex < names.Length; skillIndex++)
             {
                 string id = PetSkillCatalogSO.SkillIds[skillIndex];
                 string key = id.Substring("Pet.Skill.".Length);

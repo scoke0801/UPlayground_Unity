@@ -11,6 +11,9 @@ namespace UPlayGround.Data.Pet
         public string selectedPetId;
         public bool isAccompanying;
         public int progressionVersion;
+        public int bondMigrationVersion;
+        public long sharedBondPoints;
+        public PetBondLedger bondLedger = new();
         public string modelId;
         public bool isAutoPickupEnabled = true;
         public string selectedSupportId = PetSkillCatalogSO.Heal;
@@ -49,6 +52,12 @@ namespace UPlayGround.Data.Pet
             var result = new PetSaveData
             { selectedPetId = source?.selectedPetId, isAccompanying = source?.isAccompanying ?? false };
             result.progressionVersion = Math.Max(3, source?.progressionVersion ?? 0);
+            result.bondMigrationVersion = Math.Max(1, source?.bondMigrationVersion ?? 0);
+            result.sharedBondPoints = Math.Max(0, source?.sharedBondPoints ?? 0);
+            result.bondLedger = PetBondRules.Clone(source?.bondLedger);
+            if (source != null && source.bondMigrationVersion < 1 && source.owned != null)
+                foreach (var entry in source.owned)
+                    if (entry != null) result.sharedBondPoints = Math.Max(result.sharedBondPoints, entry.bondPoints);
             result.modelId = source?.modelId;
             bool migrated = source == null || source.progressionVersion < 2;
             result.isAutoPickupEnabled = migrated || source.isAutoPickupEnabled;

@@ -23,6 +23,7 @@ namespace UPlayGround.Components
         private float _repeatCooldownTimer;
         private bool _isExposed;
         private bool _hasBrokenOnce;
+        private ulong _exposureSequence;
 
         public bool IsExposed => _isExposed;
         public bool IsRepeatCooldown => _repeatCooldownTimer > 0f;
@@ -124,7 +125,7 @@ namespace UPlayGround.Components
             if (hit.ForceBreakExpose)
             {
                 float before = _currentGauge;
-                ForceExpose();
+                ForceExpose(hit.Attacker);
                 return Mathf.Max(0f, before - _currentGauge);
             }
 
@@ -137,7 +138,7 @@ namespace UPlayGround.Components
             RefreshUi();
 
             if (_currentGauge <= 0f)
-                ForceExpose();
+                ForceExpose(hit.Attacker);
 
             return Mathf.Max(0f, previousGauge - _currentGauge);
         }
@@ -147,7 +148,9 @@ namespace UPlayGround.Components
             RecoverFromExpose(true);
         }
 
-        public void ForceExpose()
+        public void ForceExpose() => ForceExpose(null);
+
+        private void ForceExpose(GameActor source)
         {
             if (!CanExpose()) return;
 
@@ -157,6 +160,7 @@ namespace UPlayGround.Components
             _exposedTimer = Mathf.Max(0.1f, _data.exposedDuration);
             RefreshUi();
             OnBreakExposed?.Invoke(this);
+            MonsterBreakSignals.Publish(_owner, source, ++_exposureSequence);
         }
 
         public void RecoverFromExpose(bool consumed)

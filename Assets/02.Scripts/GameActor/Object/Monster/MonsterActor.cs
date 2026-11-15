@@ -136,6 +136,7 @@ namespace UPlayGround
 
         private void OnEnable()
         {
+            ClearPetDistraction();
             // 비활성 자식은 활성화되는 시점에 Awake 캐시가 완성된다.
             // 부모 그룹의 Start 수집이 먼저 실행됐더라도 여기서 바인딩을 재시도한다.
             var group = GetComponentInParent<MonsterGroupController>();
@@ -965,6 +966,7 @@ namespace UPlayGround
         protected virtual void OnDeath()
         {
             if (_isDead) return;
+            ClearPetDistraction();
             _isDead = true;
             Abilities?.HandleOwnerDeath();
 

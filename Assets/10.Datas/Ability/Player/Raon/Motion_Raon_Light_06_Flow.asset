@@ -50,6 +50,7 @@ MonoBehaviour:
       - rid: 889910008326652078
       - rid: 889910008326652079
       - rid: 889910008326652157
+      - rid: 4777427827572867219
     internalBlendDuration: 0.1
     baseLayerIndex: 0
     globalEvents: []
@@ -130,6 +131,37 @@ MonoBehaviour:
         scale: 0.7
         destroyDelay: 2
         attachToActor: 1
+    - rid: 4777427827572867219
+      type: {class: BeginParticleEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
+      data:
+        startTime: 0.18165651
+        endTime: 0.48165652
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
+        globalStartTimeOffset: 0
+        particlePrefab: {fileID: 3630950076977652491, guid: a9aa28f8be4ad0d459e5c7c4d1d5699b, type: 3}
+        spawnPointName: Foot_R
+        offset: {x: 0, y: 0, z: 0}
+        rotationOffset: {x: 0, y: 0, z: 0}
+        attachToTarget: 0
+        detachAfterSpawn: 0
+        useSpawnRotation: 1
+        destroyOnFinish: 1
+        particleLifeTime: 0
+        projectToGround: 0
+        groundProbeDistance: 2
+        groundLayers:
+          serializedVersion: 2
+          m_Bits: 4294967295
     - rid: 5351031959771152511
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:

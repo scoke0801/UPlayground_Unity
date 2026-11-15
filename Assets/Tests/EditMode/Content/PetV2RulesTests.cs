@@ -20,6 +20,7 @@ namespace UPlayGround.Content.Tests
 
         [TestCase(PetSupportTriggerKind.PerfectDefense)]
         [TestCase(PetSupportTriggerKind.HeavyHitTaken)]
+        [TestCase(PetSupportTriggerKind.EnemyBroken)]
         public void 사건지원은_체력_점검만으로_나가지_않는다(PetSupportTriggerKind kind)
         {
             var policy = new PetSupportTriggerPolicy { kind = kind, requiresCombat = true };
@@ -35,6 +36,8 @@ namespace UPlayGround.Content.Tests
         [TestCase(4)]
         [TestCase(5)]
         [TestCase(6)]
+        [TestCase(7)]
+        [TestCase(8)]
         public void 새_정책필드가_바뀌면_오래된_강화요청을_거절한다(int field)
         {
             var skill = new PetSkillDefinition { skillId = PetSkillCatalogSO.AttackBuff };
@@ -49,6 +52,8 @@ namespace UPlayGround.Content.Tests
                 case 4: skill.triggerPolicy.requiresCombat = true; break;
                 case 5: skill.petActivateFxKey = "Changed"; break;
                 case 6: skill.triggerPolicy.hitTags.Add(UPlayGround.Gameplay.Tag.GameplayTags.Trigger_Player_Hit_Heavy); break;
+                case 7: skill.family = PetSupportFamily.Disruption; break;
+                case 8: skill.target = PetSupportTarget.BrokenEnemy; break;
             }
             Assert.That(PetUpgradeRules.CanUpgrade(skill, 1, request), Is.False);
         }
@@ -133,7 +138,7 @@ namespace UPlayGround.Content.Tests
             var type = System.Type.GetType("UPlayGround.Manager.SaveManager, Assembly-CSharp", true);
             type.GetMethod("MigrateToCurrentVersion", BindingFlags.NonPublic | BindingFlags.Static).Invoke(null, new object[] { data });
             Assert.That(data.saveVersion, Is.EqualTo("3.6"));
-            Assert.That(data.pet.skills.Count, Is.EqualTo(5));
+            Assert.That(data.pet.skills.Count, Is.EqualTo(PetSkillCatalogSO.SkillIds.Length));
             Assert.That(data.pet.skills.TrueForAll(skill => skill.level == 1), Is.True);
             Assert.That(data.pet.isAutoPickupEnabled, Is.True);
             Assert.That(data.pet.selectedSupportId, Is.EqualTo(PetSkillCatalogSO.Heal));

@@ -830,3 +830,7 @@ MonoBehaviour:
   - tagName: Motion.Swim.DiveDescend
     description: "\uC7A0\uC218 \uC911 \uBA38\uB9AC\uB97C \uC544\uB798\uB85C \uD558\uAC15"
     color: {r: 0.25, g: 0.6, b: 0.9, a: 1}
+  - tagName: State.Combat.SignatureShieldAbsent
+    description: "\uBC29\uD328 \uD22C\uCC99 \uAD81\uADF9\uAE30 \uC2E4\uD589 \uC911
+      \uBC18\uACA9 \uCC28\uB2E8"
+    color: {r: 0.4, g: 0.8, b: 1, a: 1}

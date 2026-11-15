@@ -25,7 +25,7 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: b7e1a0d0ba302144fb5f09fd72172d1f, type: 2}
     - Key:
         value: GreatSword.Ultimate
-      Value: {fileID: 11400000, guid: 2e0624324bf7d9147afca75a6c731fbf, type: 2}
+      Value: {fileID: 11400000, guid: 9414b8d12cc545a4f845094e381e1ef3, type: 2}
     - Key:
         value: GreatSword.Light.00
       Value: {fileID: 11400000, guid: 7993f2313e245d446b4f098cfdd0d6f3, type: 2}
@@ -614,6 +614,7 @@ MonoBehaviour:
     - Key:
         value: ElementalImbue.Water
       Value: {fileID: 11400000, guid: f04126ec625ae8044b73767614a22456, type: 2}
+  motionImpactCatalog: {fileID: 0}
   motionSlots:
     _serializedList:
     - Key:

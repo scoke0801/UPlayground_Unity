@@ -8,13 +8,15 @@ namespace UPlayGround.Item.Tests
 {
     public sealed class PetUpgradeTransactionTests
     {
-        [Test]
-        public void 정책이_바뀐_거래는_골드와_레벨을_그대로_둔다()
+        [TestCase(false)]
+        [TestCase(true)]
+        public void 정책이_바뀐_거래는_골드와_레벨을_그대로_둔다(bool targetChanged)
         {
             var skill = new PetSkillDefinition { skillId = PetSkillCatalogSO.DefenseBuff };
             skill.levels.Add(new PetSkillLevel { upgradeCost = 100 }); skill.levels.Add(new PetSkillLevel());
             var request = new PetUpgradeRequest(skill.skillId, 1, 100, skill.GetRevision());
-            skill.triggerPolicy.internalCooldown = 15f;
+            if (targetChanged) skill.target = PetSupportTarget.BrokenEnemy;
+            else skill.triggerPolicy.internalCooldown = 15f;
             var type = Type.GetType("UPlayGround.Manager.InventoryManager, Assembly-CSharp", true);
             var root = new GameObject("정책 변경 거래");
             try

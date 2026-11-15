@@ -188,6 +188,9 @@ namespace UPlayGround.Data.Editor.Authoring
             VisualElement visual = MakeSection("비주얼");
             AddProperty(visual, "visualPrefab", "비주얼 프리팹");
             AddProperty(visual, "hitEffectKey", "피격 이펙트 키");
+            AddProperty(visual, "detonationEffectKey", "착탄 폭발 이펙트 키");
+            AddProperty(visual, "landingTelegraphPrefab", "착탄 지점 예고 프리팹");
+            AddProperty(visual, "keepWorldOrientation", "월드 회전 유지");
             AddProperty(visual, "detachTrailOnReturn", "회수 시 Trail 분리");
             detail.Add(visual);
 
@@ -197,6 +200,8 @@ namespace UPlayGround.Data.Editor.Authoring
             AddProperty(simulation, "obstructionLayers", "지형·벽 차단 레이어");
             AddProperty(simulation, "destroyOnHit", "피격 시 소멸");
             AddProperty(simulation, "inheritOwnerTimeScale", "소유자 TimeScale 상속");
+            AddProperty(simulation, "returnOnOwnerDeath", "시전자 사망 시 회수");
+            AddProperty(simulation, "ignoreFlightContacts", "비행 중 접촉 생략");
             detail.Add(simulation);
 
             detail.Add(BuildMotionSection(asset, serializedObject));

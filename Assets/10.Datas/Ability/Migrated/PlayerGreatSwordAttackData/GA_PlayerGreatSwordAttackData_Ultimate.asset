@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: GA_PlayerGreatSwordAttackData_Ultimate
   m_EditorClassIdentifier: 
   abilityId: Player.GreatSword.Ultimate
+  executionMode: 0
   editorMemo: 
   presentation:
     displayName: Ultimate
@@ -24,10 +25,34 @@ MonoBehaviour:
     category: 4
     ownerType: 0
   abilityTagIds: []
+  triggers: []
+  cancelAbilitiesWithTag: []
+  blockAbilitiesWithTag: []
   activation:
     requiredTagIds: []
     blockedTagIds: []
     executionGrantedTagIds: []
+    ownerTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
+    sourceTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
+    targetTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
     groundCondition: 0
     targetPolicy: 0
     targetRelation: 2
@@ -45,6 +70,7 @@ MonoBehaviour:
   cooldown:
     durationSeconds: 12
     cooldownGroupId: Cooldown.Player.GA_PlayerGreatSwordAttackData_Ultimate
+    scope: 0
     maxCharges: 1
     globalLockSeconds: 0
   concurrency: 2
@@ -58,6 +84,13 @@ MonoBehaviour:
       requiresFullResource: 1
       requiredTagIds: []
       blockedTagIds: []
+      ownerTagRequirement:
+        requireAll: []
+        requireAny: []
+        blockAny: []
+        matchMode: 0
+        expression:
+          rid: -2
     executionPayload: {fileID: 7104217469032783194}
     targetEffects: []
     ownerEffects: []
@@ -72,6 +105,11 @@ MonoBehaviour:
     expectedDuration: 0
     roleTags: []
     designerNotes: 
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &7104217469032783194
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -83,20 +121,25 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dc122760e7d9486c8a8104b1850c177d, type: 3}
   m_Name: GA_PlayerGreatSwordAttackData_Ultimate_Default_Payload
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: UPlayGround.Ability.UPlayGround::UPlayGround.Ability.UPlayGround.UPlayGroundMotionAbilityPayloadSO
   attackInfo:
     motionKey:
       value: GreatSword.Ultimate
+    isMotionContentPending: 0
     baseInfo:
       attackType: 0
       hitPhases:
-      - receivesImbuedHeat: 1
-        imbuedHeatWeight: 1
-        damage: 141
-        poiseDamage: 34
-        breakDamage: 22
+      - environment:
+          kind: 0
+          heatImpulse: 0
+          waterImpulse: 0
+        receivesImbuedHeat: 1
+        imbuedHeatWeight: 0.8
+        damage: 112.8
+        poiseDamage: 27.2
+        breakDamage: 17.6
         projectileDefinition: {fileID: 0}
-        reactionType: 2
+        reactionType: 8
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
@@ -113,42 +156,44 @@ MonoBehaviour:
           _tagName: 
         guaranteedReaction: 0
         reactionProfile:
+          motionResponse: {fileID: 0}
           useAutoReaction: 1
-          hasAutoReactionGenerated: 1
+          hasAutoReactionGenerated: 0
           analysis:
             isEstimated: 1
-            weaponSpeedScore: 0.78
-            rootMotionScore: 0.8
-            bodyRotationScore: 0.72
-            attackWeightScore: 0.82
-            impactScore: 0.777
-            activeStart: 1.8123211
-            activeEnd: 2.3123212
-            activeDuration: 0.5000001
-            startupDuration: 1.8123211
-            recoveryDuration: 1.3543658
+            weaponSpeedScore: 0
+            rootMotionScore: 0
+            bodyRotationScore: 0
+            attackWeightScore: 0
+            impactScore: 0
+            activeStart: 0
+            activeEnd: 0
+            activeDuration: 0
+            startupDuration: 0
+            recoveryDuration: 0
           autoData:
-            impactTime: 1.8123211
-            hitStopDuration: 0.105
-            hitStopScale: 0.03
-            cameraShakeAmplitude: 0.8843176
-            cameraShakeDuration: 0.13769999
-            fovKickAmount: 3.8218503
-            fovKickDuration: 0.1577
-            trailIntensity: 1.0216
-            fakeImpactSlowScale: 0.8423
-            fakeImpactDuration: 0.04831
-          useManualOverride: 0
+            impactTime: 0
+            hitStopDuration: 0
+            hasExplicitHitStop: 0
+            hitStopScale: 0.1
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            trailIntensity: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+          useManualOverride: 1
           manualOverride:
             overrideImpactTime: 0
             impactTime: 0
-            overrideHitStop: 0
+            overrideHitStop: 1
             hitStopDuration: 0
-            hitStopScale: 0.1
-            overrideCamera: 0
+            hitStopScale: 0.3
+            overrideCamera: 1
             cameraShakeAmplitude: 0
             cameraShakeDuration: 0
-            overrideFov: 0
+            overrideFov: 1
             fovKickAmount: 0
             fovKickDuration: 0
             overrideTrail: 0
@@ -156,11 +201,84 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-    interruptActions: 61
+      - environment:
+          kind: 0
+          heatImpulse: 0
+          waterImpulse: 0
+        receivesImbuedHeat: 1
+        imbuedHeatWeight: 0.2
+        damage: 28.2
+        poiseDamage: 6.8
+        breakDamage: 4.4
+        projectileDefinition: {fileID: 0}
+        reactionType: 4
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        hitboxGroupId: MainWeapon
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
+        hitParticleName: LiteHit
+        pullForce: 10
+        airborneForce: 8
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 1.5
+        victimForcedMotionSlot:
+          _tagName: 
+        guaranteedReaction: 0
+        reactionProfile:
+          motionResponse: {fileID: 0}
+          useAutoReaction: 1
+          hasAutoReactionGenerated: 0
+          analysis:
+            isEstimated: 1
+            weaponSpeedScore: 0
+            rootMotionScore: 0
+            bodyRotationScore: 0
+            attackWeightScore: 0
+            impactScore: 0
+            activeStart: 0
+            activeEnd: 0
+            activeDuration: 0
+            startupDuration: 0
+            recoveryDuration: 0
+          autoData:
+            impactTime: 0
+            hitStopDuration: 0
+            hasExplicitHitStop: 0
+            hitStopScale: 0.1
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            trailIntensity: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+          useManualOverride: 1
+          manualOverride:
+            overrideImpactTime: 0
+            impactTime: 0
+            overrideHitStop: 1
+            hitStopDuration: 0
+            hitStopScale: 0.3
+            overrideCamera: 1
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            overrideFov: 1
+            fovKickAmount: 0
+            fovKickDuration: 0
+            overrideTrail: 0
+            trailIntensity: 0
+            overrideFakeImpact: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+    interruptActions: 129
     moveCancelDelayAfterLastHit: 0
     aiSelectable: 0
     skillType: 1
     attackCategory: 0
+    aiRoles: 0
     requiredLevel: 1
     selectionWeight: 10
     useTelegraph: 0

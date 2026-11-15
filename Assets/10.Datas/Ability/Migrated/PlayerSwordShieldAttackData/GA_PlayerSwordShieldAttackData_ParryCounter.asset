@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: GA_PlayerSwordShieldAttackData_ParryCounter
   m_EditorClassIdentifier: 
   abilityId: Player.SwordShield.ParryCounter
+  executionMode: 0
   editorMemo: 
   presentation:
     displayName: PlayerSwordShieldAttackData ParryCounter
@@ -24,10 +25,35 @@ MonoBehaviour:
     category: 0
     ownerType: 0
   abilityTagIds: []
+  triggers: []
+  cancelAbilitiesWithTag: []
+  blockAbilitiesWithTag: []
   activation:
     requiredTagIds: []
-    blockedTagIds: []
+    blockedTagIds:
+    - _tagName: State.Combat.SignatureShieldAbsent
     executionGrantedTagIds: []
+    ownerTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
+    sourceTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
+    targetTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
     groundCondition: 0
     targetPolicy: 0
     targetRelation: 2
@@ -45,6 +71,7 @@ MonoBehaviour:
   cooldown:
     durationSeconds: 0
     cooldownGroupId: 
+    scope: 0
     maxCharges: 1
     globalLockSeconds: 0
   concurrency: 2
@@ -58,6 +85,13 @@ MonoBehaviour:
       requiresFullResource: 0
       requiredTagIds: []
       blockedTagIds: []
+      ownerTagRequirement:
+        requireAll: []
+        requireAny: []
+        blockAny: []
+        matchMode: 0
+        expression:
+          rid: -2
     executionPayload: {fileID: 1689834233768632789}
     targetEffects: []
     ownerEffects: []
@@ -72,6 +106,11 @@ MonoBehaviour:
     expectedDuration: 0
     roleTags: []
     designerNotes: 
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &1689834233768632789
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -87,10 +126,15 @@ MonoBehaviour:
   attackInfo:
     motionKey:
       value: SwordShield.ParryCounter
+    isMotionContentPending: 0
     baseInfo:
       attackType: 0
       hitPhases:
-      - receivesImbuedHeat: 1
+      - environment:
+          kind: 0
+          heatImpulse: 0
+          waterImpulse: 0
+        receivesImbuedHeat: 1
         imbuedHeatWeight: 1
         damage: 10
         poiseDamage: 30
@@ -113,6 +157,7 @@ MonoBehaviour:
           _tagName: 
         guaranteedReaction: 0
         reactionProfile:
+          motionResponse: {fileID: 0}
           useAutoReaction: 1
           hasAutoReactionGenerated: 0
           analysis:
@@ -130,6 +175,7 @@ MonoBehaviour:
           autoData:
             impactTime: 0
             hitStopDuration: 0
+            hasExplicitHitStop: 0
             hitStopScale: 0.1
             cameraShakeAmplitude: 0
             cameraShakeDuration: 0
@@ -161,6 +207,7 @@ MonoBehaviour:
     aiSelectable: 0
     skillType: 1
     attackCategory: 0
+    aiRoles: 0
     requiredLevel: 1
     selectionWeight: 10
     useTelegraph: 0

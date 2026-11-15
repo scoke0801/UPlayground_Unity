@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: GA_PlayerKatanaAttackData_Ultimate
   m_EditorClassIdentifier: 
   abilityId: Player.Katana.Ultimate
+  executionMode: 0
   editorMemo: 
   presentation:
     displayName: Ultimate
@@ -24,10 +25,34 @@ MonoBehaviour:
     category: 4
     ownerType: 0
   abilityTagIds: []
+  triggers: []
+  cancelAbilitiesWithTag: []
+  blockAbilitiesWithTag: []
   activation:
     requiredTagIds: []
     blockedTagIds: []
     executionGrantedTagIds: []
+    ownerTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
+    sourceTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
+    targetTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
     groundCondition: 0
     targetPolicy: 0
     targetRelation: 2
@@ -45,6 +70,7 @@ MonoBehaviour:
   cooldown:
     durationSeconds: 12
     cooldownGroupId: Cooldown.Player.GA_PlayerKatanaAttackData_Ultimate
+    scope: 0
     maxCharges: 1
     globalLockSeconds: 0
   concurrency: 2
@@ -58,7 +84,14 @@ MonoBehaviour:
       requiresFullResource: 1
       requiredTagIds: []
       blockedTagIds: []
-    executionPayload: {fileID: 3611621239723370251}
+      ownerTagRequirement:
+        requireAll: []
+        requireAny: []
+        blockAny: []
+        matchMode: 0
+        expression:
+          rid: -2
+    executionPayload: {fileID: 11400000, guid: cccb2f8af8a49c74194a7a6a5afd4bae, type: 2}
     targetEffects: []
     ownerEffects: []
   commitEffects: []
@@ -72,6 +105,11 @@ MonoBehaviour:
     expectedDuration: 0
     roleTags: []
     designerNotes: 
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }
 --- !u!114 &3611621239723370251
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -84,14 +122,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6f7925196b84c2aa87d2a42f367f009, type: 3}
   m_Name: GA_PlayerKatanaAttackData_Ultimate_Default_Payload
   m_EditorClassIdentifier: 
-  sequence: {fileID: 11400000, guid: 4312f05afab1dd548af260ac1e709fed, type: 2}
   attackInfo:
     motionKey:
       value: Katana.Ultimate
+    isMotionContentPending: 0
     baseInfo:
       attackType: 0
       hitPhases:
-      - receivesImbuedHeat: 1
+      - environment:
+          kind: 0
+          heatImpulse: 0
+          waterImpulse: 0
+        receivesImbuedHeat: 1
         imbuedHeatWeight: 0.0625
         damage: 28
         poiseDamage: 30
@@ -114,6 +156,7 @@ MonoBehaviour:
           _tagName: 
         guaranteedReaction: 0
         reactionProfile:
+          motionResponse: {fileID: 0}
           useAutoReaction: 1
           hasAutoReactionGenerated: 1
           analysis:
@@ -131,6 +174,7 @@ MonoBehaviour:
           autoData:
             impactTime: 1.29529
             hitStopDuration: 0.105
+            hasExplicitHitStop: 0
             hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
@@ -157,7 +201,11 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-      - receivesImbuedHeat: 1
+      - environment:
+          kind: 0
+          heatImpulse: 0
+          waterImpulse: 0
+        receivesImbuedHeat: 1
         imbuedHeatWeight: 0.0625
         damage: 29
         poiseDamage: 30
@@ -180,6 +228,7 @@ MonoBehaviour:
           _tagName: 
         guaranteedReaction: 0
         reactionProfile:
+          motionResponse: {fileID: 0}
           useAutoReaction: 1
           hasAutoReactionGenerated: 1
           analysis:
@@ -197,6 +246,7 @@ MonoBehaviour:
           autoData:
             impactTime: 1.4447464
             hitStopDuration: 0.105
+            hasExplicitHitStop: 0
             hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
@@ -223,7 +273,11 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-      - receivesImbuedHeat: 1
+      - environment:
+          kind: 0
+          heatImpulse: 0
+          waterImpulse: 0
+        receivesImbuedHeat: 1
         imbuedHeatWeight: 0.0625
         damage: 29
         poiseDamage: 31
@@ -246,6 +300,7 @@ MonoBehaviour:
           _tagName: 
         guaranteedReaction: 0
         reactionProfile:
+          motionResponse: {fileID: 0}
           useAutoReaction: 1
           hasAutoReactionGenerated: 1
           analysis:
@@ -263,6 +318,7 @@ MonoBehaviour:
           autoData:
             impactTime: 1.5844202
             hitStopDuration: 0.105
+            hasExplicitHitStop: 0
             hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
@@ -289,7 +345,11 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-      - receivesImbuedHeat: 1
+      - environment:
+          kind: 0
+          heatImpulse: 0
+          waterImpulse: 0
+        receivesImbuedHeat: 1
         imbuedHeatWeight: 0.0625
         damage: 29
         poiseDamage: 32
@@ -312,6 +372,7 @@ MonoBehaviour:
           _tagName: 
         guaranteedReaction: 0
         reactionProfile:
+          motionResponse: {fileID: 0}
           useAutoReaction: 1
           hasAutoReactionGenerated: 1
           analysis:
@@ -329,6 +390,7 @@ MonoBehaviour:
           autoData:
             impactTime: 1.8370168
             hitStopDuration: 0.105
+            hasExplicitHitStop: 0
             hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
@@ -355,7 +417,11 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-      - receivesImbuedHeat: 1
+      - environment:
+          kind: 0
+          heatImpulse: 0
+          waterImpulse: 0
+        receivesImbuedHeat: 1
         imbuedHeatWeight: 0.0625
         damage: 30
         poiseDamage: 32
@@ -378,6 +444,7 @@ MonoBehaviour:
           _tagName: 
         guaranteedReaction: 0
         reactionProfile:
+          motionResponse: {fileID: 0}
           useAutoReaction: 1
           hasAutoReactionGenerated: 1
           analysis:
@@ -395,6 +462,7 @@ MonoBehaviour:
           autoData:
             impactTime: 1.9600844
             hitStopDuration: 0.105
+            hasExplicitHitStop: 0
             hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
@@ -421,7 +489,11 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-      - receivesImbuedHeat: 1
+      - environment:
+          kind: 0
+          heatImpulse: 0
+          waterImpulse: 0
+        receivesImbuedHeat: 1
         imbuedHeatWeight: 0.0625
         damage: 30
         poiseDamage: 33
@@ -444,6 +516,7 @@ MonoBehaviour:
           _tagName: 
         guaranteedReaction: 0
         reactionProfile:
+          motionResponse: {fileID: 0}
           useAutoReaction: 1
           hasAutoReactionGenerated: 1
           analysis:
@@ -461,6 +534,7 @@ MonoBehaviour:
           autoData:
             impactTime: 2.2119565
             hitStopDuration: 0.105
+            hasExplicitHitStop: 0
             hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
@@ -487,7 +561,11 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-      - receivesImbuedHeat: 1
+      - environment:
+          kind: 0
+          heatImpulse: 0
+          waterImpulse: 0
+        receivesImbuedHeat: 1
         imbuedHeatWeight: 0.0625
         damage: 31
         poiseDamage: 33
@@ -510,6 +588,7 @@ MonoBehaviour:
           _tagName: 
         guaranteedReaction: 0
         reactionProfile:
+          motionResponse: {fileID: 0}
           useAutoReaction: 1
           hasAutoReactionGenerated: 1
           analysis:
@@ -527,6 +606,7 @@ MonoBehaviour:
           autoData:
             impactTime: 2.3680556
             hitStopDuration: 0.105
+            hasExplicitHitStop: 0
             hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
@@ -553,7 +633,11 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-      - receivesImbuedHeat: 1
+      - environment:
+          kind: 0
+          heatImpulse: 0
+          waterImpulse: 0
+        receivesImbuedHeat: 1
         imbuedHeatWeight: 0.0625
         damage: 31
         poiseDamage: 34
@@ -576,6 +660,7 @@ MonoBehaviour:
           _tagName: 
         guaranteedReaction: 0
         reactionProfile:
+          motionResponse: {fileID: 0}
           useAutoReaction: 1
           hasAutoReactionGenerated: 1
           analysis:
@@ -593,6 +678,7 @@ MonoBehaviour:
           autoData:
             impactTime: 2.4811594
             hitStopDuration: 0.105
+            hasExplicitHitStop: 0
             hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
@@ -619,7 +705,11 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-      - receivesImbuedHeat: 1
+      - environment:
+          kind: 0
+          heatImpulse: 0
+          waterImpulse: 0
+        receivesImbuedHeat: 1
         imbuedHeatWeight: 0.0625
         damage: 32
         poiseDamage: 34
@@ -642,6 +732,7 @@ MonoBehaviour:
           _tagName: 
         guaranteedReaction: 0
         reactionProfile:
+          motionResponse: {fileID: 0}
           useAutoReaction: 1
           hasAutoReactionGenerated: 1
           analysis:
@@ -659,6 +750,7 @@ MonoBehaviour:
           autoData:
             impactTime: 2.6271136
             hitStopDuration: 0.105
+            hasExplicitHitStop: 0
             hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
@@ -685,7 +777,11 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-      - receivesImbuedHeat: 1
+      - environment:
+          kind: 0
+          heatImpulse: 0
+          waterImpulse: 0
+        receivesImbuedHeat: 1
         imbuedHeatWeight: 0.0625
         damage: 32
         poiseDamage: 34
@@ -708,6 +804,7 @@ MonoBehaviour:
           _tagName: 
         guaranteedReaction: 0
         reactionProfile:
+          motionResponse: {fileID: 0}
           useAutoReaction: 1
           hasAutoReactionGenerated: 1
           analysis:
@@ -725,6 +822,7 @@ MonoBehaviour:
           autoData:
             impactTime: 2.7501812
             hitStopDuration: 0.105
+            hasExplicitHitStop: 0
             hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
@@ -751,7 +849,11 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-      - receivesImbuedHeat: 1
+      - environment:
+          kind: 0
+          heatImpulse: 0
+          waterImpulse: 0
+        receivesImbuedHeat: 1
         imbuedHeatWeight: 0.0625
         damage: 33
         poiseDamage: 35
@@ -774,6 +876,7 @@ MonoBehaviour:
           _tagName: 
         guaranteedReaction: 0
         reactionProfile:
+          motionResponse: {fileID: 0}
           useAutoReaction: 1
           hasAutoReactionGenerated: 1
           analysis:
@@ -791,6 +894,7 @@ MonoBehaviour:
           autoData:
             impactTime: 3.0235116
             hitStopDuration: 0.105
+            hasExplicitHitStop: 0
             hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
@@ -817,7 +921,11 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-      - receivesImbuedHeat: 1
+      - environment:
+          kind: 0
+          heatImpulse: 0
+          waterImpulse: 0
+        receivesImbuedHeat: 1
         imbuedHeatWeight: 0.0625
         damage: 33
         poiseDamage: 36
@@ -840,6 +948,7 @@ MonoBehaviour:
           _tagName: 
         guaranteedReaction: 0
         reactionProfile:
+          motionResponse: {fileID: 0}
           useAutoReaction: 1
           hasAutoReactionGenerated: 1
           analysis:
@@ -857,6 +966,7 @@ MonoBehaviour:
           autoData:
             impactTime: 3.1541386
             hitStopDuration: 0.105
+            hasExplicitHitStop: 0
             hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
@@ -883,7 +993,11 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-      - receivesImbuedHeat: 1
+      - environment:
+          kind: 0
+          heatImpulse: 0
+          waterImpulse: 0
+        receivesImbuedHeat: 1
         imbuedHeatWeight: 0.0625
         damage: 34
         poiseDamage: 36
@@ -906,6 +1020,7 @@ MonoBehaviour:
           _tagName: 
         guaranteedReaction: 0
         reactionProfile:
+          motionResponse: {fileID: 0}
           useAutoReaction: 1
           hasAutoReactionGenerated: 1
           analysis:
@@ -923,6 +1038,7 @@ MonoBehaviour:
           autoData:
             impactTime: 3.2723613
             hitStopDuration: 0.105
+            hasExplicitHitStop: 0
             hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
@@ -949,7 +1065,11 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-      - receivesImbuedHeat: 1
+      - environment:
+          kind: 0
+          heatImpulse: 0
+          waterImpulse: 0
+        receivesImbuedHeat: 1
         imbuedHeatWeight: 0.0625
         damage: 34
         poiseDamage: 36
@@ -972,6 +1092,7 @@ MonoBehaviour:
           _tagName: 
         guaranteedReaction: 0
         reactionProfile:
+          motionResponse: {fileID: 0}
           useAutoReaction: 1
           hasAutoReactionGenerated: 1
           analysis:
@@ -989,6 +1110,7 @@ MonoBehaviour:
           autoData:
             impactTime: 3.3998876
             hitStopDuration: 0.105
+            hasExplicitHitStop: 0
             hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
@@ -1015,7 +1137,11 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-      - receivesImbuedHeat: 1
+      - environment:
+          kind: 0
+          heatImpulse: 0
+          waterImpulse: 0
+        receivesImbuedHeat: 1
         imbuedHeatWeight: 0.0625
         damage: 35
         poiseDamage: 37
@@ -1038,6 +1164,7 @@ MonoBehaviour:
           _tagName: 
         guaranteedReaction: 0
         reactionProfile:
+          motionResponse: {fileID: 0}
           useAutoReaction: 1
           hasAutoReactionGenerated: 1
           analysis:
@@ -1055,6 +1182,7 @@ MonoBehaviour:
           autoData:
             impactTime: 3.5305145
             hitStopDuration: 0.105
+            hasExplicitHitStop: 0
             hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
@@ -1081,7 +1209,11 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-      - receivesImbuedHeat: 1
+      - environment:
+          kind: 0
+          heatImpulse: 0
+          waterImpulse: 0
+        receivesImbuedHeat: 1
         imbuedHeatWeight: 0.0625
         damage: 35
         poiseDamage: 38
@@ -1104,6 +1236,7 @@ MonoBehaviour:
           _tagName: 
         guaranteedReaction: 0
         reactionProfile:
+          motionResponse: {fileID: 0}
           useAutoReaction: 1
           hasAutoReactionGenerated: 1
           analysis:
@@ -1121,6 +1254,7 @@ MonoBehaviour:
           autoData:
             impactTime: 3.65804
             hitStopDuration: 0.105
+            hasExplicitHitStop: 0
             hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
@@ -1152,6 +1286,7 @@ MonoBehaviour:
     aiSelectable: 0
     skillType: 1
     attackCategory: 0
+    aiRoles: 0
     requiredLevel: 1
     selectionWeight: 10
     useTelegraph: 0
@@ -1182,3 +1317,4 @@ MonoBehaviour:
     conditionGroup:
       conditionOperator: 0
       conditions: []
+  sequence: {fileID: 11400000, guid: 4312f05afab1dd548af260ac1e709fed, type: 2}

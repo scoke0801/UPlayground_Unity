@@ -3,6 +3,7 @@
 몬스터 AI, 플레이어 전투, 교전 구도에 관한 설계.
 
 - [투사체 패리 시스템](PROJECTILE_PARRY_SYSTEM_DESIGN.md): 기존 가드·공격 쳐내기·어시스트를 이용한 직선탄 반사, 판정·피해 귀속·연출·인수 계약.
+- [전용 궁극기 연출 미보유 10명 컨셉](player/PLAYABLE_ULTIMATE_PRESENTATION_CONCEPT_DESIGN.md): 실제 무기·공유 실행 경로를 유지하는 캐릭터별 연출 방향. H09 제외, 전용 동작은 후속안으로 구분.
 
 ## 하위 폴더
 

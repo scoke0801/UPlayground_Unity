@@ -1356,6 +1356,7 @@ namespace UPlayGround.Components
             out GameplayAbilitySO ability)
         {
             ability = null;
+            if (_ownerActor != null && _ownerActor.IsPetDistractionActive) return false;
             List<AbilityCandidate> available = GetAvailableAbilities(
                 distanceToTarget,
                 AbilityAttackCategory.None,

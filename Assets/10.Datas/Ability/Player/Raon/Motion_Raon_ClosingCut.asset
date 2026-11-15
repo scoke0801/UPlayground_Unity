@@ -46,6 +46,7 @@ MonoBehaviour:
       - rid: 5792125035945394304
       - rid: 5351031959771152516
       - rid: 4777427525045846201
+      - rid: 4777427827572867239
     internalBlendDuration: 0.1
     baseLayerIndex: 0
     globalEvents: []
@@ -70,6 +71,37 @@ MonoBehaviour:
         dispatchMode: 0
         evaluationPhase: 0
         globalStartTimeOffset: 0
+    - rid: 4777427827572867239
+      type: {class: SlashVFXEvent, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
+      data:
+        startTime: 0.282484
+        endTime: 0.582484
+        timeLink:
+          enabled: 0
+          mode: 0
+          linkedMotionId: 
+          markerId: 
+          startValue: 0
+          endValue: 0
+        reentryPolicy: 0
+        executionOrder: 0
+        dispatchMode: 0
+        evaluationPhase: 0
+        globalStartTimeOffset: 0
+        useSpawnerSettings: 1
+        overrideSpawnerTransform: 1
+        vfxPrefab: {fileID: 1840690549904964, guid: a8a6ba91edbeef2439175ecf0e08e6fb, type: 3}
+        spawnerObjectName: Katana
+        weaponRootName: Katana
+        basePointName: Blade_Base
+        tipPointName: Blade_Tip
+        positionSpace: 1
+        positionOffset: {x: -0.25949088, y: 0.017181844, z: 0.42411545}
+        rotationSpace: 1
+        rotationOffset: {x: 355.08914, y: 154.67026, z: 212.0385}
+        scale: 0.45
+        destroyDelay: 2
+        attachToActor: 1
     - rid: 5351031959771152516
       type: {class: MotionEvent_MotionWarp, ns: UPlayGround.Data.Event, asm: UPlayGround.Actor}
       data:

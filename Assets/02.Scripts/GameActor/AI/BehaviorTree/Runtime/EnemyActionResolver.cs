@@ -28,6 +28,14 @@ namespace UPlayGround.AI.BehaviorTree
                 return false;
             }
 
+            if (request.Intent is EnemyActionIntent.Attack or EnemyActionIntent.Punish
+                && controller.Actor is MonsterActor { IsPetDistractionActive: true })
+            {
+                failureReason = "펫의 움직임에 주의가 끌려 새 공격을 늦춥니다.";
+                ReleaseUncommittedAttackSlot(context, controller);
+                return false;
+            }
+
             if (IsTransitionBlockedByActionLock(
                     controller.CurrentState,
                     request,
@@ -58,6 +66,16 @@ namespace UPlayGround.AI.BehaviorTree
 
             RecordAcceptedAction(context, request);
             return true;
+        }
+
+        /// <summary>새 공격을 보류할 때만 예약을 반환한다. 이미 실행 중인 공격의 슬롯은 유지한다.</summary>
+        internal static void ReleaseUncommittedAttackSlot(BehaviorTreeContext context, ActorMovementController controller)
+        {
+            if (controller?.CurrentState?.StateId is ActorStateId.Attack or ActorStateId.Flying_GroundAttack or ActorStateId.Flying_Dive)
+                return;
+            context?.GetComponentCached<EnemyAIContext>()?.ReleaseGroupSlot();
+            context?.GetComponentCached<EnemyFlyingAIContext>()?.ReleaseGroupSlot();
+            context?.Blackboard?.SetBool(EnemyBlackboardKeys.HasAttackSlot, false);
         }
 
         private static bool TryTransitionResolvedState(

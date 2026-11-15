@@ -10,13 +10,13 @@ code{background:#f4f4f4;padding:1px 4px;border-radius:3px}
 </style></head><body>
 
 <h1>펫 시스템 3차 설계<br>전투 지원·성장 고도화 (확정안)</h1>
-<p><strong>상태:</strong> 설계 확정. P1 구현·검증의 최신 판정은 <a href="../../../../../docs/work-status/pet-system/PET_SYSTEM_V3_STATUS.md">V3 상태 문서</a>에 둔다. P2·P3는 후속 범위다. 모든 수치는 <em>초기 제안</em>이며 SO에서 조정한다. 선행: <a href="PET_SYSTEM_V2_DESIGN.html">V2 설계</a>.</p>
+<p><strong>상태:</strong> 설계 확정. P1~P3 구현·검증의 최신 판정은 <a href="../../../../../docs/work-status/pet-system/PET_SYSTEM_V3_STATUS.md">V3 상태 문서</a>에 둔다. 사용자 지시에 따라 P3까지 구현한 뒤 일괄 검증한다. 모든 수치는 <em>초기 제안</em>이며 SO에서 조정한다. 선행: <a href="PET_SYSTEM_V2_DESIGN.html">V2 설계</a>.</p>
 
 <h2 id="decisions">1. 확정 결정</h2>
 <table><tr><th>결정</th><th>내용</th><th>출처</th></tr>
 <tr><td>지원 방식</td><td>신호 반응형. 명령 입력·신규 펫 단축키·직접 피해 없음</td><td>사용자</td></tr>
 <tr><td>유대 성장</td><td>전투·생활·퀘스트 세 원천에서 점진적으로 차오른다. 목표 도달 시간은 정하지 않고, 곡선·가중치를 SO에서 조정한다</td><td>사용자</td></tr>
-<tr><td>분기 A/B</td><td><strong>보류</strong>(P3 이후 재검토). 지원이 3개뿐이라 두 분기의 기대 가치를 맞추는 비용이 크다</td><td>Opus 검토 추천 채택</td></tr>
+<tr><td>분기 A/B</td><td><strong>보류</strong>(P3 이후 재검토). 지원 4개와 두 슬롯의 조합을 먼저 검증한다. Astra의 P3 재검토 후 보류를 유지한다</td><td>Opus 검토 추천 채택</td></tr>
 <tr><td>유대 단위</td><td><strong>펫 전체 공통</strong>. 스킬 레벨·슬롯과 같은 단위로 세이브당 하나를 관리한다. 모델을 바꾸거나 새 펫을 얻어도 유대가 초기화되지 않는다</td><td>사용자(Opus 추천 번복)</td></tr>
 <tr><td>적 브레이크 신호</td><td>P1에서 제외, <strong>P3로 연기</strong>. 몬스터별 이벤트를 모으는 중계 계층이 새로 필요하다</td><td>Opus 검토 추천 채택</td></tr>
 <tr><td>대시 무적 회피</td><td>완벽 방어 신호에서 <strong>제외</strong>. 숙련 보상의 의미를 지킨다</td><td>Opus 검토 추천 채택</td></tr></table>
@@ -70,7 +70,7 @@ code{background:#f4f4f4;padding:1px 4px;border-radius:3px}
 <p>기존 스킬 ID(<code>Pet.Skill.*</code>)는 저장 식별자이므로 바꾸지 않는다. 표시 이름과 동작만 바꾼다. 줍기 2종은 변경하지 않는다.</p>
 
 <h3>5.3 읽히는 반응 (보류 항목)</h3>
-<p><strong>조사 결과(P0):</strong> 원숭이 모션 세트 <code>MonkeyMotions.asset</code>에 등록된 슬롯은 Idle·Walk·Run 3개뿐이고, 탑승용 <code>Monkey_Sit</code>과 <code>Monkey_IdleA</code>가 별도 에셋으로 있다. 반응용(짖기·뛰기·응원) 클립은 등록되어 있지 않다. FBX(<code>Chibi_Monkey.fbx</code>)에 임베드된 클립 목록은 Unity 없이 확인하지 못했다 <strong>(미확인)</strong>.</p>
+<p><strong>조사 결과(P0):</strong> 원숭이 모션 세트 <code>MonkeyMotions.asset</code>에 등록된 슬롯은 Idle·Walk·Run 3개뿐이고, 탑승용 <code>Monkey_Sit</code>과 <code>Monkey_IdleA</code>가 별도 에셋으로 있다. 반응용(짖기·뛰기·응원) 클립은 등록되어 있지 않다. Unity API로 확인한 FBX(<code>Chibi_Monkey.fbx</code>)의 임베드 AnimationClip은 0개다. 1차 반응은 기존 FX와 HUD 점멸로 저작한다.</p>
 <p><strong>결정:</strong> 1차는 플레이어 위치 FX + HUD 지원 아이콘 점멸 + 펫 쪽 FX(<code>activateFxKey</code> 외에 펫 위치용 키 추가)로 한다. 전용 모션은 FBX 클립을 Unity에서 확인한 뒤 있으면 기존 클립을 재사용하고, 없으면 만들지 않고 보류한다(모션 미확정 표시 유지). 반응 모션은 지원 성립의 조건이 아니다.</p>
 <p><strong>실패 처리:</strong> 신호가 왔을 때 펫이 지원 불가 상태(수영·활공 동승·거리 초과·시야 차단 등 <code>CanSupport</code> 거짓)이면 반응은 <em>버려진다</em>(대기열에 쌓지 않는다). 쿨다운도 소모하지 않는다. 지원이 나가지 않았다는 것을 플레이어가 알 수 있게 HUD 아이콘은 "대기 중/불가"를 구분해 표시한다.</p>
 
@@ -94,8 +94,8 @@ code{background:#f4f4f4;padding:1px 4px;border-radius:3px}
 <h3>6.3 유대 단계와 해금</h3>
 <table><tr><th>단계</th><th>해금</th><th>누적 문턱</th></tr>
 <tr><td>1</td><td>기본 지원 1슬롯</td><td>0</td></tr>
-<tr><td>2</td><td><strong>두 번째 지원 슬롯</strong></td><td>SO 곡선(미정)</td></tr>
-<tr><td>3</td><td><strong>시그니처 반응</strong>(전용 연출 + 소폭 효과 한 가지)</td><td>SO 곡선(미정)</td></tr></table>
+<tr><td>2</td><td><strong>두 번째 지원 슬롯</strong></td><td>SO 초기값은 구현 표 참조(목표 시간 미정)</td></tr>
+<tr><td>3</td><td><strong>시그니처 반응</strong>(전용 연출 + 소폭 효과 한 가지)</td><td>SO 초기값은 구현 표 참조(목표 시간 미정)</td></tr></table>
 <p>문턱은 일부러 확정하지 않는다. 앞쪽은 빠르게, 뒤쪽은 느리게 오르는 곡선으로 두고 목표 시간이 정해지면 SO만 고친다. 단계는 저장하지 않고 공통 유대 값에서 계산한다.</p>
 
 <h2 id="growth">7. 성장 축 분리와 슬롯</h2>
@@ -153,6 +153,18 @@ code{background:#f4f4f4;padding:1px 4px;border-radius:3px}
 <li><strong>펫별 분리:</strong> 스킬 레벨·슬롯·유대 모두 펫 공통으로 통일했다. 펫별 차별화(펫 종류에 따른 지원 특성)가 필요해지면 따로 검토한다.</li>
 </ul>
 
+<h2 id="implementation-defaults">P2·P3 구현 초기값과 구체화 (2026-11-14, Astra 검토)</h2>
+<p>목표 성장 시간은 미정이다. 아래 값은 <code>PetBondProgressionSO</code> 및 GAS SO에서 조정하며 인스펙터는 활동 가정에 따른 감쇠 전 예상치를 표시한다.</p>
+<table><tr><th>항목</th><th>초기값·계약</th></tr>
+<tr><td>유대 단계</td><td>0 / 100 / 400점. 2단계 두 슬롯, 3단계 시그니처. 서로 다른 지원 계열만 장착</td></tr>
+<tr><td>전투</td><td>실제 적용된 비회복 지원2점, 교전 종료2점×동행 비율. Sweep1배/Duel1.5배. 최소15초·능동 전투 행동 필요. 최근 능동 활동 없는 자동 버팀은 적립 제외</td></tr>
+<tr><td>생활</td><td>60실활동초당1점, 최근 이동·획득·채집·상호작용 유예5초. 전투 시계와 생활 적립은 분리</td></tr>
+<tr><td>퀘스트</td><td>목표 완료5점, 퀘스트 완료15점. questId/objectiveId 쌍 영구 중복 방지. 확정된 진행·완료 이벤트는 대화·메뉴 중에도 인정하고 시간 기반 적립은 중단. TimeScale0·동행 해제·명시적 동행 금지·씬 전환에는 미지급</td></tr>
+<tr><td>한도·감쇠</td><td>교전8점, 일일 원천별30/30/60점, 별도1800실활동초 창도 같은 원천 한도. 초과분20%, 여러 한도에서 중복 곱하지 않음. 수면 날짜 변경은 활동 창·영구 청구를 초기화하지 않음</td></tr>
+<tr><td>세이브</td><td>progressionVersion3 유지, bondMigrationVersion1로 기존 P1 v3도 공용 유대를 한 번만 이전. 기존 공용 값과 펫별 최댓값 중 큰 값 채택, 합산 금지</td></tr>
+<tr><td>시그니처</td><td>가벼운 손놀림: 공격 속도+3%/3초, 독립 대기60초. 기본 도움 성공 뒤 반응, 슬롯·추가 유대·게이지 충전 없음. 공격력/방어 Attribute 합산 가드는 유지</td></tr>
+<tr><td>달려들기</td><td>대기20초+전역8초. 주의 전환1~1.8초, 강인도 회복 총 지연+1~2초/4초. 직접 피해 없음. 새 공격 결정만 지연하며 기존 공격·방어·강제 반응·Break 노출시간은 유지</td></tr></table>
+<p>시그니처 자문의 이동 속도+5% 안은 실제 이동 코드가 GAS 이동 속도를 소비하지 않아 채택하지 않았다. <code>PlayerAttackState.ApplyAttackSpeed</code>가 현재 GAS 값을 소비하는 공격 속도로 구체화했다. 기존 이동 속도 미연결은 범위 밖 구조 문제로 상태 문서에 남긴다. 전용 반응 클립은 제작하지 않는다.</p>
 <h2 id="refs">참고 자료</h2>
 <ol>
 <li><a href="https://gamedeveloper.com/design/thinking-about-elizabeth-part-2">Game Developer — Thinking about Elizabeth, Part 2</a></li>

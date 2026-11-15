@@ -12,14 +12,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6f7925196b84c2aa87d2a42f367f009, type: 3}
   m_Name: GA_PlayerDoubleAxeAttackData_Ultimate_Default_Payload
   m_EditorClassIdentifier: 
-  sequence: {fileID: 11400000, guid: 4551ebb27d5441d4b9e5ddf88633d9bd, type: 2}
   attackInfo:
     motionKey:
       value: DoubleAxe.Ultimate
+    isMotionContentPending: 0
     baseInfo:
       attackType: 0
       hitPhases:
-      - receivesImbuedHeat: 1
+      - environment:
+          kind: 0
+          heatImpulse: 0
+          waterImpulse: 0
+        receivesImbuedHeat: 1
         imbuedHeatWeight: 0.25
         damage: 45
         poiseDamage: 30
@@ -42,6 +46,7 @@ MonoBehaviour:
           _tagName: 
         guaranteedReaction: 0
         reactionProfile:
+          motionResponse: {fileID: 0}
           useAutoReaction: 1
           hasAutoReactionGenerated: 1
           analysis:
@@ -59,6 +64,7 @@ MonoBehaviour:
           autoData:
             impactTime: 0.9424157
             hitStopDuration: 0.105
+            hasExplicitHitStop: 0
             hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
@@ -85,7 +91,11 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-      - receivesImbuedHeat: 1
+      - environment:
+          kind: 0
+          heatImpulse: 0
+          waterImpulse: 0
+        receivesImbuedHeat: 1
         imbuedHeatWeight: 0.25
         damage: 49
         poiseDamage: 33
@@ -108,6 +118,7 @@ MonoBehaviour:
           _tagName: 
         guaranteedReaction: 0
         reactionProfile:
+          motionResponse: {fileID: 0}
           useAutoReaction: 1
           hasAutoReactionGenerated: 1
           analysis:
@@ -125,6 +136,7 @@ MonoBehaviour:
           autoData:
             impactTime: 1.1329589
             hitStopDuration: 0.105
+            hasExplicitHitStop: 0
             hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
@@ -151,7 +163,11 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-      - receivesImbuedHeat: 1
+      - environment:
+          kind: 0
+          heatImpulse: 0
+          waterImpulse: 0
+        receivesImbuedHeat: 1
         imbuedHeatWeight: 0.25
         damage: 52
         poiseDamage: 35
@@ -174,6 +190,7 @@ MonoBehaviour:
           _tagName: 
         guaranteedReaction: 0
         reactionProfile:
+          motionResponse: {fileID: 0}
           useAutoReaction: 1
           hasAutoReactionGenerated: 1
           analysis:
@@ -191,6 +208,7 @@ MonoBehaviour:
           autoData:
             impactTime: 1.2514045
             hitStopDuration: 0.105
+            hasExplicitHitStop: 0
             hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
@@ -217,7 +235,11 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-      - receivesImbuedHeat: 1
+      - environment:
+          kind: 0
+          heatImpulse: 0
+          waterImpulse: 0
+        receivesImbuedHeat: 1
         imbuedHeatWeight: 0.25
         damage: 56
         poiseDamage: 38
@@ -240,6 +262,7 @@ MonoBehaviour:
           _tagName: 
         guaranteedReaction: 0
         reactionProfile:
+          motionResponse: {fileID: 0}
           useAutoReaction: 1
           hasAutoReactionGenerated: 1
           analysis:
@@ -257,6 +280,7 @@ MonoBehaviour:
           autoData:
             impactTime: 1.4161986
             hitStopDuration: 0.105
+            hasExplicitHitStop: 0
             hitStopScale: 0.03
             cameraShakeAmplitude: 0.8843176
             cameraShakeDuration: 0.13769999
@@ -288,6 +312,7 @@ MonoBehaviour:
     aiSelectable: 0
     skillType: 1
     attackCategory: 0
+    aiRoles: 0
     requiredLevel: 1
     selectionWeight: 10
     useTelegraph: 0
@@ -318,6 +343,7 @@ MonoBehaviour:
     conditionGroup:
       conditionOperator: 0
       conditions: []
+  sequence: {fileID: 11400000, guid: 4551ebb27d5441d4b9e5ddf88633d9bd, type: 2}
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -331,6 +357,7 @@ MonoBehaviour:
   m_Name: GA_PlayerDoubleAxeAttackData_Ultimate
   m_EditorClassIdentifier: 
   abilityId: Player.DoubleAxe.Ultimate
+  executionMode: 0
   editorMemo: 
   presentation:
     displayName: Ultimate
@@ -342,10 +369,34 @@ MonoBehaviour:
     category: 4
     ownerType: 0
   abilityTagIds: []
+  triggers: []
+  cancelAbilitiesWithTag: []
+  blockAbilitiesWithTag: []
   activation:
     requiredTagIds: []
     blockedTagIds: []
     executionGrantedTagIds: []
+    ownerTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
+    sourceTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
+    targetTagRequirement:
+      requireAll: []
+      requireAny: []
+      blockAny: []
+      matchMode: 0
+      expression:
+        rid: -2
     groundCondition: 0
     targetPolicy: 0
     targetRelation: 2
@@ -363,6 +414,7 @@ MonoBehaviour:
   cooldown:
     durationSeconds: 12
     cooldownGroupId: Cooldown.Player.GA_PlayerDoubleAxeAttackData_Ultimate
+    scope: 0
     maxCharges: 1
     globalLockSeconds: 0
   concurrency: 2
@@ -376,7 +428,14 @@ MonoBehaviour:
       requiresFullResource: 1
       requiredTagIds: []
       blockedTagIds: []
-    executionPayload: {fileID: -2236929034055534722}
+      ownerTagRequirement:
+        requireAll: []
+        requireAny: []
+        blockAny: []
+        matchMode: 0
+        expression:
+          rid: -2
+    executionPayload: {fileID: 11400000, guid: 92b7a5531393f13488508383932c4ea6, type: 2}
     targetEffects: []
     ownerEffects: []
   commitEffects: []
@@ -390,3 +449,8 @@ MonoBehaviour:
     expectedDuration: 0
     roleTags: []
     designerNotes: 
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }

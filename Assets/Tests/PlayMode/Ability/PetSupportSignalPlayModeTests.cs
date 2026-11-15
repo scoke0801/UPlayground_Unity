@@ -12,6 +12,14 @@ using UPlayGround.Data.Stat;
 using UPlayGround.Gameplay.Ability;
 using UPlayGround.Gameplay.Tag;
 using UPlayGround.MovementController;
+using UPlayGround.Components;
+using UPlayGround.Combat;
+using UPlayGround.Data;
+using UPlayGround.Data.Enemy;
+using UPlayGround.Data.EnumType;
+using UPlayGround.Manager;
+using UPlayGround.Data.Quest;
+using UPlayGround.Data.Combat;
 
 namespace UPlayGround.Ability.PlayModeTests
 {
@@ -58,6 +66,7 @@ namespace UPlayGround.Ability.PlayModeTests
             typeof(PetActor).GetField("_brain", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(_pet, _brain);
             _catalog = Object.Instantiate(AssetDatabase.LoadAssetAtPath<PetSkillCatalogSO>("Assets/10.Datas/Pet/PetSkills.asset"));
             _catalog.supportObstructionMask = 0;
+            _catalog.signatureFxKey = null;
             foreach (var skill in _catalog.skills) { skill.activateFxKey = null; skill.petActivateFxKey = null; }
             _save = PetSaveRules.Normalize(null);
             _support = new PetSupportController(_catalog);
@@ -188,6 +197,201 @@ namespace UPlayGround.Ability.PlayModeTests
             _support.Capture(_save); Assert.That(_save.supportMinimumIntervalRemaining, Is.GreaterThan(7f));
             ExpireMinimumInterval(); Hit(GameplayTags.Trigger_Player_Hit_Heavy);
             Assert.That(_support.ActivationVersion, Is.EqualTo(1), "저장 당시 준비된 지원은 복원 뒤에도 사용할 수 있다.");
+        }
+
+        [Test]
+        public void 두번째_슬롯은_해금_이후에만_반응하고_전역간격은_공유한다()
+        {
+            Select(PetSkillCatalogSO.Heal); _save.supportSlots.Add(PetSkillCatalogSO.AttackBuff);
+            Perfect(); Assert.That(_support.ActivationVersion, Is.Zero);
+            _save.sharedBondPoints = _catalog.bondProgression.secondSlotPoints;
+            Perfect(); Assert.That(_support.LastActivatedSlot, Is.EqualTo(1));
+            Assert.That(_support.ActivationVersion, Is.EqualTo(1));
+            SetHealth(20f); _support.Tick(_pet, _save); Assert.That(_player.CurrentHealth, Is.EqualTo(20f));
+            ExpireMinimumInterval(); _support.Tick(_pet, _save); Assert.That(_player.CurrentHealth, Is.EqualTo(28f).Within(.001f));
+            Assert.That(_player.AbilitySystem.Runtime.Cooldowns.GetRemaining(Group(PetSkillCatalogSO.AttackBuff)), Is.GreaterThan(9f));
+        }
+        [Test]
+        public void 중복계열의_두번째_슬롯은_잘못된_세이브에서도_실행하지_않는다()
+        {
+            Select(PetSkillCatalogSO.Heal); _save.supportSlots.Add(PetSkillCatalogSO.AttackBuff);
+            _save.sharedBondPoints = 100;
+            _catalog.Find(PetSkillCatalogSO.AttackBuff).family = _catalog.Find(PetSkillCatalogSO.Heal).family;
+            Perfect(); Assert.That(_support.ActivationVersion, Is.Zero);
+        }
+        [Test]
+        public void 시그니처는_3단계에만_발동하고_교체와_저장에도_독립대기를_유지한다()
+        {
+            _save.sharedBondPoints = _catalog.bondProgression.signaturePoints;
+            Select(PetSkillCatalogSO.AttackBuff); Perfect();
+            var signature = _catalog.signatureAbility;
+            Assert.That(_player.AbilitySystem.Attributes.GetCurrent(Attributes.Combat.AttackSpeed), Is.EqualTo(1.03f).Within(.001f));
+            Assert.That(_support.SignatureActivationVersion, Is.EqualTo(1));
+            Assert.That(_player.Effects.HasActiveEffect(signature.variants[0].targetEffects[0]), Is.True);
+            _player.Abilities.HandleCharacterSwap();
+            Assert.That(_player.Effects.HasActiveEffect(signature.variants[0].targetEffects[0]), Is.True);
+            _support.Dispose(_save); _player.Effects.RemoveAll(); _player.AbilitySystem.Runtime.Cooldowns.Clear();
+            _save = PetSaveRules.Normalize(_save);
+            _support = new PetSupportController(_catalog); _support.SetPet(_pet); _support.Bind(_player, _save);
+            Assert.That(_player.AbilitySystem.Runtime.Cooldowns.GetRemaining(signature.cooldown.cooldownGroupId), Is.GreaterThan(59f));
+            _save.sharedBondPoints = 100; ExpireMinimumInterval(); Select(PetSkillCatalogSO.DefenseBuff);
+            Hit(GameplayTags.Trigger_Player_Hit_Heavy); Assert.That(_support.SignatureActivationVersion, Is.Zero);
+        }
+        [Test]
+        public void 실제_브레이크만_교란하고_중복노출과_무원인노출은_쿨다운을_쓰지_않는다()
+        {
+            var enemy = CreateEnemy(out var gauge, out var data);
+            try
+            {
+                Select(PetSkillCatalogSO.Disruption);
+                _catalog.Find(PetSkillCatalogSO.Disruption).triggerPolicy.requiresCombat = false;
+                gauge.ForceExpose(); Assert.That(_support.ActivationVersion, Is.Zero);
+                gauge.RecoverFromExpose(false); Break(gauge, enemy);
+                Assert.That(_support.ActivationVersion, Is.EqualTo(1));
+                Assert.That(enemy.Effects.HasActiveEffect(Effect(PetSkillCatalogSO.Disruption)), Is.True);
+                Assert.That(enemy.AbilitySystem.Attributes.GetCurrent(Attributes.Vital.PoiseRecoveryDelay), Is.GreaterThan(0f));
+                Assert.That(enemy.AbilitySystem.Attributes.GetCurrent(Attributes.Vital.Health), Is.EqualTo(100f), "교란은 피해를 주지 않는다.");
+                Break(gauge, enemy); Assert.That(_support.ActivationVersion, Is.EqualTo(1));
+                Assert.That(_player.AbilitySystem.Runtime.Cooldowns.GetRemaining(Group(PetSkillCatalogSO.Disruption)), Is.GreaterThan(19f));
+            }
+            finally { Object.DestroyImmediate(data); }
+        }
+        [Test]
+        public void 지원불가_브레이크는_폐기하고_복귀후_재생하지_않는다()
+        {
+            var enemy = CreateEnemy(out var gauge, out var data);
+            try
+            {
+                Select(PetSkillCatalogSO.Disruption); _catalog.Find(PetSkillCatalogSO.Disruption).triggerPolicy.requiresCombat = false;
+                _brain.SetSuspended(true); Break(gauge, enemy);
+                Assert.That(_support.ActivationVersion, Is.Zero);
+                Assert.That(_player.AbilitySystem.Runtime.Cooldowns.GetRemaining(Group(PetSkillCatalogSO.Disruption)), Is.Zero);
+                _brain.SetSuspended(false); _petMotor.enabled = true; _support.Tick(_pet, _save);
+                Assert.That(_support.ActivationVersion, Is.Zero);
+                gauge.RecoverFromExpose(false); Break(gauge, enemy);
+                Assert.That(_support.ActivationVersion, Is.EqualTo(1));
+            }
+            finally { Object.DestroyImmediate(data); }
+        }
+        private MonsterActor CreateEnemy(out MonsterBreakGauge gauge, out MonsterBreakGaugeSO data)
+        {
+            var go = new GameObject("브레이크 검사 대상"); go.transform.SetParent(_root.transform);
+            var enemy = go.AddComponent<MonsterActor>();
+            var system = go.AddComponent<AbilitySystemComponent>(); system.EnsureInitialized(); system.InitializeDefaultAttributes();
+            SetProperty(typeof(GameActor), enemy, "AbilitySystem", system);
+            SetProperty(typeof(GameActor), enemy, "Abilities", system.ProjectAbilities);
+            SetProperty(typeof(GameActor), enemy, "Effects", system.ProjectEffects);
+            system.Attributes.SetBase(Attributes.Vital.MaxHealth, 100f); system.Attributes.SetBase(Attributes.Vital.Health, 100f);
+            const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
+            typeof(GameActor).GetField("_actorType", flags).SetValue(_player, ActorType.Player);
+            typeof(GameActor).GetField("_actorType", flags).SetValue(enemy, ActorType.Monster);
+            gauge = go.AddComponent<MonsterBreakGauge>();
+            typeof(MonsterBreakGauge).GetField("_owner", flags).SetValue(gauge, enemy);
+            data = ScriptableObject.CreateInstance<MonsterBreakGaugeSO>(); gauge.Init(data);
+            return enemy;
+        }
+        private void Break(MonsterBreakGauge gauge, MonsterActor enemy)
+        {
+            var attack = new AttackData { attacker = _player, breakDamage = 1000f };
+            var request = HitRequest.FromAttackData(attack);
+            var hit = HitContext.Create(request, enemy); gauge.TakeBreakDamage(hit);
+        }
+
+        [Test]
+        public void 퀘스트와_교전_실제이벤트는_유효성과_중복을_검사하고_구독해제한다()
+        {
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            var managerType = System.Type.GetType("UPlayGround.Manager.PetManager, Assembly-CSharp", true);
+            var eventsType = System.Type.GetType("UPlayGround.Manager.EventManager, Assembly-CSharp", true);
+            var sceneType = System.Type.GetType("UPlayGround.Manager.SceneManager, Assembly-CSharp", true);
+            var saveType = System.Type.GetType("UPlayGround.Manager.SaveManager, Assembly-CSharp", true);
+            var manager = _root.AddComponent(managerType);
+            var events = _root.AddComponent(eventsType);
+            var scene = _root.AddComponent(sceneType);
+            var save = _root.AddComponent(saveType);
+            var sceneField = typeof(BaseManager<>).MakeGenericType(sceneType).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
+            var saveField = typeof(BaseManager<>).MakeGenericType(saveType).GetField("_instance", BindingFlags.Static | BindingFlags.NonPublic);
+            var previousScene = sceneField.GetValue(null); var previousSave = saveField.GetValue(null);
+            Services.TryGet<IGameEventObservable>(out var previousEvents);
+            Services.TryGet<ICombatEncounterService>(out var previousEncounters);
+            var encounters = new PetTestEncounterService();
+            System.Action<PetSupportTriggerKind> applied = null;
+            var catalog = ScriptableObject.CreateInstance<PetCatalogSO>(); catalog.skills = _catalog;
+            try
+            {
+                sceneField.SetValue(null, scene); saveField.SetValue(null, save);
+                if (previousEvents != null) Services.Unregister(previousEvents);
+                Services.Register((IGameService)events);
+                if (previousEncounters != null) Services.Unregister(previousEncounters);
+                Services.Register(encounters);
+                managerType.GetField("_save", flags).SetValue(manager, _save);
+                managerType.GetField("_actor", flags).SetValue(manager, _pet);
+                managerType.GetField("_owner", flags).SetValue(manager, _player);
+                managerType.GetField("_ready", flags).SetValue(manager, true);
+                managerType.GetField("_sceneType", flags).SetValue(manager, SceneType.Test);
+                managerType.GetField("<Catalog>k__BackingField", flags).SetValue(manager, catalog);
+                managerType.GetField("<State>k__BackingField", flags).SetValue(manager, PetRuntimeState.Suspended);
+                _save.isAccompanying = true;
+                managerType.GetMethod("SubscribeBond", flags).Invoke(manager, null);
+                var publisher = (IGameEventPublisher)events;
+                var objective = new QuestObjectiveEventData { QuestId = "Quest", ObjectiveId = "Goal", RequiredCount = 2, CurrentCount = 1 };
+                publisher.Send(QuestEvent.QuestObjectiveUpdated, objective); Assert.That(_save.sharedBondPoints, Is.Zero);
+                objective.CurrentCount = 2;
+                publisher.Send(QuestEvent.QuestObjectiveUpdated, objective);
+                publisher.Send(QuestEvent.QuestObjectiveUpdated, objective);
+                Assert.That(_save.sharedBondPoints, Is.EqualTo(5));
+                eventsType.GetMethod("OnSceneChanged").Invoke(events, new object[] { SceneType.Test });
+                publisher.Send(QuestEvent.QuestCompleted, new QuestStateEventData { QuestId = "Quest" });
+                Assert.That(_save.sharedBondPoints, Is.EqualTo(20));
+                Time.timeScale = 0f;
+                publisher.Send(QuestEvent.QuestCompleted, new QuestStateEventData { QuestId = "Paused" });
+                Assert.That(_save.bondLedger.claims.Count, Is.EqualTo(2));
+                Time.timeScale = 1f; _save.isAccompanying = false;
+                publisher.Send(QuestEvent.QuestCompleted, new QuestStateEventData { QuestId = "Paused" });
+                Assert.That(_save.sharedBondPoints, Is.EqualTo(20));
+                _save.isAccompanying = true;
+                publisher.Send(QuestEvent.QuestCompleted, new QuestStateEventData { QuestId = "Paused" });
+                Assert.That(_save.sharedBondPoints, Is.EqualTo(35));
+                Assert.That(_save.bondLedger.windowActiveSeconds, Is.Zero, "퀘스트는 시간 기반 활동 창을 충전하지 않는다.");
+                managerType.GetField("<State>k__BackingField", flags).SetValue(manager, PetRuntimeState.Ready);
+                encounters.Change(CombatEncounterKind.Sweep);
+                Assert.That(_save.bondLedger.encounterActive, Is.True);
+                applied = (System.Action<PetSupportTriggerKind>)System.Delegate.CreateDelegate(
+                    typeof(System.Action<PetSupportTriggerKind>), manager, managerType.GetMethod("OnBondSupport", flags));
+                _support.SupportApplied += applied;
+                _player.AbilitySystem.Attributes.SetBase(Attributes.Combat.AttackPower, 100f);
+                Select(PetSkillCatalogSO.AttackBuff); Perfect();
+                Assert.That(_save.sharedBondPoints, Is.EqualTo(37));
+                _save.bondLedger.encounterSeconds = 20f; _save.bondLedger.encounterPresentSeconds = 10f;
+                encounters.Change(CombatEncounterKind.Explore);
+                Assert.That(_save.sharedBondPoints, Is.EqualTo(38), "교전 종료는 동행 비율만큼 보너스를 준다.");
+                managerType.GetMethod("UnsubscribeBond", flags).Invoke(manager, null);
+                publisher.Send(QuestEvent.QuestCompleted, new QuestStateEventData { QuestId = "AfterDispose" });
+                encounters.Change(CombatEncounterKind.Sweep);
+                Assert.That(_save.sharedBondPoints, Is.EqualTo(38));
+                Assert.That(_save.bondLedger.encounterActive, Is.False);
+            }
+            finally
+            {
+                managerType.GetMethod("UnsubscribeBond", flags).Invoke(manager, null);
+                Services.Unregister((IGameService)events);
+                Services.Unregister(encounters);
+                if (previousEncounters != null) Services.Register(previousEncounters);
+                if (previousEvents != null) Services.Register(previousEvents);
+                if (applied != null) _support.SupportApplied -= applied;
+                sceneField.SetValue(null, previousScene); saveField.SetValue(null, previousSave);
+                Object.DestroyImmediate(catalog);
+            }
+        }
+        private sealed class PetTestEncounterService : ICombatEncounterService
+        {
+            public CombatEncounterKind CurrentEncounter { get; private set; }
+            public CombatEncounterProfileSO EncounterProfile => null;
+            public bool IsBossAttacking => false;
+            public event System.Action<CombatEncounterKind> EncounterChanged;
+            public void Change(CombatEncounterKind kind) { CurrentEncounter = kind; EncounterChanged?.Invoke(kind); }
+            public void SetArenaActive(string arenaId, bool active) { }
+            public void ResetEncounter() => Change(CombatEncounterKind.Explore);
         }
     }
 }

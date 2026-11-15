@@ -36,6 +36,13 @@ namespace UPlayGround.AI.BehaviorTree
             if (_skipIfAlreadyInState && controller.CurrentState?.StateName == targetName)
                 return BTStatus.Success;
 
+            if (_targetState is FlyingEnemyTransitionStateType.GroundAttack or FlyingEnemyTransitionStateType.Dive
+                && controller.Actor is MonsterActor { IsPetDistractionActive: true })
+            {
+                EnemyActionResolver.ReleaseUncommittedAttackSlot(Context, controller);
+                return BTStatus.Failure;
+            }
+
             var nextState = CreateState(controller);
             if (nextState == null)
                 return BTStatus.Failure;

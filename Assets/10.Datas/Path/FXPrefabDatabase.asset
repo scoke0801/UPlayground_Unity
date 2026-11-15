@@ -42,7 +42,7 @@ MonoBehaviour:
     description: 
   - key: LevelUp
     prefab: {fileID: 2569992915501827505, guid: 6f8f4290ec1f6e04e8ec91261b1a0948, type: 3}
-    description: 성장 순간의 단발 상승 효과
+    description: "\uC131\uC7A5 \uC21C\uAC04\uC758 \uB2E8\uBC1C \uC0C1\uC2B9 \uD6A8\uACFC"
   - key: playerGuardFX
     prefab: {fileID: 1746675453279186, guid: ca168eb62999ccb40bf4fdba7f63c1d5, type: 3}
     description: 
@@ -63,7 +63,13 @@ MonoBehaviour:
     description: 
   - key: LootFlight
     prefab: {fileID: 1187099872122563159, guid: f0277273bba10df42b592ecf7fc7cd63, type: 3}
-    description: 희귀 전리품 비행 코어
+    description: "\uD76C\uADC0 \uC804\uB9AC\uD488 \uBE44\uD589 \uCF54\uC5B4"
   - key: LootArrival
     prefab: {fileID: 4231482995727018640, guid: cd799f62aab418c4d8efed7992b9f568, type: 3}
-    description: 전리품 묶음 도착 강조
+    description: "\uC804\uB9AC\uD488 \uBB36\uC74C \uB3C4\uCC29 \uAC15\uC870"
+  - key: Signature_Spear_Impact
+    prefab: {fileID: 7117328301249796898, guid: 2d08b7b8c5c86bc4f913d772e93eb7a7, type: 3}
+    description: "\uC2DC\uADF8\uB2C8\uCC98 \uC9C0\uC810 \uCC29\uD0C4"
+  - key: Signature_SwordShield_Impact
+    prefab: {fileID: 5032358087056751505, guid: cee62f5239c78454daa865721f488214, type: 3}
+    description: "\uC2DC\uADF8\uB2C8\uCC98 \uC9C0\uC810 \uCC29\uD0C4"

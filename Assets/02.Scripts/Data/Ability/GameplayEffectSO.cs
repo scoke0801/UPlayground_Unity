@@ -7,7 +7,7 @@ namespace UPlayGround.Data.Ability
 {
     public enum GameplayEffectInstantExecution { None, Healing }
     [CreateAssetMenu(fileName = "GE_", menuName = "UPlayGround/Ability/Gameplay Effect")]
-    public sealed class GameplayEffectSO : ScriptableObject
+    public class GameplayEffectSO : ScriptableObject
     {
         public string effectId;
         [TextArea]

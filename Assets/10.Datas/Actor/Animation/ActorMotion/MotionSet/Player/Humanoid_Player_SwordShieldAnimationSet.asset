@@ -28,7 +28,7 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: f9a88850dc91a3b4ea7c1f5f9c9a7781, type: 2}
     - Key:
         value: SwordShield.Ultimate
-      Value: {fileID: 11400000, guid: eb6f3c73dabd96544a8cf6c0ff323a94, type: 2}
+      Value: {fileID: 11400000, guid: c98bda5e5019cf545b955846cef0d1a7, type: 2}
     - Key:
         value: SwordShield.Light.00
       Value: {fileID: 11400000, guid: efaa63e1756af894cbffb64f720afa6f, type: 2}
@@ -620,6 +620,7 @@ MonoBehaviour:
     - Key:
         value: ElementalImbue.Water
       Value: {fileID: 11400000, guid: f04126ec625ae8044b73767614a22456, type: 2}
+  motionImpactCatalog: {fileID: 0}
   motionSlots:
     _serializedList:
     - Key:

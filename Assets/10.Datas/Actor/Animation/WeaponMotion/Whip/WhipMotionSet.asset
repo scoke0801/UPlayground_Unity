@@ -115,7 +115,7 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 4b6b28e91749b4347988ffb2823e78eb, type: 2}
     - Key:
         value: Whip.Ultimate
-      Value: {fileID: 11400000, guid: 0d4ece6f0e7a30e4db81ec3941855098, type: 2}
+      Value: {fileID: 11400000, guid: a704bc8e0c56ace4b9e2e4715c0b74f0, type: 2}
     - Key:
         value: Whip.Light.00
       Value: {fileID: 11400000, guid: 420fa206cd3472a44963302e0b4068d7, type: 2}
@@ -197,6 +197,7 @@ MonoBehaviour:
     - Key:
         value: humanoid.Skill.3.12
       Value: {fileID: 11400000, guid: 4b6b28e91749b4347988ffb2823e78eb, type: 2}
+  motionImpactCatalog: {fileID: 0}
   motionSlots:
     _serializedList:
     - Key:

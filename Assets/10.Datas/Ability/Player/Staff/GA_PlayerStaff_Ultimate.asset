@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: GA_PlayerStaff_Ultimate
   m_EditorClassIdentifier: 
   abilityId: Player.Staff.Ultimate
+  executionMode: 0
   editorMemo: "Staff \uB3C5\uB9BD \uD30C\uC0DD. \uC6D0\uBCF8 Player.Default.Ultimate\uC758
     \uBE44\uC6A9\xB7\uCFE8\uB2E4\uC6B4\xB7\uD0C0\uACA9 \uC218\uCE58\uB97C \uAE30\uC900\uC73C\uB85C
     \uC81C\uC791. \uD788\uD2B8\uAC00 \uC5C6\uB294 \uC6D0\uBCF8\uC740 \uAE30\uBCF8
@@ -73,6 +74,7 @@ MonoBehaviour:
   cooldown:
     durationSeconds: 12
     cooldownGroupId: Player.Staff.Ultimate
+    scope: 0
     maxCharges: 1
     globalLockSeconds: 0
   concurrency: 2
@@ -123,20 +125,25 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: dc122760e7d9486c8a8104b1850c177d, type: 3}
   m_Name: GA_PlayerStaff_Ultimate_Payload
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: UPlayGround.Ability.UPlayGround::UPlayGround.Ability.UPlayGround.UPlayGroundMotionAbilityPayloadSO
   attackInfo:
     motionKey:
       value: Staff.Ultimate
+    isMotionContentPending: 0
     baseInfo:
       attackType: 0
       hitPhases:
-      - receivesImbuedHeat: 1
-        imbuedHeatWeight: 1
-        damage: 180
-        poiseDamage: 30
-        breakDamage: 10
-        projectileDefinition: {fileID: 11400000, guid: 5b25254eee9a68e40b6a3f027de51f8d, type: 2}
-        reactionType: 4
+      - environment:
+          kind: 0
+          heatImpulse: 0
+          waterImpulse: 0
+        receivesImbuedHeat: 1
+        imbuedHeatWeight: 0.114285715
+        damage: 20.571428
+        poiseDamage: 3.4285715
+        breakDamage: 1.1428572
+        projectileDefinition: {fileID: 0}
+        reactionType: 1
         reactionDuration: 0
         forceReaction: 0
         forceBreakExpose: 0
@@ -153,6 +160,7 @@ MonoBehaviour:
           _tagName: 
         guaranteedReaction: 0
         reactionProfile:
+          motionResponse: {fileID: 0}
           useAutoReaction: 1
           hasAutoReactionGenerated: 0
           analysis:
@@ -170,6 +178,7 @@ MonoBehaviour:
           autoData:
             impactTime: 0
             hitStopDuration: 0
+            hasExplicitHitStop: 0
             hitStopScale: 0.1
             cameraShakeAmplitude: 0
             cameraShakeDuration: 0
@@ -183,12 +192,12 @@ MonoBehaviour:
             overrideImpactTime: 0
             impactTime: 0
             overrideHitStop: 1
-            hitStopDuration: 0.015
-            hitStopScale: 0.1
-            overrideCamera: 0
+            hitStopDuration: 0.01
+            hitStopScale: 0.3
+            overrideCamera: 1
             cameraShakeAmplitude: 0
             cameraShakeDuration: 0
-            overrideFov: 0
+            overrideFov: 1
             fovKickAmount: 0
             fovKickDuration: 0
             overrideTrail: 0
@@ -196,7 +205,79 @@ MonoBehaviour:
             overrideFakeImpact: 0
             fakeImpactSlowScale: 0.9
             fakeImpactDuration: 0
-    interruptActions: 229
+      - environment:
+          kind: 0
+          heatImpulse: 0
+          waterImpulse: 0
+        receivesImbuedHeat: 1
+        imbuedHeatWeight: 0.2
+        damage: 36
+        poiseDamage: 6
+        breakDamage: 2
+        projectileDefinition: {fileID: 0}
+        reactionType: 4
+        reactionDuration: 0
+        forceReaction: 0
+        forceBreakExpose: 0
+        hitboxGroupId: Default
+        impactOffset: {x: 0, y: 1, z: 1.5}
+        targetingRange: 1.5
+        hitParticleName: DefaultCombatHit
+        pullForce: 0
+        airborneForce: 0
+        knockBackForce: 10
+        knockBackDrag: 20
+        grabDuration: 0
+        victimForcedMotionSlot:
+          _tagName: 
+        guaranteedReaction: 0
+        reactionProfile:
+          motionResponse: {fileID: 0}
+          useAutoReaction: 1
+          hasAutoReactionGenerated: 0
+          analysis:
+            isEstimated: 1
+            weaponSpeedScore: 0
+            rootMotionScore: 0
+            bodyRotationScore: 0
+            attackWeightScore: 0
+            impactScore: 0
+            activeStart: 0
+            activeEnd: 0
+            activeDuration: 0
+            startupDuration: 0
+            recoveryDuration: 0
+          autoData:
+            impactTime: 0
+            hitStopDuration: 0
+            hasExplicitHitStop: 0
+            hitStopScale: 0.1
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            fovKickAmount: 0
+            fovKickDuration: 0
+            trailIntensity: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+          useManualOverride: 1
+          manualOverride:
+            overrideImpactTime: 0
+            impactTime: 0
+            overrideHitStop: 1
+            hitStopDuration: 0
+            hitStopScale: 0.3
+            overrideCamera: 1
+            cameraShakeAmplitude: 0
+            cameraShakeDuration: 0
+            overrideFov: 1
+            fovKickAmount: 0
+            fovKickDuration: 0
+            overrideTrail: 0
+            trailIntensity: 0
+            overrideFakeImpact: 0
+            fakeImpactSlowScale: 0.9
+            fakeImpactDuration: 0
+    interruptActions: 129
     moveCancelDelayAfterLastHit: 0
     aiSelectable: 0
     skillType: 1

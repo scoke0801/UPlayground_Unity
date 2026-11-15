@@ -56,6 +56,8 @@ namespace UPlayGround.Data.Event
         public LayerMask groundLayerMask = -1;
         public float groundProbeHeight = 10f;
         public float groundProbeDistance = 20f;
+        [Tooltip("플레이어 TargetPosition 전용. 공격 보조 대상이 없으면 액터 정면의 이 거리로 발사한다. 0이면 기존 동작을 유지한다.")]
+        [Min(0f)] public float playerTargetFallbackDistance;
 
         [Header("Move Setting")]
         public float speed = 10f;
@@ -232,7 +234,8 @@ namespace UPlayGround.Data.Event
             LayerMask hitLayer = ResolveTargetHitLayer(actor);
             Transform targetTransform = ResolveTargetTransform(actor);
 
-            if (actor.Abilities != null
+            // 플레이어 지면 지정은 위에서 결정한 보조 대상·폴백 좌표를 끝까지 유지한다.
+            if (!UsesPlayerTargetFallback(actor) && actor.Abilities != null
                 && actor.Abilities.TryGetPrimaryTargetReservation(
                     out AbilityTargetReservation reservation)
                 && reservation.IsConfirmed
@@ -343,6 +346,8 @@ namespace UPlayGround.Data.Event
 
         private Transform ResolveTargetTransform(GameActor actor)
         {
+            if (UsesPlayerTargetFallback(actor))
+                return ResolvePlayerAssistedTarget((PlayerActor)actor);
             if (targetMode == ProjectileTargetMode.LockOnTarget)
                 return CameraManager.Instance != null ? CameraManager.Instance.GetLockOnTarget() : null;
             EnemyCombat combat = actor != null ? actor.GetComponent<EnemyCombat>() : null;
@@ -394,6 +399,15 @@ namespace UPlayGround.Data.Event
                     return false;
 
                 case ProjectileTargetMode.TargetPosition:
+                    if (UsesPlayerTargetFallback(actor))
+                    {
+                        Transform assistedTarget = ResolvePlayerAssistedTarget((PlayerActor)actor);
+                        position = assistedTarget != null
+                            ? assistedTarget.position
+                            : actor.transform.position + Vector3.ProjectOnPlane(actor.transform.forward, Vector3.up).normalized
+                              * playerTargetFallbackDistance;
+                        return true;
+                    }
                     if (TryGetPrimaryTargetPosition(actor, out resolvedPosition))
                     {
                         position = resolvedPosition;
@@ -420,6 +434,27 @@ namespace UPlayGround.Data.Event
                 return true;
 
             return TryGetLockOnTargetPosition(out position);
+        }
+
+        private bool UsesPlayerTargetFallback(GameActor actor)
+            => actor is PlayerActor && targetMode == ProjectileTargetMode.TargetPosition
+               && playerTargetFallbackDistance > 0f;
+
+        private static Transform ResolvePlayerAssistedTarget(PlayerActor player)
+        {
+            PlayerCombat combat = player.GetCombat();
+            Transform preferred = combat?.CurrentAttackPreferredTarget;
+            if (preferred != null) return preferred;
+            // 공격 진입 시 확정한 조준 대상은 근접 워프 반경 밖에서도 유지된다.
+            if (player.Animator is PlayerActorAnimator animator
+                && animator.TryGetWeaponAimTarget(out _, out Transform aimTarget) && aimTarget != null)
+                return aimTarget;
+            // 무기 조준 IK를 사용하지 않는 활·방패도 원거리 락온 위치를 유지한다.
+            Transform lockOnTarget = Services.TryGet<ILockOnTargetService>(out var lockOnService)
+                ? lockOnService.GetLockOnTarget()
+                : null;
+            if (lockOnTarget != null) return lockOnTarget;
+            return combat?.FindNormalAttackFacingTarget();
         }
 
         private static bool TryGetLockOnTargetPosition(out Vector3 position)

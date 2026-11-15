@@ -99,7 +99,7 @@ namespace UPlayGround.Ability.Tests
         {
             var catalog = AssetDatabase.LoadAssetAtPath<PetCatalogSO>("Assets/10.Datas/Pet/PetCatalog.asset");
             Assert.That(catalog, Is.Not.Null);
-            Assert.That(catalog.skills.skills.Count, Is.EqualTo(5));
+            Assert.That(catalog.skills.skills.Count, Is.EqualTo(PetSkillCatalogSO.SkillIds.Length));
             foreach (var model in catalog.definitions)
                 foreach (var level in catalog.skills.Find(PetSkillCatalogSO.PickupRange).levels)
                     Assert.That(level.explorationValue + catalog.skills.lootLeashMargin, Is.LessThan(model.followProfile.returnDistance));

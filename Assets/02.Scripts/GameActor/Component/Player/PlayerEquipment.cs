@@ -19,7 +19,7 @@ namespace UPlayGround.Components
     /// State는 "언제" 장비를 착용할지 결정하고
     /// Component는 "어떻게" 장비를 착용하는지 처리
     /// </summary>
-    public class PlayerEquipment : PlayerActorComponent
+    public partial class PlayerEquipment : PlayerActorComponent
     {
         [Header("Weapon Dissolve")]
         [SerializeField, Min(0f)] private float _weaponDissolveDuration = 0.6f;
@@ -129,6 +129,7 @@ namespace UPlayGround.Components
 
         private void OnEnable()
         {
+            RegisterSignatureVisibility();
             if (Svc.Events == null) return;
             Svc.Events.Subscribe<PlayerEvent, PlayerEquipChangeEvent>(PlayerEvent.ChangeWeapon, OnWeaponChanged);
             Svc.Events.Subscribe<PlayerEvent, PlayerEquipChangeEvent>(PlayerEvent.EquipItem,    OnEquipItem);
@@ -137,6 +138,7 @@ namespace UPlayGround.Components
         private void OnDisable()
         {
             ResetInteractionEquipmentImmediate();
+            UnregisterSignatureVisibility();
             CancelCameraDitherRefresh();
 
             if (Svc.Events == null) return;
@@ -288,6 +290,8 @@ namespace UPlayGround.Components
                 MainWeaponKey = itemKey;
             }
 
+            CacheSignatureWeaponRenderers();
+
             // 시작/교체 시 weight와 플래그가 어긋난 채 출발하면 발도/납도 가드가 잘못 작동한다.
             // 항상 sheath 상태로 강제 동기화하고, 전투 진입 시 정상 발도 사이클이 돌도록 한다.
             ForceSyncWeaponState(equipPosition, false);
@@ -374,6 +378,7 @@ namespace UPlayGround.Components
 
         public void SetRightWeaponType(WeaponType type)
         {
+            RestoreHiddenWeaponSlots();
             if (_weaponConstraints.Count == 0)
                 RefreshWeaponConstraintsFromModel();
 
@@ -387,10 +392,12 @@ namespace UPlayGround.Components
                 _weaponSocketBindings,
                 _weaponDefinitions,
                 this);
+            CacheSignatureWeaponRenderers();
         }
 
         public void SetLeftWeaponType(WeaponType type)
         {
+            RestoreHiddenWeaponSlots();
             if (_weaponConstraints.Count == 0)
                 RefreshWeaponConstraintsFromModel();
 
@@ -404,15 +411,19 @@ namespace UPlayGround.Components
                 _weaponSocketBindings,
                 _weaponDefinitions,
                 this);
+            CacheSignatureWeaponRenderers();
         }
 
         public void RefreshWeaponConstraintsFromModel()
         {
+            RestoreHiddenWeaponSlots();
             _mainWeaponConstraint = null;
             _subWeaponConstraint = null;
             _weaponRoot = WeaponAttachmentResolver.FindWeaponRoot(transform);
             WeaponAttachmentResolver.CollectBindings(transform, _weaponRoot, _weaponConstraints, _weaponSocketBindings);
             CacheBuiltInWeaponSharedMaterials();
+            CacheSignatureWeaponRenderers();
+            RegisterSignatureVisibility();
         }
 
         private static EquipArmorType ToArmorType(EquipPosition equipPosition)
@@ -661,6 +672,7 @@ namespace UPlayGround.Components
         /// </summary>
         public void ResetInteractionEquipmentImmediate()
         {
+            RestoreHiddenWeaponSlots();
             CancelInteractionEquipmentHide();
             HideAllInteractionEquipmentImmediate();
             RestoreConsumableUseWeaponRenderers();
@@ -887,6 +899,7 @@ namespace UPlayGround.Components
 
         private void DestroyEquippedWeapon(EquipPosition equipPosition)
         {
+            RestoreHiddenWeaponSlots();
             if (equipPosition == EquipPosition.LeftHand)
             {
                 if (_currentSubWeaponObj != null)
@@ -1094,6 +1107,7 @@ namespace UPlayGround.Components
 
         private void RecreateWeapons()
         {
+            RestoreHiddenWeaponSlots();
             bool rendererHierarchyChanged = false;
 
             if (MainWeaponKey != -1)
@@ -1147,6 +1161,8 @@ namespace UPlayGround.Components
             {
                 RestoreBuiltInSubWeapons();
             }
+
+            CacheSignatureWeaponRenderers();
 
             // 내장 무기는 기존 렌더러/디더 머티리얼을 복원할 뿐 계층이 바뀌지 않는다.
             // 이 경우 액터 전체 렌더러와 머티리얼을 다시 만드는 비용을 피한다.

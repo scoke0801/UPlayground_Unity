@@ -98,6 +98,47 @@ namespace UPlayGround.State
         private Transform _dodgeCounterTarget;
         private MotionWarpController _motionWarp;
 
+        private object _inputMovementSource;
+        private float _inputMovementSpeedMultiplier;
+        private float _inputMovementRotationSpeed;
+        private object _gravityOverrideSource;
+        private float _attackGravityMultiplier = 1f;
+
+        /// <summary>도약 스킬의 탄도만 저작값으로 조정하고 다른 이동 상태는 보존한다.</summary>
+        public void BeginGravityOverride(object source, float multiplier)
+        {
+            _gravityOverrideSource = source;
+            _attackGravityMultiplier = Mathf.Max(0f, multiplier);
+        }
+
+        /// <summary>이 구간이 소유한 중력 배율을 반납한다.</summary>
+        public void EndGravityOverride(object source)
+        {
+            if (!ReferenceEquals(_gravityOverrideSource, source)) return;
+            _gravityOverrideSource = null;
+            _attackGravityMultiplier = 1f;
+        }
+
+        public override float GetGravityMultiplier(float verticalSpeed)
+            => base.GetGravityMultiplier(verticalSpeed) * _attackGravityMultiplier;
+
+        /// <summary>저작된 구간에서만 달리기 속도에 비례한 공격 중 이동을 허용한다.</summary>
+        public void BeginInputMovement(object source, float speedMultiplier, float rotationSpeed)
+        {
+            _inputMovementSource = source;
+            _inputMovementSpeedMultiplier = Mathf.Max(0f, speedMultiplier);
+            _inputMovementRotationSpeed = Mathf.Max(0f, rotationSpeed);
+        }
+
+        /// <summary>이 구간이 열었던 입력 이동만 닫아 뒤이은 구간을 보존한다.</summary>
+        public void EndInputMovement(object source)
+        {
+            if (!ReferenceEquals(_inputMovementSource, source)) return;
+            _inputMovementSource = null;
+            _inputMovementSpeedMultiplier = 0f;
+            _inputMovementRotationSpeed = 0f;
+        }
+
 
         public PlayerAttackState(ActorMovementController controller) : base(controller)
         {
@@ -503,6 +544,8 @@ namespace UPlayGround.State
 
         public override void OnExit(GameActorState toState)
         {
+            EndInputMovement(_inputMovementSource);
+            EndGravityOverride(_gravityOverrideSource);
             if (toState?.StateId != ActorStateId.Attack)
                 _combat.ClearRouteContext();
             gameActor.Tags?.RemoveTag(GameplayTags.State_Combat_Attack);
@@ -1090,6 +1133,15 @@ namespace UPlayGround.State
                     authoritativeVelocity,
                     motor.CharacterUp);
             }
+
+            if (_inputMovementSource != null && isStableOnGround)
+            {
+                Vector3 input = Vector3.ProjectOnPlane(playerController.MoveInputVector, motor.CharacterUp);
+                Vector3 inputRight = Vector3.Cross(input, motor.CharacterUp);
+                Vector3 groundInput = Vector3.Cross(motor.GroundingStatus.GroundNormal, inputRight).normalized
+                                      * Mathf.Clamp01(input.magnitude);
+                currentVelocity += groundInput * controller.MaxRunMoveSpeed * _inputMovementSpeedMultiplier;
+            }
         }
 
         private float GetAttackSpeed()
@@ -1118,6 +1170,14 @@ namespace UPlayGround.State
                     _combat.WarpMinDistance, _combat.WarpMaxDistance, _combat.WarpMaxSpeed,
                     out Quaternion warpedRotation))
                 currentRotation = warpedRotation;
+            if (_inputMovementSource != null && _inputMovementRotationSpeed > 0f)
+            {
+                Vector3 direction = Vector3.ProjectOnPlane(playerController.MoveInputVector, motor.CharacterUp);
+                if (direction.sqrMagnitude > 0.0001f)
+                    currentRotation = Quaternion.RotateTowards(currentRotation,
+                        Quaternion.LookRotation(direction, motor.CharacterUp),
+                        _inputMovementRotationSpeed * deltaTime);
+            }
             currentRotation = currentRotation.normalized;
         }
 

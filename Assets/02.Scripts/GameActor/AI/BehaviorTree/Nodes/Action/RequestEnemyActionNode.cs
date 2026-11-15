@@ -65,6 +65,10 @@ namespace UPlayGround.AI.BehaviorTree
         {
             if (_intent is EnemyActionIntent.Attack or EnemyActionIntent.Punish)
             {
+                // 이미 발행한 공격은 유지하고 다음 공격 결정만 늦춘다. 방어 의도는 이 조건을 거치지 않는다.
+                if (!_triggerRequest.TriggerIssued && !_attackStarted
+                    && Context?.GetComponentCached<ActorMovementController>()?.Actor is MonsterActor { IsPetDistractionActive: true })
+                    return BTStatus.Failure;
                 // 비행 적의 공격은 Resolver의 Flying 분기를 거쳐야 정확한 상태(Flying_GroundAttack 등)로 전이된다.
                 // 현재 슬롯 예약/리저브 흐름은 지상 전용이므로 비행 컨텍스트가 있으면 일반 Resolver 경로로 위임한다.
                 if (Context?.GetComponentCached<EnemyFlyingAIContext>() == null)

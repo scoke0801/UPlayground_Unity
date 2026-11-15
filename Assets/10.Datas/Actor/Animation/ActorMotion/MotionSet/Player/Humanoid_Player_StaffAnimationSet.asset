@@ -478,13 +478,14 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: c0713ebadc6f88642831a455e7022e10, type: 2}
     - Key:
         value: Staff.Ultimate
-      Value: {fileID: 11400000, guid: 1128af88e3c8bfb4897916a3c468121e, type: 2}
+      Value: {fileID: 11400000, guid: 4802f8eb7249920439b83650bbf0eb2b, type: 2}
     - Key:
         value: Staff.Charge
       Value: {fileID: 11400000, guid: 502699099f2298c4d87ae5a0dd9c5969, type: 2}
     - Key:
         value: Staff.Dash
       Value: {fileID: 11400000, guid: 71aea91a8a43df845b06a94f052dadfc, type: 2}
+  motionImpactCatalog: {fileID: 0}
   motionSlots:
     _serializedList:
     - Key:

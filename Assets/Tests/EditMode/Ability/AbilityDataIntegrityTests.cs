@@ -130,12 +130,12 @@ namespace UPlayGround.Ability.Tests
         [TestCase(
             "Assets/10.Datas/Ability/Migrated/PlayerKatanaAttackData/GA_PlayerKatanaAttackData_Ultimate.asset",
             CharacterActorType.Raon,
-            1)]
+              3)]
         [TestCase(
             "Assets/10.Datas/Ability/Migrated/PlayerDoubleAxeAttackData/GA_PlayerDoubleAxeAttackData_Ultimate.asset",
             CharacterActorType.Hwarin,
-            2)]
-        public void 시퀀스형_Ultimate는_Variant_Payload가_시퀀스를_소유한다(
+              4)]
+        public void 시그니처_Ultimate는_일반형으로_실행하고_원본_시퀀스_Payload는_보존한다(
             string abilityPath,
             CharacterActorType expectedOwner,
             int expectedEventCount)
@@ -162,14 +162,17 @@ namespace UPlayGround.Ability.Tests
             Assert.That(payload.attackInfo?.motionKey.IsValid, Is.True);
 
             AbilityVariantDefinition variant = ability.variants.Single();
-            Assert.That(variant.executionPayload, Is.SameAs(payload));
+              Assert.That(variant.executionPayload, Is.TypeOf<UPlayGroundMotionAbilityPayloadSO>());
+              Assert.That(variant.executionPayload, Is.Not.SameAs(payload));
             Assert.That(UPlayGroundAbilityPayloadResolver.IsExecutable(variant), Is.True);
             Assert.That(
                 UPlayGroundUltimateAbilityPayloadResolver.TryResolve(
                     variant,
                     out UPlayGroundUltimateAbilityPayloadSO resolved),
-                Is.True);
-            Assert.That(resolved, Is.SameAs(payload));
+                  Is.False);
+              Assert.That(resolved, Is.Null);
+              Assert.That(((UPlayGroundMotionAbilityPayloadSO)variant.executionPayload).attackInfo.motionKey,
+                  Is.EqualTo(payload.attackInfo.motionKey));
         }
 
         [TestCase("Bow.Ability.Skill.4", 3, 155f, 465f, 166f)]

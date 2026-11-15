@@ -31,7 +31,7 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 9ba6bfd7fd4d1f9459dbe92198a0d665, type: 2}
     - Key:
         value: Bow.Ultimate
-      Value: {fileID: 11400000, guid: a45757ea4787b434fa7f86a5cdb129d7, type: 2}
+      Value: {fileID: 11400000, guid: 625b4b7046c3ed642aeba3bd7c51cfed, type: 2}
     - Key:
         value: Bow.Light.00
       Value: {fileID: 11400000, guid: 46304a62aa6debd499a943bde2120bd8, type: 2}
@@ -410,6 +410,7 @@ MonoBehaviour:
     - Key:
         value: ElementalImbue.Water
       Value: {fileID: 11400000, guid: f04126ec625ae8044b73767614a22456, type: 2}
+  motionImpactCatalog: {fileID: 0}
   motionSlots:
     _serializedList:
     - Key:

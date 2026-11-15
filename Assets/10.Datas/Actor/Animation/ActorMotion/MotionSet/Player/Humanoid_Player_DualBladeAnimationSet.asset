@@ -22,7 +22,7 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 03bd6189c3216154db11a36d6fe009f1, type: 2}
     - Key:
         value: DualBlade.Ultimate
-      Value: {fileID: 11400000, guid: 0a2bd5e2797c50d4f8501d979fb28d47, type: 2}
+      Value: {fileID: 11400000, guid: 43fb66bb656184843b3cf50719718391, type: 2}
     - Key:
         value: DualBlade.Light.00
       Value: {fileID: 11400000, guid: cf43faf58f7a84d44b48a4da5a521d4a, type: 2}
@@ -650,6 +650,7 @@ MonoBehaviour:
     - Key:
         value: ElementalImbue.Water
       Value: {fileID: 11400000, guid: f04126ec625ae8044b73767614a22456, type: 2}
+  motionImpactCatalog: {fileID: 0}
   motionSlots:
     _serializedList:
     - Key:

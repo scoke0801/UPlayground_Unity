@@ -25,7 +25,7 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 9a47dc3c14a17544d9f01d90f1578c2e, type: 2}
     - Key:
         value: Whip.Ultimate
-      Value: {fileID: 11400000, guid: a51f1e12c9fd95346a5bd7d13d84e7c3, type: 2}
+      Value: {fileID: 11400000, guid: b4b5a28417ba0274197b7a9f5bdcd5bd, type: 2}
     - Key:
         value: Whip.Light.00
       Value: {fileID: 11400000, guid: a2f022db5a3b0fe4b83fb96aa8ad8930, type: 2}
@@ -530,6 +530,7 @@ MonoBehaviour:
     - Key:
         value: ElementalImbue.Water
       Value: {fileID: 11400000, guid: f04126ec625ae8044b73767614a22456, type: 2}
+  motionImpactCatalog: {fileID: 0}
   motionSlots:
     _serializedList:
     - Key:

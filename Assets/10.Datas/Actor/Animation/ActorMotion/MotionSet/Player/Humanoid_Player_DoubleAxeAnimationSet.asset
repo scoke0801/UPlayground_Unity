@@ -22,7 +22,7 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 15c59b96bef361047a99a92350f7e14d, type: 2}
     - Key:
         value: DoubleAxe.Ultimate
-      Value: {fileID: 11400000, guid: 69e9e4d16dc3b384fa868a8ab6f2943a, type: 2}
+      Value: {fileID: 11400000, guid: 038df759f14852943851270664580604, type: 2}
     - Key:
         value: DoubleAxe.Light.00
       Value: {fileID: 11400000, guid: dfaf68c37a36b674286d5ec93715caca, type: 2}
@@ -590,6 +590,7 @@ MonoBehaviour:
     - Key:
         value: ElementalImbue.Water
       Value: {fileID: 11400000, guid: f04126ec625ae8044b73767614a22456, type: 2}
+  motionImpactCatalog: {fileID: 0}
   motionSlots:
     _serializedList:
     - Key:

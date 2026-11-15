@@ -64,6 +64,8 @@ namespace UPlayGround.AI.BehaviorTree
             if (_attackStarted)
                 return BTStatus.Success;
 
+            if (controller.Actor is MonsterActor { IsPetDistractionActive: true }) return BTStatus.Failure;
+
             var combat = Context.GetComponentCached<EnemyCombat>();
             var context = Context.GetComponentCached<EnemyAIContext>();
             var detection = Context.GetComponentCached<EnemyDetection>();

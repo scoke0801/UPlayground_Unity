@@ -36,6 +36,12 @@ namespace UPlayGround.AI.BehaviorTree
 
         protected override BTStatus OnUpdate()
         {
+            var controller = Context?.GetComponentCached<UPlayGround.MovementController.ActorMovementController>();
+            if (!_request.TriggerIssued && controller?.Actor is MonsterActor { IsPetDistractionActive: true })
+            {
+                EnemyActionResolver.ReleaseUncommittedAttackSlot(Context, controller);
+                return BTStatus.Failure;
+            }
             EnemyCombat combat = Context?.GetComponentCached<EnemyCombat>();
             EnemyAIContext aiContext = Context?.GetComponentCached<EnemyAIContext>();
             if (combat == null || aiContext == null)

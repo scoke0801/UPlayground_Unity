@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   fallbackMotionSet: {fileID: 0}
   attackWeaponType: 0
-  attackAbilitySet: {fileID: 0}
+  attackAbilitySet: {fileID: 11400000, guid: 66a0b7d2839b1a44ab0337a5cff0360e, type: 2}
   abilityMotions:
     _serializedList:
     - Key:
@@ -617,6 +617,10 @@ MonoBehaviour:
     - Key:
         value: ElementalImbue.Water
       Value: {fileID: 11400000, guid: f04126ec625ae8044b73767614a22456, type: 2}
+    - Key:
+        value: Spear.Ultimate
+      Value: {fileID: 11400000, guid: 9f379516d69ea56489e321c41937496f, type: 2}
+  motionImpactCatalog: {fileID: 0}
   motionSlots:
     _serializedList:
     - Key:

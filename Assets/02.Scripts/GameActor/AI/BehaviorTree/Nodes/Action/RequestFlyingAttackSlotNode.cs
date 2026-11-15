@@ -9,6 +9,8 @@ namespace UPlayGround.AI.BehaviorTree
     {
         protected override BTStatus OnUpdate()
         {
+            if (Context?.GetComponentCached<UPlayGround.MovementController.ActorMovementController>()?.Actor
+                is MonsterActor { IsPetDistractionActive: true }) return BTStatus.Failure;
             var context = Context?.GetComponentCached<EnemyFlyingAIContext>();
             if (context == null)
                 return BTStatus.Success;

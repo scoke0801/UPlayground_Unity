@@ -50,6 +50,9 @@ namespace UPlayGround.Combat
                 && !request.ProjectileContact.Runtime.TryCommitHitContact(request.ProjectileContact)) return default;
             CombatResult result = resolvable.ApplyResolvedHit(request, resolved);
 
+            if (request.Attacker is PlayerActor player && victim is MonsterActor
+                && result.Damage.FinalDamage > 0f) player.NotifyPetBondCombatAction();
+
             RecordIfObservable(result);
             return result;
         }

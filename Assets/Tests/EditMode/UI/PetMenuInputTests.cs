@@ -16,8 +16,9 @@ namespace UPlayGround.UI.Tests
             var menu = new SerializedObject(prefab.GetComponent<UI_Scene_PetMenu>());
             var slots = menu.FindProperty("_skillSlots");
             var paths = menu.FindProperty("_skillPaths");
-            Assert.That(slots.arraySize, Is.EqualTo(5));
-            Assert.That(paths.arraySize, Is.EqualTo(5));
+            Assert.That(slots.arraySize, Is.EqualTo(6));
+            Assert.That(paths.arraySize, Is.EqualTo(6));
+            Assert.That(menu.FindProperty("_selectSecondSkill").objectReferenceValue, Is.Not.Null);
             var flow = menu.FindProperty("_skillFlowMaterial").objectReferenceValue as Material;
             Assert.That(flow, Is.SameAs(AssetDatabase.LoadAssetAtPath<Material>("Assets/10.Datas/UI/SkillTreeFlow.mat")));
             Assert.That(prefab.transform.Find("V2SkillPage/SkillList").GetComponent<VerticalLayoutGroup>(), Is.Null);

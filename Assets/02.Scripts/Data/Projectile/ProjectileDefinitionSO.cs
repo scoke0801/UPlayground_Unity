@@ -118,6 +118,8 @@ namespace UPlayGround.Data.Projectile
         [Min(0f)] public float radius = 3f;
         [Min(0.01f)] public float interval = 1f;
         [Min(0f)] public float activationDelay;
+        [Min(0)] [Tooltip("대상별 최대 적중 횟수. 0이면 수명 동안 제한하지 않습니다.")]
+        public int maxHitsPerTarget;
         [Tooltip("활성화 시 한 번만 피해를 적용합니다. 레거시 즉시 폭발 호환에 사용합니다.")]
         public bool applyOnce;
         public bool expandOverTime;
@@ -154,6 +156,11 @@ namespace UPlayGround.Data.Projectile
         [Header("Visual")]
         public GameObject visualPrefab;
         public string hitEffectKey;
+        public string detonationEffectKey;
+        [Tooltip("목표 지점이 확정된 투사체의 착탄 예고입니다. 투사체가 회수되면 함께 제거합니다.")]
+        public GameObject landingTelegraphPrefab;
+        [Tooltip("지면 장판·수평 낙하 소품은 프리팹의 월드 회전을 유지하고 비행 방향으로 기울이지 않습니다.")]
+        public bool keepWorldOrientation;
         public bool detachTrailOnReturn = true;
 
         [Header("Simulation")]
@@ -165,6 +172,10 @@ namespace UPlayGround.Data.Projectile
         public LayerMask obstructionLayers;
         public bool destroyOnHit = true;
         public bool inheritOwnerTimeScale = true;
+        [Tooltip("시전자 사망·제거 시 폭발 없이 회수합니다. 캐릭터 교대만으로는 회수하지 않습니다.")]
+        public bool returnOnOwnerDeath;
+        [Tooltip("지점 착탄형 투척은 비행 접촉 피해를 생략하고 지정 지점에서만 폭발합니다.")]
+        public bool ignoreFlightContacts;
 
         [Header("Pool")]
         [Min(0)] public int prewarmCount = 4;

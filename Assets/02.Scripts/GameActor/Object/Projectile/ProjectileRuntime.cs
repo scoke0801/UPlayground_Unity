@@ -28,6 +28,7 @@ namespace UPlayGround
         private readonly EnvironmentHitImpulseBudget _environmentImpulses = new();
         private AttackData _environmentCellAttack;
         private readonly Dictionary<IDamageable, float> _areaCooldowns = new();
+        private readonly Dictionary<IDamageable, int> _areaHitCounts = new();
         private readonly List<IDamageable> _cooldownKeys = new(32);
         private readonly List<CombatHit> _environmentCellHits = new();
         private readonly HashSet<IDamageable> _environmentCollected = new();
@@ -84,6 +85,7 @@ namespace UPlayGround
         private Transform _originalAimTransform;
         private GameObject _flightCue;
         private GameObject _returnCue;
+        private GameObject _landingTelegraph;
         private AudioSource _launchCueSource;
         private bool _reflectionVisualsInitialized;
 
@@ -173,16 +175,20 @@ namespace UPlayGround
             _launchGameTime = Time.time;
             _hitTargets.Clear();
             _areaCooldowns.Clear();
+            _areaHitCounts.Clear();
             _environmentCellHits.Clear(); _environmentCollected.Clear();
             _environmentImpulses.Clear();
             _environmentCellAttack = PlayerAttackController.Copy(_attackData);
 
             transform.SetParent(null, true);
-            transform.SetPositionAndRotation(request.origin, Quaternion.LookRotation(_direction));
+            transform.SetPositionAndRotation(request.origin, definition.keepWorldOrientation ? _initialRotation : Quaternion.LookRotation(_direction));
             transform.localScale = _initialScale;
             gameObject.SetActive(true);
             _beamVisual?.SetSegment(request.origin, request.origin, false);
             AttachStationaryMotionToGround();
+            ClearLandingTelegraph();
+            if (definition.landingTelegraphPrefab != null && request.hasTargetPosition)
+                _landingTelegraph = Instantiate(definition.landingTelegraphPrefab, request.targetPosition, Quaternion.identity);
 
             _attackData.attacker = _owner;
             _attackData.projectileContact = default;
@@ -220,6 +226,14 @@ namespace UPlayGround
             }
             if (!_active)
                 return;
+
+            if (_definition.returnOnOwnerDeath
+                && (_owner == null || _owner is IDamageable ownerDamageable && !ownerDamageable.IsAlive()))
+            {
+                // 사망 정리는 만료 폭발·분열을 발생시키지 않는다.
+                ForceReturn();
+                return;
+            }
 
             float deltaTime = ResolveDeltaTime(globalDeltaTime);
             if (deltaTime <= 0f)
@@ -301,6 +315,7 @@ namespace UPlayGround
             _attackData.hitTarget = null;
             _hitTargets.Clear();
             _areaCooldowns.Clear();
+            _areaHitCounts.Clear();
             _environmentImpulses.Clear();
             _impactFeedbackApplied = false;
             _attached = false;
@@ -499,7 +514,7 @@ namespace UPlayGround
             if (velocity.sqrMagnitude > 0.000001f)
             {
                 _direction = velocity.normalized;
-                transform.rotation = Quaternion.LookRotation(_direction);
+                if (!_definition.keepWorldOrientation) transform.rotation = Quaternion.LookRotation(_direction);
                 SweepAndMove(_previousPosition, nextPosition);
             }
 
@@ -549,6 +564,12 @@ namespace UPlayGround
 
         private void SweepAndMove(Vector3 from, Vector3 to)
         {
+            if (_definition.ignoreFlightContacts)
+            {
+                _logicalPosition = to;
+                transform.position = to;
+                return;
+            }
             _movementInterrupted = false;
             if (!ProcessInitialOverlaps(from)) return;
             float distance = Vector3.Distance(from, to);
@@ -782,6 +803,10 @@ namespace UPlayGround
                 if (damageable == null || _areaCooldowns.ContainsKey(damageable) || !CanDeliver(damageable))
                     continue;
 
+                int maxHits = _definition.GetBehavior<AreaTickProjectileBehavior>()?.maxHitsPerTarget ?? 0;
+                _areaHitCounts.TryGetValue(damageable, out int hitCount);
+                if (maxHits > 0 && hitCount >= maxHits) continue;
+
                 float normalized = Mathf.Clamp01(
                     Vector3.Distance(transform.position, collider.transform.position) / radius);
                 float multiplier = falloff != null ? falloff.Evaluate(normalized) : 1f;
@@ -795,6 +820,7 @@ namespace UPlayGround
                     (collider.transform.position - transform.position).normalized;
                 areaAttack.environment = _environmentImpulses.Consume(damageable, areaAttack.environment);
                 CombatResult result = damageable.ReceiveHit(HitRequest.FromAttackData(areaAttack));
+                if (maxHits > 0) _areaHitCounts[damageable] = hitCount + 1;
                 _areaCooldowns[damageable] = Mathf.Max(0.01f, cooldown);
                 ApplyPlayerFeedback(result, areaAttack);
             }
@@ -870,7 +896,11 @@ namespace UPlayGround
         {
             TriggerSplit(ProjectileSplitTrigger.Expire);
             if (TriggerDetonate(false))
-                ShowHitEffect();
+            {
+                if (!string.IsNullOrWhiteSpace(_definition.detonationEffectKey))
+                    Manager.ActorSvc.Objects?.ShowFX(_definition.detonationEffectKey, transform.position);
+                else ShowHitEffect();
+            }
             ReturnToPool(true);
         }
 
@@ -880,6 +910,7 @@ namespace UPlayGround
                 return;
             _returning = true;
             _active = false;
+            ClearLandingTelegraph();
             if (_flightCue != null) _flightCue.SetActive(false);
             DebugGizmoBridge.UnregisterProvider(this);
             _pendingExpired = expired;
@@ -908,6 +939,7 @@ namespace UPlayGround
 
         public void OnReturnedToPool()
         {
+            ClearLandingTelegraph();
             CancelInvoke();
             StopAllCoroutines();
             transform.SetParent(null, true);
@@ -926,6 +958,7 @@ namespace UPlayGround
                 _modelRenderers[i].enabled = true;
             _hitTargets.Clear();
             _areaCooldowns.Clear();
+            _areaHitCounts.Clear();
             _environmentCellHits.Clear(); _environmentCollected.Clear();
             _definition = null;
             _attackData = null;
@@ -948,6 +981,16 @@ namespace UPlayGround
             _returning = false;
             _impactFeedbackApplied = false;
             gameObject.SetActive(false);
+        }
+
+        private void OnDisable() => ClearLandingTelegraph();
+
+        private void ClearLandingTelegraph()
+        {
+            if (_landingTelegraph == null) return;
+            _landingTelegraph.SetActive(false);
+            Destroy(_landingTelegraph);
+            _landingTelegraph = null;
         }
 
         private bool IsOwnerCollider(Collider collider) =>

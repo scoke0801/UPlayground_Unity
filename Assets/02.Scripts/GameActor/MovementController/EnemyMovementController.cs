@@ -11,6 +11,12 @@ namespace UPlayGround.MovementController
     // BeforeCharacterUpdate -> UpdateRotation / UpdateVelocity -> KCC Motor -> AfterCharacterUpdate
     public partial class EnemyMovementController : ActorMovementController
     {
+        public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
+        {
+            base.UpdateRotation(ref currentRotation, deltaTime);
+            if (Actor is MonsterActor monster && monster.TryGetPetDistractionRotation(currentRotation, deltaTime, out var rotation))
+                currentRotation = rotation;
+        }
         protected override void RegisterDefaultStates()
         {
             StateMachine.Register(new EnemyIdleState(this));

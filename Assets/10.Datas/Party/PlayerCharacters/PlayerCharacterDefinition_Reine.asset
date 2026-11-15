@@ -16,9 +16,10 @@ MonoBehaviour:
   modelAddress: Player/Model/Reine
   defaultWeaponType: 13
   startingEquipment: []
-  abilitySet: {fileID: 11400000, guid: 79e1c4a3850ab2c48aafd3919075531a, type: 2}
+  abilitySet: {fileID: 11400000, guid: 66a0b7d2839b1a44ab0337a5cff0360e, type: 2}
   abilityResourceRules: {fileID: 0}
   gaugeVisualProfile: {fileID: 11400000, guid: db5577baab78f74488192fdd854230f9, type: 2}
+  ultimateFaceSprite: {fileID: 21300000, guid: 5b014934cba08ad46a19053a4929929e, type: 3}
   weightProfile: {fileID: 0}
   entryAttackRange: 0
   requireEntryAttackLineOfSight: 0

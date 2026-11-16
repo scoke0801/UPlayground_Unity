@@ -1,0 +1,76 @@
+Player Models | 13 | PackTogetherByLabel | {UnityEngine.AddressableAssets.Addressables.RuntimePath}/StandaloneWindows64
+  02844f01c4f4cf742be902e1e50bc3cc | Player/Model/Hwarin | Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Hwarin.prefab
+  184f4db1ce8b24e469cef59b3870e614 | Player/Model/Lili | Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Lili.prefab
+  24b0815fe53422e4b983fad992e516c3 | Player/Model/MyoRyeong | Assets/03.Prefabs/Actor/Player/Models/PlayerModel_MyoRyeong.prefab
+  3f07b649cf98b314f93260679806e6ef | Player/Model/Arin | Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Arin.prefab
+  503eccf6ebaffaf44bb044bc97b7833d | Player/Model/Lian | Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Lian.prefab
+  8ac8a65b5fbe36b4b940d0bc25faa93d | Player/Model/H09 | Assets/03.Prefabs/Actor/Player/Models/PlayerModel_H09.prefab
+  cf413ebeeeb67b449a59a80aa0afaa69 | Player/Model/Myomyo | Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Myomyo.prefab
+  e41d5219fdb05f843b7d0a1de1ba048c | Player/Model/Reine | Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Reine.prefab
+  ed69774ac2dd1d646ae9d1ee0c574e13 | Player/Model/Raon | Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Raon.prefab
+  f35b526004c8d424eacd4d04d308debc | Player/Model/YeonHoa | Assets/03.Prefabs/Actor/Player/Models/PlayerModel_YeonHoa.prefab
+  f4e4b90e159fbd549986b8ef7425198d | Player/Model/SeolA | Assets/03.Prefabs/Actor/Player/Models/PlayerModel_SeolA.prefab
+  f69239673aba8a047a39b1d2e6b7ed88 | Player/Model/Yura | Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Yura.prefab
+  fff6b3b4743ba1f4fb13d9479330762b | Player/Model/Sera | Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Sera.prefab
+Camera_Data | 6 | PackTogether | {UnityEngine.AddressableAssets.Addressables.RuntimePath}/StandaloneWindows64
+  3e6c818280d84054bbab8cf67109166d | DialogueCameraSettings | Assets/10.Datas/Camera/DialogueCameraSettings.asset
+  ae3f5c6209c48794eb33591c356e5ec6 | PerfectGuardFOV | Assets/10.Datas/Camera/FOVCameraEffect.asset
+  bd4c01eab42caba44b3c32eaad20f463 | CombatCameraProfileDatabase | Assets/10.Datas/Camera/CombatCamera/CombatCameraProfileDatabase.asset
+  c84c661dcc8c90e4a892c8e61986c78f | CameraShakeDatabase | Assets/10.Datas/Path/CameraShakeDatabase.asset
+  c93c990fc6a470a4398837242a5ad261 | CameraSettings | Assets/10.Datas/Camera/CameraSettings.asset
+  f9ef2fe3f1ca0ac4686fc33e3fa4c755 | KillCamData | Assets/10.Datas/Camera/KillCamData.asset
+Combat_Data | 8 | PackTogether | {UnityEngine.AddressableAssets.Addressables.RuntimePath}/StandaloneWindows64
+  1c3c29c2005e9a14fbad8a3bd2feb5aa | ItemActor | Assets/03.Prefabs/Actor/ItemActor.prefab
+  3320271f49ab27949bb8812238c0cec6 | VitalOrbPrefab | Assets/03.Prefabs/Actor/Etc/VitalOrb.prefab
+  33f2440791661184f8392f3111fd831e | FXPrefabDatabase | Assets/10.Datas/Path/FXPrefabDatabase.asset
+  4dd10c8c4c27cae4a94eb66cdbd31059 | PartyConfig | Assets/10.Datas/Party/PartyConfig.asset
+  76b606b70435eaa42ac43f976313daae | VitalOrbConfig | Assets/10.Datas/Actor/VitalOrb/VitalOrbTriggerConfig.asset
+  98670598bad664d48b5ae1c51675f07a | PlayerCharacterCatalog | Assets/10.Datas/Party/PlayerCharacterCatalog.asset
+  a22eb18ee5c081b4599c0df8a9207174 | SlowMoveVolume | Assets/03.Prefabs/Action_SlowMo_Volume.prefab
+  b25552ac45df57f4a9916270b184490d | ActorDatabase | Assets/10.Datas/Actor/DataBase/ActorDatabase.asset
+Audio_Data | 3 | PackTogether | {UnityEngine.AddressableAssets.Addressables.RuntimePath}/StandaloneWindows64
+  0dc7f123ffcb84b478fa4aea3bd8939a | AudioMixer | Assets/10.Datas/Sound/Mixer/GameAudioMixer.mixer
+  57b70ca34b88cb54caae543b85b5eea7 | SoundDatabase | Assets/10.Datas/Sound/SoundDatabase.asset
+  5a6f9ae75c128574fbb553e68ab1a612 | BgmRouting | Assets/10.Datas/Sound/SoundEntry/Bgm/BgmRouting.asset
+Zones_InGame | 3 | PackSeparately | {UnityEngine.AddressableAssets.Addressables.RuntimePath}/StandaloneWindows64
+  2adabc03c19a2e946af1b9405cd10832 | OpenWorld.StonegateCitadel.Content | Assets/01.Scenes/Scenario/OpenWorld/Regions/StonegateCitadelRegion.unity
+  33f5aff4b0dcbfe42b1c73ebd8c42142 | OpenWorld.SaltwindHarbor.Content | Assets/01.Scenes/Scenario/OpenWorld/Regions/SaltwindHarborRegion.unity
+  ade6ea8759d8ac442901edbe4288c6c6 | OpenWorld.DroughtVillage.Content | Assets/01.Scenes/Scenario/OpenWorld/Regions/DroughtVillageRegion.unity
+Default Local Group | 3 | PackTogether | {UnityEngine.AddressableAssets.Addressables.RuntimePath}/StandaloneWindows64
+  35fa2b392cc0689438ecf28767cd0d5c | DissolveMaterial | Assets/11.Material/DissolveMaterial.mat
+  530c5b8675a80694bb4f3e4121128812 | SettingsData | Assets/10.Datas/System/SettingsData.asset
+  6cabcc9a6ade41b4e96b08e120b53440 | DebugGizmoSettings | Assets/10.Datas/Debug/DebugGizmoSettings.asset
+UI_Data | 8 | PackTogether | {UnityEngine.AddressableAssets.Addressables.RuntimePath}/StandaloneWindows64
+  00f7dd6cae76ffc4589968b2d171b26b | SpeakerColorTable | Assets/10.Datas/Dialogue/SpeakerColorTable.asset
+  018aa6a034d548a4b94d8d9eb39a6dd7 | UIPrefabDatabase | Assets/10.Datas/Path/UIPrefabDatabase.asset
+  4c9a2f7b6e1d48a4d92b3c5e08f7a641 | SpeakerPortraitTable | Assets/10.Datas/Dialogue/SpeakerPortraitTable.asset
+  5b7a17859fc9caa4291d6c052b4e4847 | DamageFloaterConfig | Assets/10.Datas/System/DamageFloaterConfig.asset
+  7a7ae3e6e872b234f8c02114a24a7b60 | EquipmentAtlas | Assets/04.Images/EquipmentAtlas.spriteatlasv2
+  aa82bfc019ee54144a67c86c204246d4 | DialoguePalette | Assets/10.Datas/Dialogue/DialoguePalette.asset
+  ac3a3ba089760f54285b5c239ef07862 | ItemAtlas | Assets/04.Images/ItemAtlas.spriteatlasv2
+  e2a7edcbeea74d2438ccf623a9ca7205 | UIRoot | Assets/03.Prefabs/UI/UIRoot.prefab
+Content_Data | 9 | PackTogether | {UnityEngine.AddressableAssets.Addressables.RuntimePath}/StandaloneWindows64
+  32c90a701fad51145b787c72826acc01 | RecipeDatabase | Assets/10.Datas/Craft/RecipeDatabase.asset
+  4b7882e176e9e9e41ac0ab3d27001293 | PetCatalog | Assets/10.Datas/Pet/PetCatalog.asset
+  6fc3fda8e70b0c04fbf80175d9ad0dc6 | MonsterCodexDatabase | Assets/10.Datas/Codex/Monster/MonsterCodexDatabase.asset
+  84198a60210f7d44dbf8a48a4190571a | GroundDropSettings | Assets/10.Datas/Pet/GroundDropSettings.asset
+  84cb7008139c31f41b09d9176db0f837 | SpeakerActorBindingTable | Assets/10.Datas/Dialogue/SpeakerActorBindingTable.asset
+  8a2d353fbbabc154a9fa5052b89d3c27 | StartingInventory | Assets/10.Datas/Item/StartingInventory.asset
+  a2af1c6aea8cbee45aaec418a40c4d72 | MapConfigDatabase | Assets/10.Datas/Map/MapConfigDatabase.asset
+  d2d10791be7db9844ac959719e8eee6c | QuestDatabase | Assets/10.Datas/Quest/QuestDatabase.asset
+  f0b191b3781496047962d00691026a2e | ItemDatabase | Assets/10.Datas/Path/ItemDatabase.asset
+Player Character Definitions | 13 | PackSeparately | {UnityEngine.AddressableAssets.Addressables.RuntimePath}/StandaloneWindows64
+  13a61a9814d7f14419a13c763b0cfa92 | Player/Definition/Myomyo | Assets/10.Datas/Party/PlayerCharacters/PlayerCharacterDefinition_Myomyo.asset
+  2a44cbd1fe9e15548a928b14c2ec285c | Player/Definition/Lili | Assets/10.Datas/Party/PlayerCharacters/PlayerCharacterDefinition_Lili.asset
+  319d3c9c000ebe545b7fb7fbec49608a | Player/Definition/Reine | Assets/10.Datas/Party/PlayerCharacters/PlayerCharacterDefinition_Reine.asset
+  440890603950d9640b53f20cf0641152 | Player/Definition/H09 | Assets/10.Datas/Party/PlayerCharacters/PlayerCharacterDefinition_H09.asset
+  55cf4dc19cd541644905c59876c9aa1b | Player/Definition/Sera | Assets/10.Datas/Party/PlayerCharacters/PlayerCharacterDefinition_Sera.asset
+  6ac246419d94690468d069802db83fd5 | Player/Definition/Raon | Assets/10.Datas/Party/PlayerCharacters/PlayerCharacterDefinition_Raon.asset
+  6b53ee6c0e5565343aa45d53f38817d9 | Player/Definition/Lian | Assets/10.Datas/Party/PlayerCharacters/PlayerCharacterDefinition_Lian.asset
+  a252b4d8f9b865f41a00ef45c80b15ab | Player/Definition/MyoRyeong | Assets/10.Datas/Party/PlayerCharacters/PlayerCharacterDefinition_MyoRyeong.asset
+  b0e3c5b3b8b7c364db01d0f1c9d98a1c | Player/Definition/Arin | Assets/10.Datas/Party/PlayerCharacters/PlayerCharacterDefinition_Arin.asset
+  b95a883cad49ace44b3032ef6e1d43cb | Player/Definition/SeolA | Assets/10.Datas/Party/PlayerCharacters/PlayerCharacterDefinition_SeolA.asset
+  d445d8109075a3d4887b3e8e585bd0a0 | Player/Definition/YeonHoa | Assets/10.Datas/Party/PlayerCharacters/PlayerCharacterDefinition_YeonHoa.asset
+  ebc87fd03d51da2449bb8362285e799a | Player/Definition/Hwarin | Assets/10.Datas/Party/PlayerCharacters/PlayerCharacterDefinition_Hwarin.asset
+  fbb7af99239d0324e850d4ac74e4d436 | Player/Definition/Yura | Assets/10.Datas/Party/PlayerCharacters/PlayerCharacterDefinition_Yura.asset
+총 항목 66, 중복 주소 0

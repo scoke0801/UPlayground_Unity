@@ -1,0 +1,44 @@
+{
+    "checkedAt":  "2026-11-15T22:39:14.7816838+09:00",
+    "method":  "Unity 6000.3.21f1 Roslyn + existing Bee references, standalone compilation; reflection invocation of existing pure NUnit methods",
+    "editorCompilation":  "not performed (user build/import running)",
+    "editorTests":  "not performed",
+    "standaloneEditorCodeCompilerExitCode":  0,
+    "standaloneTestsCompilerExitCode":  0,
+    "pureMethodsPassed":  19,
+    "pureMethodsFailed":  0,
+    "inputs":  [
+                   {
+                       "path":  "Assets/02.Scripts/Tool/Editor/Build/BuildManagerFiles.cs",
+                       "sha256":  "B6469BDE373F6A086F82B5314A6E25CA608A880AA32C5ABAEBABDB956F1D4952"
+                   },
+                   {
+                       "path":  "Assets/02.Scripts/Tool/Editor/Build/BuildManagerFingerprint.cs",
+                       "sha256":  "85395C01992CEB7D89798006AF2BD66F616AC54B872967F09EB4B224C0413FED"
+                   },
+                   {
+                       "path":  "Assets/02.Scripts/Tool/Editor/Build/BuildManagerProfileSO.cs",
+                       "sha256":  "9BF4B0A4B18DC2114F9B42672A30F9D1AE9BB79A7AD09F8BA9DFE747F44EECF9"
+                   },
+                   {
+                       "path":  "Assets/02.Scripts/Tool/Editor/Build/BuildManagerRunner.cs",
+                       "sha256":  "5E866BFBE99CC03CD40629F3C9B082C1122067423623A6606DD0A8F41FAE9E79"
+                   },
+                   {
+                       "path":  "Assets/02.Scripts/Tool/Editor/Build/BuildManagerTypes.cs",
+                       "sha256":  "99B704FBCED8F354931C966BFEC9D35DE02DF3AF9744507FEB142B93B427565B"
+                   },
+                   {
+                       "path":  "Assets/02.Scripts/Tool/Editor/Build/BuildManagerWindow.cs",
+                       "sha256":  "17D71014C3F9F62EF2F9784BF1E7AC623581D2D09FEF4020243CE9A0DAF047AF"
+                   },
+                   {
+                       "path":  "Assets/02.Scripts/Tool/Editor/Build/BuildPreflight.cs",
+                       "sha256":  "721233D845E99BCE2065CC602A6BCE0B4033B4B394EC716C79FB3F99590A15B7"
+                   },
+                   {
+                       "path":  "Assets/Tests/EditMode/BuildManager/BuildManagerLogicTests.cs",
+                       "sha256":  "01D4F88FCD26CEA98CA689B0A31F653ED67CB5836F03F10AEE579B462658C77A"
+                   }
+               ]
+}

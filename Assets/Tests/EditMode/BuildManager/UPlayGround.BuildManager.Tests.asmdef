@@ -1,0 +1,15 @@
+{
+  "name": "UPlayGround.BuildManager.Tests",
+  "rootNamespace": "UPlayGround.BuildManager.Tests",
+  "references": [
+    "UPlayGround.BuildManager.Editor",
+    "Unity.Addressables.Editor"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

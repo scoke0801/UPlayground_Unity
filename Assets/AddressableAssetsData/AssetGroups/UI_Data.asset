@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: UI_Data
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: UI_Data
+  m_GUID: 7a986573b714a924c985d070fe72856d
+  m_SerializeEntries:
+  - m_GUID: 00f7dd6cae76ffc4589968b2d171b26b
+    m_Address: SpeakerColorTable
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Database
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 018aa6a034d548a4b94d8d9eb39a6dd7
+    m_Address: UIPrefabDatabase
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Database
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4c9a2f7b6e1d48a4d92b3c5e08f7a641
+    m_Address: SpeakerPortraitTable
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Database
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5b7a17859fc9caa4291d6c052b4e4847
+    m_Address: DamageFloaterConfig
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Config
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7a7ae3e6e872b234f8c02114a24a7b60
+    m_Address: EquipmentAtlas
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - default
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: aa82bfc019ee54144a67c86c204246d4
+    m_Address: DialoguePalette
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ac3a3ba089760f54285b5c239ef07862
+    m_Address: ItemAtlas
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - default
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e2a7edcbeea74d2438ccf623a9ca7205
+    m_Address: UIRoot
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Config
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 12555e14218dc364695cc81d97ae719f, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 695907df17f8d634f8417629f383e48c, type: 2}
+    - {fileID: 11400000, guid: 549b45409c7adc3409a04323269ff610, type: 2}

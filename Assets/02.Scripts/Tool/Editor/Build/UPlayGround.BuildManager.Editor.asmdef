@@ -1,0 +1,13 @@
+{
+  "name": "UPlayGround.BuildManager.Editor",
+  "rootNamespace": "UPlayGround.Tool.Editor.Build",
+  "references": [
+    "UPlayGround.EditorTools",
+    "Unity.Addressables",
+    "Unity.Addressables.Editor"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": true
+}

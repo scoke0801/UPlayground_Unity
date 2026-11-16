@@ -2,6 +2,12 @@
 
 2026-11-14 실제 몬스터 Play 패치에서 Hot Reload Worker의 배열 opcode 변환 누락을 수정했다. Worker 빌드·회귀 2/2·동일 Play 패치 재적용을 확인했다. [도구 상태](../work-status/unity-hot-reload.md) · [실제 작업 근거](../work-status/monster-bt-improvement/MCP_VALIDATION.md).
 
+## 2026-11-15 빌드·번들 분리 설계와 빌드 매니저
+
+로컬 전용 번들 분리와 빌드 매니저 도구를 설계·구현했다. 코드·씬 목록이 같을 때만 번들 교체를 허용하는 지문 검사를 둔다. 후속 구현으로 도메인 그룹 5개와 구역별 별도 번들 설정을 반영하고, 기존 검증 빌드 진입점 5개를 공통 러너에 연결했다. 66개 주소·GUID·레이블 보존, 정상 컴파일·EditMode 18/18·하네스 43개 통과를 확인했다. 기본 Release 프로필 생성·창 열기·Full 사전 점검 0건도 확인했다. QualitySettings·EditorBuildSettings는 기존 파일과 바이트 동일하다. 설정 `BuildAddressablesWithPlayerBuild: 0`은 `PreferencesValue`이며 "자동 빌드 안 함"이 아니다. Player·Addressables 빌드는 미수행(`사용자 테스트 대기`). [설계](../../Assets/docs/design/dev-tools/BUILD_BUNDLE_SEPARATION_DESIGN.md) · [작업 상태](../work-status/build-manager.md).
+
+후속 UI 확장: Dev·씬·정확한 빌드 폴더를 창에서 편집하고 폴더별 exe/번들 재빌드 필요와 권장 모드를 표시한다. 도구·테스트 코드 독립 컴파일 및 순수 NUnit 메서드 19/19 확인. 사용자가 빌드·임포트 중 코드만 요청해 최신 코드의 Unity 반영·전체 EditMode·창 조작은 미수행이다. [후속 상태·검증 근거](../work-status/build-manager.md).
+
 ## 2026-11-13 시작 경로 프로파일링
 
 Boot → 타이틀(기본 Raon 선택) → Loading → LakeVillageWorld 완료 상태를 Unity MCP에서 실행했다. 디더 재질 생성에 네 개 ProfilerMarker를 추가하고 키워드 전체 순회를 이름 조회로 교체했다(분리 2,000회 29.68 → 1.64 ms, 전체 로딩 절감률 아님). 관련 EditMode 17/17 및 수정 후 월드 진입 확인. 주요 NPC 재질 생성·렌더 제출 비용과 반복 Boot의 DB 60초 시간 초과 1회는 남아 있다. 최초 수집의 계측 오염·캐시 차이·최종 사용자 마커 미수집을 구분한다. 수치·근거·직접 테스트 명세는 [프로파일링 상태](../work-status/startup-profiling.md)에 기록했다. 실제 입력·시각적 품질은 사용자 테스트 대기다.
@@ -50,6 +56,10 @@ Test Runner 이후 같은 경로에서 네 마커를 재수집했다. 세 DB의 
 명시 파일·meta 기반 검증 준비표, 입력 해시 비교, NUnit XML 실제 건수·집계·Quick fixture 대조, 자동 테스트 단계별 결과 JSON을 추가했다. 하네스 자체 검사 20건은 합성 XML과 대체 프로세스로 실행한 도구 검사다. Unity 게임 테스트 20건 통과를 뜻하지 않는다.
 
 준비표의 경로 분류는 영향 분석 제안이다. 관련 소비자·연결 에셋과 최종 diff를 Agent가 보완한다. 사용자 플레이와 아트 인수는 별도 기록하며 필수 확인이 남으면 완료로 보고하지 않는다. 별도 사용자 지시 없이 Player·Addressables 검증 빌드는 실행하지 않는다.
+
+## QA 결과 접수 스킬
+
+2026-11-15. 사용자가 명세 없이 보낸 버그 제보·플레이 소감을 결함/체감 의견으로 나누고 빈도·회귀·S1~S4 심각도·기록 위치·수정 후 재현 재확인을 정하는 규칙을 [테스트 작업 지침](../../Assets/docs/guide/TEST_VALIDATION_GUIDE.md)에 추가하고 [qa-intake 스킬](../../.claude/skills/qa-intake/SKILL.md)을 진입점으로 만들었다. 외부 QA 도구(uloop 입력 녹화·재생, Game View 기준 이미지 비교)는 설치하지 않았고 사용자 승인 대상이다. 실제 제보 적용은 아직 없다. [상태](../work-status/qa-intake-skill.md).
 
 ## 단계별 위키 인계
 

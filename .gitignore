@@ -1016,3 +1016,15 @@ Assets/01.Scenes/Scenario/LakeOfLifeScenario.unity
 /Assets/10.Datas/Actor/Enemy/BehaviorData/Strategy/*
 !/Assets/10.Datas/Actor/Enemy/BehaviorData/Strategy/CombatStrategy_P09Staff.asset
 !/Assets/10.Datas/Actor/Enemy/BehaviorData/Strategy/CombatStrategy_P09Staff.asset.meta
+
+# 빌드 그룹·프로필 설정은 소스다. 생성된 콘텐츠 상태와 링커 출력은 제외한다.
+!/Assets/AddressableAssetsData/
+!/Assets/AddressableAssetsData.meta
+!/Assets/AddressableAssetsData/**
+/Assets/AddressableAssetsData/Windows/
+/Assets/AddressableAssetsData/Windows.meta
+/Assets/AddressableAssetsData/link.xml
+/Assets/AddressableAssetsData/link.xml.meta
+!/Assets/10.Datas/Build.meta
+!/Assets/10.Datas/Build/
+!/Assets/10.Datas/Build/**

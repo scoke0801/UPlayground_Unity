@@ -207,9 +207,13 @@ namespace UPlayGround.Editor
             {
                 Tool("무기 슬래시 셋업",               "UPlayGround/VFX/Weapon Slash Setup", "무기 슬래시 VFX 스포너와 모션 이벤트를 셋업합니다.", "무기 칼날(Blade) 트랜스폼을 분석해 WeaponSlashVfxSpawner를 구성하고, MotionSet의 슬래시 스폰 이벤트와 프리뷰를 연결하는 전투 VFX 저작 도구입니다."),
             }),
+            ("빌드", new[]
+            {
+                Tool("빌드 매니저", "UPlayGround/빌드/빌드 매니저", "프로필 기준으로 콘텐츠·플레이어 빌드와 콘텐츠 교체를 실행합니다.", "빌드 프로필의 씬 목록으로 전체 빌드, 번들만 교체(코드·씬 목록이 같을 때만), 기존 콘텐츠로 플레이어만 빌드를 실행합니다. 실행 전 사전 점검으로 카탈로그 누락과 코드 변경을 걸러내며, Addressables 그룹 현황을 읽기 전용으로 보여줍니다."),
+            }),
             ("디버그", new[]
             {
-                Tool("런타임 로그 필터",              "UPlayGround/Debug/런타임 로그 필터", "런타임 로그 카테고리를 선택해 출력 범위를 제어합니다.", "Default, Combat, Player, Monster, Input, UI, System 등 RuntimeLog 카테고리를 개별 토글하고 저장합니다. Edit Mode와 Play Mode에 즉시 반영되며 다음 실행에도 유지됩니다."),
+                Tool("런타임 로그 필터",             "UPlayGround/Debug/런타임 로그 필터", "런타임 로그 카테고리를 선택해 출력 범위를 제어합니다.", "Default, Combat, Player, Monster, Input, UI, System 등 RuntimeLog 카테고리를 개별 토글하고 저장합니다. Edit Mode와 Play Mode에 즉시 반영되며 다음 실행에도 유지됩니다."),
                 Tool("디버그 기즈모 창",               "UPlayGround/Debug/Debug Gizmo Window", "런타임 디버그 기즈모 표시를 토글합니다.", "DebugGizmo 시스템의 카테고리별 기즈모 표시 여부를 제어하는 개발용 창입니다."),
                 Tool("Project Hot Reload",              "UPlayGround/Debug/Project Hot Reload", "Play Mode 중 허용된 메서드 본문 변경을 정상 컴파일 없이 반영합니다.", "ProjectSettings/ProjectHotReload.json에 등록되고 Editor 조건부 NoInlining이 컴파일된 메서드만 대상입니다. 필드·시그니처·람다·async 변경은 거부하며, 롤백은 코드만 되돌립니다. 작업을 마치면 Stop & Recompile로 정상 컴파일하세요."),
                 Tool("C# 프로젝트 파일 재생성", "UPlayGround/Debug/Regenerate C# Project Files", "Unity C# 프로젝트 파일을 다시 생성합니다.", "IDE 프로젝트 참조나 생성된 csproj가 오래됐을 때 Unity의 프로젝트 파일 생성을 다시 요청합니다."),

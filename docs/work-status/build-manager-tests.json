@@ -1,0 +1,209 @@
+{
+  "result": {
+    "success": true,
+    "message": "Test job status retrieved.",
+    "error": null,
+    "data": {
+      "job_id": "a6c6827c0bec4519b42122fdbe6bc4e9",
+      "status": "succeeded",
+      "mode": "EditMode",
+      "started_unix_ms": 1794748289656,
+      "finished_unix_ms": 1794748303584,
+      "last_update_unix_ms": 1794748303584,
+      "progress": {
+        "completed": 18,
+        "total": 18,
+        "current_test_full_name": null,
+        "current_test_started_unix_ms": null,
+        "last_finished_test_full_name": "UPlayGround.BuildManager.Tests.BuildManagerLogicTests.ValidationEntry_RejectsMissingSceneBeforeBuilding",
+        "last_finished_unix_ms": 1794748303335,
+        "stuck_suspected": false,
+        "editor_is_focused": false,
+        "run_in_background": true,
+        "focus_nudge_attempts": null,
+        "focus_nudge_limit": null,
+        "focus_nudge_status": null,
+        "blocked_reason": null,
+        "failures_so_far": [],
+        "failures_capped": false
+      },
+      "error": null,
+      "result": {
+        "mode": "EditMode",
+        "summary": {
+          "total": 18,
+          "passed": 18,
+          "failed": 0,
+          "skipped": 0,
+          "durationSeconds": 1.8885078,
+          "resultState": "Passed"
+        },
+        "results": [
+          {
+            "name": "ContentOnly_IsBlocked_WhenPlayerWasNeverBuilt",
+            "fullName": "UPlayGround.BuildManager.Tests.BuildManagerLogicTests.ContentOnly_IsBlocked_WhenPlayerWasNeverBuilt",
+            "state": "Passed",
+            "durationSeconds": 0.0105199,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "ContentOnly_IsBlocked_WhenSceneListChanged",
+            "fullName": "UPlayGround.BuildManager.Tests.BuildManagerLogicTests.ContentOnly_IsBlocked_WhenSceneListChanged",
+            "state": "Passed",
+            "durationSeconds": 0.0003195,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "ContentOnly_IsBlocked_WhenScriptsChanged",
+            "fullName": "UPlayGround.BuildManager.Tests.BuildManagerLogicTests.ContentOnly_IsBlocked_WhenScriptsChanged",
+            "state": "Passed",
+            "durationSeconds": 0.0003709,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "ContentOnly_StaysAllowed_WhenNothingButContentChanged",
+            "fullName": "UPlayGround.BuildManager.Tests.BuildManagerLogicTests.ContentOnly_StaysAllowed_WhenNothingButContentChanged",
+            "state": "Passed",
+            "durationSeconds": 0.0003294,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "DeployContent_KeepsOldBundles_WhenCatalogCopyFails",
+            "fullName": "UPlayGround.BuildManager.Tests.BuildManagerLogicTests.DeployContent_KeepsOldBundles_WhenCatalogCopyFails",
+            "state": "Passed",
+            "durationSeconds": 0.0154569,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "DeployContent_ReplacesBundlesAndRemovesOrphans",
+            "fullName": "UPlayGround.BuildManager.Tests.BuildManagerLogicTests.DeployContent_ReplacesBundlesAndRemovesOrphans",
+            "state": "Passed",
+            "durationSeconds": 0.0297427,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "FilesHash_ChangesWithContent",
+            "fullName": "UPlayGround.BuildManager.Tests.BuildManagerLogicTests.FilesHash_ChangesWithContent",
+            "state": "Passed",
+            "durationSeconds": 0.0053174,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "FreshnessCheck_IncludesGroupSettings",
+            "fullName": "UPlayGround.BuildManager.Tests.BuildManagerLogicTests.FreshnessCheck_IncludesGroupSettings",
+            "state": "Passed",
+            "durationSeconds": 1.156817,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "PlayerAaDirectory_FollowsExecutableName",
+            "fullName": "UPlayGround.BuildManager.Tests.BuildManagerLogicTests.PlayerAaDirectory_FollowsExecutableName",
+            "state": "Passed",
+            "durationSeconds": 0.000257,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "PlayerOnly_IsBlocked_WhenCatalogIsMissing",
+            "fullName": "UPlayGround.BuildManager.Tests.BuildManagerLogicTests.PlayerOnly_IsBlocked_WhenCatalogIsMissing",
+            "state": "Passed",
+            "durationSeconds": 0.0003103,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "PlayerOnly_StaleContent_IsErrorUnlessAllowed",
+            "fullName": "UPlayGround.BuildManager.Tests.BuildManagerLogicTests.PlayerOnly_StaleContent_IsErrorUnlessAllowed",
+            "state": "Passed",
+            "durationSeconds": 0.0003658,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "Preflight_Blocks_CompilationAndUnsavedScenes",
+            "fullName": "UPlayGround.BuildManager.Tests.BuildManagerLogicTests.Preflight_Blocks_CompilationAndUnsavedScenes",
+            "state": "Passed",
+            "durationSeconds": 0.0006552,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "Preflight_Blocks_PlayModeAndMissingScene",
+            "fullName": "UPlayGround.BuildManager.Tests.BuildManagerLogicTests.Preflight_Blocks_PlayModeAndMissingScene",
+            "state": "Passed",
+            "durationSeconds": 0.0010084,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "RegionKeys_KeepSceneGuidAndSeparateLocalBundle(\"2adabc03c19a2e946af1b9405cd10832\",\"OpenWorld.StonegateCitadel.Content\")",
+            "fullName": "UPlayGround.BuildManager.Tests.BuildManagerLogicTests.RegionKeys_KeepSceneGuidAndSeparateLocalBundle(\"2adabc03c19a2e946af1b9405cd10832\",\"OpenWorld.StonegateCitadel.Content\")",
+            "state": "Passed",
+            "durationSeconds": 0.009073,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "RegionKeys_KeepSceneGuidAndSeparateLocalBundle(\"33f5aff4b0dcbfe42b1c73ebd8c42142\",\"OpenWorld.SaltwindHarbor.Content\")",
+            "fullName": "UPlayGround.BuildManager.Tests.BuildManagerLogicTests.RegionKeys_KeepSceneGuidAndSeparateLocalBundle(\"33f5aff4b0dcbfe42b1c73ebd8c42142\",\"OpenWorld.SaltwindHarbor.Content\")",
+            "state": "Passed",
+            "durationSeconds": 0.0003542,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "RegionKeys_KeepSceneGuidAndSeparateLocalBundle(\"ade6ea8759d8ac442901edbe4288c6c6\",\"OpenWorld.DroughtVillage.Content\")",
+            "fullName": "UPlayGround.BuildManager.Tests.BuildManagerLogicTests.RegionKeys_KeepSceneGuidAndSeparateLocalBundle(\"ade6ea8759d8ac442901edbe4288c6c6\",\"OpenWorld.DroughtVillage.Content\")",
+            "state": "Passed",
+            "durationSeconds": 0.0001829,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "ValidationEntry_RejectsContentOnlyBeforeBuilding",
+            "fullName": "UPlayGround.BuildManager.Tests.BuildManagerLogicTests.ValidationEntry_RejectsContentOnlyBeforeBuilding",
+            "state": "Passed",
+            "durationSeconds": 0.0046613,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          },
+          {
+            "name": "ValidationEntry_RejectsMissingSceneBeforeBuilding",
+            "fullName": "UPlayGround.BuildManager.Tests.BuildManagerLogicTests.ValidationEntry_RejectsMissingSceneBeforeBuilding",
+            "state": "Passed",
+            "durationSeconds": 0.0015823,
+            "message": null,
+            "stackTrace": null,
+            "output": ""
+          }
+        ]
+      }
+    },
+    "hint": null
+  }
+}

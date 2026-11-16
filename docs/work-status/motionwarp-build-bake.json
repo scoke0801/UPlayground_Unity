@@ -1,0 +1,302 @@
+{
+    "generatedAt": "2026-11-15T19:17:27",
+    "applied": true,
+    "prefabCount": 13,
+    "assetCount": 2,
+    "windowCount": 2,
+    "profileCount": 13,
+    "okCount": 13,
+    "inPlaceCount": 0,
+    "backtrackingCount": 0,
+    "failedCount": 0,
+    "unmappedWindowCount": 12,
+    "rows": [
+        {
+            "asset": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Signature/Katana_Signature.asset",
+            "ownerPrefab": "Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Arin.prefab",
+            "animatorPath": "",
+            "avatar": "MB_NenmirAvatar",
+            "animatorScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "windowStart": 0.5,
+            "windowEnd": 0.699999988079071,
+            "measuredPathLen": 7.999998092651367,
+            "measuredLocalMagnitude": 8.000000953674317,
+            "measuredYaw": 0.0,
+            "trajectorySampleCount": 33,
+            "sourceFingerprint": "f15e39ded413c07825b40f8cfa60f5fd",
+            "existingPathLen": 0.0,
+            "status": "OK",
+            "message": ""
+        },
+        {
+            "asset": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Signature/Katana_Signature.asset",
+            "ownerPrefab": "Assets/03.Prefabs/Actor/Player/Models/PlayerModel_H09.prefab",
+            "animatorPath": "",
+            "avatar": "P09_250802Avatar",
+            "animatorScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "windowStart": 0.5,
+            "windowEnd": 0.699999988079071,
+            "measuredPathLen": 9.021444320678711,
+            "measuredLocalMagnitude": 9.021444320678711,
+            "measuredYaw": 0.0,
+            "trajectorySampleCount": 33,
+            "sourceFingerprint": "037dfb34660ff02ef5670df388ba7dc7",
+            "existingPathLen": 0.0,
+            "status": "OK",
+            "message": ""
+        },
+        {
+            "asset": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Signature/Katana_Signature.asset",
+            "ownerPrefab": "Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Hwarin.prefab",
+            "animatorPath": "",
+            "avatar": "HonokaAvatar",
+            "animatorScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "windowStart": 0.5,
+            "windowEnd": 0.699999988079071,
+            "measuredPathLen": 8.820428848266602,
+            "measuredLocalMagnitude": 8.820429801940918,
+            "measuredYaw": 0.0,
+            "trajectorySampleCount": 33,
+            "sourceFingerprint": "d022db332d3dce4fce28f2efb5f39679",
+            "existingPathLen": 0.0,
+            "status": "OK",
+            "message": ""
+        },
+        {
+            "asset": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Signature/Katana_Signature.asset",
+            "ownerPrefab": "Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Lian.prefab",
+            "animatorPath": "",
+            "avatar": "LianLianAvatar",
+            "animatorScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "windowStart": 0.5,
+            "windowEnd": 0.699999988079071,
+            "measuredPathLen": 8.280715942382813,
+            "measuredLocalMagnitude": 8.280716896057129,
+            "measuredYaw": 0.0,
+            "trajectorySampleCount": 33,
+            "sourceFingerprint": "fca3a4830c8e7a465a13eb03bd7f06d2",
+            "existingPathLen": 0.0,
+            "status": "OK",
+            "message": ""
+        },
+        {
+            "asset": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Signature/Katana_Signature.asset",
+            "ownerPrefab": "Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Lili.prefab",
+            "animatorPath": "",
+            "avatar": "liliAvatar",
+            "animatorScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "windowStart": 0.5,
+            "windowEnd": 0.699999988079071,
+            "measuredPathLen": 9.069173812866211,
+            "measuredLocalMagnitude": 9.069173812866211,
+            "measuredYaw": 0.0,
+            "trajectorySampleCount": 33,
+            "sourceFingerprint": "f73175d466b69a2eeeb99b33d2541aa9",
+            "existingPathLen": 0.0,
+            "status": "OK",
+            "message": ""
+        },
+        {
+            "asset": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Signature/Katana_Signature.asset",
+            "ownerPrefab": "Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Myomyo.prefab",
+            "animatorPath": "",
+            "avatar": "VrmAvatar",
+            "animatorScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "windowStart": 0.5,
+            "windowEnd": 0.699999988079071,
+            "measuredPathLen": 8.559789657592774,
+            "measuredLocalMagnitude": 8.55979061126709,
+            "measuredYaw": 0.0,
+            "trajectorySampleCount": 33,
+            "sourceFingerprint": "5c84219dbfd1baef2e546b7bf53cfd79",
+            "existingPathLen": 0.0,
+            "status": "OK",
+            "message": ""
+        },
+        {
+            "asset": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Signature/Katana_Signature.asset",
+            "ownerPrefab": "Assets/03.Prefabs/Actor/Player/Models/PlayerModel_MyoRyeong.prefab",
+            "animatorPath": "",
+            "avatar": "SuihaAvatar",
+            "animatorScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "windowStart": 0.5,
+            "windowEnd": 0.699999988079071,
+            "measuredPathLen": 8.147281646728516,
+            "measuredLocalMagnitude": 8.147279739379883,
+            "measuredYaw": 0.0,
+            "trajectorySampleCount": 33,
+            "sourceFingerprint": "948c6a2f44153440f15659c48a598bd6",
+            "existingPathLen": 0.0,
+            "status": "OK",
+            "message": ""
+        },
+        {
+            "asset": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Signature/Katana_Signature.asset",
+            "ownerPrefab": "Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Reine.prefab",
+            "animatorPath": "",
+            "avatar": "reien_fbxAvatar",
+            "animatorScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "windowStart": 0.5,
+            "windowEnd": 0.699999988079071,
+            "measuredPathLen": 9.709525108337403,
+            "measuredLocalMagnitude": 9.709527015686036,
+            "measuredYaw": 0.0,
+            "trajectorySampleCount": 33,
+            "sourceFingerprint": "8f65cb4885cb46da114aff47e056e08f",
+            "existingPathLen": 0.0,
+            "status": "OK",
+            "message": ""
+        },
+        {
+            "asset": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Signature/Katana_Signature.asset",
+            "ownerPrefab": "Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Sera.prefab",
+            "animatorPath": "",
+            "avatar": "Humanoid_FAvatar",
+            "animatorScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "windowStart": 0.5,
+            "windowEnd": 0.699999988079071,
+            "measuredPathLen": 9.680438995361329,
+            "measuredLocalMagnitude": 9.680439949035645,
+            "measuredYaw": 0.0,
+            "trajectorySampleCount": 33,
+            "sourceFingerprint": "c01642ee6d20717754c016b2d1a5a415",
+            "existingPathLen": 0.0,
+            "status": "OK",
+            "message": ""
+        },
+        {
+            "asset": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Signature/Katana_Signature.asset",
+            "ownerPrefab": "Assets/03.Prefabs/Actor/Player/Models/PlayerModel_YeonHoa.prefab",
+            "animatorPath": "",
+            "avatar": "Inori_UnityAvatar",
+            "animatorScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "windowStart": 0.5,
+            "windowEnd": 0.699999988079071,
+            "measuredPathLen": 9.18504810333252,
+            "measuredLocalMagnitude": 9.185050010681153,
+            "measuredYaw": 0.0,
+            "trajectorySampleCount": 33,
+            "sourceFingerprint": "f664d8aec707535d4d919e38b14f1e84",
+            "existingPathLen": 0.0,
+            "status": "OK",
+            "message": ""
+        },
+        {
+            "asset": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Signature/Katana_Signature.asset",
+            "ownerPrefab": "Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Yura.prefab",
+            "animatorPath": "",
+            "avatar": "HichiAvatar",
+            "animatorScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "windowStart": 0.5,
+            "windowEnd": 0.699999988079071,
+            "measuredPathLen": 8.210179328918457,
+            "measuredLocalMagnitude": 8.210177421569825,
+            "measuredYaw": 0.0,
+            "trajectorySampleCount": 33,
+            "sourceFingerprint": "974e899b6f0229de7561d5f1c11adf20",
+            "existingPathLen": 0.0,
+            "status": "OK",
+            "message": ""
+        },
+        {
+            "asset": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Signature/Katana_Signature.asset",
+            "ownerPrefab": "Assets/03.Prefabs/Actor/Player_Raon.prefab",
+            "animatorPath": "",
+            "avatar": "BokuseiAvatar",
+            "animatorScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "windowStart": 0.5,
+            "windowEnd": 0.699999988079071,
+            "measuredPathLen": 8.644670486450196,
+            "measuredLocalMagnitude": 8.644668579101563,
+            "measuredYaw": 0.0,
+            "trajectorySampleCount": 33,
+            "sourceFingerprint": "4fba98fd1eb6b270b096edbd965f177d",
+            "existingPathLen": 0.0,
+            "status": "OK",
+            "message": ""
+        },
+        {
+            "asset": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Signature/Katana_Raon_Signature.asset",
+            "ownerPrefab": "Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Raon.prefab",
+            "animatorPath": "",
+            "avatar": "BokuseiAvatar",
+            "animatorScale": {
+                "x": 1.0,
+                "y": 1.0,
+                "z": 1.0
+            },
+            "windowStart": 0.5,
+            "windowEnd": 0.699999988079071,
+            "measuredPathLen": 7.999998569488525,
+            "measuredLocalMagnitude": 7.999998092651367,
+            "measuredYaw": 0.0,
+            "trajectorySampleCount": 33,
+            "sourceFingerprint": "334eedc07cf821ed2e77c2b4ce913feb",
+            "existingPathLen": 0.0,
+            "status": "OK",
+            "message": ""
+        }
+    ],
+    "unmappedWindows": [
+        "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/DoubleAxe/Humanoid_DoubleAxeAxeAnimationSet_SwapAttack_1.asset [0.00~0.46]",
+        "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/DualBlade/SwapAttack.asset [0.00~0.25]",
+        "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/GreatSword/Humanoid_GreatSwordAnimationSet_SwapAttack_1.asset [0.00~0.50]",
+        "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/SwordShield/Humanoid_SwordShield_SwapAttack.asset [0.00~0.36]",
+        "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Katana_Combo_Attack_1_1.asset [0.00~0.29]",
+        "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Katana_Combo_Attack_1_1_PlayerGrounded_Bokusei.asset [0.00~0.29]",
+        "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Katana_Combo_Attack_1_2_PlayerGrounded_Bokusei.asset [0.00~0.21]",
+        "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Katana_Combo_Attack_4_1.asset [0.00~0.28]",
+        "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Katana_Combo_Attack_4_2.asset [0.00~0.12]",
+        "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Katana_Combo_Attack_4_3.asset [0.00~0.28]",
+        "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Katana_Combo_Attack_ComboLast.asset [0.00~0.35]",
+        "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Katana_Heavy_Attack_1.asset [0.00~0.38]"
+    ]
+}

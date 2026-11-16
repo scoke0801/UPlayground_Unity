@@ -1,5 +1,7 @@
 ﻿# 월드와 아트
 
+2026-11-16 WorldBuilder 지역형 HeightMap 오픈월드 설계 v1.1 반영: 외부 인계본(`docs/전달용/OpenWorld_HeightMap_Design_Regional_v1_1_Handoff/`)을 분석해 [설계 요약·정본 후보](../../Assets/docs/design/world-art/open-world/WORLDBUILDER_REGIONAL_HEIGHTMAP_DESIGN.md)로 정리했다. 16-bit RAW 기반 비파괴 월드 제작 도구(D01~D12, P00~P10, T01~T35)이며 기술 fixture B(2km, −80~400m)와 지역 prototype C(5 바이옴+3 POI, 0~2800m, XZ 미확정)를 구분한다. **설계만 있고 Unity 구현·컴파일·Play·Player 빌드는 미수행**(전달본 검증은 파일 수준). 기존 월드와의 관계(신규 월드 vs 기존 편집 도구)와 C의 월드 크기는 착수 전 사용자 결정이 필요하다. 컨셉 PNG는 높이 데이터가 아닌 참조 아트다.
+
 미니맵 물 가독성 수정(2026-11-15): 활성 물 표면7개에 밝은 파랑 불투명 재질을 임시 적용해 재촬영·배경 연결했다. 촬영 후 원래 재질7/7 복원 확인, 씬·품질 설정 보존. [현재 지도·검증](../work-status/lake-waterfall.md#폭포-반영-미니맵-재촬영--2026-11-15).
 
 폭포 미니맵 갱신(2026-11-15): 현재 호수 월드를3600×4200 재촬영해 LakeVillage MinimapConfig 배경에 반영했다. 기존 GUID·중심·범위 유지, 폭포 원본 픽셀과 임포트 참조 확인. 실제 HUD 가독성은 사용자 확인 대기. [작업 기록](../work-status/lake-waterfall.md#폭포-반영-미니맵-재촬영--2026-11-15).

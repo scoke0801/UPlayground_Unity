@@ -63,6 +63,8 @@ Example: `SM_Env_Wall_Corner_2m`
 
 ## Terrain & Natural Forms
 
+> UPlayground: 나무·고사목·바위·통나무·그루터기 메시를 Blender로 만들 때는 먼저 `organic-modeling-quality` 스킬을 읽는다(레시피·프로젝트 실측 폴리 예산·검수 기준). 아래 Vegetation 표의 수치는 일반 예시다.
+
 - Hero rocks: sculpted or photogrammetry cleanup
 - Background rocks: geometry nodes scatter
 - Cliffs: modular cliff face pieces + blend shapes

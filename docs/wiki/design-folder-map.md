@@ -57,6 +57,7 @@
 | [반응형 환경 통합 계약](../../Assets/docs/design/world-art/environment/REACTIVE_ENVIRONMENT_INTEGRATION.md) · `design/world-art/environment/REACTIVE_ENVIRONMENT_INTEGRATION.md` | 월드·아트 | 기존 |
 | [지역 하늘·대기와 구름 2차 폴리싱](../../Assets/docs/design/world-art/environment/REGIONAL_SKY_ATMOSPHERE_DESIGN.html) · `design/world-art/environment/REGIONAL_SKY_ATMOSPHERE_DESIGN.html` | 월드·아트 | 기존 |
 | [독립 정규 월드 제작 설계안](../../Assets/docs/design/world-art/open-world/REGULAR_WORLD_PRODUCTION_DESIGN.html) · `design/world-art/open-world/REGULAR_WORLD_PRODUCTION_DESIGN.html` | 월드·아트 | 추가 |
+| [WorldBuilder 지역형 HeightMap 오픈월드 설계 v1.1](../../Assets/docs/design/world-art/open-world/WORLDBUILDER_REGIONAL_HEIGHTMAP_DESIGN.md) · `design/world-art/open-world/WORLDBUILDER_REGIONAL_HEIGHTMAP_DESIGN.md` | 월드·아트 | 추가 (2026-11-16) |
 | [생명의 호수 구역별 건물과 오브젝트 배치 명세](../../Assets/docs/design/content/scenario-gameplay/02_WORLD_AND_PLACEMENT.md) · `design/content/scenario-gameplay/02_WORLD_AND_PLACEMENT.md` | 월드·아트 | 추가 |
 | [시나리오 오브젝트와 이미지 연출 제작 명세](../../Assets/docs/design/content/scenario-gameplay/05_ART_PRODUCTION.md) · `design/content/scenario-gameplay/05_ART_PRODUCTION.md` | 월드·아트 | 추가 |
 | [툰 워터 월드 — 기존 시스템과 렌더링 통합 계약](../../Assets/docs/design/world-art/environment/TOON_WATER_EXISTING_INTEGRATION.md) · `design/world-art/environment/TOON_WATER_EXISTING_INTEGRATION.md` | 월드·아트 | 기존 |

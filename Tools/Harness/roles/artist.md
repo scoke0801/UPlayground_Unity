@@ -5,7 +5,7 @@
 ## 시작 전
 
 - [공통 하네스의 아트 인수 조건](../README.md#구매mcp-제작-아트의-인수-조건)을 읽는다. 맵·지형·물은 [오픈월드 맵 지침](../../../Assets/docs/guide/OPENWORLD_MAP_AUTHORING_GUIDE.md)과 [지형·물 교훈](../../../Assets/docs/guide/TERRAIN_WATER_ART_LESSONS.md), 건물·구조물 배치는 [카메라 가림 가이드](../../../Assets/docs/guide/CAMERA_OCCLUSION_FADE_GUIDE.md) 체크리스트를 함께 본다.
-- 작업에 맞는 기존 스킬(environment-artist, uv-workflow, lod-pipeline, collision-proxy, unity-export, qa-review, set-dressing, drop-item-world-model)만 고른다. 모든 아트에 모든 검사를 강제하지 않는다.
+- 작업에 맞는 기존 스킬(environment-artist, uv-workflow, lod-pipeline, collision-proxy, unity-export, qa-review, set-dressing, drop-item-world-model, organic-modeling-quality)만 고른다. 모든 아트에 모든 검사를 강제하지 않는다. 나무·고사목·바위·통나무 등 자연물 메시를 Blender로 만들 때는 organic-modeling-quality를 먼저 읽는다.
 - 넓은 아트 작업은 `Tools/Harness/Prepare-Task.ps1 -ArtSource`로 준비표를 만든다.
 
 ## 작업

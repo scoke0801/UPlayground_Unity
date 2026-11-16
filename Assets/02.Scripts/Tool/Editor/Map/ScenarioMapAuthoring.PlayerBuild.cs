@@ -37,7 +37,7 @@ namespace UPlayGround.Tool.Editor.Map
             if (!scenes.Contains(layout.scenePath)) throw new InvalidOperationException("새 맵을 빌드 씬 목록에 먼저 연결하세요.");
             Directory.CreateDirectory(ReportDirectory + "/Player");
             string executable = Path.GetFullPath(ReportDirectory + "/Player/ScenarioMap.exe");
-            BuildReport report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
+            BuildReport report = UPlayGround.Tool.Editor.Build.BuildManagerRunner.RunValidation(new BuildPlayerOptions
             {
                 scenes = scenes.ToArray(),
                 locationPathName = executable,

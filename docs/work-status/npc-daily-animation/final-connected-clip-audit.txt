@@ -1,0 +1,5 @@
+scene=Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity
+motionSets=18
+bannedClips=0
+heldPropContract=True
+dirty=False

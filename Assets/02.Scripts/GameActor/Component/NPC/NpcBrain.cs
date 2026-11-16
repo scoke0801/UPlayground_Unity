@@ -370,6 +370,9 @@ namespace UPlayGround.Components
         /// <summary>생활 배치 복원 시 그 자리에서 수행할 작업을 바꾼다.</summary>
         public void SetWorkMotion(UPlayGround.Animation.MotionSetAsset motion) => _workMotion = motion;
 
+        /// <summary>사건 전후에 대기 장소를 둘러보거나 고정 작업으로 돌아가도록 전환한다.</summary>
+        public void SetWanderEnabled(bool enabled) => _enableWander = enabled;
+
         /// <summary>지역 스토리에서 기존 NPC를 고정 배치로 재사용할 때 호출한다.</summary>
         public void ConfigureStationary(Vector3 position)
         {

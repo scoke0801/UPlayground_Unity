@@ -1,0 +1,6 @@
+컴파일 실패=False
+Play=False
+검사 Brain=50
+검사 작업점=18
+금지 참조=0
+씬 dirty=False

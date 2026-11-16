@@ -29,7 +29,8 @@ Transform:
   m_LocalPosition: {x: 2, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 2085644616627366198}
   m_Father: {fileID: 1502856259883909107}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4219258023155812124
@@ -47,8 +48,9 @@ MonoBehaviour:
   _mapId: LakeOfLifeScenario
   _pointId: lake.repair.work
   _isSheltered: 0
-  _motion: {fileID: 11400000, guid: 6fc89d8d51eeaac48a503b732e9b9bd2, type: 2}
-  _heldPropPrefab: {fileID: 4513350319928131562, guid: 350d83920283df0478f061445fd2139c, type: 3}
+  _motion: {fileID: 11400000, guid: 006d5165546226047830f4a8b9a510c0, type: 2}
+  _heldPropPrefab: {fileID: 0}
+  _sceneProp: {fileID: 2085644616627366198}
 --- !u!1 &5624441791660172272
 GameObject:
   m_ObjectHideFlags: 0
@@ -145,7 +147,7 @@ MonoBehaviour:
   _mapId: LakeOfLifeScenario
   _pointId: lake.repair.rest
   _isSheltered: 1
-  _motion: {fileID: 11400000, guid: 4a92968a29eaa534c990e9587c3eb7db, type: 2}
+  _motion: {fileID: 11400000, guid: 55e0c54a33144c444bb847d4d5ee690c, type: 2}
   _heldPropPrefab: {fileID: 0}
 --- !u!1 &9145219982016100921
 GameObject:
@@ -207,12 +209,14 @@ MonoBehaviour:
     travelMotion: {fileID: 11400000, guid: 5b3c4c34c6a0ae04a81edc01a5e33aa9, type: 2}
     travelIdleMotion: {fileID: 11400000, guid: ec07a4ec3282e7b419a7ff70fd0e80f4, type: 2}
     travelPropPrefab: {fileID: 9089611019068227917, guid: e9a74093afed47b4a9bbdc90e767f755, type: 3}
+    isContentPending: 1
   - point: {fileID: 4219258023155812124}
     waypoints: []
     seconds: 13
-    travelMotion: {fileID: 11400000, guid: 5b3c4c34c6a0ae04a81edc01a5e33aa9, type: 2}
-    travelIdleMotion: {fileID: 11400000, guid: ec07a4ec3282e7b419a7ff70fd0e80f4, type: 2}
-    travelPropPrefab: {fileID: 9089611019068227917, guid: e9a74093afed47b4a9bbdc90e767f755, type: 3}
+    travelMotion: {fileID: 0}
+    travelIdleMotion: {fileID: 0}
+    travelPropPrefab: {fileID: 0}
+    endMotion: {fileID: 11400000, guid: 0289fbb86acf7da4c9ee3d692c13f719, type: 2}
   _rest:
     point: {fileID: 5865441601057843430}
     waypoints: []
@@ -230,7 +234,7 @@ MonoBehaviour:
   _travelTimeout: 20
   _stuckSeconds: 2
   _progressDistance: 0.1
-  _arrivalDistance: 0.06
+  _arrivalDistance: 0.015
   _heightTolerance: 0.5
   _speedMultiplier: 0.6
   _fadeSeconds: 0.25
@@ -253,3 +257,65 @@ MonoBehaviour:
   _rainExit: 0.05
   _windEnter: 0.65
   _windExit: 0.5
+--- !u!1001 &6049186726053955742
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 123485742222364117}
+    m_Modifications:
+    - target: {fileID: 3616301899347851186, guid: 3d442d9dcb0a6714b881986ee7043af3, type: 3}
+      propertyPath: m_Name
+      value: RepairTool
+      objectReference: {fileID: 0}
+    - target: {fileID: 5693312979457794472, guid: 3d442d9dcb0a6714b881986ee7043af3, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.1996071
+      objectReference: {fileID: 0}
+    - target: {fileID: 5693312979457794472, guid: 3d442d9dcb0a6714b881986ee7043af3, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.9186262
+      objectReference: {fileID: 0}
+    - target: {fileID: 5693312979457794472, guid: 3d442d9dcb0a6714b881986ee7043af3, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.36897552
+      objectReference: {fileID: 0}
+    - target: {fileID: 5693312979457794472, guid: 3d442d9dcb0a6714b881986ee7043af3, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: -0.47574311
+      objectReference: {fileID: 0}
+    - target: {fileID: 5693312979457794472, guid: 3d442d9dcb0a6714b881986ee7043af3, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.5231334
+      objectReference: {fileID: 0}
+    - target: {fileID: 5693312979457794472, guid: 3d442d9dcb0a6714b881986ee7043af3, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0.5231333
+      objectReference: {fileID: 0}
+    - target: {fileID: 5693312979457794472, guid: 3d442d9dcb0a6714b881986ee7043af3, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0.47574317
+      objectReference: {fileID: 0}
+    - target: {fileID: 5693312979457794472, guid: 3d442d9dcb0a6714b881986ee7043af3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5693312979457794472, guid: 3d442d9dcb0a6714b881986ee7043af3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5693312979457794472, guid: 3d442d9dcb0a6714b881986ee7043af3, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 3d442d9dcb0a6714b881986ee7043af3, type: 3}
+--- !u!4 &2085644616627366198 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5693312979457794472, guid: 3d442d9dcb0a6714b881986ee7043af3, type: 3}
+  m_PrefabInstance: {fileID: 6049186726053955742}
+  m_PrefabAsset: {fileID: 0}

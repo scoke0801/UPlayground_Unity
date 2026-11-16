@@ -47,7 +47,7 @@ MonoBehaviour:
   _mapId: DroughtVillage
   _pointId: drought.well.wait
   _isSheltered: 0
-  _motion: {fileID: 11400000, guid: 4a92968a29eaa534c990e9587c3eb7db, type: 2}
+  _motion: {fileID: 11400000, guid: 55e0c54a33144c444bb847d4d5ee690c, type: 2}
   _heldPropPrefab: {fileID: 0}
 --- !u!1 &3059260994051813161
 GameObject:

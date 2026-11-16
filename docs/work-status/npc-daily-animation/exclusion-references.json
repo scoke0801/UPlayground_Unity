@@ -1,0 +1,30 @@
+[
+  {
+    "id": "4a92968a29eaa534c990e9587c3eb7db",
+    "path": "Assets/03.Prefabs/LivingWorld/NPC/HazelRoutine.prefab"
+  },
+  {
+    "id": "4a92968a29eaa534c990e9587c3eb7db",
+    "path": "Assets/03.Prefabs/LivingWorld/NPC/JoyRoutine.prefab"
+  },
+  {
+    "id": "4a92968a29eaa534c990e9587c3eb7db",
+    "path": "Assets/03.Prefabs/LivingWorld/NPC/RemainingResidentRoutine.prefab"
+  },
+  {
+    "id": "4a92968a29eaa534c990e9587c3eb7db",
+    "path": "Assets/03.Prefabs/LivingWorld/NPC/SettlingResidentRoutine.prefab"
+  },
+  {
+    "id": "4a92968a29eaa534c990e9587c3eb7db",
+    "path": "Assets/03.Prefabs/LivingWorld/NPC/YeonmokRoutine.prefab"
+  },
+  {
+    "id": "bb7ff1e84ffe4f92af5a14bb427812e4",
+    "path": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/MotionSet_Npc_Female.asset"
+  },
+  {
+    "id": "bb7ff1e84ffe4f92af5a14bb427812e4",
+    "path": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/MotionSet_Npc_Male.asset"
+  }
+]

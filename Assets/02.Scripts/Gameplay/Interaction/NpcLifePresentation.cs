@@ -20,6 +20,10 @@ namespace UPlayGround.Gameplay.Interaction
         [SerializeField] private Transform _afterAnchor;
         [SerializeField] private UPlayGround.Animation.MotionSetAsset _beforeWorkMotion;
         [SerializeField] private UPlayGround.Animation.MotionSetAsset _afterWorkMotion;
+        [Tooltip("사건 전후 이동을 저작한 경우에만 기존 주민의 이동 설정을 전환한다.")]
+        [SerializeField] private bool _configureWander;
+        [SerializeField] private bool _beforeCanWander;
+        [SerializeField] private bool _afterCanWander;
         [SerializeField] private GameObject[] _beforeVisuals = System.Array.Empty<GameObject>();
         [SerializeField] private GameObject[] _afterVisuals = System.Array.Empty<GameObject>();
         [Tooltip("인계 시 위에서 내려놓을 완료 소품. 그릇·탁자처럼 미리 놓인 물체는 제외한다.")]
@@ -285,8 +289,7 @@ namespace UPlayGround.Gameplay.Interaction
                 else controller.Motor.SetPositionAndRotation(anchor.position, anchor.rotation);
                 var brain = _actor.GetComponent<NpcBrain>();
                 brain?.SetHomePose(anchor.position, anchor.rotation);
-                if (_beforeWorkMotion != null || _afterWorkMotion != null)
-                    brain?.SetWorkMotion(completed ? _afterWorkMotion : _beforeWorkMotion);
+                ApplyWorkBehaviour(brain, completed);
                 if (controller != null && controller.Motor != null)
                     controller.TransitionToState(new NpcIdleState(controller));
                 if (!string.IsNullOrEmpty(_sceneEntityId))
@@ -299,6 +302,15 @@ namespace UPlayGround.Gameplay.Interaction
             SetVisuals(_beforeVisuals, !completed);
             SetVisuals(_afterVisuals, completed);
             return true;
+        }
+
+        private void ApplyWorkBehaviour(NpcBrain brain, bool completed)
+        {
+            if (brain == null) return;
+            if (_beforeWorkMotion != null || _afterWorkMotion != null)
+                brain.SetWorkMotion(completed ? _afterWorkMotion : _beforeWorkMotion);
+            if (_configureWander)
+                brain.SetWanderEnabled(completed ? _afterCanWander : _beforeCanWander);
         }
 
         private static void SetVisuals(GameObject[] visuals, bool visible)

@@ -56,7 +56,13 @@ namespace UPlayGround.Dialogue
 
             WarnIfMissingProtagonist(node, protagonistType);
             string resolvedName = memberData != null ? memberData.GetName(resolvedType) : string.Empty;
-            return string.IsNullOrEmpty(resolvedName) ? node.speakerId : resolvedName;
+            if (!string.IsNullOrEmpty(resolvedName))
+                return resolvedName;
+
+            // 예약 ID("Protagonist" 등)를 플레이어에게 그대로 보이지 않는다.
+            // 서사 주인공이 없으면 활성 캐릭터 이름으로 대체한다.
+            string activeName = memberData != null ? memberData.GetName(activeType) : string.Empty;
+            return string.IsNullOrEmpty(activeName) ? string.Empty : activeName;
         }
 
         /// <summary>

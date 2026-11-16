@@ -153,7 +153,7 @@ MonoBehaviour:
   _mapId: LakeOfLifeScenario
   _pointId: lake.meal.rest
   _isSheltered: 1
-  _motion: {fileID: 11400000, guid: 4a92968a29eaa534c990e9587c3eb7db, type: 2}
+  _motion: {fileID: 11400000, guid: 55e0c54a33144c444bb847d4d5ee690c, type: 2}
   _heldPropPrefab: {fileID: 0}
 --- !u!1 &2703929456823942419
 GameObject:
@@ -251,5 +251,5 @@ MonoBehaviour:
   _mapId: LakeOfLifeScenario
   _pointId: lake.meal.serve
   _isSheltered: 0
-  _motion: {fileID: 11400000, guid: 72ff584ea93d7044591b7dc279501291, type: 2}
+  _motion: {fileID: 11400000, guid: b2fa6848be3dfd346b8e997a92d48da0, type: 2}
   _heldPropPrefab: {fileID: 0}

@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Animation;
 using UPlayGround.Manager;
@@ -45,7 +46,7 @@ namespace UPlayGround.Components.LivingWorld
         [Min(0.1f), SerializeField] private float _travelTimeout = 20f;
         [Min(0.1f), SerializeField] private float _stuckSeconds = 2f;
         [Min(0.01f), SerializeField] private float _progressDistance = 0.1f;
-        [Min(0.05f), SerializeField] private float _arrivalDistance = 0.35f;
+        [Min(0.01f), SerializeField] private float _arrivalDistance = 0.35f;
         [Min(0.05f), SerializeField] private float _heightTolerance = 0.5f;
         [Min(0.1f), SerializeField] private float _speedMultiplier = 0.6f;
         [Min(0f), SerializeField] private float _fadeSeconds = 0.25f;
@@ -59,7 +60,13 @@ namespace UPlayGround.Components.LivingWorld
         private Step _activeStep;
         private ulong _reservation;
         private GameObject _prop;
+        private static readonly Dictionary<GameObject, NpcRoutine> PropReceivers = new();
+        private GameObject _propEventActor, _propEventModel;
+        private NpcWorkPoint _borrowedWorkPoint;
         private Transform _boundPropSocket;
+        private Animator _boundAnimator;
+        private AnimatorCullingMode _previousWorkCulling;
+        private bool _evaluatesWorkPose;
         private int _cursor, _waypoint, _period = -1;
         private float _retryAt, _elapsed, _stuckElapsed, _bestDistance;
         private bool _isWorking, _needsShelter, _isRiskActive, _useRest;
@@ -127,10 +134,36 @@ namespace UPlayGround.Components.LivingWorld
             _brain = brain;
             _simulation = actor.GetComponent<UPlayGround.Simulation.ActorSimulationParticipant>();
             var animator = actor.GetComponentInChildren<Animator>(true);
+            _boundAnimator = animator;
+            _propEventActor = actor.gameObject;
+            _propEventModel = animator != null ? animator.gameObject : null;
+            PropReceivers[_propEventActor] = this;
+            if (_propEventModel != null) PropReceivers[_propEventModel] = this;
             _boundPropSocket = animator != null && animator.isHuman
                 ? animator.GetBoneTransform(HumanBodyBones.RightHand) : null;
             _controller.Routine = this;
-            _actor.OnRoutineInterrupted += CancelRoutine;
+            _actor.OnRoutineInterrupted += OnActorRoutineInterrupted;
+            return true;
+        }
+
+        /// <summary>모션의 접촉 이벤트만 현장 소품을 인계한다. 중단된 실행과 다른 모션의 발화를 거부한다.</summary>
+        public static bool TransferSceneProp(GameObject target, bool take)
+        {
+            if (target == null || !PropReceivers.TryGetValue(target, out var routine)
+                || routine == null || !routine.IsWorking || routine._actor == null
+                || routine._actor.Animator == null) return false;
+            var step = routine._activeStep;
+            var expected = take ? step.point.Motion : step.endMotion;
+            if (expected == null || routine._actor.Animator.CurrentMotionAsset != expected
+                || take == routine._isFinishing) return false;
+            if (take)
+            {
+                if (!step.point.TryTakeSceneProp(routine, routine._reservation, routine.PropSocket)) return false;
+                routine._borrowedWorkPoint = step.point;
+                return true;
+            }
+            if (!step.point.TryPlaceSceneProp(routine, routine._reservation)) return false;
+            routine._borrowedWorkPoint = null;
             return true;
         }
 
@@ -280,9 +313,13 @@ namespace UPlayGround.Components.LivingWorld
         private bool TryReserve(Step step)
         {
             if (step?.point == null || step.isContentPending || step.point.MapId != _mapId || step.waypoints == null) return false;
+            if (_borrowedWorkPoint != null && !_borrowedWorkPoint.IsScenePropHeldBy(this))
+                _borrowedWorkPoint = null;
+            if (_borrowedWorkPoint != null && (step.travelPropPrefab != null
+                || step.point != _borrowedWorkPoint && (step.point.HasSceneProp || step.point.HeldPropPrefab != null))) return false;
             if (float.IsNaN(step.seconds) || float.IsInfinity(step.seconds) || step.seconds <= 0f) return false;
             for (int i = 0; i < step.waypoints.Length; i++) if (step.waypoints[i] == null) return false;
-            if ((step.point.HeldPropPrefab != null || step.travelPropPrefab != null) && PropSocket == null) return false;
+            if ((step.point.HeldPropPrefab != null || step.point.HasSceneProp || step.travelPropPrefab != null) && PropSocket == null) return false;
             if (step.travelPropPrefab != null && (step.travelMotion == null || step.travelIdleMotion == null)) return false;
             if (!step.point.TryReserve(this, out _reservation)) return false;
             _activeStep = step;
@@ -393,7 +430,8 @@ namespace UPlayGround.Components.LivingWorld
             { _stuckElapsed = 0f; return true; }
             _isWorking = true;
             _elapsed = 0f;
-            SetHeldProp(_activeStep.point.HeldPropPrefab);
+            SetWorkPoseEvaluation(_activeStep.point.HasSceneProp);
+            SetHeldProp(_activeStep.point.HasSceneProp ? null : _activeStep.point.HeldPropPrefab);
             if (_activeStep.point.Motion != null) _actor.Animator?.PlayMotion(_activeStep.point.Motion, _fadeSeconds);
             else _actor.Animator?.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, _fadeSeconds);
             return true;
@@ -402,6 +440,7 @@ namespace UPlayGround.Components.LivingWorld
         /// <summary>대화·취소·로드·비활성화에서 임시 소유권만 정리한다. 완료 사실은 쓰지 않는다.</summary>
         public void CancelRoutine()
         {
+            SetWorkPoseEvaluation(false);
             bool hadExecution = _activeStep != null;
             _execution++;
             if (_completion != null && _actor != null && _actor.Animator != null)
@@ -423,14 +462,33 @@ namespace UPlayGround.Components.LivingWorld
             CancelRoutine();
         }
 
+        private void OnActorRoutineInterrupted()
+        {
+            CancelRoutine();
+            // 몸의 비활성화·제거보다 먼저 현장 소품을 분리해 함께 숨거나 파괴되지 않게 한다.
+            if (_actor != null && !_actor.isActiveAndEnabled)
+            {
+                _borrowedWorkPoint?.ReleaseScenePropOnUnbind(this);
+                _borrowedWorkPoint = null;
+            }
+        }
+
         private void DetachActor()
         {
             CancelRoutine();
-            if (_actor != null) _actor.OnRoutineInterrupted -= CancelRoutine;
+            // 대화·위험 중단에는 손의 실물을 유지하고, 몸 자체를 해제할 때만 현장으로 돌려준다.
+            _borrowedWorkPoint?.ReleaseScenePropOnUnbind(this);
+            _borrowedWorkPoint = null;
+            if (_propEventActor != null) PropReceivers.Remove(_propEventActor);
+            if (_propEventModel != null) PropReceivers.Remove(_propEventModel);
+            _propEventActor = _propEventModel = null;
+            if (_actor != null) _actor.OnRoutineInterrupted -= OnActorRoutineInterrupted;
             if (_controller != null && _controller.Routine == this) _controller.Routine = null;
             _controller = null;
             _simulation = null;
             _boundPropSocket = null;
+            _boundAnimator = null;
+            _evaluatesWorkPose = false;
         }
 
         /// <summary>디스폰 때 이전 몸과 중단 구독을 해제하며 새 몸을 생성하지 않는다.</summary>
@@ -439,6 +497,20 @@ namespace UPlayGround.Components.LivingWorld
             DetachActor();
             _actor = null;
             _brain = null;
+        }
+
+        /// <summary>카메라 밖에서도 접촉 이벤트가 평가된 손을 사용하도록 작업 동안만 컬링을 보류한다.</summary>
+        private void SetWorkPoseEvaluation(bool required)
+        {
+            if (_boundAnimator == null || _evaluatesWorkPose == required) return;
+            if (required)
+            {
+                _previousWorkCulling = _boundAnimator.cullingMode;
+                _boundAnimator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+            }
+            else if (_boundAnimator.cullingMode == AnimatorCullingMode.AlwaysAnimate)
+                _boundAnimator.cullingMode = _previousWorkCulling;
+            _evaluatesWorkPose = required;
         }
 
         private void SetHeldProp(GameObject prefab)

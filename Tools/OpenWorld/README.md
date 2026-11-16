@@ -66,6 +66,8 @@
 
 ## 편집과 재생성
 
+약초 작업대 시각 복구(2026-11-15): `repair-lake-care-workstation.csx`는 LakeVillageWorld의 헤이즐·소담 작업대만 원래 충돌체/접촉 크기로 복구하고, 잘못 축소된 항아리 세트를 개별 병·단지·약초 그릇으로 교체하는 증분 입력이다. 원본 프리팹·기능 루트·NPC·진행 ID를 보존한다. 이전 공용 식탁 8개 보정을 이 작업대의 해결 근거로 쓰지 않는다. [대상 식별·현재 결과](../../docs/work-status/npc-daily-animation/LAKE_ACTIVITY_FIX.md#사용자-스크린샷-재제보--약초-작업대-실제-대상-수정).
+
 - `landscape.landforms`: 능선·전망 턱·마른 하곡·해안 저지대를 월드 좌표의 선과 영향 폭으로 저작한다. 물길 선은 지형이다. 스토리의 가뭄/회복 상태를 임의로 바꾸지 않는다.
 - `landscape.worldOrigin/worldSize/worldResolution`: 하나로 합치는 Terrain의 범위·해상도. `edgeTransition`은 북쪽 원본의 외곽을 새 지형으로 잇는 폭이다. 내부 호수와 생활권은 원본 지면을 보존한다. `reliefAmplitude/reliefFrequency`는 새 지형의 작은 요철이다.
 - `landscape.groundCoverPrefab/groundCoverDistance/groundCoverDensity`: 기존 루트 MeshRenderer 프리팹으로 길 주변 Terrain 식생을 만든다. 원본 북쪽 영역·도시 기초·수면·급사면·길 중심은 제외한다.

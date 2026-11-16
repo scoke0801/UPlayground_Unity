@@ -31,6 +31,9 @@ namespace UPlayGround.Editor.Dialogue
         [UPlayGround.EditorTools.UPlaygroundTool("UPlayGround/내러티브/대화/스토리 Windows 빌드 검증")]
         public static void BuildWindows()
         {
+            if (EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling)
+                throw new BuildFailedException("Edit Mode 컴파일 완료 후 실행하세요.");
+            if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
             BakeCastProfiles();
             string[] scenes = EditorBuildSettings.scenes.Where(scene => scene.enabled).Select(scene => scene.path).ToArray();
             if (scenes.Length == 0 || scenes.Any(path => string.IsNullOrEmpty(path) || !File.Exists(path)))
@@ -39,7 +42,7 @@ namespace UPlayGround.Editor.Dialogue
             EditorSceneManager.OpenScene(scenes[0]);
             const string directory = "tmp/narrative-overhaul/Player";
             Directory.CreateDirectory(directory);
-            BuildReport report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
+            BuildReport report = UPlayGround.Tool.Editor.Build.BuildManagerRunner.RunValidation(new BuildPlayerOptions
             {
                 scenes = scenes,
                 target = BuildTarget.StandaloneWindows64,

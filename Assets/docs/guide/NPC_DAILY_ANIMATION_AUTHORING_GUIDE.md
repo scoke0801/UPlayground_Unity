@@ -16,6 +16,12 @@ NPC가 실제 생활하는 것으로 보이도록 기존 클립을 재사용하�
 
 ## 2. 함께 적용하는 지침
 
+### 현재 프로젝트에서 사용하지 않는 모션
+
+사용자 지시에 따라 `Waving_Hello` 인사, `Standing_Idle_3`의 허리 펴기, `Standing_Idle_4`의 양손 들기는 NPC 생활 동작에 사용하지 않는다. `Npc_Greet`, `Npc_Gesture_Standing3/4`, Standing_Idle_3에서 복제한 `LW_RestStandLoop`도 해당한다. 원본은 보존하되 공용 슬롯·Brain 제스처·작업점·교류·재생성 입력에서 다시 연결하지 않는다. 아래 초기 후보 표보다 이 제외 조건이 우선한다.
+
+적용 상태와 검증 범위는 [일상 애니메이션 작업 상태](../../../docs/work-status/npc-daily-animation/STATUS.md)를 따른다.
+
 - [공통 작업 절차](../../../Tools/Harness/README.md): 준비표, 사용자 변경 보존, 실제 산출물 인수.
 - [테스트 작업 지침](TEST_VALIDATION_GUIDE.md): 관련 Editor 검사와 사용자 직접 테스트 운영. 별도 지시 없는 Player·Addressables 검증 빌드 금지.
 - [NPC 외형 지침](NPC_APPEARANCE_AUTHORING_GUIDE.md): 실제 정규 모델·의상·본·외형 식별 보존.
@@ -41,6 +47,10 @@ NPC가 실제 생활하는 것으로 보이도록 기존 클립을 재사용하�
 | 일과 단계 | `NpcRoutine.Step` | `travelMotion`, `travelIdleMotion`, `travelPropPrefab`, `endMotion`, `seconds`, `isContentPending` |
 | 짧은 교류 | `NpcSocialPoint` | 두 자리·접근 경로·인사·응답·중단 |
 | 공용 모션 | NPC의 실제 `ActorAnimationMotionSet` | Idle/Walk/Talk 슬롯과 폴백·공유 소비자 |
+
+주민이 멈춰 있다는 제보는 상주 씬뿐 아니라 연결 지역·런타임 배치 레코드·이야기 후반 대역까지 전수 대장으로 확인한다. 이동 설정이 꺼져 있고 유효한 작업·일과도 없는 인물을 그대로 두지 않는다. 상점·진료처럼 자리를 지켜야 하는 역할은 작업 대상·가구·동작으로 목적이 읽혀야 한다. 보행 반경과 최소 이동 거리·도착 반경이 충돌해 실제 목적지를 만들지 못하는지도 검사한다.
+
+`NpcLifePresentation`에서 사건 전후 보행이 달라져야 할 때만 `_configureWander`와 `_beforeCanWander`·`_afterCanWander`를 저작한다. 배식 후 착석하는 주민은 완료 후 보행을 꺼 기존 착석 모션을 보존한다. 새 생활 중심은 기존 `SetHomePose` 복원 위치를 사용한다. 공용 NPC 프리팹의 이동을 일괄 켜거나 서사 배치·저장 ID를 재생성해 해결하지 않는다.
 
 ### 3.2 원본 조사와 분류
 

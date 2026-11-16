@@ -1,0 +1,46 @@
+{
+  "result": {
+    "success": true,
+    "message": "Test job status retrieved.",
+    "error": null,
+    "data": {
+      "job_id": "026cc57f3a874f73be2a026ba16493ce",
+      "status": "succeeded",
+      "mode": "EditMode",
+      "started_unix_ms": 1794711848957,
+      "finished_unix_ms": 1794711862204,
+      "last_update_unix_ms": 1794711862204,
+      "progress": {
+        "completed": 54,
+        "total": 54,
+        "current_test_full_name": null,
+        "current_test_started_unix_ms": null,
+        "last_finished_test_full_name": "UPlayGround.Core.Tests.NpcRoutineContractTests.환경_미준비와_과거_revision은_현재_안전_상태를_유지한다",
+        "last_finished_unix_ms": 1794711861910,
+        "stuck_suspected": false,
+        "editor_is_focused": false,
+        "run_in_background": true,
+        "focus_nudge_attempts": null,
+        "focus_nudge_limit": null,
+        "focus_nudge_status": null,
+        "blocked_reason": null,
+        "failures_so_far": [],
+        "failures_capped": false
+      },
+      "error": null,
+      "result": {
+        "mode": "EditMode",
+        "summary": {
+          "total": 54,
+          "passed": 54,
+          "failed": 0,
+          "skipped": 0,
+          "durationSeconds": 1.8534558,
+          "resultState": "Passed"
+        },
+        "results": []
+      }
+    },
+    "hint": null
+  }
+}

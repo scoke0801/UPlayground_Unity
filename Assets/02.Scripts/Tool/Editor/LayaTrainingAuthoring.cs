@@ -72,21 +72,14 @@ namespace UPlayGround.Tool.Editor
                 throw new InvalidOperationException("Edit Mode 컴파일 완료 후 실행하세요.");
             const string directory = "Builds/LayaTraining_20261108";
             Directory.CreateDirectory(directory);
-            var settings = AddressableAssetSettingsDefaultObject.Settings;
-            var previous = settings.BuildAddressablesWithPlayerBuild;
-            try
-            {
-                settings.BuildAddressablesWithPlayerBuild = AddressableAssetSettings.PlayerBuildOption.DoNotBuildWithPlayer;
-                var report = BuildPipeline.BuildPlayer(new BuildPlayerOptions {
-                    scenes = new[] { "Assets/01.Scenes/Test/CombatTestMap.unity" },
-                    locationPathName = directory + "/LayaTraining.exe", target = BuildTarget.StandaloneWindows64,
-                    options = BuildOptions.Development | BuildOptions.CompressWithLz4 });
-                var s = report.summary;
-                Directory.CreateDirectory("Logs/LayaTraining");
-                File.WriteAllText("Logs/LayaTraining/BuildReport.txt", $"{s.result}\nUnity {Application.unityVersion}\nErrors {s.totalErrors}\nWarnings {s.totalWarnings}\nBytes {s.totalSize}\nTime {s.totalTime}\n{s.outputPath}");
-                if (s.result != BuildResult.Succeeded) throw new InvalidOperationException("Laya Development 빌드 실패: " + s.result);
-            }
-            finally { settings.BuildAddressablesWithPlayerBuild = previous; }
+            var report = UPlayGround.Tool.Editor.Build.BuildManagerRunner.RunValidation(new BuildPlayerOptions {
+                scenes = new[] { "Assets/01.Scenes/Test/CombatTestMap.unity" },
+                locationPathName = directory + "/LayaTraining.exe", target = BuildTarget.StandaloneWindows64,
+                options = BuildOptions.Development | BuildOptions.CompressWithLz4 });
+            var s = report.summary;
+            Directory.CreateDirectory("Logs/LayaTraining");
+            File.WriteAllText("Logs/LayaTraining/BuildReport.txt", $"{s.result}\nUnity {Application.unityVersion}\nErrors {s.totalErrors}\nWarnings {s.totalWarnings}\nBytes {s.totalSize}\nTime {s.totalTime}\n{s.outputPath}");
+            if (s.result != BuildResult.Succeeded) throw new InvalidOperationException("Laya Development 빌드 실패: " + s.result);
         }
     }
 }

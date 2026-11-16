@@ -177,8 +177,8 @@ namespace UPlayGround.Editor
                 var second = CreateVisitor(root.transform, "3a977e6398fb451241196bfb96002711", new Vector3(986, 0, 417), new Vector3(982, 0, 416), "ResidentMarket", 3f);
                 var social = Undo.AddComponent<NpcSocialPoint>(CreateChild(root.transform, "Social_FarmEdge"));
                 Set(social, "_participants", new UnityEngine.Object[] { first.GetComponent<NpcLifeController>(), second.GetComponent<NpcLifeController>() });
-                Set(social, "_greeting", LoadMotion("Npc_Greet"));
-                Set(social, "_response", LoadMotion("Npc_Greet"));
+                Set(social, "_greeting", LoadMotion("Npc_Talk"));
+                Set(social, "_response", LoadMotion("Npc_Talk_2"));
                 ConfigureStep(social, "_first", CreatePoint(root.transform, "life.social.first", new Vector3(980, 0, 415), 90f), 5f);
                 ConfigureStep(social, "_second", CreatePoint(root.transform, "life.social.second", new Vector3(981.5f, 0, 415), 270f), 5f);
                 Set(first.GetComponent<NpcLifeController>(), "_socialPoint", social);
@@ -250,7 +250,7 @@ namespace UPlayGround.Editor
                 throw new InvalidOperationException("작업점 지면을 찾을 수 없습니다: " + id);
             var go = CreateChild(parent, id); go.transform.SetPositionAndRotation(hit.point + Vector3.up * 0.05f, Quaternion.Euler(0f, yaw, 0f));
             var point = Undo.AddComponent<NpcWorkPoint>(go);
-            Set(point, "_mapId", "LakeOfLifeScenario"); Set(point, "_pointId", id); Set(point, "_motion", LoadMotion("LivingWorld/LW_RestStand"));
+            Set(point, "_mapId", "LakeOfLifeScenario"); Set(point, "_pointId", id); Set(point, "_motion", LoadMotion("Npc_Male_Idle"));
             return point;
         }
 

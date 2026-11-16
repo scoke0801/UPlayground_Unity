@@ -292,17 +292,47 @@ namespace UPlayGround.Editor
         /// <summary>원본 시나리오를 바꾸지 않고 생성 월드의 기존 수선점에 검수용 접촉 데이터를 복원한다.</summary>
         internal static void ApplyRepairContactData(UnityEngine.SceneManagement.Scene scene)
         {
+            Undo.IncrementCurrentGroup();
+            int group = Undo.GetCurrentGroup();
+            try
+            {
+                ApplyRepairContactDataCore(scene);
+                Undo.CollapseUndoOperations(group);
+            }
+            catch { Undo.RevertAllDownToGroup(group); throw; }
+        }
+
+        private static void ApplyRepairContactDataCore(UnityEngine.SceneManagement.Scene scene)
+        {
             var points = scene.GetRootGameObjects().SelectMany(g => g.GetComponentsInChildren<NpcWorkPoint>(true));
             var point = points.SingleOrDefault(p => p.PointId == "lake.repair.work");
             if (point == null) throw new InvalidOperationException("기존 수선 작업점이 없습니다.");
-            var motion = LoadMotion("LivingWorld/LW_Repair_P09Contact");
-            var end = LoadMotion("LivingWorld/LW_RepairEnd_P09Contact");
-            var hammer = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/03.Prefabs/LivingWorld/Props/LW_Hammer_P09Contact.prefab");
+            var motion = LoadMotion("LivingWorld/LW_Repair_P09R3");
+            var end = LoadMotion("LivingWorld/LW_RepairEnd_P09R3");
+            var hammer = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/03.Prefabs/LivingWorld/Props/LW_Hammer_P09R3.prefab");
             var workstation = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/03.Prefabs/LivingWorld/NPC/P09RepairWorkstation.prefab");
             if (hammer == null || workstation == null) throw new InvalidOperationException("수선 접촉 보정 도구·작업대가 없습니다.");
 
+            var template = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/03.Prefabs/LivingWorld/NPC/YeonmokRoutine.prefab");
+            if (template == null) throw new InvalidOperationException("수선 일과 원본이 없습니다.");
+            var templatePoint = template.GetComponentsInChildren<NpcWorkPoint>(true).Single(p => p.PointId == point.PointId);
+            var authoredProp = new SerializedObject(templatePoint).FindProperty("_sceneProp").objectReferenceValue as Transform;
+            if (authoredProp == null) throw new InvalidOperationException("저작된 수선 소품 접촉 위치가 없습니다.");
             Set(point, "_motion", motion);
-            Set(point, "_heldPropPrefab", hammer);
+            var currentProp = new SerializedObject(point).FindProperty("_sceneProp").objectReferenceValue as Transform;
+            if (currentProp == null)
+            {
+                var tool = (GameObject)PrefabUtility.InstantiatePrefab(hammer, scene);
+                Undo.RegisterCreatedObjectUndo(tool, "수선 현장 도구 복원");
+                currentProp = tool.transform;
+                currentProp.SetParent(point.transform, false);
+                currentProp.name = authoredProp.name;
+            }
+            Undo.RecordObject(currentProp, "수선 접촉 위치 복원");
+            currentProp.SetLocalPositionAndRotation(authoredProp.localPosition, authoredProp.localRotation);
+            currentProp.localScale = authoredProp.localScale;
+            Set(point, "_heldPropPrefab", (UnityEngine.Object)null);
+            Set(point, "_sceneProp", currentProp);
             foreach (var routine in scene.GetRootGameObjects().SelectMany(g => g.GetComponentsInChildren<NpcRoutine>(true)))
             {
                 Undo.RecordObject(routine, "수선 종료 모션 연결");
@@ -311,8 +341,12 @@ namespace UPlayGround.Editor
                 for (int i = 0; i < steps.arraySize; i++)
                 {
                     var step = steps.GetArrayElementAtIndex(i);
-                    if (step.FindPropertyRelative("point").objectReferenceValue == point)
-                        step.FindPropertyRelative("endMotion").objectReferenceValue = end;
+                    if (step.FindPropertyRelative("point").objectReferenceValue != point) continue;
+                    step.FindPropertyRelative("endMotion").objectReferenceValue = end;
+                    foreach (string field in new[] { "travelMotion", "travelIdleMotion", "travelPropPrefab" })
+                        step.FindPropertyRelative(field).objectReferenceValue = null;
+                    data.FindProperty("_arrivalDistance").floatValue =
+                        new SerializedObject(template.GetComponent<NpcRoutine>()).FindProperty("_arrivalDistance").floatValue;
                 }
                 data.ApplyModifiedProperties();
             }

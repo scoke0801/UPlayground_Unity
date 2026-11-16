@@ -1,0 +1,10 @@
+JoyRoutine	NPC_Joy		0	lake.meal.prep	Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/LivingWorld/LW_MealPrep.asset	Assets/03.Prefabs/LivingWorld/Props/LW_Spoon.prefab	False
+JoyRoutine	NPC_Joy		1	lake.meal.serve	Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/LivingWorld/LW_MealServe_Calm.asset		True
+ResidentMarket	생성 바인딩		0	life.visit.ResidentMarket	Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/Npc_Male_Idle.asset		False
+MorganRoutine	NPC_Morgan		0	lake.transport.inspect	Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/LivingWorld/LW_CargoInspect.asset		False
+MorganRoutine	NPC_Morgan		1	lake.transport.cart	Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/LivingWorld/LW_CargoInspect.asset		False
+YeonmokRoutine	Npc_Yeonmok	Assets/03.Prefabs/Characters/ScenarioResidents/Npc/Npc_Yeonmok/Npc_Yeonmok.prefab	0	lake.repair.tools	Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/LivingWorld/LW_ToolPrepare.asset	Assets/03.Prefabs/LivingWorld/Props/LW_Hammer.prefab	True
+YeonmokRoutine	Npc_Yeonmok	Assets/03.Prefabs/Characters/ScenarioResidents/Npc/Npc_Yeonmok/Npc_Yeonmok.prefab	1	lake.repair.work	Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/LivingWorld/LW_Repair_P09R3.asset	현장 RepairTool (LW_Hammer_P09R3.prefab)	False
+HazelRoutine	Npc_Hazel		0	lake.care.pack	Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/LivingWorld/LW_MedicinePack.asset	Assets/03.Prefabs/LivingWorld/Props/LW_Bottle.prefab	False
+HazelRoutine	Npc_Hazel		1	lake.care.visit	Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/LivingWorld/LW_CareVisit_Calm.asset	Assets/03.Prefabs/LivingWorld/Props/LW_Bottle.prefab	False
+ResidentFarm	생성 바인딩		0	life.visit.ResidentFarm	Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/Npc_Male_Idle.asset		False

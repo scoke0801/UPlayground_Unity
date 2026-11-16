@@ -1,0 +1,71 @@
+{
+  "revision": "R3",
+  "fps": 30,
+  "frames": 61,
+  "duration": 2,
+  "toolScale": 0.5,
+  "body": "P09 / Yeonmok",
+  "sourceMethod": "Blender direct executable + HumanPose import (finger bindings/foot goals)",
+  "artifacts": [
+    {
+      "path": "ArtSource/NpcDailyAnimations/P09RepairR3/P09RepairR3.blend",
+      "bytes": 2640798,
+      "sha256": "1072048ca7bbc2f133706c2d1f115c1998169f6ff945d5d2379e06361f132197",
+      "guid": null
+    },
+    {
+      "path": "ArtSource/NpcDailyAnimations/P09RepairR3/build_repair.py",
+      "bytes": 10997,
+      "sha256": "15bbce1dd4c7164a7b14c517beade9d68c774fe5a07eea83558f48c7618f8906",
+      "guid": null
+    },
+    {
+      "path": "ArtSource/NpcDailyAnimations/P09RepairR3/import.csx",
+      "bytes": 8478,
+      "sha256": "5de53cb3d3b80a1f590b3bf7356d5dcc0cb55173794986aa7af00aa5539a7a53",
+      "guid": null
+    },
+    {
+      "path": "ArtSource/NpcDailyAnimations/P09RepairR3/connect.csx",
+      "bytes": 4926,
+      "sha256": "453bb9797990c71923afded87e4657a755226fa0ce4a3be83c04f16d8b8141bb",
+      "guid": null
+    },
+    {
+      "path": "Assets/07.Animations/LivingWorld/NPC/P09RepairR3/P09_LW_RepairStart_R3.anim",
+      "bytes": 3341177,
+      "sha256": "77568d5af8ac74a947b7b393f8dc70f66835d7a60e1d9f02cac64ab9bbf5b4fd",
+      "guid": "3d4167db4a4aca446a636fa5276cfcf2"
+    },
+    {
+      "path": "Assets/07.Animations/LivingWorld/NPC/P09RepairR3/P09_LW_RepairLoop_R3.anim",
+      "bytes": 3222780,
+      "sha256": "b742e33300ecad0fe6e308cc2374a071dd01ae4ffcfe8e3841a8baa3293e2999",
+      "guid": "eab84750e8f206d44be43b639afeddb1"
+    },
+    {
+      "path": "Assets/07.Animations/LivingWorld/NPC/P09RepairR3/P09_LW_RepairEnd_R3.anim",
+      "bytes": 3337947,
+      "sha256": "4101c25de621fccdec739f3ef8962aa9c55b90d4017269d32cfde4fefc87736d",
+      "guid": "f153b8d5383947e4b8eed66d3bcce79a"
+    },
+    {
+      "path": "Assets/03.Prefabs/LivingWorld/Props/LW_Hammer_P09R3.prefab",
+      "bytes": 10740,
+      "sha256": "7959e70f13b580631c88141f02c4ce91cf609de9561b3fc3673e49869c5bcd9c",
+      "guid": "3d442d9dcb0a6714b881986ee7043af3"
+    },
+    {
+      "path": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/LivingWorld/LW_Repair_P09R3.asset",
+      "bytes": 2262,
+      "sha256": "9ef0848b307386e83b91ffdc4ddff7d279d02f3070e6819df07b6aa1434370d5",
+      "guid": "006d5165546226047830f4a8b9a510c0"
+    },
+    {
+      "path": "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Npc/LivingWorld/LW_RepairEnd_P09R3.asset",
+      "bytes": 1868,
+      "sha256": "793262edfbebc78756fedaa7b972e876c70d6a51474addd32960e25536be3a15",
+      "guid": "0289fbb86acf7da4c9ee3d692c13f719"
+    }
+  ]
+}

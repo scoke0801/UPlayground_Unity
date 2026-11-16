@@ -37,7 +37,7 @@ MonoBehaviour:
     motions:
     - id: e31f30d28d8944a9813dcdbd973b388e
       motionName: InspectCargoLoop
-      motionClip: {fileID: 7400000, guid: 209c24dbfcd4e394f9f0b5e4e2be9bf1, type: 2}
+      motionClip: {fileID: 7400000, guid: 17bb55cb764283c40a555ff9b6e090f2, type: 2}
       markers: []
       clipStartTime: -1
       clipEndTime: -1

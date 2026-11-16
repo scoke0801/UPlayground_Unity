@@ -4,6 +4,8 @@
 
 ## 연출 개선 계약
 
+[나무 낙하 완료·보상·잔해 정리 설계](TREE_DESTRUCTION_COMPLETION_DESIGN.md)는 사용자 지시에 따른 일반 벌목의 후속 정본이다. 일반 수목은 **낙하 완료 → 보상·마무리 FX → 잔해 소거** 정책을 명시적으로 선택한다. 기존 영속 잔해/파괴 즉시 보상은 다른 소품의 기본 계약으로 유지한다. 아래 실행 경로는 현행 구현이며 이 새 정책의 런타임 반영을 뜻하지 않는다. [설계 반영·구현 대기 상태](../../../../../docs/work-status/tree-destruction.md#낙하-완료-뒤-드롭fx정리-설계--2026-11-15)에서 구분한다.
+
 [연출 개선 설계](REACTIVE_ENVIRONMENT_PRESENTATION_DESIGN.md)는 수관/목재 역할 분리, 국소 타격·벌목 단계, 화염·연기·소화 잔연, 비 소화 목표와 전파 연결을 정의한다. 아래 커스텀 툰의 균열/연료 coverage/연소 경계 발광은 현재 구현 계약이며 최종 미술 인수를 뜻하지 않는다. 후속 표현 변경은 이 개선 설계를 따른다. 구현과 사용자 판정은 [작업 상태](../../../../../docs/work-status/reactive-environment.md#연출-구현-최종-검증--2026-11-13)에서 구분한다.
 
 ## 지원하는 실행 경로
@@ -49,6 +51,7 @@ GAS HitPhase 환경 payload → 플레이어/잔상/몬스터 AttackData → 불
 - 기존 WorldStateManager + EnvironmentReaction이 유일한 상태 작성자다. IEnvironmentReactionTarget은 소유 Transform/ID/프로필/열 위치/날씨 샘플/표현만 연결한다. 개체와 셀 모두 동일한 고정 substep·원소 누적·전파 지연·벽·바람·저장 검증을 사용한다.
 - 일반 소품/나무: ReactiveEnvironmentObject 한 개가 상태를 소유한다. 비파괴 프로필은 원형/잔해/레시피 없이 기존 Renderer로 젖음·그을림·연소를 표현한다. canIgnite/canBreak/scorchPerHeat 등은 프로필에 명시하며 외형이나 이름으로 추정하지 않는다.
 - 파괴 프로필만 원형/잔해/레시피/ReactiveEnvironmentDestruction을 필수로 한다. 밑동·수관·통나무·모든 LOD는 같은 root의 표면 바인딩이며 독립 연료/보상을 생성하지 않는다. 절단/낙하 피벗·실제 길이/반경·Collider·fallback은 모델 기준으로 저작한다. 임의 자동 메시 절단은 하지 않는다.
+- 배율이 다른 동일 원본 배치는 레시피의 선택적 `useLocalDimensions`로 피벗 로컬 치수를 공유한다. 기존 월드 단위 레시피의 동작은 유지한다. [일반 수목 연결·검증 상태](../../../../../docs/work-status/tree-destruction.md).
 - 구매 프리팹은 중첩 wrapper/variant에 연결하고 프로젝트 소유 호환 재질만 사용한다. 각 Renderer/slot은 반응 목록 또는 명시 제외 목록에 있어야 한다. 연결된 피격 Collider만 CombatHitDetector가 환경 대상으로 해석한다. 물리 통로 Collider와 반응 대상 Collider는 구분할 수 있다.
 - GatheringActor 병용은 ownsGathering을 명시한 비재성장·비낚시 대상에 허용한다. 채집 애니메이션 입력도 환경 내구도에 전달하고 충격 보상은 기존 InteractableActorSO.dropItems, 화재 보상은 환경 프로필을 사용한다. GatheringActor의 별도 드롭/Destroy/소모 저장 경로를 실행하지 않는다. 구 consumedInteractables 기록은 같은 ID의 파괴/보상확정 상태로 인계한다. 낚시·시간 재성장은 연결 검사에서 거부한다.
 

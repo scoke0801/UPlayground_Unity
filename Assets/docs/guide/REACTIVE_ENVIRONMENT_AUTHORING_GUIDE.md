@@ -21,9 +21,13 @@ GAS는 Ability Editor의 Payload → baseInfo → hitPhases → environment에 k
 
 ## 나무 파괴와 채집
 
+일반 나무의 근접 피격은 줄기에 저작한 전용 입력 Collider로 한정한다. 시각 LOD/수관/impostor를 감싼 큰 Box를 타격 허용 목록에 넣지 않는다. 이동·차폐용 원본 MeshCollider는 유지하면서 피격 입력과 분리할 수 있다. 프로젝트 일반 수목 전환은 기존 레시피의 줄기 치수와 절단 피벗으로 InteractableObject 층의 Capsule trigger를 만들고, 이전 수관 Box를 비활성화해 이웃 나무 오탐을 막는다. 범위 공격이 실제로 여러 줄기에 닿았을 때의 다중 타격은 유지한다.
+
 파괴를 켠 대상만 root 아래 독립 원형/잔해, 유효한 EnvironmentDestructionRecipeSO, ReactiveEnvironmentDestruction을 연결한다. root 자체를 원형/잔해/화염으로 지정하지 않는다. 밑동·수관·통나무·모든 LOD를 한 root 상태로 묶는다. DirectionalFall은 실제 모델의 절단 높이·낙하 pivot·줄기 길이/반경·장애물 검사 레이어·막힘 fallback을 명시한다. 이를 모델 bounds나 이름에서 자동 확정하지 않는다. 별도 통나무 엔티티로 초기 연료/보상을 다시 만들지 않는다.
 
-원형/잔해의 Collider·지붕 shelterColliders·standing/remnant NavMeshObstacle을 같은 파괴 전이에 연결한다. 게임플레이 잔해에 TTL을 붙이지 않는다. 낙하 중 저장/로드, KCC 접촉, Nav carving 지연과 통로는 실제 플레이로 확인한다. 새 구조물은 [카메라 가림 체크리스트](CAMERA_OCCLUSION_FADE_GUIDE.md)를 따른다.
+배율이 다른 배치에서 같은 절단 모델을 쓸 때는 레시피의 `useLocalDimensions`를 켜고 `trunkLength`·`trunkRadius`를 피벗 로컬 단위로 저작한다. 검사는 피벗의 Y배율을 길이에, X/Z 중 큰 배율을 반경에 적용한다. 기존 월드 단위 레시피는 이 옵션을 끈 채 유지한다. [본편 일반 수목 연결 상태](../../../docs/work-status/tree-destruction.md)를 참고한다.
+
+원형/잔해의 Collider·지붕 shelterColliders·standing/remnant NavMeshObstacle을 같은 파괴 전이에 연결한다. 영속 게임플레이 잔해에 임의 TTL을 붙이지 않는다. 사용자 지시에 따른 일반 벌목의 예외는 [낙하 완료·보상·정리 설계](../design/world-art/environment/TREE_DESTRUCTION_COMPLETION_DESIGN.md)의 명시 정책이다. 이 정책은 시간만 보고 루트를 삭제하지 않고 정착·보상 원장·충돌/Nav·환경 반응·저장을 함께 끝낸다. 현재는 설계 반영 단계이며 런타임 저작 필드는 아직 구현하지 않았다. 낙하 중 저장/로드, KCC 접촉, Nav carving 지연과 통로는 실제 플레이로 확인한다. 새 구조물은 [카메라 가림 체크리스트](CAMERA_OCCLUSION_FADE_GUIDE.md)를 따른다.
 
 GatheringActor와 함께 쓸 때는 ownsGathering을 켜고 canBreak=true로 설정한다. 체력·소모·보상·저장은 환경 원장이 소유한다. 채집의 충격 보상은 기존 InteractableActorSO.dropItems를 재사용하며 별도 환경 충격 보상표에 복제하지 않는다. 화재 보상은 프로필에서 별도로 정한다. 낚시와 regrowGameMinutes>0은 현재 거부된다. 기존 채집 완료 저장은 같은 ID의 파괴/보상확정으로 인계되므로 새 ID를 발급해 중복 지급을 유발하지 않는다.
 
@@ -109,3 +113,13 @@ LakeVillageWorld의 식생 정본은 `Assets/10.Datas/Environment/Vegetation/Cat
 5. `Tools/ReactiveEnvironment/`의 연결·보존 감사와 GPU 비교를 사용하고 최종 씬을 재로드해 ID를 대조한다. GPU 원본 메시 비교와 별도 제어 입력은 구분한다. 데이터/소유 검사를 통과해도 실제 공격·미술·성능을 인수한 것은 아니다.
 
 [최종 적용/검증 근거와 성능 제약](../../../docs/work-status/reactive-environment.md#식생-전수-전환-결과--2026-11-14), [사용자 검수](../../../docs/work-status/reactive-environment-tests.md#lakevillageworld-식생-전수-전환-인수-전환-완료사용자-검수-대기-2026-11-14)를 따른다. 기존 재생성 원본 부재는 별도 해결 대상이며 재생성 후에는 배치 ID와 명시 보호 대응을 다시 대조해야 한다.
+## 일반 수목의 낙하 완료 정책
+
+일반 FullTree5종은 `TreeDestruction/TreeFall_*.asset`에 `ClearAfterSettlement`를 명시한다. 기존 소품/채집 wrapper의 기본은 `PersistentRemnant`이며 완료 정책을 자동 확대하지 않는다. [설계 정본](../design/world-art/environment/TREE_DESTRUCTION_COMPLETION_DESIGN.md), [구현·검증](../../../docs/work-status/tree-destruction.md#낙하-완료-수명-구현--2026-11-15)을 따른다.
+
+- 수명 단계·보상 작성자는 기존 `WorldStateManager`다. 낙하/초기 막힘 완료→정착(충돌/Nav 해제)→여운 후 보상 요청/FX/페이드→모든 잔해 숨김을 적용한다. 루트를 Destroy하거나 표현 컴포넌트에서 보상을 생성하지 않는다.
+- `blockedCollapseSeconds`/`settlementSeconds`/`clearingSeconds`와 `EnvironmentPresentationProfileSO.clearingChips/clearingDust/clearingSound/clearingParticles`로 저작한다. 현재 초깃값은0.35/0.10/0.45초이며 최종 체감 확정값이 아니다. 기존 파편·먼지·낙엽과 풀·거리/음향 예산을 재사용한다.
+- 고정 절단 피벗은 보상 앵커다. 정착 때 원본 지역 좌표로 저장하고 드롭/FX 소비 시 현재 월드 좌표로 변환한다. 낙하 수관 끝을 보상 기준으로 쓰지 않는다. 보상 서비스 지연과 소거 수명은 독립이며 같은 sourceId로 재시도한다.
+- 소거량은 공유 표면 버퍼의 `thermal.z`/`_EnvState1.z`다. 연료 coverage와 독립이며 재질을 복제하지 않는다. ShaderGraph의 그림자/깊이 패스에도 실제 픽셀 위치가 필요하다. 생성기의 `EnsureGraphPositions`를 유지하고 피벗 상수로 대체하지 않는다. 큰 좌표에서는 sin 기반 패턴이 붕괴할 수 있어 수명 소거는 bounded frac 해시를 사용한다.
+- Cleared에서 잔해/효과 lease·강수 Transform 등록을 반환하고 화학/전파/반복 표현 참여를 끝낸다. 논리 기록과 보상 pending은 유지한다. 복원에는 이전 burst를 재생하지 않는다.
+

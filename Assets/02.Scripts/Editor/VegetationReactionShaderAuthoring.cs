@@ -87,11 +87,12 @@ float _UseEnvironmentCells;
 
         private static string PatchGraph(string text)
         {
+            text = EnsureGraphPositions(text);
             return Regex.Replace(text, @"struct SurfaceDescriptionInputs\s*\{.*?SurfaceDescription SurfaceDescriptionFunction\(SurfaceDescriptionInputs IN\)\s*\{.*?return surface;", match =>
             {
                 string body = match.Value;
                 string inputs = body.Substring(0, body.IndexOf("};", StringComparison.Ordinal));
-                string position = inputs.Contains(" WorldSpacePosition;") ? "IN.WorldSpacePosition" : "TransformObjectToWorld(float3(0,0,0))";
+                string position = "IN.WorldSpacePosition";
                 string color = body.Contains("surface.BaseColor =") ? "surface.BaseColor" : "reactionUnusedColor";
                 string emission = body.Contains("surface.Emission =") ? "surface.Emission" : "reactionUnusedEmission";
                 string prefix = "float3 reactionUnusedColor = 0, reactionUnusedEmission = 0;\n";
@@ -99,6 +100,38 @@ float _UseEnvironmentCells;
                 if (color != "reactionUnusedColor" || emission != "reactionUnusedEmission")
                     apply += "ApplyVegetationReaction(" + position + "," + color + "," + emission + ");\n";
                 return body.Replace("return surface;", prefix + apply + "return surface;");
+            }, RegexOptions.Singleline, TimeSpan.FromSeconds(2));
+        }
+
+        /// <summary>색을 쓰지 않는 그림자/깊이 패스도 동일한 픽셀 위치로 수명 소거한다.</summary>
+        internal static string EnsureGraphPositions(string text)
+        {
+            return Regex.Replace(text, @"HLSLPROGRAM.*?ENDHLSL", match =>
+            {
+                string pass = match.Value;
+                var surface = Regex.Match(pass, @"struct SurfaceDescriptionInputs\s*\{.*?\};", RegexOptions.Singleline);
+                if (!surface.Success || surface.Value.Contains(" WorldSpacePosition;")) return pass;
+                var varyings = Regex.Match(pass, @"struct Varyings\s*\{.*?\};", RegexOptions.Singleline);
+                if (!varyings.Success) throw new InvalidOperationException("식생 패스의 위치 입력이 누락되었습니다.");
+                if (!varyings.Value.Contains(" positionWS;"))
+                {
+                    var packed = Regex.Match(pass, @"struct PackedVaryings\s*\{.*?\};", RegexOptions.Singleline);
+                    int interpolator = 0;
+                    foreach (Match field in Regex.Matches(packed.Value, @"INTERP(\d+)"))
+                        interpolator = Math.Max(interpolator, int.Parse(field.Groups[1].Value) + 1);
+                    pass = pass.Replace(varyings.Value, varyings.Value.Insert(varyings.Value.IndexOf('{') + 1, "\nfloat3 positionWS;"));
+                    pass = pass.Replace(packed.Value, packed.Value.Insert(packed.Value.IndexOf('{') + 1,
+                        "\nfloat3 completionPositionWS : INTERP" + interpolator + ";"));
+                    pass = pass.Replace("ZERO_INITIALIZE(PackedVaryings, output);",
+                        "ZERO_INITIALIZE(PackedVaryings, output);\noutput.completionPositionWS = input.positionWS;");
+                    pass = Regex.Replace(pass, @"(Varyings UnpackVaryings\s*\(PackedVaryings input\)\s*\{\s*Varyings output;)",
+                        "$1\noutput.positionWS = input.completionPositionWS;");
+                }
+                if (!pass.Contains("#define VARYINGS_NEED_POSITION_WS"))
+                    pass = pass.Replace("#define SHADERPASS ", "#define VARYINGS_NEED_POSITION_WS\n#define SHADERPASS ");
+                pass = pass.Replace(surface.Value, surface.Value.Insert(surface.Value.IndexOf('{') + 1, "\nfloat3 WorldSpacePosition;"));
+                return pass.Replace("ZERO_INITIALIZE(SurfaceDescriptionInputs, output);",
+                    "ZERO_INITIALIZE(SurfaceDescriptionInputs, output);\noutput.WorldSpacePosition = input.positionWS;");
             }, RegexOptions.Singleline, TimeSpan.FromSeconds(2));
         }
 
@@ -122,7 +155,7 @@ float _UseEnvironmentCells;
             forward = forward.Replace("InputData inputData;", "ApplyVegetationReaction(input.positionWS, surfaceData.albedo, surfaceData.emission);\nClipVegetationFuel(input.positionWS);\nInputData inputData;");
             File.WriteAllText(passPath, forward);
             string gbuffer = File.ReadAllText(folder + "/LitGBufferPass.hlsl");
-            gbuffer = gbuffer.Replace("InputData inputData;", "ApplyVegetationReaction(input.positionWS, surfaceData.albedo, surfaceData.emission);\nInputData inputData;");
+            gbuffer = gbuffer.Replace("InputData inputData;", "ApplyVegetationReaction(input.positionWS, surfaceData.albedo, surfaceData.emission);\nClipVegetationFuel(input.positionWS);\nInputData inputData;");
             File.WriteAllText(gbufferPath, gbuffer);
             string shader = File.ReadAllText(sourcePath);
             shader = shader.Replace("Shader \"Universal Render Pipeline/Lit\"", "Shader \"UPlayGround/Environment/Vegetation/" + guid + "\"");
@@ -130,6 +163,9 @@ float _UseEnvironmentCells;
             shader = shader.Replace("Packages/com.unity.render-pipelines.universal/Shaders/LitInput.hlsl", inputPath);
             shader = shader.Replace("Packages/com.unity.render-pipelines.universal/Shaders/LitForwardPass.hlsl", passPath);
             shader = shader.Replace("Packages/com.unity.render-pipelines.universal/Shaders/LitGBufferPass.hlsl", gbufferPath);
+            foreach (string pass in new[] { "ShadowCasterPass", "DepthOnlyPass", "LitDepthNormalsPass" })
+                shader = shader.Replace("Packages/com.unity.render-pipelines.universal/Shaders/" + pass + ".hlsl", OutputFolder + "/Tree" + pass + ".hlsl");
+            shader = shader.Replace("Packages/com.unity.render-pipelines.universal/ShaderLibrary/ObjectMotionVectors.hlsl", OutputFolder + "/TreeObjectMotionVectors.hlsl");
             File.WriteAllText(target, AddBufferVariants(shader));
             AssetDatabase.ImportAsset(target, ImportAssetOptions.ForceSynchronousImport);
             return AssetDatabase.LoadAssetAtPath<Shader>(target);

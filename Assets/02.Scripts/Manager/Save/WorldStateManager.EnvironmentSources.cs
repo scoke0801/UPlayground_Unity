@@ -48,7 +48,7 @@ namespace UPlayGround.Manager
             // 이번 커밋에서 새로 점화될 대상은 이 스냅샷에 없으므로 다음 tick부터만 전파한다.
             foreach (var binding in _environmentBindings)
             {
-                if (binding.reaction.State.combustion != EnvironmentCombustion.Burning
+                if (HasEndedEnvironmentReaction(binding) || binding.reaction.State.combustion != EnvironmentCombustion.Burning
                     || binding.target == null || !binding.target.IsAvailable) continue;
                 var definition = binding.target.Definition;
                 if (definition.spreadRadius <= 0 || definition.spreadHeatPerSecond <= 0) continue;

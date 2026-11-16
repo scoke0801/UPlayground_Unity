@@ -400,6 +400,17 @@ namespace UPlayGround.Tests.AmbientFauna
         [UnityTest]
         public IEnumerator URP_나비_셰이더가_실제_색상_픽셀을_출력한다()
         {
+            return VerifyRenderedPixels(1);
+        }
+
+        [UnityTest]
+        public IEnumerator URP_MSAA4에서도_깊이_패스_오류없이_색상을_출력한다()
+        {
+            return VerifyRenderedPixels(4);
+        }
+
+        private IEnumerator VerifyRenderedPixels(int samples)
+        {
             yield return EditorSceneManager.LoadSceneAsyncInPlayMode("Assets/01.Scenes/Test/AmbientFaunaTest.unity", new LoadSceneParameters(LoadSceneMode.Single));
             var habitat = UnityEngine.Object.FindFirstObjectByType(RuntimeType("AmbientFaunaHabitat")) as Behaviour;
             Assert.IsNotNull(habitat);
@@ -411,8 +422,10 @@ namespace UPlayGround.Tests.AmbientFauna
             camera.transform.position = new Vector3(-3, 2.1f, -2.5f);
             camera.transform.LookAt(new Vector3(-3, 1.35f, 0));
             camera.fieldOfView = 42;
-            var target = new RenderTexture(1280, 720, 24, RenderTextureFormat.ARGB32);
+            var target = new RenderTexture(1280, 720, 24, RenderTextureFormat.ARGB32) { antiAliasing = samples };
             var image = new Texture2D(1280, 720, TextureFormat.RGB24, false);
+            bool previousAllowMSAA = camera.allowMSAA;
+            camera.allowMSAA = true;
             camera.targetTexture = target;
             try
             {
@@ -439,6 +452,7 @@ namespace UPlayGround.Tests.AmbientFauna
             finally
             {
                 camera.targetTexture = null;
+                camera.allowMSAA = previousAllowMSAA;
                 UnityEngine.Object.DestroyImmediate(target);
                 UnityEngine.Object.DestroyImmediate(image);
             }

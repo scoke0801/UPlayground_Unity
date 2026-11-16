@@ -1,0 +1,94 @@
+{
+  "editMode": {
+    "result": {
+      "success": true,
+      "message": "Test job status retrieved.",
+      "error": null,
+      "data": {
+        "job_id": "c20b35a61e064f6b90946ed9742d55fa",
+        "status": "succeeded",
+        "mode": "EditMode",
+        "started_unix_ms": 1794707535630,
+        "finished_unix_ms": 1794707546038,
+        "last_update_unix_ms": 1794707546038,
+        "progress": {
+          "completed": 22,
+          "total": 22,
+          "current_test_full_name": null,
+          "current_test_started_unix_ms": null,
+          "last_finished_test_full_name": "UPlayGround.Combat.Tests.AfterimageTextureTests.ShaderWithoutTextureReturnsNullWithoutError",
+          "last_finished_unix_ms": 1794707545767,
+          "stuck_suspected": false,
+          "editor_is_focused": false,
+          "run_in_background": true,
+          "focus_nudge_attempts": null,
+          "focus_nudge_limit": null,
+          "focus_nudge_status": null,
+          "blocked_reason": null,
+          "failures_so_far": [],
+          "failures_capped": false
+        },
+        "error": null,
+        "result": {
+          "mode": "EditMode",
+          "summary": {
+            "total": 22,
+            "passed": 22,
+            "failed": 0,
+            "skipped": 0,
+            "durationSeconds": 1.4525536,
+            "resultState": "Passed"
+          },
+          "results": []
+        }
+      },
+      "hint": null
+    }
+  },
+  "playMode": {
+    "result": {
+      "success": true,
+      "message": "Test job status retrieved.",
+      "error": null,
+      "data": {
+        "job_id": "eaa927ff24f941149e14b385cfd05775",
+        "status": "succeeded",
+        "mode": "PlayMode",
+        "started_unix_ms": 1794707574147,
+        "finished_unix_ms": 1794707591888,
+        "last_update_unix_ms": 1794707591888,
+        "progress": {
+          "completed": 2,
+          "total": 2,
+          "current_test_full_name": null,
+          "current_test_started_unix_ms": null,
+          "last_finished_test_full_name": "UPlayGround.Tests.AmbientFauna.AmbientFaunaGpuTests.URP_나비_셰이더가_실제_색상_픽셀을_출력한다",
+          "last_finished_unix_ms": 1794707591873,
+          "stuck_suspected": false,
+          "editor_is_focused": false,
+          "run_in_background": true,
+          "focus_nudge_attempts": null,
+          "focus_nudge_limit": null,
+          "focus_nudge_status": null,
+          "blocked_reason": null,
+          "failures_so_far": [],
+          "failures_capped": false
+        },
+        "error": null,
+        "result": {
+          "mode": "PlayMode",
+          "summary": {
+            "total": 2,
+            "passed": 2,
+            "failed": 0,
+            "skipped": 0,
+            "durationSeconds": 3.4666535,
+            "resultState": "Passed"
+          },
+          "results": []
+        }
+      },
+      "hint": null
+    }
+  }
+}

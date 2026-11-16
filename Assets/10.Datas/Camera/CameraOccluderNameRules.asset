@@ -445,3 +445,27 @@ MonoBehaviour:
     mode: 1
     coversInterior: 0
     note: "\uB098\uBB34 \uB2E4\uB9AC: \uBC1F\uB294 \uBA74."
+  - namePattern: LakeWaterfallCave_Interior
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uD3ED\uD3EC \uB4A4 \uB3D9\uAD74 \uC2E4\uBB3C \uCC9C\uC7A5\xB7\uBCBD/\uC9C4\uC785
+      \uACBD\uC0AC"
+  - namePattern: LakeWaterfallCave_Roof
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uD3ED\uD3EC \uB4A4 \uB3D9\uAD74 \uC2E4\uBB3C \uCC9C\uC7A5\xB7\uBCBD/\uC9C4\uC785
+      \uACBD\uC0AC"
+  - namePattern: LakeWaterfallCave_Cliff
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uD3ED\uD3EC \uB4A4 \uB3D9\uAD74 \uC2E4\uBB3C \uCC9C\uC7A5\xB7\uBCBD/\uC9C4\uC785
+      \uACBD\uC0AC"
+  - namePattern: LakeWaterfallCave_Ramp
+    isPrefix: 0
+    mode: 1
+    coversInterior: 0
+    note: "\uD3ED\uD3EC \uB4A4 \uB3D9\uAD74 \uC2E4\uBB3C \uCC9C\uC7A5\xB7\uBCBD/\uC9C4\uC785
+      \uACBD\uC0AC"

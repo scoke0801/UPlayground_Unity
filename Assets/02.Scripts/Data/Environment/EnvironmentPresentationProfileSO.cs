@@ -8,6 +8,9 @@ namespace UPlayGround.Data.ReactiveEnvironment
     {
         public GameObject flame, smoke, impact, landing, leaves;
         public AudioClip impactSound, landingSound;
+        public GameObject clearingChips, clearingDust;
+        public AudioClip clearingSound;
+        [Min(1)] public int clearingParticles = 12;
         [Min(1)] public int instancesPerEffect = 24;
         [Min(0)] public float maximumDistance = 60;
         [Range(0, 0.5f)] public float viewportMargin = 0.15f;
@@ -54,7 +57,7 @@ namespace UPlayGround.Data.ReactiveEnvironment
             && heatingSmokeThreshold >= 0 && heatingSmokeThreshold < 1 && residualHeatThreshold >= 0 && residualHeatThreshold <= 1
             && contactProbeDistance > 0 && float.IsFinite(contactProbeDistance)
             && landingProbeDistance > 0 && float.IsFinite(landingProbeDistance)
-            && impactParticles > 0 && landingParticles > 0;
+            && impactParticles > 0 && landingParticles > 0 && clearingParticles > 0;
 
         /// <summary>권위 내구도에서 복원 가능한 세 단계 상처 크기.</summary>
         public float GetWoundRadius(float damage) => woundRadius * (damage >= severeStage ? 1 : damage >= damagedStage ? 0.65f : damage > 0 ? 0.3f : 0);

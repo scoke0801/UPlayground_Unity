@@ -168,11 +168,11 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
                 && material.HasProperty("_EnvState0") && material.HasProperty("_FuelCoverage"));
 
         /// <summary>동일 표현 상태는 건너뛰며 재질 인스턴스를 만들지 않는다.</summary>
-        public void Apply(EnvironmentReactionState state, float maximumHealth, float initialFuel)
+        public void Apply(EnvironmentReactionState state, float maximumHealth, float initialFuel, float clearing = 0)
         {
             Vector4 surface = new(state.wetness, state.charAmount,
                 1 - Mathf.Clamp01(state.durability / maximumHealth), state.combustion == EnvironmentCombustion.Burning ? 1 : 0);
-            Vector4 thermal = new(state.heat, 0, 0, 0);
+            Vector4 thermal = new(state.heat, 0, clearing, 0);
             float coverage = initialFuel > 0 ? Mathf.Clamp01(state.fuel / initialFuel) : 1;
             if (_useSharedBuffer && _bufferIndex >= 0 && !EnvironmentSurfaceStateBuffer.IsValid(_bufferIndex, _bufferEpoch))
             { ReleaseRendererUserValue(); _bufferIndex = -1; _hasApplied = false; }

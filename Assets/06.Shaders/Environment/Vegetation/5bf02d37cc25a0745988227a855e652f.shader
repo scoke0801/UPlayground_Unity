@@ -367,6 +367,7 @@ struct Varyings
 };
 struct SurfaceDescriptionInputs
 {
+float3 WorldSpacePosition;
  float3 WorldSpaceNormal;
  float3 TangentSpaceNormal;
  float3 ObjectSpacePosition;
@@ -1063,7 +1064,7 @@ surface.Metallic = _UseORM_11ec65ff6fc7436b9d5074e8f7a90024_Out_0_Float;
 surface.Smoothness = _UseORM_2aa3605b11694e28a61f126281dcd8f3_Out_0_Float;
 surface.Occlusion = _UseORM_a8f4959fe3174af9bd41a7335d24f10e_Out_0_Float;
 float3 reactionUnusedColor = 0, reactionUnusedEmission = 0;
-ClipVegetationFuel(TransformObjectToWorld(float3(0,0,0)));
+ClipVegetationFuel(IN.WorldSpacePosition);
 ApplyVegetationReaction(TransformObjectToWorld(float3(0,0,0)),surface.BaseColor,surface.Emission);
 return surface;
 }
@@ -1095,6 +1096,7 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
 {
     SurfaceDescriptionInputs output;
     ZERO_INITIALIZE(SurfaceDescriptionInputs, output);
+output.WorldSpacePosition = input.positionWS;
 
 #ifdef HAVE_VFX_MODIFICATION
 #if VFX_USE_GRAPH_VALUES
@@ -1444,6 +1446,7 @@ struct Varyings
 };
 struct SurfaceDescriptionInputs
 {
+float3 WorldSpacePosition;
  float3 WorldSpaceNormal;
  float3 TangentSpaceNormal;
  float3 ObjectSpacePosition;
@@ -2140,7 +2143,7 @@ surface.Metallic = _UseORM_11ec65ff6fc7436b9d5074e8f7a90024_Out_0_Float;
 surface.Smoothness = _UseORM_2aa3605b11694e28a61f126281dcd8f3_Out_0_Float;
 surface.Occlusion = _UseORM_a8f4959fe3174af9bd41a7335d24f10e_Out_0_Float;
 float3 reactionUnusedColor = 0, reactionUnusedEmission = 0;
-ClipVegetationFuel(TransformObjectToWorld(float3(0,0,0)));
+ClipVegetationFuel(IN.WorldSpacePosition);
 ApplyVegetationReaction(TransformObjectToWorld(float3(0,0,0)),surface.BaseColor,surface.Emission);
 return surface;
 }
@@ -2172,6 +2175,7 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
 {
     SurfaceDescriptionInputs output;
     ZERO_INITIALIZE(SurfaceDescriptionInputs, output);
+output.WorldSpacePosition = input.positionWS;
 
 #ifdef HAVE_VFX_MODIFICATION
 #if VFX_USE_GRAPH_VALUES
@@ -2413,6 +2417,7 @@ HLSLPROGRAM
 #define VARYINGS_NEED_NORMAL_WS
 #define FEATURES_GRAPH_VERTEX
 /* WARNING: $splice Could not find named fragment 'PassInstancing' */
+#define VARYINGS_NEED_POSITION_WS
 #define SHADERPASS SHADERPASS_SHADOWCASTER
 
 
@@ -2450,6 +2455,7 @@ struct Attributes
 };
 struct Varyings
 {
+float3 positionWS;
  float4 positionCS : SV_POSITION;
  float3 normalWS;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
@@ -2467,6 +2473,7 @@ struct Varyings
 };
 struct SurfaceDescriptionInputs
 {
+float3 WorldSpacePosition;
 };
 struct VertexDescriptionInputs
 {
@@ -2478,6 +2485,7 @@ struct VertexDescriptionInputs
 };
 struct PackedVaryings
 {
+float3 completionPositionWS : INTERP1;
  float4 positionCS : SV_POSITION;
  float3 normalWS : INTERP0;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
@@ -2498,6 +2506,7 @@ PackedVaryings PackVaryings (Varyings input)
 {
 PackedVaryings output;
 ZERO_INITIALIZE(PackedVaryings, output);
+output.completionPositionWS = input.positionWS;
 output.positionCS = input.positionCS;
 output.normalWS.xyz = input.normalWS;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
@@ -2518,6 +2527,7 @@ return output;
 Varyings UnpackVaryings (PackedVaryings input)
 {
 Varyings output;
+output.positionWS = input.completionPositionWS;
 output.positionCS = input.positionCS;
 output.normalWS = input.normalWS.xyz;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
@@ -2807,7 +2817,7 @@ SurfaceDescription SurfaceDescriptionFunction(SurfaceDescriptionInputs IN)
 {
 SurfaceDescription surface = (SurfaceDescription)0;
 float3 reactionUnusedColor = 0, reactionUnusedEmission = 0;
-ClipVegetationFuel(TransformObjectToWorld(float3(0,0,0)));
+ClipVegetationFuel(IN.WorldSpacePosition);
 return surface;
 }
 
@@ -2838,6 +2848,7 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
 {
     SurfaceDescriptionInputs output;
     ZERO_INITIALIZE(SurfaceDescriptionInputs, output);
+output.WorldSpacePosition = input.positionWS;
 
 #ifdef HAVE_VFX_MODIFICATION
 #if VFX_USE_GRAPH_VALUES
@@ -3065,6 +3076,7 @@ HLSLPROGRAM
 #define GRAPH_VERTEX_USES_TIME_PARAMETERS_INPUT
 #define FEATURES_GRAPH_VERTEX
 /* WARNING: $splice Could not find named fragment 'PassInstancing' */
+#define VARYINGS_NEED_POSITION_WS
 #define SHADERPASS SHADERPASS_MOTION_VECTORS
 
 
@@ -3101,6 +3113,7 @@ struct Attributes
 };
 struct Varyings
 {
+float3 positionWS;
  float4 positionCS : SV_POSITION;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
  uint instanceID : CUSTOM_INSTANCE_ID;
@@ -3117,6 +3130,7 @@ struct Varyings
 };
 struct SurfaceDescriptionInputs
 {
+float3 WorldSpacePosition;
 };
 struct VertexDescriptionInputs
 {
@@ -3126,6 +3140,7 @@ struct VertexDescriptionInputs
 };
 struct PackedVaryings
 {
+float3 completionPositionWS : INTERP0;
  float4 positionCS : SV_POSITION;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
  uint instanceID : CUSTOM_INSTANCE_ID;
@@ -3145,6 +3160,7 @@ PackedVaryings PackVaryings (Varyings input)
 {
 PackedVaryings output;
 ZERO_INITIALIZE(PackedVaryings, output);
+output.completionPositionWS = input.positionWS;
 output.positionCS = input.positionCS;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
 output.instanceID = input.instanceID;
@@ -3164,6 +3180,7 @@ return output;
 Varyings UnpackVaryings (PackedVaryings input)
 {
 Varyings output;
+output.positionWS = input.completionPositionWS;
 output.positionCS = input.positionCS;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
 output.instanceID = input.instanceID;
@@ -3448,7 +3465,7 @@ SurfaceDescription SurfaceDescriptionFunction(SurfaceDescriptionInputs IN)
 {
 SurfaceDescription surface = (SurfaceDescription)0;
 float3 reactionUnusedColor = 0, reactionUnusedEmission = 0;
-ClipVegetationFuel(TransformObjectToWorld(float3(0,0,0)));
+ClipVegetationFuel(IN.WorldSpacePosition);
 return surface;
 }
 
@@ -3477,6 +3494,7 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
 {
     SurfaceDescriptionInputs output;
     ZERO_INITIALIZE(SurfaceDescriptionInputs, output);
+output.WorldSpacePosition = input.positionWS;
 
 #ifdef HAVE_VFX_MODIFICATION
 #if VFX_USE_GRAPH_VALUES
@@ -3708,6 +3726,7 @@ HLSLPROGRAM
 #define FEATURES_GRAPH_VERTEX_TANGENT_OUTPUT
 #define FEATURES_GRAPH_VERTEX
 /* WARNING: $splice Could not find named fragment 'PassInstancing' */
+#define VARYINGS_NEED_POSITION_WS
 #define SHADERPASS SHADERPASS_DEPTHONLY
 
 
@@ -3745,6 +3764,7 @@ struct Attributes
 };
 struct Varyings
 {
+float3 positionWS;
  float4 positionCS : SV_POSITION;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
  uint instanceID : CUSTOM_INSTANCE_ID;
@@ -3761,6 +3781,7 @@ struct Varyings
 };
 struct SurfaceDescriptionInputs
 {
+float3 WorldSpacePosition;
 };
 struct VertexDescriptionInputs
 {
@@ -3772,6 +3793,7 @@ struct VertexDescriptionInputs
 };
 struct PackedVaryings
 {
+float3 completionPositionWS : INTERP0;
  float4 positionCS : SV_POSITION;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
  uint instanceID : CUSTOM_INSTANCE_ID;
@@ -3791,6 +3813,7 @@ PackedVaryings PackVaryings (Varyings input)
 {
 PackedVaryings output;
 ZERO_INITIALIZE(PackedVaryings, output);
+output.completionPositionWS = input.positionWS;
 output.positionCS = input.positionCS;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
 output.instanceID = input.instanceID;
@@ -3810,6 +3833,7 @@ return output;
 Varyings UnpackVaryings (PackedVaryings input)
 {
 Varyings output;
+output.positionWS = input.completionPositionWS;
 output.positionCS = input.positionCS;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
 output.instanceID = input.instanceID;
@@ -4098,7 +4122,7 @@ SurfaceDescription SurfaceDescriptionFunction(SurfaceDescriptionInputs IN)
 {
 SurfaceDescription surface = (SurfaceDescription)0;
 float3 reactionUnusedColor = 0, reactionUnusedEmission = 0;
-ClipVegetationFuel(TransformObjectToWorld(float3(0,0,0)));
+ClipVegetationFuel(IN.WorldSpacePosition);
 return surface;
 }
 
@@ -4129,6 +4153,7 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
 {
     SurfaceDescriptionInputs output;
     ZERO_INITIALIZE(SurfaceDescriptionInputs, output);
+output.WorldSpacePosition = input.positionWS;
 
 #ifdef HAVE_VFX_MODIFICATION
 #if VFX_USE_GRAPH_VALUES
@@ -4425,6 +4450,7 @@ struct Varyings
 };
 struct SurfaceDescriptionInputs
 {
+float3 WorldSpacePosition;
  float3 WorldSpaceNormal;
  float3 TangentSpaceNormal;
  float3 ObjectSpacePosition;
@@ -4937,7 +4963,7 @@ float3 _UseNormalMaps_cf0fe6c3e8224d69a92ff77f7f270e12_Out_0_Vector3 = float3(0,
 #endif
 surface.NormalTS = _UseNormalMaps_cf0fe6c3e8224d69a92ff77f7f270e12_Out_0_Vector3;
 float3 reactionUnusedColor = 0, reactionUnusedEmission = 0;
-ClipVegetationFuel(TransformObjectToWorld(float3(0,0,0)));
+ClipVegetationFuel(IN.WorldSpacePosition);
 return surface;
 }
 
@@ -4968,6 +4994,7 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
 {
     SurfaceDescriptionInputs output;
     ZERO_INITIALIZE(SurfaceDescriptionInputs, output);
+output.WorldSpacePosition = input.positionWS;
 
 #ifdef HAVE_VFX_MODIFICATION
 #if VFX_USE_GRAPH_VALUES
@@ -5273,6 +5300,7 @@ struct Varyings
 };
 struct SurfaceDescriptionInputs
 {
+float3 WorldSpacePosition;
  float3 WorldSpaceNormal;
  float3 ObjectSpacePosition;
  float4 uv0;
@@ -5798,7 +5826,7 @@ float4 _UseEmissive_fdf874f7398e43a7838e4f04fd255375_Out_0_Vector4 = float4(0, 0
 surface.BaseColor = (_UseCoverage_c2f2c567080e4d5f9b652fbcbf667c54_Out_0_Vector4.xyz);
 surface.Emission = (_UseEmissive_fdf874f7398e43a7838e4f04fd255375_Out_0_Vector4.xyz);
 float3 reactionUnusedColor = 0, reactionUnusedEmission = 0;
-ClipVegetationFuel(TransformObjectToWorld(float3(0,0,0)));
+ClipVegetationFuel(IN.WorldSpacePosition);
 ApplyVegetationReaction(TransformObjectToWorld(float3(0,0,0)),surface.BaseColor,surface.Emission);
 return surface;
 }
@@ -5830,6 +5858,7 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
 {
     SurfaceDescriptionInputs output;
     ZERO_INITIALIZE(SurfaceDescriptionInputs, output);
+output.WorldSpacePosition = input.positionWS;
 
 #ifdef HAVE_VFX_MODIFICATION
 #if VFX_USE_GRAPH_VALUES
@@ -6063,6 +6092,7 @@ HLSLPROGRAM
 #define FEATURES_GRAPH_VERTEX_TANGENT_OUTPUT
 #define FEATURES_GRAPH_VERTEX
 /* WARNING: $splice Could not find named fragment 'PassInstancing' */
+#define VARYINGS_NEED_POSITION_WS
 #define SHADERPASS SHADERPASS_DEPTHONLY
 #define SCENESELECTIONPASS 1
 #define ALPHA_CLIP_THRESHOLD 1
@@ -6102,6 +6132,7 @@ struct Attributes
 };
 struct Varyings
 {
+float3 positionWS;
  float4 positionCS : SV_POSITION;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
  uint instanceID : CUSTOM_INSTANCE_ID;
@@ -6118,6 +6149,7 @@ struct Varyings
 };
 struct SurfaceDescriptionInputs
 {
+float3 WorldSpacePosition;
 };
 struct VertexDescriptionInputs
 {
@@ -6129,6 +6161,7 @@ struct VertexDescriptionInputs
 };
 struct PackedVaryings
 {
+float3 completionPositionWS : INTERP0;
  float4 positionCS : SV_POSITION;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
  uint instanceID : CUSTOM_INSTANCE_ID;
@@ -6148,6 +6181,7 @@ PackedVaryings PackVaryings (Varyings input)
 {
 PackedVaryings output;
 ZERO_INITIALIZE(PackedVaryings, output);
+output.completionPositionWS = input.positionWS;
 output.positionCS = input.positionCS;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
 output.instanceID = input.instanceID;
@@ -6167,6 +6201,7 @@ return output;
 Varyings UnpackVaryings (PackedVaryings input)
 {
 Varyings output;
+output.positionWS = input.completionPositionWS;
 output.positionCS = input.positionCS;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
 output.instanceID = input.instanceID;
@@ -6455,7 +6490,7 @@ SurfaceDescription SurfaceDescriptionFunction(SurfaceDescriptionInputs IN)
 {
 SurfaceDescription surface = (SurfaceDescription)0;
 float3 reactionUnusedColor = 0, reactionUnusedEmission = 0;
-ClipVegetationFuel(TransformObjectToWorld(float3(0,0,0)));
+ClipVegetationFuel(IN.WorldSpacePosition);
 return surface;
 }
 
@@ -6486,6 +6521,7 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
 {
     SurfaceDescriptionInputs output;
     ZERO_INITIALIZE(SurfaceDescriptionInputs, output);
+output.WorldSpacePosition = input.positionWS;
 
 #ifdef HAVE_VFX_MODIFICATION
 #if VFX_USE_GRAPH_VALUES
@@ -6776,6 +6812,7 @@ struct Varyings
 };
 struct SurfaceDescriptionInputs
 {
+float3 WorldSpacePosition;
  float3 WorldSpaceNormal;
  float3 ObjectSpacePosition;
  float4 uv0;
@@ -7277,7 +7314,7 @@ float4 _UseCoverage_c2f2c567080e4d5f9b652fbcbf667c54_Out_0_Vector4 = _Multiply_e
 #endif
 surface.BaseColor = (_UseCoverage_c2f2c567080e4d5f9b652fbcbf667c54_Out_0_Vector4.xyz);
 float3 reactionUnusedColor = 0, reactionUnusedEmission = 0;
-ClipVegetationFuel(TransformObjectToWorld(float3(0,0,0)));
+ClipVegetationFuel(IN.WorldSpacePosition);
 ApplyVegetationReaction(TransformObjectToWorld(float3(0,0,0)),surface.BaseColor,reactionUnusedEmission);
 return surface;
 }
@@ -7309,6 +7346,7 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
 {
     SurfaceDescriptionInputs output;
     ZERO_INITIALIZE(SurfaceDescriptionInputs, output);
+output.WorldSpacePosition = input.positionWS;
 
 #ifdef HAVE_VFX_MODIFICATION
 #if VFX_USE_GRAPH_VALUES
@@ -7605,6 +7643,7 @@ struct Varyings
 };
 struct SurfaceDescriptionInputs
 {
+float3 WorldSpacePosition;
  float3 WorldSpaceNormal;
  float3 ObjectSpacePosition;
  float4 uv0;
@@ -8106,7 +8145,7 @@ float4 _UseCoverage_c2f2c567080e4d5f9b652fbcbf667c54_Out_0_Vector4 = _Multiply_e
 #endif
 surface.BaseColor = (_UseCoverage_c2f2c567080e4d5f9b652fbcbf667c54_Out_0_Vector4.xyz);
 float3 reactionUnusedColor = 0, reactionUnusedEmission = 0;
-ClipVegetationFuel(TransformObjectToWorld(float3(0,0,0)));
+ClipVegetationFuel(IN.WorldSpacePosition);
 ApplyVegetationReaction(TransformObjectToWorld(float3(0,0,0)),surface.BaseColor,reactionUnusedEmission);
 return surface;
 }
@@ -8138,6 +8177,7 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
 {
     SurfaceDescriptionInputs output;
     ZERO_INITIALIZE(SurfaceDescriptionInputs, output);
+output.WorldSpacePosition = input.positionWS;
 
 #ifdef HAVE_VFX_MODIFICATION
 #if VFX_USE_GRAPH_VALUES
@@ -8476,6 +8516,7 @@ struct Varyings
 };
 struct SurfaceDescriptionInputs
 {
+float3 WorldSpacePosition;
  float3 WorldSpaceNormal;
  float3 TangentSpaceNormal;
  float3 ObjectSpacePosition;
@@ -9147,7 +9188,7 @@ surface.Metallic = _UseORM_11ec65ff6fc7436b9d5074e8f7a90024_Out_0_Float;
 surface.Smoothness = _UseORM_2aa3605b11694e28a61f126281dcd8f3_Out_0_Float;
 surface.Occlusion = _UseORM_a8f4959fe3174af9bd41a7335d24f10e_Out_0_Float;
 float3 reactionUnusedColor = 0, reactionUnusedEmission = 0;
-ClipVegetationFuel(TransformObjectToWorld(float3(0,0,0)));
+ClipVegetationFuel(IN.WorldSpacePosition);
 ApplyVegetationReaction(TransformObjectToWorld(float3(0,0,0)),surface.BaseColor,surface.Emission);
 return surface;
 }
@@ -9175,6 +9216,7 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
 {
     SurfaceDescriptionInputs output;
     ZERO_INITIALIZE(SurfaceDescriptionInputs, output);
+output.WorldSpacePosition = input.positionWS;
 
     
 
@@ -9553,6 +9595,7 @@ struct Varyings
 };
 struct SurfaceDescriptionInputs
 {
+float3 WorldSpacePosition;
  float3 WorldSpaceNormal;
  float3 TangentSpaceNormal;
  float3 ObjectSpacePosition;
@@ -10224,7 +10267,7 @@ surface.Metallic = _UseORM_11ec65ff6fc7436b9d5074e8f7a90024_Out_0_Float;
 surface.Smoothness = _UseORM_2aa3605b11694e28a61f126281dcd8f3_Out_0_Float;
 surface.Occlusion = _UseORM_a8f4959fe3174af9bd41a7335d24f10e_Out_0_Float;
 float3 reactionUnusedColor = 0, reactionUnusedEmission = 0;
-ClipVegetationFuel(TransformObjectToWorld(float3(0,0,0)));
+ClipVegetationFuel(IN.WorldSpacePosition);
 ApplyVegetationReaction(TransformObjectToWorld(float3(0,0,0)),surface.BaseColor,surface.Emission);
 return surface;
 }
@@ -10252,6 +10295,7 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
 {
     SurfaceDescriptionInputs output;
     ZERO_INITIALIZE(SurfaceDescriptionInputs, output);
+output.WorldSpacePosition = input.positionWS;
 
     
 
@@ -10629,6 +10673,7 @@ struct Varyings
 };
 struct SurfaceDescriptionInputs
 {
+float3 WorldSpacePosition;
  float3 WorldSpaceNormal;
  float3 TangentSpaceNormal;
  float3 ObjectSpacePosition;
@@ -11300,7 +11345,7 @@ surface.Metallic = _UseORM_11ec65ff6fc7436b9d5074e8f7a90024_Out_0_Float;
 surface.Smoothness = _UseORM_2aa3605b11694e28a61f126281dcd8f3_Out_0_Float;
 surface.Occlusion = _UseORM_a8f4959fe3174af9bd41a7335d24f10e_Out_0_Float;
 float3 reactionUnusedColor = 0, reactionUnusedEmission = 0;
-ClipVegetationFuel(TransformObjectToWorld(float3(0,0,0)));
+ClipVegetationFuel(IN.WorldSpacePosition);
 ApplyVegetationReaction(TransformObjectToWorld(float3(0,0,0)),surface.BaseColor,surface.Emission);
 return surface;
 }
@@ -11328,6 +11373,7 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
 {
     SurfaceDescriptionInputs output;
     ZERO_INITIALIZE(SurfaceDescriptionInputs, output);
+output.WorldSpacePosition = input.positionWS;
 
     
 
@@ -11617,6 +11663,7 @@ HLSLPROGRAM
 #define ATTRIBUTES_NEED_TANGENT
 #define FEATURES_GRAPH_VERTEX
 /* WARNING: $splice Could not find named fragment 'PassInstancing' */
+#define VARYINGS_NEED_POSITION_WS
 #define SHADERPASS SHADERPASS_SHADOWCASTER
 #define BUILTIN_TARGET_API 1
 #ifdef _BUILTIN_SURFACE_TYPE_TRANSPARENT
@@ -11662,6 +11709,7 @@ struct Attributes
 };
 struct Varyings
 {
+float3 positionWS;
  float4 positionCS : SV_POSITION;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
  uint instanceID : CUSTOM_INSTANCE_ID;
@@ -11678,6 +11726,7 @@ struct Varyings
 };
 struct SurfaceDescriptionInputs
 {
+float3 WorldSpacePosition;
 };
 struct VertexDescriptionInputs
 {
@@ -11689,6 +11738,7 @@ struct VertexDescriptionInputs
 };
 struct PackedVaryings
 {
+float3 completionPositionWS : INTERP0;
  float4 positionCS : SV_POSITION;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
  uint instanceID : CUSTOM_INSTANCE_ID;
@@ -11708,6 +11758,7 @@ PackedVaryings PackVaryings (Varyings input)
 {
 PackedVaryings output;
 ZERO_INITIALIZE(PackedVaryings, output);
+output.completionPositionWS = input.positionWS;
 output.positionCS = input.positionCS;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
 output.instanceID = input.instanceID;
@@ -11727,6 +11778,7 @@ return output;
 Varyings UnpackVaryings (PackedVaryings input)
 {
 Varyings output;
+output.positionWS = input.completionPositionWS;
 output.positionCS = input.positionCS;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
 output.instanceID = input.instanceID;
@@ -12014,7 +12066,7 @@ SurfaceDescription SurfaceDescriptionFunction(SurfaceDescriptionInputs IN)
 {
 SurfaceDescription surface = (SurfaceDescription)0;
 float3 reactionUnusedColor = 0, reactionUnusedEmission = 0;
-ClipVegetationFuel(TransformObjectToWorld(float3(0,0,0)));
+ClipVegetationFuel(IN.WorldSpacePosition);
 return surface;
 }
 
@@ -12041,6 +12093,7 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
 {
     SurfaceDescriptionInputs output;
     ZERO_INITIALIZE(SurfaceDescriptionInputs, output);
+output.WorldSpacePosition = input.positionWS;
 
     
 
@@ -12311,6 +12364,7 @@ HLSLPROGRAM
 #define ATTRIBUTES_NEED_TANGENT
 #define FEATURES_GRAPH_VERTEX
 /* WARNING: $splice Could not find named fragment 'PassInstancing' */
+#define VARYINGS_NEED_POSITION_WS
 #define SHADERPASS SHADERPASS_DEPTHONLY
 #define BUILTIN_TARGET_API 1
 #ifdef _BUILTIN_SURFACE_TYPE_TRANSPARENT
@@ -12356,6 +12410,7 @@ struct Attributes
 };
 struct Varyings
 {
+float3 positionWS;
  float4 positionCS : SV_POSITION;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
  uint instanceID : CUSTOM_INSTANCE_ID;
@@ -12372,6 +12427,7 @@ struct Varyings
 };
 struct SurfaceDescriptionInputs
 {
+float3 WorldSpacePosition;
 };
 struct VertexDescriptionInputs
 {
@@ -12383,6 +12439,7 @@ struct VertexDescriptionInputs
 };
 struct PackedVaryings
 {
+float3 completionPositionWS : INTERP0;
  float4 positionCS : SV_POSITION;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
  uint instanceID : CUSTOM_INSTANCE_ID;
@@ -12402,6 +12459,7 @@ PackedVaryings PackVaryings (Varyings input)
 {
 PackedVaryings output;
 ZERO_INITIALIZE(PackedVaryings, output);
+output.completionPositionWS = input.positionWS;
 output.positionCS = input.positionCS;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
 output.instanceID = input.instanceID;
@@ -12421,6 +12479,7 @@ return output;
 Varyings UnpackVaryings (PackedVaryings input)
 {
 Varyings output;
+output.positionWS = input.completionPositionWS;
 output.positionCS = input.positionCS;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
 output.instanceID = input.instanceID;
@@ -12708,7 +12767,7 @@ SurfaceDescription SurfaceDescriptionFunction(SurfaceDescriptionInputs IN)
 {
 SurfaceDescription surface = (SurfaceDescription)0;
 float3 reactionUnusedColor = 0, reactionUnusedEmission = 0;
-ClipVegetationFuel(TransformObjectToWorld(float3(0,0,0)));
+ClipVegetationFuel(IN.WorldSpacePosition);
 return surface;
 }
 
@@ -12735,6 +12794,7 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
 {
     SurfaceDescriptionInputs output;
     ZERO_INITIALIZE(SurfaceDescriptionInputs, output);
+output.WorldSpacePosition = input.positionWS;
 
     
 
@@ -13073,6 +13133,7 @@ struct Varyings
 };
 struct SurfaceDescriptionInputs
 {
+float3 WorldSpacePosition;
  float3 WorldSpaceNormal;
  float3 ObjectSpacePosition;
  float4 uv0;
@@ -13591,7 +13652,7 @@ float4 _UseEmissive_fdf874f7398e43a7838e4f04fd255375_Out_0_Vector4 = float4(0, 0
 surface.BaseColor = (_UseCoverage_c2f2c567080e4d5f9b652fbcbf667c54_Out_0_Vector4.xyz);
 surface.Emission = (_UseEmissive_fdf874f7398e43a7838e4f04fd255375_Out_0_Vector4.xyz);
 float3 reactionUnusedColor = 0, reactionUnusedEmission = 0;
-ClipVegetationFuel(TransformObjectToWorld(float3(0,0,0)));
+ClipVegetationFuel(IN.WorldSpacePosition);
 ApplyVegetationReaction(TransformObjectToWorld(float3(0,0,0)),surface.BaseColor,surface.Emission);
 return surface;
 }
@@ -13619,6 +13680,7 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
 {
     SurfaceDescriptionInputs output;
     ZERO_INITIALIZE(SurfaceDescriptionInputs, output);
+output.WorldSpacePosition = input.positionWS;
 
     
 
@@ -13898,6 +13960,7 @@ HLSLPROGRAM
 #define ATTRIBUTES_NEED_TANGENT
 #define FEATURES_GRAPH_VERTEX
 /* WARNING: $splice Could not find named fragment 'PassInstancing' */
+#define VARYINGS_NEED_POSITION_WS
 #define SHADERPASS SceneSelectionPass
 #define BUILTIN_TARGET_API 1
 #define SCENESELECTIONPASS 1
@@ -13944,6 +14007,7 @@ struct Attributes
 };
 struct Varyings
 {
+float3 positionWS;
  float4 positionCS : SV_POSITION;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
  uint instanceID : CUSTOM_INSTANCE_ID;
@@ -13960,6 +14024,7 @@ struct Varyings
 };
 struct SurfaceDescriptionInputs
 {
+float3 WorldSpacePosition;
 };
 struct VertexDescriptionInputs
 {
@@ -13971,6 +14036,7 @@ struct VertexDescriptionInputs
 };
 struct PackedVaryings
 {
+float3 completionPositionWS : INTERP0;
  float4 positionCS : SV_POSITION;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
  uint instanceID : CUSTOM_INSTANCE_ID;
@@ -13990,6 +14056,7 @@ PackedVaryings PackVaryings (Varyings input)
 {
 PackedVaryings output;
 ZERO_INITIALIZE(PackedVaryings, output);
+output.completionPositionWS = input.positionWS;
 output.positionCS = input.positionCS;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
 output.instanceID = input.instanceID;
@@ -14009,6 +14076,7 @@ return output;
 Varyings UnpackVaryings (PackedVaryings input)
 {
 Varyings output;
+output.positionWS = input.completionPositionWS;
 output.positionCS = input.positionCS;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
 output.instanceID = input.instanceID;
@@ -14296,7 +14364,7 @@ SurfaceDescription SurfaceDescriptionFunction(SurfaceDescriptionInputs IN)
 {
 SurfaceDescription surface = (SurfaceDescription)0;
 float3 reactionUnusedColor = 0, reactionUnusedEmission = 0;
-ClipVegetationFuel(TransformObjectToWorld(float3(0,0,0)));
+ClipVegetationFuel(IN.WorldSpacePosition);
 return surface;
 }
 
@@ -14323,6 +14391,7 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
 {
     SurfaceDescriptionInputs output;
     ZERO_INITIALIZE(SurfaceDescriptionInputs, output);
+output.WorldSpacePosition = input.positionWS;
 
     
 
@@ -14589,6 +14658,7 @@ HLSLPROGRAM
 #define ATTRIBUTES_NEED_TANGENT
 #define FEATURES_GRAPH_VERTEX
 /* WARNING: $splice Could not find named fragment 'PassInstancing' */
+#define VARYINGS_NEED_POSITION_WS
 #define SHADERPASS ScenePickingPass
 #define BUILTIN_TARGET_API 1
 #define SCENEPICKINGPASS 1
@@ -14635,6 +14705,7 @@ struct Attributes
 };
 struct Varyings
 {
+float3 positionWS;
  float4 positionCS : SV_POSITION;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
  uint instanceID : CUSTOM_INSTANCE_ID;
@@ -14651,6 +14722,7 @@ struct Varyings
 };
 struct SurfaceDescriptionInputs
 {
+float3 WorldSpacePosition;
 };
 struct VertexDescriptionInputs
 {
@@ -14662,6 +14734,7 @@ struct VertexDescriptionInputs
 };
 struct PackedVaryings
 {
+float3 completionPositionWS : INTERP0;
  float4 positionCS : SV_POSITION;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
  uint instanceID : CUSTOM_INSTANCE_ID;
@@ -14681,6 +14754,7 @@ PackedVaryings PackVaryings (Varyings input)
 {
 PackedVaryings output;
 ZERO_INITIALIZE(PackedVaryings, output);
+output.completionPositionWS = input.positionWS;
 output.positionCS = input.positionCS;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
 output.instanceID = input.instanceID;
@@ -14700,6 +14774,7 @@ return output;
 Varyings UnpackVaryings (PackedVaryings input)
 {
 Varyings output;
+output.positionWS = input.completionPositionWS;
 output.positionCS = input.positionCS;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
 output.instanceID = input.instanceID;
@@ -14987,7 +15062,7 @@ SurfaceDescription SurfaceDescriptionFunction(SurfaceDescriptionInputs IN)
 {
 SurfaceDescription surface = (SurfaceDescription)0;
 float3 reactionUnusedColor = 0, reactionUnusedEmission = 0;
-ClipVegetationFuel(TransformObjectToWorld(float3(0,0,0)));
+ClipVegetationFuel(IN.WorldSpacePosition);
 return surface;
 }
 
@@ -15014,6 +15089,7 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
 {
     SurfaceDescriptionInputs output;
     ZERO_INITIALIZE(SurfaceDescriptionInputs, output);
+output.WorldSpacePosition = input.positionWS;
 
     
 

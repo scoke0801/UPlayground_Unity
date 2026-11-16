@@ -218,6 +218,7 @@ GBufferFragOutput LitGBufferPassFragment(Varyings input)
     LODFadeCrossFade(input.positionCS);
 #endif
 
+    ClipVegetationFuel(input.positionWS);
     ApplyVegetationReaction(input.positionWS, surfaceData.albedo, surfaceData.emission);
 InputData inputData;
     InitializeInputData(input, surfaceData.normalTS, inputData);

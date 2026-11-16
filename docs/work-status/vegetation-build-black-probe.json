@@ -1,0 +1,222 @@
+{
+  "scope": "Editor D3D11 공유 버퍼 off/on 일반 출력 비교 및 SH를 명시한 인스턴싱 출력. 빌드 재현 아님.",
+  "result": [
+    {
+      "shader": "UPlayGround/Environment/Vegetation/5bf02d37cc25a0745988227a855e652f",
+      "mode": 0,
+      "passReady": true,
+      "pixels": 1130,
+      "mean": 0.08842732871671036,
+      "sample": "RGBA(0.220, 0.161, 0.098, 1.000)"
+    },
+    {
+      "shader": "UPlayGround/Environment/Vegetation/5bf02d37cc25a0745988227a855e652f",
+      "mode": 1,
+      "passReady": true,
+      "pixels": 1130,
+      "mean": 0.08842732871671036,
+      "sample": "RGBA(0.220, 0.161, 0.098, 1.000)"
+    },
+    {
+      "shader": "UPlayGround/Environment/Vegetation/5bf02d37cc25a0745988227a855e652f",
+      "mode": 2,
+      "passReady": true,
+      "pixels": 1130,
+      "mean": 0.0497495549041388,
+      "sample": "RGBA(0.075, 0.051, 0.027, 1.000)"
+    },
+    {
+      "shader": "UPlayGround/Environment/Vegetation/4fb6b4160e35c0045b7026aa2ad95152",
+      "mode": 0,
+      "passReady": true,
+      "pixels": 2771,
+      "mean": 0.13205398308611077,
+      "sample": "RGBA(0.102, 0.333, 0.031, 1.000)"
+    },
+    {
+      "shader": "UPlayGround/Environment/Vegetation/4fb6b4160e35c0045b7026aa2ad95152",
+      "mode": 1,
+      "passReady": true,
+      "pixels": 2771,
+      "mean": 0.13205398308611077,
+      "sample": "RGBA(0.102, 0.333, 0.031, 1.000)"
+    },
+    {
+      "shader": "UPlayGround/Environment/Vegetation/4fb6b4160e35c0045b7026aa2ad95152",
+      "mode": 2,
+      "passReady": true,
+      "pixels": 2771,
+      "mean": 0.05085349781124897,
+      "sample": "RGBA(0.027, 0.114, 0.004, 1.000)"
+    },
+    {
+      "shader": "UPlayGround/Environment/Vegetation/933532a4fcc9baf4fa0491de14d08ed7",
+      "mode": 0,
+      "passReady": true,
+      "pixels": 7013,
+      "mean": 0.16730330876054755,
+      "sample": "RGBA(0.110, 0.078, 0.059, 1.000)"
+    },
+    {
+      "shader": "UPlayGround/Environment/Vegetation/933532a4fcc9baf4fa0491de14d08ed7",
+      "mode": 1,
+      "passReady": true,
+      "pixels": 7013,
+      "mean": 0.16730330876054755,
+      "sample": "RGBA(0.110, 0.078, 0.059, 1.000)"
+    },
+    {
+      "shader": "UPlayGround/Environment/Vegetation/933532a4fcc9baf4fa0491de14d08ed7",
+      "mode": 2,
+      "passReady": true,
+      "pixels": 7013,
+      "mean": 0.08582399752885435,
+      "sample": "RGBA(0.110, 0.078, 0.059, 1.000)"
+    },
+    {
+      "shader": "UPlayGround/Environment/Vegetation/c83e0d6021200634a8b2ca4e998b498b",
+      "mode": 0,
+      "passReady": true,
+      "pixels": 5251,
+      "mean": 0.079596421466822,
+      "sample": "RGBA(0.290, 0.145, 0.114, 0.588)"
+    },
+    {
+      "shader": "UPlayGround/Environment/Vegetation/c83e0d6021200634a8b2ca4e998b498b",
+      "mode": 1,
+      "passReady": true,
+      "pixels": 5251,
+      "mean": 0.079596421466822,
+      "sample": "RGBA(0.290, 0.145, 0.114, 0.588)"
+    },
+    {
+      "shader": "UPlayGround/Environment/Vegetation/c83e0d6021200634a8b2ca4e998b498b",
+      "mode": 2,
+      "passReady": true,
+      "pixels": 5251,
+      "mean": 0.079596421466822,
+      "sample": "RGBA(0.290, 0.145, 0.114, 0.588)"
+    },
+    {
+      "shader": "UPlayGround/Environment/Vegetation/2ae88eff124d8d642a5035dbb580dfbe",
+      "mode": 0,
+      "passReady": true,
+      "pixels": 1296,
+      "mean": 0.07881566611946934,
+      "sample": "RGBA(0.090, 0.153, 0.020, 1.000)"
+    },
+    {
+      "shader": "UPlayGround/Environment/Vegetation/2ae88eff124d8d642a5035dbb580dfbe",
+      "mode": 1,
+      "passReady": true,
+      "pixels": 1296,
+      "mean": 0.07881566611946934,
+      "sample": "RGBA(0.090, 0.153, 0.020, 1.000)"
+    },
+    {
+      "shader": "UPlayGround/Environment/Vegetation/2ae88eff124d8d642a5035dbb580dfbe",
+      "mode": 2,
+      "passReady": true,
+      "pixels": 1296,
+      "mean": 0.07881566611946934,
+      "sample": "RGBA(0.090, 0.153, 0.020, 1.000)"
+    },
+    {
+      "shader": "UPlayGround/Environment/Vegetation/cddbef5a918a4a4a9beba91b949025d6",
+      "mode": 0,
+      "passReady": true,
+      "pixels": 8540,
+      "mean": 0.09440847897912125,
+      "sample": "RGBA(0.043, 0.110, 0.016, 1.000)"
+    },
+    {
+      "shader": "UPlayGround/Environment/Vegetation/cddbef5a918a4a4a9beba91b949025d6",
+      "mode": 1,
+      "passReady": true,
+      "pixels": 8540,
+      "mean": 0.09440847897912125,
+      "sample": "RGBA(0.043, 0.110, 0.016, 1.000)"
+    },
+    {
+      "shader": "UPlayGround/Environment/Vegetation/cddbef5a918a4a4a9beba91b949025d6",
+      "mode": 2,
+      "passReady": true,
+      "pixels": 8540,
+      "mean": 0.04573051399790469,
+      "sample": "RGBA(0.043, 0.110, 0.016, 1.000)"
+    },
+    {
+      "shader": "UPlayGround/Environment/Vegetation/02910e9d59bff1348925f3cfba75c5cd",
+      "mode": 0,
+      "passReady": true,
+      "pixels": 4852,
+      "mean": 0.02677394819328815,
+      "sample": "RGBA(0.012, 0.031, 0.016, 0.553)"
+    },
+    {
+      "shader": "UPlayGround/Environment/Vegetation/02910e9d59bff1348925f3cfba75c5cd",
+      "mode": 1,
+      "passReady": true,
+      "pixels": 4852,
+      "mean": 0.02677394819328815,
+      "sample": "RGBA(0.012, 0.031, 0.016, 0.553)"
+    },
+    {
+      "shader": "UPlayGround/Environment/Vegetation/02910e9d59bff1348925f3cfba75c5cd",
+      "mode": 2,
+      "passReady": true,
+      "pixels": 4852,
+      "mean": 0.02677394819328815,
+      "sample": "RGBA(0.012, 0.031, 0.016, 0.553)"
+    },
+    {
+      "shader": "UPlayGround/Environment/Vegetation/90363b2158dd4a5b87d0dfe394cdde30",
+      "mode": 0,
+      "passReady": true,
+      "pixels": 5501,
+      "mean": 0.03839088312874208,
+      "sample": "RGBA(0.039, 0.157, 0.055, 1.000)"
+    },
+    {
+      "shader": "UPlayGround/Environment/Vegetation/90363b2158dd4a5b87d0dfe394cdde30",
+      "mode": 1,
+      "passReady": true,
+      "pixels": 5501,
+      "mean": 0.03839088312874208,
+      "sample": "RGBA(0.039, 0.157, 0.055, 1.000)"
+    },
+    {
+      "shader": "UPlayGround/Environment/Vegetation/90363b2158dd4a5b87d0dfe394cdde30",
+      "mode": 2,
+      "passReady": true,
+      "pixels": 5501,
+      "mean": 0.03839088312874208,
+      "sample": "RGBA(0.039, 0.157, 0.055, 1.000)"
+    },
+    {
+      "shader": "UPlayGround/Environment/Vegetation/7759558812c7224468eca9e51d672aed",
+      "mode": 0,
+      "passReady": true,
+      "pixels": 698,
+      "mean": 0.029864975477194286,
+      "sample": "RGBA(0.012, 0.004, 0.051, 1.000)"
+    },
+    {
+      "shader": "UPlayGround/Environment/Vegetation/7759558812c7224468eca9e51d672aed",
+      "mode": 1,
+      "passReady": true,
+      "pixels": 698,
+      "mean": 0.029864975477194286,
+      "sample": "RGBA(0.012, 0.004, 0.051, 1.000)"
+    },
+    {
+      "shader": "UPlayGround/Environment/Vegetation/7759558812c7224468eca9e51d672aed",
+      "mode": 2,
+      "passReady": true,
+      "pixels": 698,
+      "mean": 0.017253779381453144,
+      "sample": "RGBA(0.012, 0.004, 0.051, 1.000)"
+    }
+  ],
+  "compiler": "codedom"
+}

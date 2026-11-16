@@ -2014,6 +2014,7 @@ HLSLPROGRAM
 #define VARYINGS_NEED_TEXCOORD0
 #define FEATURES_GRAPH_VERTEX
 /* WARNING: $splice Could not find named fragment 'PassInstancing' */
+#define VARYINGS_NEED_POSITION_WS
 #define SHADERPASS SHADERPASS_SHADOWCASTER
 #define _ALPHATEST_ON 1
 
@@ -2054,6 +2055,7 @@ struct Attributes
 };
 struct Varyings
 {
+float3 positionWS;
  float4 positionCS : SV_POSITION;
  float3 normalWS;
  float4 texCoord0;
@@ -2072,6 +2074,7 @@ struct Varyings
 };
 struct SurfaceDescriptionInputs
 {
+float3 WorldSpacePosition;
  float4 uv0;
 };
 struct VertexDescriptionInputs
@@ -2085,6 +2088,7 @@ struct VertexDescriptionInputs
 };
 struct PackedVaryings
 {
+float3 completionPositionWS : INTERP2;
  float4 positionCS : SV_POSITION;
  float4 texCoord0 : INTERP0;
  float3 normalWS : INTERP1;
@@ -2106,6 +2110,7 @@ PackedVaryings PackVaryings (Varyings input)
 {
 PackedVaryings output;
 ZERO_INITIALIZE(PackedVaryings, output);
+output.completionPositionWS = input.positionWS;
 output.positionCS = input.positionCS;
 output.texCoord0.xyzw = input.texCoord0;
 output.normalWS.xyz = input.normalWS;
@@ -2127,6 +2132,7 @@ return output;
 Varyings UnpackVaryings (PackedVaryings input)
 {
 Varyings output;
+output.positionWS = input.completionPositionWS;
 output.positionCS = input.positionCS;
 output.texCoord0 = input.texCoord0.xyzw;
 output.normalWS = input.normalWS.xyz;
@@ -2507,7 +2513,7 @@ float _Property_99bb0b22edbb4ea0b1b7844414b876a7_Out_0_Float = _Alpha_Clip;
 surface.Alpha = _Multiply_cf1ea983d11e4ab7b4bdbbb064ad94b5_Out_2_Float;
 surface.AlphaClipThreshold = _Property_99bb0b22edbb4ea0b1b7844414b876a7_Out_0_Float;
 float3 reactionUnusedColor = 0, reactionUnusedEmission = 0;
-ClipVegetationFuel(TransformObjectToWorld(float3(0,0,0)));
+ClipVegetationFuel(IN.WorldSpacePosition);
 return surface;
 }
 
@@ -2539,6 +2545,7 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
 {
     SurfaceDescriptionInputs output;
     ZERO_INITIALIZE(SurfaceDescriptionInputs, output);
+output.WorldSpacePosition = input.positionWS;
 
 #ifdef HAVE_VFX_MODIFICATION
 #if VFX_USE_GRAPH_VALUES
@@ -2647,6 +2654,7 @@ HLSLPROGRAM
 #define VARYINGS_NEED_TEXCOORD0
 #define FEATURES_GRAPH_VERTEX
 /* WARNING: $splice Could not find named fragment 'PassInstancing' */
+#define VARYINGS_NEED_POSITION_WS
 #define SHADERPASS SHADERPASS_MOTION_VECTORS
 #define _ALPHATEST_ON 1
 
@@ -2687,6 +2695,7 @@ struct Attributes
 };
 struct Varyings
 {
+float3 positionWS;
  float4 positionCS : SV_POSITION;
  float4 texCoord0;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
@@ -2704,6 +2713,7 @@ struct Varyings
 };
 struct SurfaceDescriptionInputs
 {
+float3 WorldSpacePosition;
  float4 uv0;
 };
 struct VertexDescriptionInputs
@@ -2716,6 +2726,7 @@ struct VertexDescriptionInputs
 };
 struct PackedVaryings
 {
+float3 completionPositionWS : INTERP1;
  float4 positionCS : SV_POSITION;
  float4 texCoord0 : INTERP0;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
@@ -2736,6 +2747,7 @@ PackedVaryings PackVaryings (Varyings input)
 {
 PackedVaryings output;
 ZERO_INITIALIZE(PackedVaryings, output);
+output.completionPositionWS = input.positionWS;
 output.positionCS = input.positionCS;
 output.texCoord0.xyzw = input.texCoord0;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
@@ -2756,6 +2768,7 @@ return output;
 Varyings UnpackVaryings (PackedVaryings input)
 {
 Varyings output;
+output.positionWS = input.completionPositionWS;
 output.positionCS = input.positionCS;
 output.texCoord0 = input.texCoord0.xyzw;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
@@ -3131,7 +3144,7 @@ float _Property_99bb0b22edbb4ea0b1b7844414b876a7_Out_0_Float = _Alpha_Clip;
 surface.Alpha = _Multiply_cf1ea983d11e4ab7b4bdbbb064ad94b5_Out_2_Float;
 surface.AlphaClipThreshold = _Property_99bb0b22edbb4ea0b1b7844414b876a7_Out_0_Float;
 float3 reactionUnusedColor = 0, reactionUnusedEmission = 0;
-ClipVegetationFuel(TransformObjectToWorld(float3(0,0,0)));
+ClipVegetationFuel(IN.WorldSpacePosition);
 return surface;
 }
 
@@ -3162,6 +3175,7 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
 {
     SurfaceDescriptionInputs output;
     ZERO_INITIALIZE(SurfaceDescriptionInputs, output);
+output.WorldSpacePosition = input.positionWS;
 
 #ifdef HAVE_VFX_MODIFICATION
 #if VFX_USE_GRAPH_VALUES
@@ -3273,6 +3287,7 @@ HLSLPROGRAM
 #define VARYINGS_NEED_TEXCOORD0
 #define FEATURES_GRAPH_VERTEX
 /* WARNING: $splice Could not find named fragment 'PassInstancing' */
+#define VARYINGS_NEED_POSITION_WS
 #define SHADERPASS SHADERPASS_DEPTHONLY
 #define _ALPHATEST_ON 1
 
@@ -3313,6 +3328,7 @@ struct Attributes
 };
 struct Varyings
 {
+float3 positionWS;
  float4 positionCS : SV_POSITION;
  float4 texCoord0;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
@@ -3330,6 +3346,7 @@ struct Varyings
 };
 struct SurfaceDescriptionInputs
 {
+float3 WorldSpacePosition;
  float4 uv0;
 };
 struct VertexDescriptionInputs
@@ -3343,6 +3360,7 @@ struct VertexDescriptionInputs
 };
 struct PackedVaryings
 {
+float3 completionPositionWS : INTERP1;
  float4 positionCS : SV_POSITION;
  float4 texCoord0 : INTERP0;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
@@ -3363,6 +3381,7 @@ PackedVaryings PackVaryings (Varyings input)
 {
 PackedVaryings output;
 ZERO_INITIALIZE(PackedVaryings, output);
+output.completionPositionWS = input.positionWS;
 output.positionCS = input.positionCS;
 output.texCoord0.xyzw = input.texCoord0;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
@@ -3383,6 +3402,7 @@ return output;
 Varyings UnpackVaryings (PackedVaryings input)
 {
 Varyings output;
+output.positionWS = input.completionPositionWS;
 output.positionCS = input.positionCS;
 output.texCoord0 = input.texCoord0.xyzw;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
@@ -3762,7 +3782,7 @@ float _Property_99bb0b22edbb4ea0b1b7844414b876a7_Out_0_Float = _Alpha_Clip;
 surface.Alpha = _Multiply_cf1ea983d11e4ab7b4bdbbb064ad94b5_Out_2_Float;
 surface.AlphaClipThreshold = _Property_99bb0b22edbb4ea0b1b7844414b876a7_Out_0_Float;
 float3 reactionUnusedColor = 0, reactionUnusedEmission = 0;
-ClipVegetationFuel(TransformObjectToWorld(float3(0,0,0)));
+ClipVegetationFuel(IN.WorldSpacePosition);
 return surface;
 }
 
@@ -3794,6 +3814,7 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
 {
     SurfaceDescriptionInputs output;
     ZERO_INITIALIZE(SurfaceDescriptionInputs, output);
+output.WorldSpacePosition = input.positionWS;
 
 #ifdef HAVE_VFX_MODIFICATION
 #if VFX_USE_GRAPH_VALUES
@@ -3907,6 +3928,7 @@ HLSLPROGRAM
 #define VARYINGS_NEED_TEXCOORD0
 #define FEATURES_GRAPH_VERTEX
 /* WARNING: $splice Could not find named fragment 'PassInstancing' */
+#define VARYINGS_NEED_POSITION_WS
 #define SHADERPASS SHADERPASS_DEPTHNORMALS
 #define _ALPHATEST_ON 1
 
@@ -3949,6 +3971,7 @@ struct Attributes
 };
 struct Varyings
 {
+float3 positionWS;
  float4 positionCS : SV_POSITION;
  float3 normalWS;
  float4 tangentWS;
@@ -3968,6 +3991,7 @@ struct Varyings
 };
 struct SurfaceDescriptionInputs
 {
+float3 WorldSpacePosition;
  float3 TangentSpaceNormal;
  float4 uv0;
 };
@@ -3982,6 +4006,7 @@ struct VertexDescriptionInputs
 };
 struct PackedVaryings
 {
+float3 completionPositionWS : INTERP3;
  float4 positionCS : SV_POSITION;
  float4 tangentWS : INTERP0;
  float4 texCoord0 : INTERP1;
@@ -4004,6 +4029,7 @@ PackedVaryings PackVaryings (Varyings input)
 {
 PackedVaryings output;
 ZERO_INITIALIZE(PackedVaryings, output);
+output.completionPositionWS = input.positionWS;
 output.positionCS = input.positionCS;
 output.tangentWS.xyzw = input.tangentWS;
 output.texCoord0.xyzw = input.texCoord0;
@@ -4026,6 +4052,7 @@ return output;
 Varyings UnpackVaryings (PackedVaryings input)
 {
 Varyings output;
+output.positionWS = input.completionPositionWS;
 output.positionCS = input.positionCS;
 output.tangentWS = input.tangentWS.xyzw;
 output.texCoord0 = input.texCoord0.xyzw;
@@ -4409,7 +4436,7 @@ surface.NormalTS = IN.TangentSpaceNormal;
 surface.Alpha = _Multiply_cf1ea983d11e4ab7b4bdbbb064ad94b5_Out_2_Float;
 surface.AlphaClipThreshold = _Property_99bb0b22edbb4ea0b1b7844414b876a7_Out_0_Float;
 float3 reactionUnusedColor = 0, reactionUnusedEmission = 0;
-ClipVegetationFuel(TransformObjectToWorld(float3(0,0,0)));
+ClipVegetationFuel(IN.WorldSpacePosition);
 return surface;
 }
 
@@ -4441,6 +4468,7 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
 {
     SurfaceDescriptionInputs output;
     ZERO_INITIALIZE(SurfaceDescriptionInputs, output);
+output.WorldSpacePosition = input.positionWS;
 
 #ifdef HAVE_VFX_MODIFICATION
 #if VFX_USE_GRAPH_VALUES
@@ -5386,6 +5414,7 @@ HLSLPROGRAM
 #define VARYINGS_NEED_TEXCOORD0
 #define FEATURES_GRAPH_VERTEX
 /* WARNING: $splice Could not find named fragment 'PassInstancing' */
+#define VARYINGS_NEED_POSITION_WS
 #define SHADERPASS SHADERPASS_DEPTHONLY
 #define SCENESELECTIONPASS 1
 #define ALPHA_CLIP_THRESHOLD 1
@@ -5428,6 +5457,7 @@ struct Attributes
 };
 struct Varyings
 {
+float3 positionWS;
  float4 positionCS : SV_POSITION;
  float4 texCoord0;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
@@ -5445,6 +5475,7 @@ struct Varyings
 };
 struct SurfaceDescriptionInputs
 {
+float3 WorldSpacePosition;
  float4 uv0;
 };
 struct VertexDescriptionInputs
@@ -5458,6 +5489,7 @@ struct VertexDescriptionInputs
 };
 struct PackedVaryings
 {
+float3 completionPositionWS : INTERP1;
  float4 positionCS : SV_POSITION;
  float4 texCoord0 : INTERP0;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
@@ -5478,6 +5510,7 @@ PackedVaryings PackVaryings (Varyings input)
 {
 PackedVaryings output;
 ZERO_INITIALIZE(PackedVaryings, output);
+output.completionPositionWS = input.positionWS;
 output.positionCS = input.positionCS;
 output.texCoord0.xyzw = input.texCoord0;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
@@ -5498,6 +5531,7 @@ return output;
 Varyings UnpackVaryings (PackedVaryings input)
 {
 Varyings output;
+output.positionWS = input.completionPositionWS;
 output.positionCS = input.positionCS;
 output.texCoord0 = input.texCoord0.xyzw;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
@@ -5877,7 +5911,7 @@ float _Property_99bb0b22edbb4ea0b1b7844414b876a7_Out_0_Float = _Alpha_Clip;
 surface.Alpha = _Multiply_cf1ea983d11e4ab7b4bdbbb064ad94b5_Out_2_Float;
 surface.AlphaClipThreshold = _Property_99bb0b22edbb4ea0b1b7844414b876a7_Out_0_Float;
 float3 reactionUnusedColor = 0, reactionUnusedEmission = 0;
-ClipVegetationFuel(TransformObjectToWorld(float3(0,0,0)));
+ClipVegetationFuel(IN.WorldSpacePosition);
 return surface;
 }
 
@@ -5909,6 +5943,7 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
 {
     SurfaceDescriptionInputs output;
     ZERO_INITIALIZE(SurfaceDescriptionInputs, output);
+output.WorldSpacePosition = input.positionWS;
 
 #ifdef HAVE_VFX_MODIFICATION
 #if VFX_USE_GRAPH_VALUES
@@ -10496,6 +10531,7 @@ HLSLPROGRAM
 #define VARYINGS_NEED_TEXCOORD0
 #define FEATURES_GRAPH_VERTEX
 /* WARNING: $splice Could not find named fragment 'PassInstancing' */
+#define VARYINGS_NEED_POSITION_WS
 #define SHADERPASS SHADERPASS_SHADOWCASTER
 #define BUILTIN_TARGET_API 1
 #define _BUILTIN_AlphaClip 1
@@ -10545,6 +10581,7 @@ struct Attributes
 };
 struct Varyings
 {
+float3 positionWS;
  float4 positionCS : SV_POSITION;
  float4 texCoord0;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
@@ -10562,6 +10599,7 @@ struct Varyings
 };
 struct SurfaceDescriptionInputs
 {
+float3 WorldSpacePosition;
  float4 uv0;
 };
 struct VertexDescriptionInputs
@@ -10575,6 +10613,7 @@ struct VertexDescriptionInputs
 };
 struct PackedVaryings
 {
+float3 completionPositionWS : INTERP1;
  float4 positionCS : SV_POSITION;
  float4 texCoord0 : INTERP0;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
@@ -10595,6 +10634,7 @@ PackedVaryings PackVaryings (Varyings input)
 {
 PackedVaryings output;
 ZERO_INITIALIZE(PackedVaryings, output);
+output.completionPositionWS = input.positionWS;
 output.positionCS = input.positionCS;
 output.texCoord0.xyzw = input.texCoord0;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
@@ -10615,6 +10655,7 @@ return output;
 Varyings UnpackVaryings (PackedVaryings input)
 {
 Varyings output;
+output.positionWS = input.completionPositionWS;
 output.positionCS = input.positionCS;
 output.texCoord0 = input.texCoord0.xyzw;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
@@ -10993,7 +11034,7 @@ float _Property_99bb0b22edbb4ea0b1b7844414b876a7_Out_0_Float = _Alpha_Clip;
 surface.Alpha = _Multiply_cf1ea983d11e4ab7b4bdbbb064ad94b5_Out_2_Float;
 surface.AlphaClipThreshold = _Property_99bb0b22edbb4ea0b1b7844414b876a7_Out_0_Float;
 float3 reactionUnusedColor = 0, reactionUnusedEmission = 0;
-ClipVegetationFuel(TransformObjectToWorld(float3(0,0,0)));
+ClipVegetationFuel(IN.WorldSpacePosition);
 return surface;
 }
 
@@ -11021,6 +11062,7 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
 {
     SurfaceDescriptionInputs output;
     ZERO_INITIALIZE(SurfaceDescriptionInputs, output);
+output.WorldSpacePosition = input.positionWS;
 
     
 
@@ -11173,6 +11215,7 @@ HLSLPROGRAM
 #define VARYINGS_NEED_TEXCOORD0
 #define FEATURES_GRAPH_VERTEX
 /* WARNING: $splice Could not find named fragment 'PassInstancing' */
+#define VARYINGS_NEED_POSITION_WS
 #define SHADERPASS SHADERPASS_DEPTHONLY
 #define BUILTIN_TARGET_API 1
 #define _BUILTIN_AlphaClip 1
@@ -11222,6 +11265,7 @@ struct Attributes
 };
 struct Varyings
 {
+float3 positionWS;
  float4 positionCS : SV_POSITION;
  float4 texCoord0;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
@@ -11239,6 +11283,7 @@ struct Varyings
 };
 struct SurfaceDescriptionInputs
 {
+float3 WorldSpacePosition;
  float4 uv0;
 };
 struct VertexDescriptionInputs
@@ -11252,6 +11297,7 @@ struct VertexDescriptionInputs
 };
 struct PackedVaryings
 {
+float3 completionPositionWS : INTERP1;
  float4 positionCS : SV_POSITION;
  float4 texCoord0 : INTERP0;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
@@ -11272,6 +11318,7 @@ PackedVaryings PackVaryings (Varyings input)
 {
 PackedVaryings output;
 ZERO_INITIALIZE(PackedVaryings, output);
+output.completionPositionWS = input.positionWS;
 output.positionCS = input.positionCS;
 output.texCoord0.xyzw = input.texCoord0;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
@@ -11292,6 +11339,7 @@ return output;
 Varyings UnpackVaryings (PackedVaryings input)
 {
 Varyings output;
+output.positionWS = input.completionPositionWS;
 output.positionCS = input.positionCS;
 output.texCoord0 = input.texCoord0.xyzw;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
@@ -11670,7 +11718,7 @@ float _Property_99bb0b22edbb4ea0b1b7844414b876a7_Out_0_Float = _Alpha_Clip;
 surface.Alpha = _Multiply_cf1ea983d11e4ab7b4bdbbb064ad94b5_Out_2_Float;
 surface.AlphaClipThreshold = _Property_99bb0b22edbb4ea0b1b7844414b876a7_Out_0_Float;
 float3 reactionUnusedColor = 0, reactionUnusedEmission = 0;
-ClipVegetationFuel(TransformObjectToWorld(float3(0,0,0)));
+ClipVegetationFuel(IN.WorldSpacePosition);
 return surface;
 }
 
@@ -11698,6 +11746,7 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
 {
     SurfaceDescriptionInputs output;
     ZERO_INITIALIZE(SurfaceDescriptionInputs, output);
+output.WorldSpacePosition = input.positionWS;
 
     
 
@@ -12721,6 +12770,7 @@ HLSLPROGRAM
 #define VARYINGS_NEED_TEXCOORD0
 #define FEATURES_GRAPH_VERTEX
 /* WARNING: $splice Could not find named fragment 'PassInstancing' */
+#define VARYINGS_NEED_POSITION_WS
 #define SHADERPASS SceneSelectionPass
 #define BUILTIN_TARGET_API 1
 #define SCENESELECTIONPASS 1
@@ -12771,6 +12821,7 @@ struct Attributes
 };
 struct Varyings
 {
+float3 positionWS;
  float4 positionCS : SV_POSITION;
  float4 texCoord0;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
@@ -12788,6 +12839,7 @@ struct Varyings
 };
 struct SurfaceDescriptionInputs
 {
+float3 WorldSpacePosition;
  float4 uv0;
 };
 struct VertexDescriptionInputs
@@ -12801,6 +12853,7 @@ struct VertexDescriptionInputs
 };
 struct PackedVaryings
 {
+float3 completionPositionWS : INTERP1;
  float4 positionCS : SV_POSITION;
  float4 texCoord0 : INTERP0;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
@@ -12821,6 +12874,7 @@ PackedVaryings PackVaryings (Varyings input)
 {
 PackedVaryings output;
 ZERO_INITIALIZE(PackedVaryings, output);
+output.completionPositionWS = input.positionWS;
 output.positionCS = input.positionCS;
 output.texCoord0.xyzw = input.texCoord0;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
@@ -12841,6 +12895,7 @@ return output;
 Varyings UnpackVaryings (PackedVaryings input)
 {
 Varyings output;
+output.positionWS = input.completionPositionWS;
 output.positionCS = input.positionCS;
 output.texCoord0 = input.texCoord0.xyzw;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
@@ -13219,7 +13274,7 @@ float _Property_99bb0b22edbb4ea0b1b7844414b876a7_Out_0_Float = _Alpha_Clip;
 surface.Alpha = _Multiply_cf1ea983d11e4ab7b4bdbbb064ad94b5_Out_2_Float;
 surface.AlphaClipThreshold = _Property_99bb0b22edbb4ea0b1b7844414b876a7_Out_0_Float;
 float3 reactionUnusedColor = 0, reactionUnusedEmission = 0;
-ClipVegetationFuel(TransformObjectToWorld(float3(0,0,0)));
+ClipVegetationFuel(IN.WorldSpacePosition);
 return surface;
 }
 
@@ -13247,6 +13302,7 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
 {
     SurfaceDescriptionInputs output;
     ZERO_INITIALIZE(SurfaceDescriptionInputs, output);
+output.WorldSpacePosition = input.positionWS;
 
     
 
@@ -13395,6 +13451,7 @@ HLSLPROGRAM
 #define VARYINGS_NEED_TEXCOORD0
 #define FEATURES_GRAPH_VERTEX
 /* WARNING: $splice Could not find named fragment 'PassInstancing' */
+#define VARYINGS_NEED_POSITION_WS
 #define SHADERPASS ScenePickingPass
 #define BUILTIN_TARGET_API 1
 #define SCENEPICKINGPASS 1
@@ -13445,6 +13502,7 @@ struct Attributes
 };
 struct Varyings
 {
+float3 positionWS;
  float4 positionCS : SV_POSITION;
  float4 texCoord0;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
@@ -13462,6 +13520,7 @@ struct Varyings
 };
 struct SurfaceDescriptionInputs
 {
+float3 WorldSpacePosition;
  float4 uv0;
 };
 struct VertexDescriptionInputs
@@ -13475,6 +13534,7 @@ struct VertexDescriptionInputs
 };
 struct PackedVaryings
 {
+float3 completionPositionWS : INTERP1;
  float4 positionCS : SV_POSITION;
  float4 texCoord0 : INTERP0;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
@@ -13495,6 +13555,7 @@ PackedVaryings PackVaryings (Varyings input)
 {
 PackedVaryings output;
 ZERO_INITIALIZE(PackedVaryings, output);
+output.completionPositionWS = input.positionWS;
 output.positionCS = input.positionCS;
 output.texCoord0.xyzw = input.texCoord0;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
@@ -13515,6 +13576,7 @@ return output;
 Varyings UnpackVaryings (PackedVaryings input)
 {
 Varyings output;
+output.positionWS = input.completionPositionWS;
 output.positionCS = input.positionCS;
 output.texCoord0 = input.texCoord0.xyzw;
 #if UNITY_ANY_INSTANCING_ENABLED || defined(VARYINGS_NEED_INSTANCEID)
@@ -13893,7 +13955,7 @@ float _Property_99bb0b22edbb4ea0b1b7844414b876a7_Out_0_Float = _Alpha_Clip;
 surface.Alpha = _Multiply_cf1ea983d11e4ab7b4bdbbb064ad94b5_Out_2_Float;
 surface.AlphaClipThreshold = _Property_99bb0b22edbb4ea0b1b7844414b876a7_Out_0_Float;
 float3 reactionUnusedColor = 0, reactionUnusedEmission = 0;
-ClipVegetationFuel(TransformObjectToWorld(float3(0,0,0)));
+ClipVegetationFuel(IN.WorldSpacePosition);
 return surface;
 }
 
@@ -13921,6 +13983,7 @@ SurfaceDescriptionInputs BuildSurfaceDescriptionInputs(Varyings input)
 {
     SurfaceDescriptionInputs output;
     ZERO_INITIALIZE(SurfaceDescriptionInputs, output);
+output.WorldSpacePosition = input.positionWS;
 
     
 

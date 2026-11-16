@@ -64,11 +64,13 @@ namespace UPlayGround.Gameplay.World.LivingWorld
                 var camera = frameData.Get<UniversalCameraData>().camera;
                 var resources = frameData.Get<UniversalResourceData>();
                 TextureHandle depth = resources.activeDepthTexture;
-                bool hasNormals = _isDepth && resources.cameraNormalsTexture.IsValid();
                 if (_isDepth && resources.cameraDepthTexture.IsValid()
                     && graph.GetTextureDesc(resources.cameraDepthTexture).depthBufferBits != DepthBits.None)
                     depth = resources.cameraDepthTexture;
                 if (!depth.IsValid()) return;
+                // URP의 단일 샘플 노멀과 MSAA 활성 깊이는 같은 래스터 패스에 연결할 수 없다.
+                bool hasNormals = _isDepth && resources.cameraNormalsTexture.IsValid()
+                    && graph.GetTextureDesc(resources.cameraNormalsTexture).msaaSamples == graph.GetTextureDesc(depth).msaaSamples;
                 _visible.Clear();
                 GeometryUtility.CalculateFrustumPlanes(camera, _planes);
                 for (int i = 0; i < Groups.Count; i++)

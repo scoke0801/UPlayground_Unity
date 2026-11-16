@@ -146,6 +146,7 @@ namespace UPlayGround.Manager
             foreach (var target in _lightningTargets)
             {
                 if (!target.IsAvailable || !_environmentLookup.TryGetValue(target, out var binding)
+                    || HasEndedEnvironmentReaction(binding)
                     || binding.record.mapId != strike.MapId || target.Definition.surfaceLayerId != strike.SurfaceLayerId) continue;
                 var direction = target.ReactionPosition - source.position;
                 if (target != direct && IsEnvironmentSourceBlocked(source, target.OcclusionRoot, direction, direction.magnitude)) continue;

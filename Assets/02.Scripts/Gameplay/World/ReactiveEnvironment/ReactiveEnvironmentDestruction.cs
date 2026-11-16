@@ -22,6 +22,17 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
         private EnvironmentDestructionRecipeSO _recipe;
         private Vector3 _impactDirection;
         private PhysicsScene _physicsScene;
+        public Vector3 RewardPosition => _fallPivot != null ? _fallPivot.position : transform.position;
+
+        /// <summary>정착한 잔해는 통행을 막지 않고 단말 포즈는 숨긴다.</summary>
+        public void ApplyCompletion(bool settled, bool cleared)
+        {
+            if (settled)
+                foreach (var obstacle in _remnantObstacles) if (obstacle != null) obstacle.enabled = false;
+            if (!cleared) return;
+            if (_fallPivot != null) _fallPivot.gameObject.SetActive(false);
+            if (_blockedFallback != null) _blockedFallback.SetActive(false);
+        }
 
         /// <summary>소유 표현의 원래 상태를 한 번만 보관한다.</summary>
         public void Initialize()
@@ -116,7 +127,9 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
         private Vector3 ChooseFallDirection(EnvironmentDestructionRecipeSO recipe)
         {
             if (recipe.mode != EnvironmentDestructionMode.DirectionalFall) return Vector3.zero;
-            Vector3 direction = _impactDirection.sqrMagnitude > 0.001f ? _impactDirection.normalized : transform.forward;
+            Vector3 direction = _impactDirection.sqrMagnitude > 0.001f ? _impactDirection.normalized
+                : Vector3.ProjectOnPlane(transform.forward, Vector3.up).normalized;
+            if (direction.sqrMagnitude < 0.5f) direction = Vector3.forward;
             // 충격 방향과 측면을 검사해 길막/액터 겹침이 없는 저작 궤적만 선택한다.
             for (int candidate = 0; candidate < 5; candidate++)
             {
@@ -135,10 +148,15 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
         {
             if (_fallPivot == null || _recipe == null) return false;
             Vector3 axis = Vector3.Cross(Vector3.up, direction).normalized;
-            Vector3 up = Quaternion.AngleAxis(_recipe.fallAngle * progress, axis) * Vector3.up;
-            Vector3 start = _fallPivot.position + Vector3.up * (_recipe.trunkRadius * 1.1f);
-            Vector3 end = _fallPivot.position + up * _recipe.trunkLength;
-            int count = _physicsScene.OverlapCapsule(start, end, _recipe.trunkRadius, _overlaps,
+            Vector3 scale = _fallPivot.lossyScale;
+            float radius = _recipe.trunkRadius * (_recipe.useLocalDimensions ? Mathf.Max(Mathf.Abs(scale.x), Mathf.Abs(scale.z)) : 1);
+            float length = _recipe.trunkLength * (_recipe.useLocalDimensions ? Mathf.Abs(scale.y) : 1);
+            Vector3 standingUp = _recipe.useLocalDimensions
+                ? _fallPivot.parent.TransformDirection(_initialLocalRotation * Vector3.up) : Vector3.up;
+            Vector3 up = Quaternion.AngleAxis(_recipe.fallAngle * progress, axis) * standingUp;
+            Vector3 start = _fallPivot.position + (_recipe.useLocalDimensions ? up : Vector3.up) * (radius * 1.1f);
+            Vector3 end = _fallPivot.position + up * length;
+            int count = _physicsScene.OverlapCapsule(start, end, radius, _overlaps,
                 _recipe.fallBlockerLayers, QueryTriggerInteraction.Ignore);
             for (int i = 0; i < count; i++) if (!_overlaps[i].transform.IsChildOf(transform)) return true;
             return count == _overlaps.Length;

@@ -109,6 +109,12 @@ half4 EnvBase(EnvVaryings input)
 }
 void EnvClip(EnvVaryings input)
 {
+    if (_EnvState1.z > 0)
+    {
+        float3 cell = frac(floor(input.positionWS * 32) * 0.1031);
+        cell += dot(cell, cell.yzx + 33.33);
+        clip(1 - saturate(_EnvState1.z) - frac((cell.x + cell.y) * cell.z) - 0.00001);
+    }
     if (_AlphaClip > 0.5) clip(EnvBase(input).a - _Cutoff);
     // 실루엣 소거는 저작자가 허용한 잎에만 적용한다. 구조물 Collider는 셰이더가 바꾸지 않는다.
     if (_AllowFuelCoverage > 0.5 && _SurfaceRole > 0.5 && _SurfaceRole < 1.5)

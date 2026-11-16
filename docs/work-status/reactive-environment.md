@@ -1,5 +1,14 @@
 # 반응형 환경 — 작업 상태
 
+## 나무 파괴 연결 재확인 — 2026-11-15
+
+> 아래는 파괴 전환 전 조사다. 이후 사용자 요청으로 일반 수목4,767개를 파괴형으로 연결했다. 현재 구성·자동 검사·남은 사용자 인수는 [나무 파괴 연결 상태](tree-destruction.md)가 정본이다.
+
+- 사용자 문의에 따라 열린 LakeVillageWorld 씬을 Unity MCP `execute_code`로 읽기 전용 전수 조회했다. Editor는 비재생 상태였다.
+- ReactiveEnvironmentObject15,396개: ArenaTree7,403개(나무·관목), FarmGrass7,164개, ProtectedVegetation829개. 모든 정의의 `reaction.canBreak=false`, `destruction=null`, 모든 대상의 ReactiveEnvironmentDestruction 컴포넌트0개다. ArenaTree는 `canIgnite=true`이며 보호 식생은 `canIgnite=false`다.
+- [실행 코어](../../Assets/02.Scripts/Core/Environment/EnvironmentReaction.cs)의 TryApplyCombatDamage와 연소 Tick은 `canBreak`일 때만 내구도 감소와 파괴를 수행한다. 따라서 현재 일반 나무는 환경 반응에 연결되어 있으나 일반 공격으로 파괴·벌목할 수 있는 구성은 아니다. 나무·관목 합계를 순수 나무 수로 해석하지 않는다.
+- AI 씬 구성 조회·코드 대조 수행. 실제 플레이어 공격 입력 시험은 미수행이며 기존 LV-V02 사용자 테스트 대기를 유지한다. 씬·프리팹·SO 변경, Play 진입, 빌드, 커밋은 하지 않았다. 별도 임시 산출물 없음. [월드 위키](../wiki/world-art.md).
+
 > 최신 설계 추가: [정규 월드 연결 확장](#정규-월드-연결-확장-설계--2026-11-13). 씬 환경 모델 전체 전환·불속성 부여 점화·날씨 낙뢰 점화를 후속 구현 범위로 정했다. 실제 실행 근거는 [MCP 검증](#mcp-실제-실행-검증--2026-11-13)을 유지하며, 이번 설계 추가를 실제 씬 적용이나 새 플레이 검증 완료로 승격하지 않는다.
 
 

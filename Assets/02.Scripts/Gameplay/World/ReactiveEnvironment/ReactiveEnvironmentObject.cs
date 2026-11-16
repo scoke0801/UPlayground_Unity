@@ -36,7 +36,15 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
         private bool _wasFalling;
         private bool _hasPendingCombustion;
         public bool HasPendingFixedTick => _hasPendingCombustion || _hitRemaining > 0 || _hitCooldown > 0
-            || _wasFalling || _appliedDestruction != null && _appliedDestruction.isFalling;
+            || _wasFalling || _appliedDestruction != null && (_appliedDestruction.isFalling
+                || _appliedDestruction.completion != null
+                    && _appliedDestruction.completion.phase >= EnvironmentCompletionPhase.Falling
+                    && _appliedDestruction.completion.phase < EnvironmentCompletionPhase.Cleared);
+        private Collider[] _remnantColliders;
+        private bool[] _remnantColliderEnabled;
+        private EnvironmentCompletionPhase _appliedPhase;
+        /// <summary>움직이는 수관 대신 고정 절단점을 보상의 기준으로 사용한다.</summary>
+        public Vector3 RewardPosition => _destruction != null ? _destruction.RewardPosition : transform.position;
         private bool _hasImpactPoint;
         private Vector3 _impactPoint;
         public bool IsAvailable => this != null;
@@ -46,6 +54,7 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
         /// <summary>명시한 피격 Collider만 전투 검출기에 허용한다.</summary>
         public bool CanReceiveCollider(Collider collider)
         {
+            if (_appliedDestruction?.completion?.phase >= EnvironmentCompletionPhase.Settled) return false;
             if (_hitColliders == null) return false;
             foreach (var candidate in _hitColliders) if (candidate == collider) return true;
             return false;
@@ -149,6 +158,9 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
             _gathering = GetComponent<GatheringActor>();
             _destruction = GetComponent<ReactiveEnvironmentDestruction>();
             _destruction?.Initialize();
+            _remnantColliders = _remnant != null ? _remnant.GetComponentsInChildren<Collider>(true) : System.Array.Empty<Collider>();
+            _remnantColliderEnabled = new bool[_remnantColliders.Length];
+            for (int i = 0; i < _remnantColliders.Length; i++) _remnantColliderEnabled[i] = _remnantColliders[i].enabled;
             if (_visualRoot != null) _visualRotation = _visualRoot.localRotation;
             _surfaceProperties = new MaterialPropertyBlock();
             _surfaces ??= System.Array.Empty<Renderer>();
@@ -290,7 +302,8 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
         /// <summary>파괴 후에도 같은 상태와 잔여 연료를 유지하며 root는 살아 있게 둔다.</summary>
         public void ApplySnapshot(EnvironmentReactionState state, EnvironmentDestructionSaveState destruction = null)
         {
-            if (_hasAppliedSnapshot && State.HasSameValues(state) && ReferenceEquals(_appliedDestruction, destruction))
+            if (_hasAppliedSnapshot && State.HasSameValues(state) && ReferenceEquals(_appliedDestruction, destruction)
+                && _appliedPhase == (destruction?.completion?.phase ?? EnvironmentCompletionPhase.Standing))
             { State = state; RequestFixedTickIfNeeded(); return; }
             // 평상시 젖음/건조는 구조·상처·연소 연출을 다시 연결할 필요가 없다.
             if (_hasAppliedSnapshot && _reactiveSurface != null && _combustionEffects == null
@@ -308,7 +321,8 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
             State = state;
             _appliedDestruction = destruction;
             _hasAppliedSnapshot = true;
-            if (_definition.presentation != null && _burnAnchors != null
+            bool ended = destruction?.completion?.phase >= EnvironmentCompletionPhase.Clearing;
+            if (!ended && _definition.presentation != null && _burnAnchors != null
                 && (state.combustion != EnvironmentCombustion.Inactive || _combustionEffects != null))
             {
                 if (_combustionEffects == null)
@@ -334,12 +348,15 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
             if (changed && _world != null)
                 _world.NotifyEnvironmentStructureChanged(this, GetReactionBounds());
             if (applyFlame && _flame != null) _flame.SetActive(state.combustion == EnvironmentCombustion.Burning);
+            if (destruction?.completion?.phase == EnvironmentCompletionPhase.Cleared)
+            { ApplyCompletion(destruction, false); return; }
             RequestFixedTickIfNeeded();
             if (_definition.surfaceBackend == EnvironmentSurfaceBackend.ReactiveToon)
             {
                 // 액터의 색/피격 표현을 공유하는 모델은 기존 슬롯 갱신 경로를 유지한다.
                 _reactiveSurface ??= new ReactiveEnvironmentSurface(GetSurfaceBindings(), !_hasActorOwner);
                 _reactiveSurface.Apply(state, _definition.reaction.maxDurability, _definition.reaction.initialFuel);
+                ApplyCompletion(destruction, false);
                 if (_impactAnchor != null && _definition.presentation != null)
                 {
                     float radius = _definition.presentation.GetWoundRadius(1 - GetHealthPercent());
@@ -360,6 +377,63 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
                     _surfaces[i].SetPropertyBlock(_surfaceProperties, slot);
                 }
             }
+            ApplyCompletion(destruction, false);
+        }
+
+        /// <summary>중앙 작성자가 확정한 단계만 표현하고 복원 시 지나간 burst를 재생하지 않는다.</summary>
+        internal void ApplyCompletion(EnvironmentDestructionSaveState pose, bool playEffects)
+        {
+            var completion = pose?.completion;
+            if (completion == null) return;
+            _appliedPhase = completion.phase;
+            bool settled = completion.phase >= EnvironmentCompletionPhase.Settled;
+            bool ended = completion.phase >= EnvironmentCompletionPhase.Clearing;
+            bool cleared = completion.phase == EnvironmentCompletionPhase.Cleared;
+            if (_remnantColliders != null)
+                for (int i = 0; i < _remnantColliders.Length; i++)
+                    if (_remnantColliders[i] != null) _remnantColliders[i].enabled = !State.isBroken && _remnantColliderEnabled[i];
+            _destruction?.ApplyCompletion(settled, cleared);
+            if (_remnant != null) _remnant.SetActive(State.isBroken && !cleared);
+            if (ended)
+            {
+                if (_combustionEffects != null) foreach (var effect in _combustionEffects) effect.Release();
+                _hasPendingCombustion = false;
+                if (_flame != null) _flame.SetActive(false);
+                _hitRemaining = _hitCooldown = 0;
+            }
+            if (cleared)
+            {
+                _reactiveSurface?.Release();
+                _wasFalling = false;
+            }
+            else if (_reactiveSurface != null)
+            {
+                var visual = State;
+                if (ended) { visual.combustion = EnvironmentCombustion.Inactive; visual.heat = 0; }
+                float clearing = completion.phase == EnvironmentCompletionPhase.Clearing
+                    ? Mathf.Clamp01(completion.elapsed / _definition.destruction.clearingSeconds) : 0;
+                _reactiveSurface.Apply(visual, _definition.reaction.maxDurability, _definition.reaction.initialFuel, clearing);
+            }
+            if (playEffects && _definition.presentation != null)
+            {
+                var profile = _definition.presentation;
+                Vector3 point = WorldCoordinates.ToWorld(UPlayGround.Manager.World.RegionOwnership.Resolve(transform),
+                    completion.rewardPosition.ToVector3());
+                if (completion.phase == EnvironmentCompletionPhase.Settled)
+                {
+                    Vector3 landing = _landingAnchor != null ? _landingAnchor.position : point;
+                    if (Physics.Raycast(landing + Vector3.up * profile.landingProbeDistance, Vector3.down,
+                        out var ground, profile.landingProbeDistance * 2, profile.landingGroundLayers, QueryTriggerInteraction.Ignore))
+                        PlayBurst(profile.landing, ground.point, ground.normal, profile.landingParticles, profile.landingSound);
+                }
+                if (completion.phase == EnvironmentCompletionPhase.Clearing)
+                {
+                    PlayBurst(profile.clearingChips, point, Vector3.up, profile.clearingParticles, profile.clearingSound);
+                    PlayBurst(profile.clearingDust, point, Vector3.up, profile.clearingParticles, null);
+                    if (_landingAnchor != null) PlayBurst(profile.leaves, _landingAnchor.position, Vector3.up, profile.clearingParticles, null);
+                }
+            }
+            RequestFixedTickIfNeeded();
         }
 
         private Bounds GetReactionBounds()
@@ -383,7 +457,7 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
                 new DamageResult(request.Damage, damage, 1, 0, 1, 1, false, default), default, default);
         }
         public bool IsAlive() => _isBound;
-        public bool CanTakeDamage() => IsAlive();
+        public bool CanTakeDamage() => IsAlive() && !(_appliedDestruction?.completion?.phase >= EnvironmentCompletionPhase.Settled);
         public Transform GetTransform() => transform;
         public void LockOn() { }
         public void UnLockOn() { }
@@ -397,7 +471,7 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
         {
             bool falling = _appliedDestruction != null && _appliedDestruction.isFalling;
             _destruction?.FixedTick(deltaTime);
-            if (_wasFalling && !falling && _landingAnchor != null)
+            if (_appliedDestruction?.completion == null && _wasFalling && !falling && _landingAnchor != null)
             {
                 Vector3 point = _landingAnchor.position;
                 var profile = _definition.presentation;
@@ -471,7 +545,7 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
             if (profile == null) return;
             if (Services.TryGet<IActorQueryService>(out var actors) && actors.PlayerTransform != null
                 && (point - actors.PlayerTransform.position).sqrMagnitude > profile.maximumDistance * profile.maximumDistance) return;
-            if (Services.TryGet<IParticleEffectService>(out var effects))
+            if (prefab != null && Services.TryGet<IParticleEffectService>(out var effects))
             {
                 var particles = effects.RentParticles(prefab, profile.instancesPerEffect);
                 if (particles != null)

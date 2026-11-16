@@ -246,7 +246,7 @@ Shader "UPlayGround/Environment/Vegetation/933532a4fcc9baf4fa0491de14d08ed7"
             // -------------------------------------
             // Includes
             #include "Assets/06.Shaders/Environment/Vegetation/933532a4fcc9baf4fa0491de14d08ed7Input.hlsl"
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/ShadowCasterPass.hlsl"
+            #include "Assets/06.Shaders/Environment/Vegetation/TreeShadowCasterPass.hlsl"
             ENDHLSL
         }
 
@@ -384,7 +384,7 @@ Shader "UPlayGround/Environment/Vegetation/933532a4fcc9baf4fa0491de14d08ed7"
             // -------------------------------------
             // Includes
             #include "Assets/06.Shaders/Environment/Vegetation/933532a4fcc9baf4fa0491de14d08ed7Input.hlsl"
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/DepthOnlyPass.hlsl"
+            #include "Assets/06.Shaders/Environment/Vegetation/TreeDepthOnlyPass.hlsl"
             ENDHLSL
         }
 
@@ -437,7 +437,7 @@ Shader "UPlayGround/Environment/Vegetation/933532a4fcc9baf4fa0491de14d08ed7"
             // -------------------------------------
             // Includes
             #include "Assets/06.Shaders/Environment/Vegetation/933532a4fcc9baf4fa0491de14d08ed7Input.hlsl"
-            #include "Packages/com.unity.render-pipelines.universal/Shaders/LitDepthNormalsPass.hlsl"
+            #include "Assets/06.Shaders/Environment/Vegetation/TreeLitDepthNormalsPass.hlsl"
             ENDHLSL
         }
 
@@ -538,7 +538,7 @@ Shader "UPlayGround/Environment/Vegetation/933532a4fcc9baf4fa0491de14d08ed7"
             #pragma shader_feature_local_vertex _ADD_PRECOMPUTED_VELOCITY
 
             #include "Assets/06.Shaders/Environment/Vegetation/933532a4fcc9baf4fa0491de14d08ed7Input.hlsl"
-            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ObjectMotionVectors.hlsl"
+            #include_with_pragmas "Assets/06.Shaders/Environment/Vegetation/TreeObjectMotionVectors.hlsl"
             ENDHLSL
         }
 
@@ -567,7 +567,7 @@ Shader "UPlayGround/Environment/Vegetation/933532a4fcc9baf4fa0491de14d08ed7"
             #define APPLICATION_SPACE_WARP_MOTION 1
 
             #include "Assets/06.Shaders/Environment/Vegetation/933532a4fcc9baf4fa0491de14d08ed7Input.hlsl"
-            #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/ObjectMotionVectors.hlsl"
+            #include_with_pragmas "Assets/06.Shaders/Environment/Vegetation/TreeObjectMotionVectors.hlsl"
             ENDHLSL
         }
     }

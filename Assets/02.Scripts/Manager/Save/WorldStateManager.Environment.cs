@@ -23,6 +23,7 @@ namespace UPlayGround.Manager
             public int rainSamples;
             public IEnvironmentRainBatchTarget rainTarget;
             public ReactiveEnvironmentDefinitionSO definition;
+            public bool rewardFailureReported;
         }
 
         private Dictionary<(string, string), ReactiveEnvironmentSaveEntry> _environmentStates = new();
@@ -112,9 +113,11 @@ namespace UPlayGround.Manager
                     _environmentNeedsFixedTick = false;
                     for (int i = 0; i < count; i++)
                     {
-                        var target = _environmentBindings[i].target;
+                        var binding = _environmentBindings[i];
+                        var target = binding.target;
                         if (target == null || !target.HasPendingFixedTick || !target.IsAvailable) continue;
                         target.FixedTick(seconds);
+                        AdvanceEnvironmentCompletion(binding, seconds);
                         _environmentNeedsFixedTick |= target.HasPendingFixedTick;
                     }
                 }
@@ -166,7 +169,10 @@ namespace UPlayGround.Manager
                 _environmentLookup.Add(target, binding);
                 _environmentActiveKeys[key] = target;
                 if (target is ReactiveEnvironmentObject sceneObject)
-                { sceneObject.AttachWorldState(this); sceneObject.AttachRainPositions(_environmentRain); }
+                {
+                    sceneObject.AttachWorldState(this);
+                    if (!HasEndedEnvironmentReaction(binding)) sceneObject.AttachRainPositions(_environmentRain);
+                }
                 target.ApplySnapshot(binding.reaction.State, binding.record.destruction);
                 _environmentNeedsFixedTick |= target.HasPendingFixedTick;
                 return true;
@@ -184,9 +190,9 @@ namespace UPlayGround.Manager
             if (_environmentLookup.Remove(target, out var binding))
             {
                 if (target is ReactiveEnvironmentObject sceneObject) sceneObject.DetachRainPositions(_environmentRain);
+                CaptureEnvironment(binding);
                 ReleaseEnvironmentDefinition(binding);
                 _environmentRainCapacity -= binding.rainSamples;
-                CaptureEnvironment(binding);
                 _environmentActiveKeys.Remove((binding.record.mapId, binding.record.guid));
                 binding.target = null;
             }
@@ -206,7 +212,8 @@ namespace UPlayGround.Manager
             if (target != null && target.IsAvailable && _environmentLookup.TryGetValue(target, out var binding))
             {
 
-                if (!binding.reaction.TryApplyImpact(attackId, sequence, damage, heat, water)) return false;
+                if (binding.record.destruction.completion?.phase >= EnvironmentCompletionPhase.Settled
+                    || !binding.reaction.TryApplyImpact(attackId, sequence, damage, heat, water)) return false;
                 CaptureEnvironment(binding);
                 target.ApplySnapshot(binding.reaction.State, binding.record.destruction);
                 _environmentNeedsFixedTick |= target.HasPendingFixedTick;
@@ -222,7 +229,8 @@ namespace UPlayGround.Manager
             if (_environmentLookup.TryGetValue(target, out var binding))
             {
 
-                if (!payload.IsValid || !binding.reaction.TryApplyCombatDamage(damage,
+                if (binding.record.destruction.completion?.phase >= EnvironmentCompletionPhase.Settled
+                    || !payload.IsValid || !binding.reaction.TryApplyCombatDamage(damage,
                     payload.heatImpulse, payload.waterImpulse, payload.kind)) return false;
                 CaptureEnvironment(binding);
                 target.ApplySnapshot(binding.reaction.State, binding.record.destruction);
@@ -253,7 +261,7 @@ namespace UPlayGround.Manager
                     AdvanceEnvironmentReactions(domainStep, count);
                     // 모든 논리 결과를 계산한 뒤 표현·충돌 전이를 적용한다.
                     for (int i = 0; i < count; i++)
-                        if (_environmentBindings[i].target != null)
+                        if (_environmentBindings[i].target != null && !HasEndedEnvironmentReaction(_environmentBindings[i]))
                         {
                             _environmentBindings[i].target.ApplySnapshot(_environmentBindings[i].record.state, _environmentBindings[i].record.destruction);
                             _environmentNeedsFixedTick |= _environmentBindings[i].target != null
@@ -264,7 +272,7 @@ namespace UPlayGround.Manager
                 for (int i = 0; i < count; i++)
                 {
                     var binding = _environmentBindings[i];
-                    if (!binding.record.state.isBroken || binding.record.rewardCommitted) continue;
+                    if (!binding.record.state.isBroken || binding.record.rewardCommitted || !CanCommitEnvironmentReward(binding)) continue;
                     if ((binding.target == null || !binding.target.IsAvailable))
                     { _environmentRewardsPending = true; continue; }
                     CommitEnvironmentReward(binding);
@@ -294,7 +302,7 @@ namespace UPlayGround.Manager
                     binding.target = null;
                     continue;
                 }
-                if (binding.rainSamples > 0
+                if (!HasEndedEnvironmentReaction(binding) && binding.rainSamples > 0
                     && binding.record.tickRemainder + domainStep >= binding.target.Definition.tickSeconds)
                     binding.rainTarget.CollectRainSamples(_environmentRain);
             }
@@ -302,7 +310,7 @@ namespace UPlayGround.Manager
             for (int i = 0; i < count; i++)
             {
                 var binding = _environmentBindings[i];
-                if (binding.target == null) continue;
+                if (binding.target == null || HasEndedEnvironmentReaction(binding)) continue;
                 float step = binding.target.Definition.tickSeconds;
                 binding.record.tickRemainder += domainStep;
                 ApplyEnvironmentSources(binding, domainStep);
@@ -319,14 +327,17 @@ namespace UPlayGround.Manager
         private void CaptureEnvironment(EnvironmentBinding binding)
         {
             binding.record.state = binding.reaction.State;
-            _environmentRewardsPending |= binding.record.state.isBroken && !binding.record.rewardCommitted;
+            if (ClearsEnvironment(binding) && binding.record.state.isBroken
+                && binding.record.destruction.completion.phase == EnvironmentCompletionPhase.Standing)
+                binding.record.destruction.completion.phase = EnvironmentCompletionPhase.Falling;
+            _environmentRewardsPending |= binding.record.state.isBroken && !binding.record.rewardCommitted && CanCommitEnvironmentReward(binding);
             binding.reaction.GetPendingInputs(out binding.record.pendingHeat, out binding.record.pendingWater, out binding.record.pendingContinuousWater);
         }
 
         private static void CommitEnvironmentReward(EnvironmentBinding binding)
         {
             var record = binding.record;
-            if (!record.state.isBroken || record.rewardCommitted) return;
+            if (!record.state.isBroken || record.rewardCommitted || !CanCommitEnvironmentReward(binding)) return;
             if (!Services.TryGet<IItemService>(out var items) || !items.IsItemDBLoaded
                 || !Services.TryGet<IGroundDropService>(out var drops)
                 || drops.Settings == null) return;
@@ -335,11 +346,23 @@ namespace UPlayGround.Manager
             if (record.state.breakCause == EnvironmentBreakCause.Impact
                 && binding.target is ReactiveEnvironmentObject gathering && gathering.OwnsGathering)
                 table = gathering.GatheringDrops;
-            var rewards = items.GetDropItemList(table);
-            // 동일 ID는 드롭의 생성·획득·로드 이후에도 기존 드롭 원장에 남는다.
-            string sourceId = "environment:" + record.guid + ":0";
-            drops.SpawnItems(rewards, binding.target.transform.position, sourceId, binding.target.transform);
-            record.rewardCommitted = true;
+            try
+            {
+                var rewards = items.GetDropItemList(table);
+                // 동일 ID는 드롭의 생성·획득·로드 이후에도 기존 드롭 원장에 남는다.
+                string sourceId = "environment:" + record.guid + ":0";
+                var completion = record.destruction.completion;
+                Vector3 position = completion != null && completion.hasRewardPosition
+                    ? WorldCoordinates.ToWorld(record.mapId, completion.rewardPosition.ToVector3()) : binding.target.transform.position;
+                drops.SpawnItems(rewards, position, sourceId, binding.target.transform);
+                record.rewardCommitted = true;
+                binding.rewardFailureReported = false;
+            }
+            catch (Exception error)
+            {
+                if (!binding.rewardFailureReported) Debug.LogException(error, binding.target.transform);
+                binding.rewardFailureReported = true;
+            }
         }
 
         private static ReactiveEnvironmentSaveEntry CreateEnvironmentRecord(IEnvironmentReactionTarget target, string map,
@@ -348,8 +371,10 @@ namespace UPlayGround.Manager
             var reaction = new EnvironmentReaction(target.Definition.reaction);
             bool consumed = previouslyConsumed && target is ReactiveEnvironmentObject gathering && gathering.OwnsGathering;
             if (consumed) reaction.TryApplyCombatDamage(target.Definition.reaction.maxDurability);
-            return new ReactiveEnvironmentSaveEntry { mapId = map, guid = target.StableId, definitionId = target.Definition.definitionId,
+            var record = new ReactiveEnvironmentSaveEntry { mapId = map, guid = target.StableId, definitionId = target.Definition.definitionId,
                 persistenceSignature = target.PersistenceSignature, state = reaction.State, rewardCommitted = consumed };
+            PrepareEnvironmentCompletion(target, record, !consumed);
+            return record;
         }
 
         private static EnvironmentBinding CreateEnvironmentBinding(IEnvironmentReactionTarget target, ReactiveEnvironmentSaveEntry record)
@@ -364,9 +389,16 @@ namespace UPlayGround.Manager
                 || !IsFiniteDirection(record.destruction.direction.ToVector3()))
                 throw new ArgumentException("저장된 파괴 포즈가 유효하지 않습니다.");
             reaction.RestorePendingInputs(record.pendingHeat, record.pendingWater, record.pendingContinuousWater);
+            PrepareEnvironmentCompletion(target, record, false);
+            if (record.destruction.completion?.phase >= EnvironmentCompletionPhase.Clearing)
+            {
+                reaction.RestorePendingInputs(0, 0);
+                record.pendingHeat = record.pendingWater = record.pendingContinuousWater = 0;
+            }
             var rainTarget = target as IEnvironmentRainBatchTarget;
             return new EnvironmentBinding { target = target, record = record, reaction = reaction, definition = target.Definition,
-                rainTarget = rainTarget, rainSamples = rainTarget != null ? rainTarget.RainSampleCapacity : 0 };
+                rainTarget = rainTarget, rainSamples = rainTarget != null
+                    && !(record.destruction.completion?.phase >= EnvironmentCompletionPhase.Clearing) ? rainTarget.RainSampleCapacity : 0 };
         }
 
         private void ExportEnvironment(WorldStateSaveData world)
@@ -428,7 +460,11 @@ namespace UPlayGround.Manager
             _environmentActiveKeys = new Dictionary<(string, string), IEnvironmentReactionTarget>();
             foreach (var binding in bindings)
             {
-                if (binding.target is ReactiveEnvironmentObject sceneObject) sceneObject.AttachRainPositions(_environmentRain);
+                if (binding.target is ReactiveEnvironmentObject sceneObject)
+                {
+                    if (HasEndedEnvironmentReaction(binding)) sceneObject.DetachRainPositions(_environmentRain);
+                    else sceneObject.AttachRainPositions(_environmentRain);
+                }
                 _environmentLookup.Add(binding.target, binding);
                 _environmentActiveKeys.Add((binding.record.mapId, binding.record.guid), binding.target);
             }

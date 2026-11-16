@@ -33,17 +33,23 @@ float VegetationBufferIndex()
 // 원본의 조명·바람·알파 계산 뒤 상태만 합성해 마른 식생의 외형을 유지한다.
 float4 VegetationReactionState(float3 positionWS)
 {
+    // 빌드 최적화에서도 모든 분기의 반환값이 초기화되도록 단일 반환으로 합성한다.
+    float4 state = _EnvState0;
     if (_UseEnvironmentCells > 0.5)
     {
         float2 uv = (positionWS.xz - _EnvironmentCellBounds.xy) * _EnvironmentCellBounds.zw;
-        if (any(uv < 0) || any(uv >= 1)) return 0;
-        return SAMPLE_TEXTURE2D_LOD(_EnvironmentCellMask, sampler_EnvironmentCellMask, uv, 0);
+        state = 0;
+        if (all(uv >= 0) && all(uv < 1))
+            state = SAMPLE_TEXTURE2D_LOD(_EnvironmentCellMask, sampler_EnvironmentCellMask, uv, 0);
     }
 #if defined(_ENVIRONMENT_REACTION_BUFFER)
-    float index = VegetationBufferIndex();
-    if (index >= 0) return _EnvironmentReactionStates[(uint)index].surface;
+    else
+    {
+        float index = VegetationBufferIndex();
+        if (index >= 0) state = _EnvironmentReactionStates[(uint)index].surface;
+    }
 #endif
-    return _EnvState0;
+    return state;
 }
 
 void ApplyVegetationReaction(float3 positionWS, inout float3 color, inout float3 emission)
@@ -59,6 +65,19 @@ void ApplyVegetationReaction(float3 positionWS, inout float3 color, inout float3
 
 void ClipVegetationFuel(float3 positionWS)
 {
+    float clearing = saturate(_EnvState1.z);
+#if defined(_ENVIRONMENT_REACTION_BUFFER)
+    float completionIndex = VegetationBufferIndex();
+    if (completionIndex >= 0) clearing = saturate(_EnvironmentReactionStates[(uint)completionIndex].thermal.z);
+#endif
+    if (clearing > 0)
+    {
+        // 큰 월드 좌표에서도 sin 인수의 정밀도 손실로 패턴이 한 값이 되지 않게 한다.
+        float3 cell = frac(floor(positionWS * 32) * 0.1031);
+        cell += dot(cell, cell.yzx + 33.33);
+        float dither = frac((cell.x + cell.y) * cell.z);
+        clip(1 - clearing - dither - 0.00001);
+    }
     if (_AllowFuelCoverage < 0.5) return;
     // Terrain의 연료 소진은 원본 밀도를 변경한다. 마스크 alpha는 연소 상태다.
     if (_UseEnvironmentCells > 0.5) return;

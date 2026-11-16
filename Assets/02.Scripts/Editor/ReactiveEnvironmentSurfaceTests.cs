@@ -13,6 +13,24 @@ namespace UPlayGround.EditorTools.Tests
     /// <summary>런타임 재질 소유권·LOD 누락·실제 GPU 표면 반응을 검사한다.</summary>
     public sealed class ReactiveEnvironmentSurfaceTests
     {
+        [Test]
+        public void ClearingUsesIndependentThermalChannelAndKeepsFuelCoverageAndSharedMaterials()
+        {
+            var root = new GameObject("소거 표면");
+            var material = new Material(Shader.Find(ShaderName));
+            var renderer = root.AddComponent<MeshRenderer>(); renderer.sharedMaterial = material;
+            var surface = new ReactiveEnvironmentSurface(new[] { renderer });
+            try
+            {
+                surface.Apply(new EnvironmentReactionState { fuel = 10, durability = 0, isBroken = true }, 100, 20, 0.5f);
+                var block = new MaterialPropertyBlock(); renderer.GetPropertyBlock(block, 0);
+                Assert.That(block.GetVector("_EnvState1").z, Is.EqualTo(0.5f));
+                Assert.That(block.GetFloat("_FuelCoverage"), Is.EqualTo(0.5f));
+                Assert.That(renderer.sharedMaterial, Is.SameAs(material));
+            }
+            finally { surface.Release(); UnityEngine.Object.DestroyImmediate(root); UnityEngine.Object.DestroyImmediate(material); }
+        }
+
         private const string ShaderName = "UPlayGround/Environment/Reactive Toon";
 
         [Test]

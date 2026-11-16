@@ -75,6 +75,228 @@ namespace UPlayGround.EditorTools.Tests
             _quittingField?.SetValue(null, _previousQuitting);
         }
 
+        private void ConfigureClearing()
+        {
+            _world.UnregisterEnvironment(_target);
+            _fixtureRecipe.completionPolicy = EnvironmentCompletionPolicy.ClearAfterSettlement;
+            Assert.That(_world.RegisterEnvironment(_target), Is.True);
+        }
+
+        private WorldStateSaveData SaveCompletion()
+        {
+            var save = new WorldStateSaveData();
+            Invoke(_world, "ExportEnvironment", save);
+            return JsonConvert.DeserializeObject<WorldStateSaveData>(JsonConvert.SerializeObject(save));
+        }
+
+        [TestCase(false)]
+        [TestCase(true)]
+        public void DirectionalClearingSettlesSafelyDisablesNavigationAndRestoresMidFall(bool blockedInitially)
+        {
+            _world.UnregisterEnvironment(_target);
+            _target.transform.position = new Vector3(12000, 4000, 12000);
+            _fixtureRecipe.mode = EnvironmentDestructionMode.DirectionalFall;
+            _fixtureRecipe.completionPolicy = EnvironmentCompletionPolicy.ClearAfterSettlement;
+            _fixtureRecipe.fallSeconds = 1;
+            _fixtureRecipe.trunkLength = 2; _fixtureRecipe.trunkRadius = 0.1f; _fixtureRecipe.fallBlockerLayers = 1;
+            var remnant = _target.transform.Find("Remnant");
+            var pivot = Create("절단 피벗"); pivot.transform.SetParent(remnant, false);
+            var fallback = Create("막힘 붕괴"); fallback.transform.SetParent(remnant, false);
+            var collider = pivot.AddComponent<CapsuleCollider>();
+            var obstacle = pivot.AddComponent<UnityEngine.AI.NavMeshObstacle>();
+            var destruction = _target.GetComponent<ReactiveEnvironmentDestruction>();
+            Set(destruction, "_fallPivot", pivot.transform); Set(destruction, "_blockedFallback", fallback);
+            Set(destruction, "_remnantObstacles", new[] { obstacle }); Set(destruction, "_hasInitialized", false);
+            Invoke(_target, "Awake");
+            Assert.That(_world.RegisterEnvironment(_target), Is.True);
+            var blocker = Create("낙하 경로 장애물");
+            blocker.AddComponent<BoxCollider>().size = Vector3.one * (blockedInitially ? 4 : 0.2f);
+            blocker.transform.position = _target.transform.position + Vector3.up;
+            blocker.SetActive(blockedInitially);
+            Physics.SyncTransforms();
+            destruction.SetImpactDirection(Vector3.right);
+            _world.ApplyEnvironmentImpact(_target, 101, 0, 100, 0, 0);
+            Assert.That(collider.enabled, Is.False);
+            Invoke(_world, "FixedTickEnvironment", 0.2f);
+            var save = SaveCompletion();
+            Assert.That(save.reactiveEnvironment[0].destruction.completion.phase, Is.EqualTo(EnvironmentCompletionPhase.Falling));
+            Quaternion pose = pivot.transform.localRotation;
+            Invoke(_world, "ImportEnvironment", save);
+            Assert.That(Quaternion.Angle(pose, pivot.transform.localRotation), Is.LessThan(0.01f));
+            if (!blockedInitially)
+            {
+                blocker.transform.position = _target.transform.position + new Vector3(1.41f, 1.41f, 0);
+                blocker.SetActive(true); Physics.SyncTransforms();
+            }
+            Invoke(_world, "FixedTickEnvironment", 0.8f);
+            var settled = SaveCompletion().reactiveEnvironment[0].destruction.completion;
+            Assert.That(settled.phase, Is.EqualTo(EnvironmentCompletionPhase.Settled));
+            Assert.That(settled.reason, Is.EqualTo(blockedInitially ? EnvironmentSettlementReason.BlockedInitially : EnvironmentSettlementReason.BlockedDuringFall));
+            Assert.That(obstacle.enabled, Is.False);
+            Assert.That(_drops.calls, Is.Zero);
+            Invoke(_world, "FixedTickEnvironment", 0.1f);
+            Invoke(_world, "FixedTickEnvironment", 0.45f);
+            Assert.That(remnant.gameObject.activeSelf, Is.False);
+            Assert.That(_drops.created, Is.EqualTo(1));
+            Assert.That(_target.HasPendingFixedTick, Is.False);
+        }
+
+        [Test]
+        public void SpawnExceptionAfterCreationRetriesSameSourceWithoutHoldingRemnant()
+        {
+            ConfigureClearing();
+            _drops.throwAfterSpawn = true;
+            _world.ApplyEnvironmentImpact(_target, 101, 0, 100, 0, 0);
+            Invoke(_world, "FixedTickEnvironment", 0.02f);
+            UnityEngine.TestTools.LogAssert.Expect(LogType.Exception, new System.Text.RegularExpressions.Regex("InvalidOperationException: 드롭 실패 주입"));
+            Invoke(_world, "FixedTickEnvironment", 0.1f);
+            Invoke(_world, "FixedTickEnvironment", 0.45f);
+            Assert.That(SaveCompletion().reactiveEnvironment[0].rewardCommitted, Is.False);
+            _drops.throwAfterSpawn = false;
+            Invoke(_world, "TickEnvironment", 0.001f);
+            Assert.That(_drops.calls, Is.EqualTo(2));
+            Assert.That(_drops.created, Is.EqualTo(1));
+            Assert.That(SaveCompletion().reactiveEnvironment[0].rewardCommitted, Is.True);
+        }
+
+        [Test]
+        public void CompletionReleasesRainRegistrationAndConvertsPendingAnchorAcrossRegionOffsets()
+        {
+            var coordinates = new CompletionCoordinates { offset = new Vector3(100, 0, 200) };
+            Services.Register(coordinates);
+            try
+            {
+                ConfigureClearing();
+                _drops.ready = false;
+                _target.transform.position = new Vector3(103, 4, 205);
+                _world.ApplyEnvironmentImpact(_target, 101, 0, 100, 0, 0);
+                Invoke(_world, "FixedTickEnvironment", 0.02f);
+                Invoke(_world, "FixedTickEnvironment", 0.1f);
+                var registration = typeof(ReactiveEnvironmentObject).GetField("_rainPositions", BindingFlags.Instance | BindingFlags.NonPublic);
+                Assert.That(registration.GetValue(_target), Is.Null);
+                var save = SaveCompletion();
+                Assert.That(save.reactiveEnvironment[0].destruction.completion.rewardPosition.ToVector3(), Is.EqualTo(new Vector3(3, 4, 5)));
+                coordinates.offset = new Vector3(300, 0, 500);
+                Invoke(_world, "ImportEnvironment", save);
+                Assert.That(registration.GetValue(_target), Is.Null);
+                _drops.ready = true;
+                Invoke(_world, "TickEnvironment", 0.001f);
+                Assert.That(_drops.position, Is.EqualTo(new Vector3(303, 4, 505)));
+            }
+            finally { Services.Unregister(coordinates); }
+        }
+
+        [Test]
+        public void ClearingWaitsForSettlementRewardsOnceAndSleepsAfterFade()
+        {
+            ConfigureClearing();
+            Assert.That(_world.ApplyEnvironmentImpact(_target, 101, 0, 100, 0, 0), Is.True);
+            Invoke(_world, "TickEnvironment", 0.001f);
+            Assert.That(_drops.calls, Is.Zero);
+            Invoke(_world, "FixedTickEnvironment", 0.02f);
+            Assert.That(SaveCompletion().reactiveEnvironment[0].destruction.completion.phase, Is.EqualTo(EnvironmentCompletionPhase.Settled));
+            Assert.That(_drops.calls, Is.Zero);
+            Invoke(_world, "FixedTickEnvironment", 0.1f);
+            Assert.That(_drops.calls, Is.EqualTo(1));
+            Invoke(_world, "FixedTickEnvironment", 0.45f);
+            var save = SaveCompletion();
+            Assert.That(save.reactiveEnvironment[0].destruction.completion.phase, Is.EqualTo(EnvironmentCompletionPhase.Cleared));
+            Assert.That(_target.HasPendingFixedTick, Is.False);
+            Assert.That(_target.CanTakeDamage(), Is.False);
+            Assert.That(_world.ApplyEnvironmentImpact(_target, 102, 0, 100, 10, 0), Is.False);
+            Invoke(_world, "ImportEnvironment", save);
+            Invoke(_world, "TickEnvironment", 0.2f);
+            Assert.That(_drops.calls, Is.EqualTo(1));
+        }
+
+        [Test]
+        public void ClearingFinishesWhileDropServiceIsUnavailableAndKeepsFixedAnchor()
+        {
+            ConfigureClearing();
+            _drops.ready = false;
+            _target.transform.position = new Vector3(3, 4, 5);
+            _world.ApplyEnvironmentImpact(_target, 101, 0, 100, 1, 0);
+            Invoke(_world, "FixedTickEnvironment", 0.02f);
+            Invoke(_world, "FixedTickEnvironment", 0.1f);
+            Invoke(_world, "FixedTickEnvironment", 0.45f);
+            var save = SaveCompletion();
+            Assert.That(save.reactiveEnvironment[0].rewardCommitted, Is.False);
+            Assert.That(save.reactiveEnvironment[0].pendingHeat, Is.Zero);
+            var state = _target.State;
+            Invoke(_world, "TickEnvironment", 1f);
+            Assert.That(_target.State.HasSameValues(state), Is.True);
+            _target.transform.position = Vector3.zero;
+            _drops.ready = true;
+            Invoke(_world, "TickEnvironment", 0.001f);
+            Assert.That(_drops.position, Is.EqualTo(new Vector3(3, 4, 5)));
+            Assert.That(_drops.created, Is.EqualTo(1));
+            Assert.That(SaveCompletion().reactiveEnvironment[0].rewardCommitted, Is.True);
+        }
+
+        [TestCase(EnvironmentCompletionPhase.Falling)]
+        [TestCase(EnvironmentCompletionPhase.Settled)]
+        [TestCase(EnvironmentCompletionPhase.Clearing)]
+        [TestCase(EnvironmentCompletionPhase.Cleared)]
+        public void CompletionRestoresEveryPhaseWithoutEarlyReward(EnvironmentCompletionPhase phase)
+        {
+            ConfigureClearing();
+            _world.ApplyEnvironmentImpact(_target, 101, 0, 100, 0, 0);
+            if (phase >= EnvironmentCompletionPhase.Settled) Invoke(_world, "FixedTickEnvironment", 0.02f);
+            if (phase >= EnvironmentCompletionPhase.Clearing) Invoke(_world, "FixedTickEnvironment", 0.1f);
+            if (phase == EnvironmentCompletionPhase.Cleared) Invoke(_world, "FixedTickEnvironment", 0.45f);
+            var save = SaveCompletion();
+            int calls = _drops.calls;
+            Invoke(_world, "ImportEnvironment", save);
+            Assert.That(_drops.calls, Is.EqualTo(calls));
+            Assert.That(SaveCompletion().reactiveEnvironment[0].destruction.completion.phase, Is.EqualTo(phase));
+            for (int i = 0; i < 40; i++)
+            {
+                Invoke(_world, "FixedTickEnvironment", 0.02f);
+                Invoke(_world, "TickEnvironment", 0.02f);
+            }
+            Assert.That(_drops.created, Is.EqualTo(1));
+            Assert.That(_target.HasPendingFixedTick, Is.False);
+        }
+
+        [Test]
+        public void LegacySettledTreeMigratesToClearedButExplicitInvalidVersionPreservesCurrentState()
+        {
+            ConfigureClearing();
+            _world.ApplyEnvironmentImpact(_target, 101, 0, 100, 0, 0);
+            var legacy = SaveCompletion();
+            legacy.reactiveEnvironment[0].destruction.completion = null;
+            Invoke(_world, "ImportEnvironment", legacy);
+            Assert.That(SaveCompletion().reactiveEnvironment[0].destruction.completion.phase, Is.EqualTo(EnvironmentCompletionPhase.Cleared));
+            Invoke(_world, "TickEnvironment", 0.001f);
+            Assert.That(_drops.created, Is.EqualTo(1));
+            var invalid = SaveCompletion();
+            invalid.reactiveEnvironment[0].destruction.completion.version = 0;
+            Assert.Throws<TargetInvocationException>(() => Invoke(_world, "ImportEnvironment", invalid));
+            Assert.That(SaveCompletion().reactiveEnvironment[0].destruction.completion.version, Is.EqualTo(1));
+        }
+
+        [TestCase(0)]
+        [TestCase(1)]
+        [TestCase(2)]
+        [TestCase(3)]
+        public void InvalidExplicitFallingPosePreservesCurrentState(int invalidKind)
+        {
+            ConfigureClearing();
+            if (invalidKind == 2) { _fixtureRecipe.mode = EnvironmentDestructionMode.DirectionalFall; _fixtureRecipe.fallBlockerLayers = 1; }
+            var save = SaveCompletion();
+            var record = save.reactiveEnvironment[0];
+            record.state.isBroken = true; record.state.durability = 0;
+            record.destruction.completion.phase = EnvironmentCompletionPhase.Falling;
+            record.destruction.initialized = invalidKind != 0;
+            record.destruction.progress = invalidKind == 1 ? 0.7f : 0;
+            record.destruction.usedFallback = invalidKind == 1;
+            record.destruction.isFalling = invalidKind == 2;
+            record.destruction.direction = new SerializableVector3(invalidKind == 2 ? Vector3.up : Vector3.zero);
+            record.destruction.completion.elapsed = invalidKind == 3 ? float.NaN : 0;
+            Assert.Throws<TargetInvocationException>(() => Invoke(_world, "ImportEnvironment", save));
+            Assert.That(_target.State.isBroken, Is.False);
+        }
+
         [Test]
         public void DefinitionStepIndexFollowsDuplicateRegistrationLoadAndRemoval()
         {
@@ -406,6 +628,37 @@ namespace UPlayGround.EditorTools.Tests
                 Assert.That(Quaternion.Angle(pose,pivot.transform.localRotation), Is.LessThan(0.01f));
                 Invoke(_world,"ImportEnvironment",new WorldStateSaveData());
                 Assert.That(Quaternion.Angle(Quaternion.identity,pivot.transform.localRotation), Is.LessThan(0.01f));
+            }
+            finally { _definition.destruction = null; UnityEngine.Object.DestroyImmediate(recipe); }
+        }
+
+        [TestCase(0.5f, true)]
+        [TestCase(2f, true)]
+        [TestCase(2f, false)]
+        public void FallSweepUsesAuthoredDimensionSpace(float scale, bool localDimensions)
+        {
+            _target.transform.position = new Vector3(12000, 4000, 12000);
+            _target.transform.localScale = Vector3.one * scale;
+            var recipe = ScriptableObject.CreateInstance<EnvironmentDestructionRecipeSO>();
+            recipe.mode = EnvironmentDestructionMode.DirectionalFall;
+            recipe.useLocalDimensions = localDimensions;
+            recipe.trunkLength = 4; recipe.trunkRadius = 0.1f; recipe.fallBlockerLayers = 1;
+            var destruction = _target.GetComponent<ReactiveEnvironmentDestruction>();
+            var pivot = Create("검사 피벗"); pivot.transform.SetParent(_target.transform.Find("Remnant"), false);
+            var fallback = Create("막힘 잔해"); fallback.transform.SetParent(_target.transform.Find("Remnant"), false);
+            Set(destruction, "_fallPivot", pivot.transform); Set(destruction, "_blockedFallback", fallback);
+            Set(_target, "_destruction", destruction);
+            _definition.destruction = recipe;
+            var obstacle = Create("길이 경계 장애물");
+            obstacle.AddComponent<BoxCollider>().size = Vector3.one * 0.2f;
+            obstacle.transform.position = _target.transform.position + Vector3.up * 6;
+            obstacle.SetActive(true);
+            try
+            {
+                Physics.SyncTransforms();
+                _world.ApplyEnvironmentImpact(_target, 1, 0, 100, 0, 0);
+                Assert.That(fallback.activeSelf, Is.EqualTo(localDimensions && scale == 2),
+                    "큰 나무의 줄기 범위만 장애물과 겹치며 기존 월드 단위 레시피는 배율을 적용하지 않는다.");
             }
             finally { _definition.destruction = null; UnityEngine.Object.DestroyImmediate(recipe); }
         }
@@ -851,11 +1104,23 @@ namespace UPlayGround.EditorTools.Tests
                 _world.CollectCellHits(owner, shape, ignored, collected, results);
         }
 
+        private sealed class CompletionCoordinates : IWorldCoordinateService
+        {
+            public Vector3 offset;
+            public Vector3 ToSourcePosition(string mapId, Vector3 position) => position - offset;
+            public Vector3 ToWorldPosition(string mapId, Vector3 position) => position + offset;
+            public Quaternion ToSourceRotation(string mapId, Quaternion rotation) => rotation;
+            public Quaternion ToWorldRotation(string mapId, Quaternion rotation) => rotation;
+        }
+
         private sealed class DropServices : IItemService, IGroundDropService
         {
             private readonly HashSet<string> _sources = new();
             public int calls, created;
-            public bool IsItemDBLoaded => true;
+            public bool ready = true;
+            public bool throwAfterSpawn;
+            public Vector3 position;
+            public bool IsItemDBLoaded => ready;
             public GroundDropSettingsSO Settings { get; } = ScriptableObject.CreateInstance<GroundDropSettingsSO>();
             public event Action<string> Collected { add { } remove { } }
             public IReadOnlyList<GroundDropView> VisibleDrops => Array.Empty<GroundDropView>();
@@ -864,7 +1129,7 @@ namespace UPlayGround.EditorTools.Tests
             public List<ItemInstance> GetDropItemList(List<ItemDropList> table) => new();
             public List<ItemInstance> GetDropItemList(EnemyDropTableSO table) => new();
             public void SpawnItems(IReadOnlyList<ItemInstance> items, Vector3 position, string sourceId = null, Transform source = null)
-            { calls++; if (_sources.Add(sourceId)) created++; }
+            { this.position = position; calls++; if (_sources.Add(sourceId)) created++; if (throwAfterSpawn) throw new InvalidOperationException("드롭 실패 주입"); }
             public bool CanPlayerCollect(string id) => false;
             public bool TryPlayerCollect(string id) => false;
             public bool TryReserve(string id, object owner, float duration) => false;

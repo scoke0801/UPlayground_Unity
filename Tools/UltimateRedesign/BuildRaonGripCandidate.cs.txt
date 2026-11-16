@@ -1,0 +1,44 @@
+if(EditorApplication.isCompiling||EditorUtility.scriptCompilationFailed)throw new System.InvalidOperationException("컴파일 완료 필요");
+var path="Assets/07.Animations/Player/UltimateRedesign/Raon_GripRevision.anim";
+if(AssetDatabase.LoadMainAssetAtPath(path)!=null)throw new System.InvalidOperationException("기존 후보 보호");
+var source=AssetDatabase.LoadAssetAtPath<AnimationClip>("Assets/07.Animations/Player/UltimateRedesign/Raon_Ultimate.anim");
+var clip=UnityEngine.Object.Instantiate(source);clip.name="Raon_GripRevision";
+var preview=new PreviewRenderUtility();
+try
+{
+    var go=UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Raon.prefab"));preview.AddSingleGO(go);go.SetActive(true);
+    var animator=go.GetComponent<Animator>();animator.enabled=false;
+    foreach(var binding in AnimationUtility.GetCurveBindings(clip))
+    {
+        if(binding.propertyName.StartsWith("RightHand."))
+        {
+            float value=binding.propertyName.Contains("Spread")?0:binding.propertyName.Contains("Thumb")?-.25f:binding.propertyName.Contains("1 Stretched")?-.55f:-.65f;
+            AnimationUtility.SetEditorCurve(clip,binding,AnimationCurve.Constant(0,clip.length,value));
+        }
+        else if(binding.propertyName.StartsWith("LeftHand."))
+        {
+            var curve=AnimationUtility.GetEditorCurve(clip,binding);var keys=curve.keys;
+            for(int i=0;i<keys.Length;i++)keys[i].value=Mathf.Clamp(keys[i].value,-1,1);
+            curve.keys=keys;AnimationUtility.SetEditorCurve(clip,binding,curve);
+        }
+    }
+    var weapon=go.transform.Find("Weapon/Katana");var constraint=weapon.GetComponent<UnityEngine.Animations.ParentConstraint>();constraint.enabled=false;
+    var blade=constraint.GetSource(0).sourceTransform;var mesh=weapon.GetComponentInChildren<MeshFilter>(true).transform;
+    var curves=new[]{new AnimationCurve(),new AnimationCurve(),new AnimationCurve()};
+    var middle=animator.GetBoneTransform(HumanBodyBones.RightMiddleProximal);var tip=animator.GetBoneTransform(HumanBodyBones.RightMiddleDistal);
+    float maximumShift=0;
+    int frames=Mathf.CeilToInt(clip.length*60);
+    for(int f=0;f<=frames;f++)
+    {
+        float time=Mathf.Min(f/60f,clip.length);clip.SampleAnimation(go,time);
+        weapon.SetPositionAndRotation(blade.TransformPoint(constraint.GetTranslationOffset(0)),blade.rotation*Quaternion.Euler(constraint.GetRotationOffset(0)));
+        var palm=(middle.position+tip.position)*.5f;
+        var correction=palm-mesh.TransformPoint(new Vector3(0,-.1f,0));maximumShift=Mathf.Max(maximumShift,correction.magnitude);
+        blade.position+=correction;
+        for(int i=0;i<3;i++)curves[i].AddKey(time,blade.localPosition[i]);
+    }
+    for(int i=0;i<3;i++)AnimationUtility.SetEditorCurve(clip,EditorCurveBinding.FloatCurve(AnimationUtility.CalculateTransformPath(blade,go.transform),typeof(Transform),"m_LocalPosition."+"xyz"[i]),curves[i]);
+    AssetDatabase.CreateAsset(clip,path);AssetDatabase.SaveAssetIfDirty(clip);
+    return new{path=path,maximumShift=maximumShift,frames=frames+1};
+}
+finally{preview.Cleanup();if(!AssetDatabase.Contains(clip))UnityEngine.Object.DestroyImmediate(clip);}

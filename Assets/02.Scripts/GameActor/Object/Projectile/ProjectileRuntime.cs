@@ -1002,7 +1002,11 @@ namespace UPlayGround
 
         private bool CanDeliver(IDamageable damageable)
         {
-            if (_attackData?.projectileDamageSource is ProjectileDamageSource source
+            // 반사 미지원 투사체는 projectileDamageSource가 없으므로 발사자로 진영을 판정한다.
+            // 누락하면 아군 몬스터에 막혀 소멸(터미널 히트)하고 플레이어에 도달하지 못한다.
+            Manager.ICombatAffiliationView source = _attackData?.projectileDamageSource as ProjectileDamageSource
+                ?? _owner as Manager.ICombatAffiliationView;
+            if (source != null
                 && damageable is Manager.ICombatAffiliationView target
                 && !CombatRelationUtility.CanDamage(source, target)) return false;
             if (_owner == null)

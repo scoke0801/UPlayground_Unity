@@ -68,8 +68,8 @@ MonoBehaviour:
     prefab: {fileID: 4231482995727018640, guid: cd799f62aab418c4d8efed7992b9f568, type: 3}
     description: "\uC804\uB9AC\uD488 \uBB36\uC74C \uB3C4\uCC29 \uAC15\uC870"
   - key: Signature_Spear_Impact
-    prefab: {fileID: 7117328301249796898, guid: 2d08b7b8c5c86bc4f913d772e93eb7a7, type: 3}
+    prefab: {fileID: 4792987936871264497, guid: 923924679ce0cfb489719e9062043439, type: 3}
     description: "\uC2DC\uADF8\uB2C8\uCC98 \uC9C0\uC810 \uCC29\uD0C4"
   - key: Signature_SwordShield_Impact
-    prefab: {fileID: 5032358087056751505, guid: cee62f5239c78454daa865721f488214, type: 3}
+    prefab: {fileID: 5225220227115147446, guid: 475a82de78e5fe14a864acbb711d7080, type: 3}
     description: "\uC2DC\uADF8\uB2C8\uCC98 \uC9C0\uC810 \uCC29\uD0C4"

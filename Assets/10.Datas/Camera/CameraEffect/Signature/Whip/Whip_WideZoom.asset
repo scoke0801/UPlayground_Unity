@@ -15,8 +15,8 @@ MonoBehaviour:
   effectKey: Signature.Whip.WideZoom
   priority: 20
   duration: 1.5
-  blendInDuration: 0.05
-  blendOutDuration: 0.3
+  blendInDuration: 0.16
+  blendOutDuration: 0.24
   blendInCurve:
     serializedVersion: 2
     m_Curve:
@@ -66,7 +66,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   useUnscaledTime: 0
-  distanceDelta: 2.5
+  distanceDelta: 1.6
   offsetDelta: {x: 0, y: 0, z: 0}
   zoomCurve:
     serializedVersion: 2

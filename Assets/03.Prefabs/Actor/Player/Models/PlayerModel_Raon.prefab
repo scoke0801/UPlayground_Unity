@@ -17018,7 +17018,7 @@ MonoBehaviour:
   _upperBodyLayerIndex: 1
   _subAnimator: {fileID: 0}
   _eventExecutor: {fileID: 0}
-  _playerActorAnimationMotionSet: {fileID: 11400000, guid: 1bdf6ee00b9a059499be6e336cf701eb, type: 2}
+  _playerActorAnimationMotionSet: {fileID: 11400000, guid: bdf6b97e3580a8e45a52678dffdb3a48, type: 2}
   _weaponAim:
     enabled: 0
     weaponType: 0

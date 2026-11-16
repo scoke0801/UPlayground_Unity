@@ -78,7 +78,7 @@ MonoBehaviour:
             overrideImpactTime: 0
             impactTime: 0
             overrideHitStop: 1
-            hitStopDuration: 0.01
+            hitStopDuration: 0
             hitStopScale: 0.3
             overrideCamera: 1
             cameraShakeAmplitude: 0

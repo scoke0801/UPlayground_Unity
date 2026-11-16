@@ -15,8 +15,8 @@ MonoBehaviour:
   effectKey: Signature.Staff.ChargeFov
   priority: 20
   duration: 0.8
-  blendInDuration: 0.05
-  blendOutDuration: 0.3
+  blendInDuration: 0.16
+  blendOutDuration: 0.24
   blendInCurve:
     serializedVersion: 2
     m_Curve:
@@ -66,7 +66,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   useUnscaledTime: 0
-  fovDelta: -6
+  fovDelta: -4
   fovCurve:
     serializedVersion: 2
     m_Curve:

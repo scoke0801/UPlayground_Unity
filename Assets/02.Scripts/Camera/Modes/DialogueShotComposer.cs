@@ -109,6 +109,8 @@ namespace UPlayGround.CameraSystem
             // 특정 지점 주시는 대화 구도와 카메라 위치를 유지하고 회전만 바꾼다.
             // 위치까지 지점 기준으로 옮기면 바닥을 보는 짧은 큐에서도 카메라가 함께 내려앉는다.
             Vector3 position = framingLookAt + direction * distance;
+            position = PushOutOfActor(position, subject, settings);
+            position = PushOutOfActor(position, anchor, settings);
             Vector3 lookAt = request.HasLookAtTargetOverride
                 ? request.LookAtTarget.position + request.LookAtWorldOffset
                 : framingLookAt;
@@ -124,6 +126,37 @@ namespace UPlayGround.CameraSystem
                 Rotation = rotation,
                 FieldOfView = preset.fieldOfView
             };
+        }
+
+        /// <summary>
+        /// 카메라가 인물 몸통 원기둥 안에 있으면 수평으로 밀어낸다.
+        /// 벽 충돌로 암이 접히면 카메라가 어깨 너머 인물 안으로 파고들기 때문이다.
+        /// </summary>
+        private static Vector3 PushOutOfActor(
+            Vector3 position,
+            Transform actor,
+            DialogueCameraSettingsSO settings)
+        {
+            float radius = settings.actorClearanceRadius;
+            if (actor == null || radius <= 0f)
+                return position;
+
+            Vector3 actorPosition = actor.position;
+            float heightAbove = position.y - actorPosition.y;
+            if (heightAbove < -0.2f || heightAbove > settings.actorClearanceHeight)
+                return position;
+
+            Vector3 flat = position - actorPosition;
+            flat.y = 0f;
+            float sqr = flat.sqrMagnitude;
+            if (sqr >= radius * radius)
+                return position;
+
+            // 정확히 겹쳤으면 인물 뒤쪽으로 민다.
+            Vector3 pushDirection = sqr > 0.0001f ? flat / Mathf.Sqrt(sqr) : -actor.forward;
+            Vector3 pushed = actorPosition + pushDirection * radius;
+            pushed.y = position.y;
+            return pushed;
         }
 
         /// <summary>

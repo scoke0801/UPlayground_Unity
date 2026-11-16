@@ -2,6 +2,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UPlayGround.Data;
 using UPlayGround.Data.Projectile;
+using UPlayGround.Data.EnumType;
 using UPlayGround.Combat;
 using UPlayGround.Manager;
 
@@ -89,8 +90,9 @@ namespace UPlayGround.Ability.PlayModeTests
             try
             {
                 Vector3 center = new(10000, 15000, 10000);
-                owner.AddComponent<SignatureProjectileTestOwner>();
+                owner.AddComponent<SignatureProjectileTestOwner>().SetActorType(ActorType.Player);
                 var victim = target.AddComponent<SignatureProjectileTestOwner>();
+                victim.SetActorType(ActorType.Monster);
                 target.transform.position = center;
                 var collider = target.AddComponent<BoxCollider>();
                 collider.center = Vector3.up; collider.size = new Vector3(1, 4, 1);
@@ -127,8 +129,9 @@ namespace UPlayGround.Ability.PlayModeTests
             try
             {
                 Vector3 center = new(10000, 15000, 10000);
-                owner.AddComponent<SignatureProjectileTestOwner>();
+                owner.AddComponent<SignatureProjectileTestOwner>().SetActorType(ActorType.Player);
                 var victim = target.AddComponent<SignatureProjectileTestOwner>();
+                victim.SetActorType(ActorType.Monster);
                 target.transform.position = center;
                 target.AddComponent<SphereCollider>();
                 Physics.SyncTransforms();
@@ -223,6 +226,7 @@ namespace UPlayGround.Ability.PlayModeTests
     {
         public bool Alive = true;
         public int HitCount;
+        public void SetActorType(ActorType actorType) => _actorType = actorType;
         public bool IsAlive() => Alive;
         public bool CanTakeDamage() => Alive;
         public CombatResult ReceiveHit(in HitRequest request) { HitCount++; return default; }

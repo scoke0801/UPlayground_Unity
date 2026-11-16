@@ -150,6 +150,32 @@ CharacterModelData.abilitySet
 
 ---
 
+### 6.1 MotionWarp 설정·프로필 준비
+
+MotionWarp가 있는 MotionSet을 생성·복제하거나 클립, 워프 시간, 실행 매핑, Avatar·Animator 스케일을 변경하면 **같은 작업에서 설정·프로필 준비와 빌드 전 검증까지 마친다.** 상세 수정 사례와 검사 원문은 [MotionWarp 빌드 차단 수정 기록](../../../docs/work-status/motionwarp-build-fix.md)을 참고한다.
+
+1. **실행 설정을 명시한다.** 신규 워프는 의도한 실행 필드를 채우고 `settingsVersion = 1`로 저작한다. 기존 `settingsVersion = 0` 데이터는 `ResolveLegacySettings()`와 현재 `ResolveSettings()`를 대조해 필요한 값을 이관한다. 프리셋 데이터에 버전 숫자만 올리지 않는다. Custom도 실행값 보존을 확인한다. 복제·생성기는 미이관 이벤트를 다시 만들지 않아야 한다.
+2. **실제 실행 소유자에 연결한 뒤 측정한다.** ActorAnimationMotionSet 매핑과 실제 Avatar·Animator 스케일별 프로필을 확인한다. 미매핑 상태의 경고만 보고 준비 완료로 판정하지 않는다.
+3. **컴파일이 정상인 Edit Mode에서 누락 프로필을 준비한다.** 툴 런처의 `UPlayGround/게임플레이/전투/Motion Warp/누락 프로필 일괄 준비` 또는 MCP에서 `UPlayGround.Editor.WarpRootMotionBatchBakeWindow.BakeMissingProjectProfiles()`를 실행한다. 이 도구는 실행 설정 버전까지 이관하지 않으므로 1번을 먼저 마친다. 기존 프로필의 출처가 바뀌어 stale이면 `루트모션 일괄 베이크` 창에서 재측정·검증·적용한다. 누락 채우기만으로 갱신을 보장하지 않는다.
+4. **제자리 여부를 측정으로 판단한다.** 실제 리그에서 이동이 없는 구간은 이동 가중치 0으로 저작하고 회전 의도를 유지한다. 오류를 숨기려고 임의로 이동 가중치를 끄거나 다른 리그의 프로필을 복사하지 않는다. 공용 모션은 모든 실행 리그를 확인한다.
+5. **Player 빌드 없이 전체 매핑 검증을 실행한다.** 빌드 검증기가 사용하는 `WarpRootMotionBatchBakeWindow.TryValidateMappedProfiles(out string)`의 결과와 경고를 보존한다. 이 메서드는 internal이므로 MCP 외부 어셈블리에서는 reflection으로 호출할 수 있다. 실패·예외는 완료가 아니며 원인을 수정하고 재검증한다. 빌드 차단 검사나 지문 검사를 완화하지 않는다.
+6. **플레이 감각은 별도 확인한다.** 실제 공격의 접근 거리·회전·중단 복구를 확인하고, 미수행이면 사용자 테스트 대기로 남긴다. 자동 검증 통과가 플레이 인수를 대신하지 않는다.
+
+
+---
+
+### 6.2 런타임 운동 데이터 연결·재베이크
+
+MotionWarp 프로필과 `MotionImpactCatalogSO`의 타격 운동 데이터는 별도 검사다. 모션 세트 복제·교체, 모델의 무기 세트 연결, 클립·타격 구간·무기 부착 변경 시 기존 `CombatMotionCatalog`의 실제 실행 소유자를 다시 확인한다. 복제한 세트에 이전 런타임 카탈로그 참조가 빠졌거나 지문이 오래된 상태를 남기지 않는다.
+
+- 툴 런처 `UPlayGround/게임플레이/전투/전투 모션 분석`에서 대상 카탈로그의 모델·무기·공격·런타임 카탈로그·반응 규칙을 확인하고 **런타임 타격 데이터 베이크 (전체 공격)**를 실행한다. MCP에서는 `CombatMotionImpactBaker.Bake(source)`를 사용한다. 다른 카탈로그가 이미 연결돼 있으면 소유권 충돌을 해결하며 강제로 덮어쓰지 않는다.
+- 베이크는 실제 해석된 `ActorAnimationMotionSet.motionImpactCatalog` 연결, 운동 표본, 출처 지문과 반응 규칙을 함께 갱신한다. 예외·미측정·stale 결과를 성공으로 처리하지 않는다.
+- Player 빌드 없이 `new UPlayGround.Animation.Editor.MotionImpactBuildValidation().OnPreprocessBuild(null)`로 전체 검증을 실행할 수 있다. MotionWarp도 변경했다면 6.1절 검사까지 수행한다. 첫 실패만 고치고 종료하지 않으며 전체 검증 통과를 확인한다.
+- 반영 에셋과 검증 원문을 상태 문서에 연결한다. 실제 타격 감각은 사용자 플레이 확인과 구분한다. [라온 연결 누락 수정 사례](../../../docs/work-status/motion-impact-build-fix.md).
+
+
+---
+
 ## 7. 전투 감각 — 여기까지가 작업 범위다
 
 수치가 맞아도 감각이 없으면 완성이 아니다.
@@ -204,6 +230,7 @@ CharacterModelData.abilitySet
 - [ ] 히트박스 개폐 타이밍이 시각적 임팩트와 맞는다.
 - [ ] 캔슬 창을 명시적으로 저작했다.
 - [ ] MotionEvent 이관 시 `[MovedFrom]`을 유지했다.
+- [ ] MotionWarp 변경 시 6.1절의 실행 설정 이관·리그별 프로필 준비·전체 매핑 검증을 마쳤다.
 - [ ] 히트스톱·카메라·후딜을 조율했고 다인 전투에서 확인했다.
 
 **검증**

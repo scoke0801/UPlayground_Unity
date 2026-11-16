@@ -1,0 +1,44 @@
+if(EditorApplication.isCompiling||EditorUtility.scriptCompilationFailed)throw new System.InvalidOperationException("컴파일 완료 필요");
+var folder="Assets/03.Prefabs/Effects/Signature/GripRevision/";
+var names=new[]{"Sera_Impact","Lili_Impact","Reine_Impact","MyoRyeong_Impact","SeolA_Launch","Yura_Tornado","MyoRyeong_Shield"};
+var sources=new[]{"GreatSword_Impact_Signature","GreatSword_Impact_Signature","Spear_Impact_Signature","SwordShield_Impact_Signature","Bow_Launch_Signature","DualBlade_Signature","SwordShield_Signature"};
+var colors=new[]{new Color(.65f,.8f,1,1),new Color(.8f,.5f,1,1),new Color(.4f,.8f,1,1),new Color(1,.8f,.3f,1),new Color(.65f,.85f,1,1),new Color(.5f,.95f,.85f,1),new Color(1,.8f,.35f,1)};
+var report=new System.Collections.Generic.List<string>();
+for(int i=0;i<names.Length;i++)
+{
+    var path=folder+names[i]+".prefab";if(AssetDatabase.LoadMainAssetAtPath(path)!=null){report.Add("기존 후보 보존 "+path);continue;}
+    var preview=new PreviewRenderUtility();
+    try
+    {
+        var go=UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/03.Prefabs/Effects/Signature/"+sources[i]+".prefab"));preview.AddSingleGO(go);go.name=names[i];
+        foreach(var ps in go.GetComponentsInChildren<ParticleSystem>(true))
+        {
+            ps.Stop(false,ParticleSystemStopBehavior.StopEmittingAndClear);var main=ps.main;var emission=ps.emission;
+            var color=colors[i];
+            if(i<4)
+            {
+                if(ps.name.Contains("먼지")){main.startDelay=.06f;main.startColor=new Color(.35f,.32f,.29f,.3f);main.startLifetimeMultiplier*=.75f;}
+                else if(ps.name.Contains("바위")){main.startColor=new Color(.35f,.34f,.33f,1);main.startSizeMultiplier*=.75f;}
+                else {main.startColor=Color.Lerp(color,Color.white,.35f);main.startLifetimeMultiplier*=ps.name.Contains("ring")?1.5f:.65f;}
+            }
+            else if(i==4){main.startColor=color;main.startSizeMultiplier*=.65f;main.startLifetimeMultiplier*=.6f;}
+            else if(i==5)
+            {
+                main.startColor=new Color(color.r,color.g,color.b,.65f);
+                if(ps.transform==go.transform){main.startLifetimeMultiplier*=.65f;main.startSizeMultiplier*=.75f;emission.rateOverTimeMultiplier*=.65f;}
+                else{main.startSizeMultiplier*=.55f;emission.rateOverTimeMultiplier*=.6f;}
+            }
+            else
+            {
+                main.startColor=color;
+                // 중앙 방패와 파동을 남기고 겹치는 부채꼴 문양의 화면 점유를 줄인다.
+                if(ps.name.StartsWith("SideMask")){main.startColor=new Color(color.r,color.g,color.b,.28f);main.startSizeMultiplier*=.7f;}
+                if(ps.name=="Light")main.startColor=new Color(color.r,color.g,color.b,.3f);
+            }
+            var renderer=ps.GetComponent<ParticleSystemRenderer>();renderer.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;renderer.receiveShadows=false;
+        }
+        PrefabUtility.SaveAsPrefabAsset(go,path);report.Add(path);
+    }
+    finally{preview.Cleanup();}
+}
+return report;

@@ -15,8 +15,8 @@ MonoBehaviour:
   effectKey: Signature.Bow.SkyFov
   priority: 20
   duration: 0.73333335
-  blendInDuration: 0.05
-  blendOutDuration: 0.29333335
+  blendInDuration: 0.16
+  blendOutDuration: 0.24
   blendInCurve:
     serializedVersion: 2
     m_Curve:

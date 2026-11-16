@@ -1,0 +1,20 @@
+var root="Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/UltimateRedesign/Bindings/";System.IO.Directory.CreateDirectory(root);AssetDatabase.Refresh();
+var report="";foreach(var name in new[]{"Hwarin","Reine","Sera"}){
+var modelPath="Assets/03.Prefabs/Actor/Player/Models/PlayerModel_"+name+".prefab";
+var model=AssetDatabase.LoadAssetAtPath<GameObject>(modelPath);
+var definition=AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Party.PlayerCharacterDefinitionSO>("Assets/10.Datas/Party/PlayerCharacters/PlayerCharacterDefinition_"+name+".asset");
+var animator=model.GetComponentInChildren<UPlayGround.Animation.PlayerActorAnimator>(true);
+var current=animator.PlayerMotionSet;var existing=current.motionSets[definition.defaultWeaponType];
+var motion=AssetDatabase.LoadAssetAtPath<UPlayGround.Animation.MotionSetAsset>("Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/UltimateRedesign/"+name+"_Ultimate.asset");
+if(motion==null)throw new System.InvalidOperationException("미제작 "+name);
+var key=((UPlayGround.Ability.UPlayGround.UPlayGroundMotionAbilityPayloadSO)definition.abilitySet.GetPlayerAbility(UPlayGround.Data.Combat.PlayerSkillSlot.Ultimate).variants[0].executionPayload).attackInfo.motionKey;
+var actorPath=root+name+"_WeaponMotions.asset";var playerPath=root+name+"_PlayerMotions.asset";
+if(AssetDatabase.LoadMainAssetAtPath(actorPath)!=null||AssetDatabase.LoadMainAssetAtPath(playerPath)!=null)throw new System.InvalidOperationException("기존파생보호 "+name);
+var actor=ScriptableObject.CreateInstance<UPlayGround.Data.Actor.Animation.ActorAnimationMotionSet>();actor.name=name+"_WeaponMotions";actor.fallbackMotionSet=existing;actor.attackWeaponType=definition.defaultWeaponType;actor.attackAbilitySet=existing.attackAbilitySet;
+actor.abilityMotions=new AYellowpaper.SerializedCollections.SerializedDictionary<UPlayGround.Data.Actor.Animation.MotionKey,UPlayGround.Animation.MotionSetAsset>();actor.abilityMotions[key]=motion;
+var player=UnityEngine.Object.Instantiate(current);player.name=name+"_PlayerMotions";player.motionSets[definition.defaultWeaponType]=actor;
+AssetDatabase.CreateAsset(actor,actorPath);AssetDatabase.CreateAsset(player,playerPath);
+Undo.RecordObject(animator,"캐릭터 전용 궁극기 연결");var so=new SerializedObject(animator);so.FindProperty("_playerActorAnimationMotionSet").objectReferenceValue=player;so.ApplyModifiedProperties();PrefabUtility.SavePrefabAsset(model);
+if(animator.PlayerMotionSet.GetAbilityMotionAsset(definition.defaultWeaponType,key)!=motion)throw new System.InvalidOperationException("실제매핑불일치 "+name);
+report+=name+" "+key+" -> "+AssetDatabase.GetAssetPath(motion)+"\n";
+}AssetDatabase.SaveAssets();return report;

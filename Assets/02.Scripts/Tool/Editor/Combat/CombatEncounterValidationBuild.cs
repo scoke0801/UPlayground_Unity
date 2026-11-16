@@ -32,9 +32,6 @@ namespace UPlayGround.Tool.Editor
             string directory = Path.GetFullPath("Builds/CombatEncounter_20261019");
             Directory.CreateDirectory(directory);
             SceneSetup[] previousScenes = EditorSceneManager.GetSceneManagerSetup();
-            EditorBuildSettingsScene[] previousBuildScenes = EditorBuildSettings.scenes;
-            const string buildSettingsPath = "ProjectSettings/EditorBuildSettings.asset";
-            byte[] previousBuildSettings = File.ReadAllBytes(buildSettingsPath);
             string previousProductName = PlayerSettings.productName;
             byte[] previousPlayerSettings = File.ReadAllBytes("ProjectSettings/ProjectSettings.asset");
             AddressableAssetSettings settings = AddressableAssetSettingsDefaultObject.Settings;
@@ -46,27 +43,18 @@ namespace UPlayGround.Tool.Editor
             try
             {
                 UnityEditor.Build.Pipeline.Utilities.ScriptableBuildPipeline.threadedArchiving = false;
-                // lilToon 전처리도 BuildPlayerOptions가 아닌 전역 씬 목록을 사용한다.
-                EditorBuildSettings.scenes = new[] { new EditorBuildSettingsScene("Assets/01.Scenes/Test/CombatTestMap.unity", true) };
                 EditorSceneManager.OpenScene("Assets/01.Scenes/Test/CombatTestMap.unity");
                 PlayerSettings.productName = "UPlaygroundCombatEncounterValidation_20261019";
                 ConfigureLocalBundles(settings, previousCrcSettings);
-                // 에디터의 AssetDatabase 재생 모드는 독립 실행 파일에서 사용할 수 없다.
-                if (Array.IndexOf(Environment.GetCommandLineArgs(), "-reuseCombatContent") < 0)
-                {
-                    AddressableAssetSettings.BuildPlayerContent(out var contentResult);
-                    if (!string.IsNullOrEmpty(contentResult.Error))
-                        throw new InvalidOperationException("Addressables 빌드 실패: " + contentResult.Error);
-                }
-                settings.BuildAddressablesWithPlayerBuild = AddressableAssetSettings.PlayerBuildOption.DoNotBuildWithPlayer;
 
-                BuildReport report = BuildPipeline.BuildPlayer(new BuildPlayerOptions
+                BuildReport report = UPlayGround.Tool.Editor.Build.BuildManagerRunner.RunValidation(new BuildPlayerOptions
                 {
                     scenes = new[] { "Assets/01.Scenes/Test/CombatTestMap.unity" },
                     locationPathName = Path.Combine(directory, "CombatEncounterValidation.exe"),
                     target = BuildTarget.StandaloneWindows64,
                     options = BuildOptions.Development | BuildOptions.CompressWithLz4
-                });
+                }, Array.IndexOf(Environment.GetCommandLineArgs(), "-reuseCombatContent") < 0
+                    ? UPlayGround.Tool.Editor.Build.BuildManagerMode.Full : UPlayGround.Tool.Editor.Build.BuildManagerMode.PlayerOnly);
                 BuildSummary summary = report.summary;
                 string result = $"결과: {summary.result}\nUnity: {Application.unityVersion}\n" +
                     $"씬: {"Assets/01.Scenes/Test/CombatTestMap.unity"}\n플랫폼: {summary.platform}\n" +
@@ -87,8 +75,6 @@ namespace UPlayGround.Tool.Editor
                     AssetDatabase.SaveAssetIfDirty(entry.Schema);
                 }
                 AssetDatabase.SaveAssetIfDirty(settings);
-                EditorBuildSettings.scenes = previousBuildScenes;
-                File.WriteAllBytes(buildSettingsPath, previousBuildSettings);
                 PlayerSettings.productName = previousProductName;
                 AssetDatabase.SaveAssets();
                 File.WriteAllBytes("ProjectSettings/ProjectSettings.asset", previousPlayerSettings);

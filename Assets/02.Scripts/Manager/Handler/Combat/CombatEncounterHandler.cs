@@ -42,7 +42,8 @@ namespace UPlayGround.Manager.Handler
             {
                 for (int i = 0; i < actors.Count; i++)
                 {
-                    if (actors[i] is not MonsterActor boss || !boss.gameObject.activeInHierarchy
+                    // 파괴된 Unity 객체는 패턴 매칭을 통과하므로 명시적으로 null(파괴) 검사를 먼저 한다.
+                    if (actors[i] is not MonsterActor boss || boss == null || !boss.gameObject.activeInHierarchy
                         || boss.Grade != MonsterActorGrade.Boss || !boss.IsAlive()) continue;
                     if (boss.Detection == null || boss.Detection.CurrentTarget != player.transform) continue;
                     bool inRange = (boss.transform.position - player.transform.position).sqrMagnitude <= Profile.bossRadius * Profile.bossRadius;

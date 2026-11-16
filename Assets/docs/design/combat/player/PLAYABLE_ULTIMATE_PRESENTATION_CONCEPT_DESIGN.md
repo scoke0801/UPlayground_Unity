@@ -1,5 +1,7 @@
 # 전용 궁극기 연출 미보유 플레이어블 10명 컨셉 설계
 
+> **2026-11-15 후속:** 사용자가 기존 궁극기 모션을 품질 반려했다. 신규 제작은 [12명 모션 재설계](ULTIMATE_MOTION_REDESIGN.md)를 우선한다. 이 문서의 기존 클립 우선/새 자세 보류를 품질 미달 동작 유지의 근거로 쓰지 않는다.
+
 > 작성일: 2026-11-14 · 범위: 캐릭터별 연출 설계. 구현·리소스 제작을 지시하는 문서와 구분한다.
 > 클립 조사 반영: **[§6 제작 방향·확정 입력 에셋](#6-클립-조사-후-확정한-제작-방향과-에셋)**을 동작 제안보다 우선한다. 기존 클립/MotionSet 조합 우선, 미충족 구간만 Blender MCP 제작. 소스 채택과 실제 실행/미술 인수는 구분한다.
 > [공통 연출 계약](WEAPON_ULTIMATE_PRESENTATION_DESIGN.md) · [전투 위키](../../../../../docs/wiki/combat.md) · [조사·Astra 논의·검증 상태](../../../../../docs/work-status/weapon-ultimate-presentation/MISSING_ULTIMATE_CONCEPTS.md)

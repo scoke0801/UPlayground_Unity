@@ -92,6 +92,9 @@ namespace UPlayGround.Data.Event
             
         // 이전 모션들의 누적 시간 (글로벌 타임라인에서의 오프셋)
         [HideInInspector] public float globalStartTimeOffset = 0f;
+
+        /// <summary>마지막으로 이 이벤트를 발화한 Executor. 진단 로그에서 소속 MotionSet·클립을 찾는 용도이며 직렬화하지 않는다.</summary>
+        [NonSerialized] public UPlayGround.Animation.MotionEventExecutor SourceExecutor;
         
         /// <summary>
         /// 이벤트가 특정 시간(글로벌 시간)에 활성화되는지 확인

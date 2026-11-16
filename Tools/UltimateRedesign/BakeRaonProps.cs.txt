@@ -1,0 +1,13 @@
+var path="Assets/07.Animations/Player/UltimateRedesign/Raon_Ultimate.anim";var output=AssetDatabase.LoadAssetAtPath<AnimationClip>(path);var body=UnityEngine.Object.Instantiate(output);var go=UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Raon.prefab"));try{
+var animator=go.GetComponent<Animator>();var right=animator.GetBoneTransform(HumanBodyBones.RightHand);var left=animator.GetBoneTransform(HumanBodyBones.LeftHand);var c=go.transform.Find("Weapon/Katana").GetComponent<UnityEngine.Animations.ParentConstraint>();c.enabled=false;var blade=c.GetSource(0).sourceTransform;var sheath=go.transform.Find("Armature/Hips/FrankSheathBasis/Sword_Case");
+var targets=new[]{blade,sheath};var curves=new AnimationCurve[2,7];for(int a=0;a<2;a++)for(int b=0;b<7;b++)curves[a,b]=new AnimationCurve();
+var rows=System.IO.File.ReadAllLines("output/ultimate-redesign/tracks/Raon.csv");for(int f=0;f<rows.Length;f++){
+body.SampleAnimation(go,f/30f);var strings=rows[f].Split(',');var v=System.Array.ConvertAll(strings,s=>float.Parse(s,System.Globalization.CultureInfo.InvariantCulture));System.Func<int,Vector3> point=i=>new Vector3(v[i],v[i+2],-v[i+1]);
+var axis=point(7).normalized;var bladeNormal=Vector3.ProjectOnPlane(Vector3.up,axis).normalized;if(bladeNormal.sqrMagnitude<.1f)bladeNormal=Vector3.right;
+blade.position=right.position+(point(1)-point(17));blade.rotation=Quaternion.LookRotation(axis,bladeNormal)*Quaternion.Inverse(Quaternion.LookRotation(Vector3.up,Vector3.forward));
+var sheathAxis=point(26).normalized;var up=Vector3.ProjectOnPlane(Vector3.up,sheathAxis).normalized;if(up.sqrMagnitude<.1f)up=Vector3.right;
+sheath.position=left.position+(point(23)-point(20));sheath.rotation=Quaternion.LookRotation(sheathAxis,up);
+for(int a=0;a<2;a++){var p=targets[a].localPosition;var q=targets[a].localRotation;var values=new[]{p.x,p.y,p.z,q.x,q.y,q.z,q.w};for(int b=0;b<7;b++)curves[a,b].AddKey(f/30f,values[b]);}
+}
+var props=new[]{"m_LocalPosition.x","m_LocalPosition.y","m_LocalPosition.z","m_LocalRotation.x","m_LocalRotation.y","m_LocalRotation.z","m_LocalRotation.w"};Undo.RecordObject(output,"라온 검 칼집 동기");for(int a=0;a<2;a++)for(int b=0;b<7;b++)AnimationUtility.SetEditorCurve(output,EditorCurveBinding.FloatCurve(AnimationUtility.CalculateTransformPath(targets[a],go.transform),typeof(Transform),props[b]),curves[a,b]);output.EnsureQuaternionContinuity();EditorUtility.SetDirty(output);AssetDatabase.SaveAssets();return "라온 검·칼집14곡선 저장; 실제 모델 검수 필요";
+}finally{UnityEngine.Object.DestroyImmediate(go);UnityEngine.Object.DestroyImmediate(body);}

@@ -15,8 +15,8 @@ MonoBehaviour:
   effectKey: Signature.Katana.SlashZoom
   priority: 20
   duration: 0.3
-  blendInDuration: 0.05
-  blendOutDuration: 0.120000005
+  blendInDuration: 0.09
+  blendOutDuration: 0.15
   blendInCurve:
     serializedVersion: 2
     m_Curve:

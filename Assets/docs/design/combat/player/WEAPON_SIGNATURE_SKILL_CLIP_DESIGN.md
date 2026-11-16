@@ -1,5 +1,9 @@
 # 무기 9종 시그니처 궁극기 클립 실행 설계 (확정본)
 
+> **2026-11-15 사용자 품질 재반려:** 아래 실행 계약은 유지하지만 기존 프레임표·클립 조합은 궁극기 동작 품질의 확정본이 아니다. 신규 모션 제작은 [모션 재설계](ULTIMATE_MOTION_REDESIGN.md)를 우선하며, [Sol 조사·재구성 상태](../../../../../docs/work-status/weapon-signature/REFERENCE_REDESIGN.md)를 확인한다.
+
+품질 조율: 회전은 준비·연속 회전·마무리의 단방향 클립 진행을 사용하고 다단 히트스톱으로 정지시키지 않는다. 창은 실제 오른손에서 발사한다. 얼굴 읽기 시간을 확보하고 준비 카메라는 완만하게 전환한다. [적용값·검증·남은 인수](../../../../../docs/work-status/weapon-signature/QUALITY_REVISION.md).
+
 > **상태: 구현 반영·허용된 자동 검사 완료, 실제 플레이·미술 인수 대기.** 남은 열린 결정: **0건**(§0.2). 모든 수치는 구현 시 측정으로 조정하는 제안값이다.
 > 근거 지침: [전투 저작](../../../guide/COMBAT_SYSTEM_AUTHORING_GUIDE.md) · [무기 모션 이식](../../../guide/WEAPON_MOTION_RETARGETING_GUIDE.md) · [NPC 애니메이션 BlenderMCP 절차](../../../guide/NPC_DAILY_ANIMATION_AUTHORING_GUIDE.md#6-blendermcp-신규-제작) · [UI/UX 저작](../../../guide/UI_UX_AUTHORING_GUIDE.md) · [카메라 이식 경계](../../../guide/CAMERA_MODULE_PORTABILITY_GUIDE.md) · [공통 하네스 아트 인수 조건](../../../../../Tools/Harness/README.md#구매mcp-제작-아트의-인수-조건) · FX 스킬 `.claude/skills/uplayground-vfx/SKILL.md`
 > 관련: [궁극기 시퀀스 시스템](ULTIMATE_SEQUENCE_SYSTEM_DESIGN.md) · [궁극기 연출 컨셉 §6](PLAYABLE_ULTIMATE_PRESENTATION_CONCEPT_DESIGN.md#6-클립-조사-후-확정한-제작-방향과-에셋) · [궁극기 연출 상태](../../../../../docs/work-status/weapon-ultimate-presentation/STATUS.md) · [궁극기 사용자 테스트](../../../../../docs/work-status/weapon-ultimate-presentation/USER_TESTS.md) · [Katana FX 상태](../../../../../docs/work-status/player-katana-fx.md) · [전투 위키](../../../../../docs/wiki/combat.md)

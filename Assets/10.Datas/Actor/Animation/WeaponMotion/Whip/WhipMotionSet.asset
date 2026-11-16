@@ -115,7 +115,7 @@ MonoBehaviour:
       Value: {fileID: 11400000, guid: 4b6b28e91749b4347988ffb2823e78eb, type: 2}
     - Key:
         value: Whip.Ultimate
-      Value: {fileID: 11400000, guid: a704bc8e0c56ace4b9e2e4715c0b74f0, type: 2}
+      Value: {fileID: 11400000, guid: e026b52f43273674fb1be8c22300ef47, type: 2}
     - Key:
         value: Whip.Light.00
       Value: {fileID: 11400000, guid: 420fa206cd3472a44963302e0b4068d7, type: 2}

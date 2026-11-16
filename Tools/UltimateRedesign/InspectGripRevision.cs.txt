@@ -1,0 +1,70 @@
+if (EditorApplication.isPlaying || EditorApplication.isCompiling || EditorUtility.scriptCompilationFailed)
+    throw new System.InvalidOperationException("컴파일 오류 없는 편집 모드 필요");
+var owner = "Hwarin";
+var dir = "output/ultimate-redesign/grip-revision";
+System.IO.Directory.CreateDirectory(dir);
+var motion = AssetDatabase.LoadAssetAtPath<UPlayGround.Animation.MotionSetAsset>("Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/UltimateRedesign/" + owner + "_Ultimate.asset");
+var preview = new PreviewRenderUtility();
+var graph = UnityEngine.Playables.PlayableGraph.Create("궁극기 결합 조사");
+var meshes = new System.Collections.Generic.List<Mesh>();
+try
+{
+    var go = UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/03.Prefabs/Actor/Player/Models/PlayerModel_" + owner + ".prefab"));
+    preview.AddSingleGO(go);
+    go.SetActive(true);
+    var animator = go.GetComponent<Animator>();
+    animator.enabled = true;
+    animator.cullingMode = AnimatorCullingMode.AlwaysAnimate;
+    foreach (var tr in go.GetComponentsInChildren<Transform>(true))
+        if (tr.name == "InteractionObject" || tr.name == "LockOn" || tr.name == "Weapon_back") tr.gameObject.SetActive(false);
+    var clip = motion.motionSet.motions[0].motionClip;
+    var playable = UnityEngine.Animations.AnimationClipPlayable.Create(graph, clip);
+    var output = UnityEngine.Animations.AnimationPlayableOutput.Create(graph, "몸", animator);
+    UnityEngine.Playables.PlayableOutputExtensions.SetSourcePlayable(output, playable);
+    graph.SetTimeUpdateMode(UnityEngine.Playables.DirectorUpdateMode.Manual);
+    graph.Play();
+    var report = new System.Text.StringBuilder();
+    foreach (var mf in go.transform.Find("Weapon").GetComponentsInChildren<MeshFilter>(true))
+        report.AppendLine(AnimationUtility.CalculateTransformPath(mf.transform,go.transform)+" bounds="+mf.sharedMesh.bounds+" scale="+mf.transform.lossyScale);
+    var skins = new System.Collections.Generic.List<SkinnedMeshRenderer>();
+    foreach (var skin in go.GetComponentsInChildren<SkinnedMeshRenderer>())
+    {
+        if (!skin.enabled) continue;
+        var mesh = new Mesh(); meshes.Add(mesh); skins.Add(skin);
+        var baked = new GameObject("검수 메시"); baked.transform.SetParent(skin.transform,false);
+        baked.AddComponent<MeshFilter>().sharedMesh = mesh;
+        baked.AddComponent<MeshRenderer>().sharedMaterials = skin.sharedMaterials;
+        skin.enabled = false;
+    }
+    preview.camera.nearClipPlane = .01f;
+    preview.camera.farClipPlane = 100;
+    preview.camera.fieldOfView = 32;
+    preview.lights[0].intensity = 1.4f;
+    preview.lights[0].transform.rotation = Quaternion.Euler(40,30,0);
+    foreach (var time in new[]{0f, clip.length*.3f, clip.length*.65f})
+    {
+        UnityEngine.Playables.PlayableExtensions.SetTime(playable,time);
+        graph.Evaluate(0);
+        var hand = animator.GetBoneTransform(HumanBodyBones.RightHand);
+        var other = animator.GetBoneTransform(HumanBodyBones.LeftHand);
+        report.AppendLine("t="+time+" right="+hand.position.ToString("F4")+" left="+other.position.ToString("F4"));
+        foreach(var c in go.GetComponentsInChildren<UnityEngine.Animations.ParentConstraint>(true))
+            if(c.transform.IsChildOf(go.transform.Find("Weapon"))) report.AppendLine(c.name+" actual="+c.transform.position.ToString("F4"));
+        for(int i=0;i<skins.Count;i++){skins[i].enabled=true;skins[i].BakeMesh(meshes[i]);skins[i].enabled=false;meshes[i].RecalculateBounds();}
+        var target = (hand.position+other.position)*.5f;
+        preview.camera.transform.position = target + new Vector3(1,.6f,1.6f);
+        preview.camera.transform.LookAt(target);
+        preview.BeginStaticPreview(new Rect(0,0,900,900)); preview.Render(true);
+        var texture=preview.EndStaticPreview();
+        System.IO.File.WriteAllBytes(dir+"/"+owner+"_"+time.ToString("F2",System.Globalization.CultureInfo.InvariantCulture)+".png",texture.EncodeToPNG());
+        UnityEngine.Object.DestroyImmediate(texture);
+    }
+    System.IO.File.WriteAllText(dir+"/"+owner+".txt",report.ToString());
+    return report.ToString();
+}
+finally
+{
+    graph.Destroy();
+    foreach(var mesh in meshes) UnityEngine.Object.DestroyImmediate(mesh);
+    preview.Cleanup();
+}

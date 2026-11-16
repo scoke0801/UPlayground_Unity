@@ -15,8 +15,8 @@ MonoBehaviour:
   effectKey: Signature.GreatSword.LiftPitch
   priority: 20
   duration: 0.9
-  blendInDuration: 0.05
-  blendOutDuration: 0.3
+  blendInDuration: 0.16
+  blendOutDuration: 0.24
   blendInCurve:
     serializedVersion: 2
     m_Curve:
@@ -67,7 +67,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   useUnscaledTime: 0
   yawDelta: 0
-  pitchDelta: -10
+  pitchDelta: -8
   rotationCurve:
     serializedVersion: 2
     m_Curve:

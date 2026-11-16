@@ -15,8 +15,8 @@ MonoBehaviour:
   effectKey: Signature.Staff.BeamZoom
   priority: 20
   duration: 1.6
-  blendInDuration: 0.05
-  blendOutDuration: 0.3
+  blendInDuration: 0.16
+  blendOutDuration: 0.24
   blendInCurve:
     serializedVersion: 2
     m_Curve:

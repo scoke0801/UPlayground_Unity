@@ -89,6 +89,7 @@ namespace UPlayGround.Components
         /// <summary>모델 비활성화·교체·사망 시 모션 종료 여부와 무관하게 외형을 복구한다.</summary>
         public void RestoreHiddenWeaponSlots()
         {
+            RestoreWeaponGripOffsets();
             _signatureVisibilityRequests.Clear();
             _signatureMainSlot.RestoreAll();
             _signatureSubSlot.RestoreAll();

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f72c3f48c494179b74f82af3f0c1a63, type: 3}
   m_Name: Projectile_SwordShieldSignatureFall
   m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Projectile.ProjectileDefinitionSO
-  visualPrefab: {fileID: 4242853552686891882, guid: 119b852828c661c4aa1c223ed5c201cd, type: 3}
+  visualPrefab: {fileID: 3048566714289806644, guid: 90377123f110c774480ae9884fe73b33, type: 3}
   hitEffectKey: 
   detonationEffectKey: Signature_SwordShield_Impact
   landingTelegraphPrefab: {fileID: 3715266163495831438, guid: 82fd5b1463e2d7e47a1618e7dfb38073, type: 3}

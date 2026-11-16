@@ -20,7 +20,7 @@ MonoBehaviour:
     end: 0.42170623
     meanSpeed: 30.703306
     peakSpeed: 42.467686
-    sourceFingerprint: 8acd8226126223843c7f9d5f7ae2506e
+    sourceFingerprint: 923b09078f5345acfc8665ab3da1dfd6
     samples:
     - time: 0.32667384
       localVelocity: {x: 12.612072, y: -6.6902165, z: 29.033865}
@@ -57,7 +57,7 @@ MonoBehaviour:
     end: 0.28894928
     meanSpeed: 18.73088
     peakSpeed: 35.56039
-    sourceFingerprint: 343b946a78701edc812a1d7590750d06
+    sourceFingerprint: 5061177275e05b9514884885414c18e7
     samples:
     - time: 0.21588165
       localVelocity: {x: 24.795145, y: 24.816883, z: -5.8193264}
@@ -90,7 +90,7 @@ MonoBehaviour:
     end: 0.24310972
     meanSpeed: 44.45189
     peakSpeed: 51.808365
-    sourceFingerprint: 6f9269ddcfb5a2bd5aeeacb88c33ac8d
+    sourceFingerprint: aeceeb5020bf8b92cd3dc22a2b8c3258
     samples:
     - time: 0.17160685
       localVelocity: {x: -9.777694, y: -12.998062, z: 41.084793}
@@ -123,7 +123,7 @@ MonoBehaviour:
     end: 0.8506944
     meanSpeed: 2.9028368
     peakSpeed: 28.236925
-    sourceFingerprint: 6b4a832a6e8db99c37bf3488c8f677c7
+    sourceFingerprint: 8f2e5d8de78f077cd3edb117619b0193
     samples:
     - time: 0.38877475
       localVelocity: {x: -12.093799, y: -6.585334, z: 24.474401}

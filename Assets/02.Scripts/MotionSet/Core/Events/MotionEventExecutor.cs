@@ -293,6 +293,7 @@ namespace UPlayGround.Animation
         {
             if (evt == null || IsBlockedForEnemyTarget(evt)) return;
 
+            evt.SourceExecutor = this;
             evt.Execute(TargetObject, subFrameFraction);
             if (evt is IMotionEventSignal signal && !string.IsNullOrEmpty(signal.SignalId))
                 SignalChanged?.Invoke(signal.SignalId, true);
@@ -360,8 +361,19 @@ namespace UPlayGround.Animation
             MotionSetEventDebugOverlay.Clear();
         }
 
+        /// <summary>진단 로그용: 이벤트가 속한 MotionSet 이름과 클립(Motion) 식별자를 돌려준다. 호출은 디버그 로그에서만 한다.</summary>
+        public string DescribeEventOrigin(MotionEventBase evt)
+        {
+            string setName = _currentMotionSet?.motionSetName ?? "(none)";
+            if (!MotionTimelineResolver.TryFindEventOwnerMotion(_currentMotionSet, evt, out Motion owner))
+                return $"set={setName}, motion=(global)";
+            string clipName = owner.motionClip != null ? owner.motionClip.name : "(no clip)";
+            return $"set={setName}, motionId={owner.id}, motionName={owner.motionName}, clip={clipName}";
+        }
+
         void CompleteEvent(MotionEventBase motionEvent)
         {
+            motionEvent.SourceExecutor = this;
             motionEvent.OnCompleteEvent(TargetObject);
             if (motionEvent is IMotionEventSignal signal && !string.IsNullOrEmpty(signal.SignalId))
                 SignalChanged?.Invoke(signal.SignalId, false);

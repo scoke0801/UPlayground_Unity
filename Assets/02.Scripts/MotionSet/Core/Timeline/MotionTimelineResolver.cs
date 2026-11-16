@@ -156,6 +156,25 @@ namespace UPlayGround.Animation
             return next?.id;
         }
 
+        /// <summary>이벤트를 소유한 Motion(클립 단위)을 찾는다. 전역 이벤트면 false.</summary>
+        public static bool TryFindEventOwnerMotion(MotionSet set, MotionEventBase motionEvent, out Motion owner)
+        {
+            owner = null;
+            if (set == null || motionEvent == null)
+                return false;
+            if (TryFindEventInMotions(set.motions, motionEvent, out owner, out _))
+                return true;
+            if (set.layers != null)
+            {
+                foreach (MotionLayer layer in set.layers)
+                {
+                    if (layer != null && TryFindEventInMotions(layer.motions, motionEvent, out owner, out _))
+                        return true;
+                }
+            }
+            return false;
+        }
+
         public static bool TryGetEventGlobalRange(
             MotionSet set,
             MotionEventBase motionEvent,

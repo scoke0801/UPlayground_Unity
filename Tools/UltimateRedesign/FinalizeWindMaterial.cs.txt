@@ -1,0 +1,12 @@
+var folder="Assets/03.Prefabs/Effects/Signature/GripRevision/";
+var mesh=AssetDatabase.LoadAssetAtPath<Mesh>(folder+"Yura_WindRibbon.asset");
+var vertices=mesh.vertices;var uvs=mesh.uv;var colors=mesh.colors;
+for(int ribbon=0;ribbon<3;ribbon++)for(int step=0;step<=96;step++){float t=step/96f;float angle=t*Mathf.PI*2.5f+ribbon*Mathf.PI*2/3;float radius=Mathf.Lerp(.45f,2.8f,Mathf.Pow(t,.8f));float width=Mathf.Sin(t*Mathf.PI)*.48f;for(int edge=0;edge<2;edge++){int i=ribbon*194+step*2+edge;vertices[i]=new Vector3(Mathf.Cos(angle)*radius,t*3.8f+(edge==0?-width:width),Mathf.Sin(angle)*radius);uvs[i]=new Vector2(t,edge);colors[i]=new Color(1,1,1,Mathf.Sin(t*Mathf.PI)*.7f);}}
+mesh.vertices=vertices;mesh.uv=uvs;mesh.colors=colors;mesh.RecalculateBounds();mesh.RecalculateNormals();EditorUtility.SetDirty(mesh);
+var materialPath=folder+"Yura_WindRibbon.mat";var mat=AssetDatabase.LoadAssetAtPath<Material>(materialPath);
+if(mat==null){mat=new Material(AssetDatabase.LoadAssetAtPath<Material>("Packages/com.unity.render-pipelines.universal/Runtime/Materials/ParticlesUnlit.mat"));AssetDatabase.CreateAsset(mat,materialPath);}
+var source=AssetDatabase.LoadAssetAtPath<Material>("Assets/ExternalAssets/FX/Hovl Studio/HSFiles/Materials/Trail5cg.mat");
+mat.SetTexture("_BaseMap",source.GetTexture("_MainTex"));mat.SetColor("_BaseColor",Color.white);mat.SetFloat("_Cull",0);EditorUtility.SetDirty(mat);
+var path=folder+"Yura_Tornado.prefab";var go=PrefabUtility.LoadPrefabContents(path);
+try{go.GetComponent<ParticleSystemRenderer>().sharedMaterial=mat;var main=go.GetComponent<ParticleSystem>().main;main.startColor=new Color(.58f,.95f,.86f,.85f);PrefabUtility.SaveAsPrefabAsset(go,path);}finally{PrefabUtility.UnloadPrefabContents(go);}
+AssetDatabase.SaveAssetIfDirty(mesh);AssetDatabase.SaveAssetIfDirty(mat);return "회오리 재질과 리본 폭 수정";

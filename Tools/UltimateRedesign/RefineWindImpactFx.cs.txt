@@ -1,0 +1,56 @@
+if(EditorApplication.isCompiling||EditorUtility.scriptCompilationFailed)throw new System.InvalidOperationException("컴파일 완료 필요");
+var folder="Assets/03.Prefabs/Effects/Signature/GripRevision/";
+var meshPath=folder+"Yura_WindRibbon.asset";
+if(AssetDatabase.LoadMainAssetAtPath(meshPath)!=null)throw new System.InvalidOperationException("기존 바람 메시 보호");
+var vertices=new System.Collections.Generic.List<Vector3>();var uv=new System.Collections.Generic.List<Vector2>();var colors=new System.Collections.Generic.List<Color>();var triangles=new System.Collections.Generic.List<int>();
+const int segments=96;
+for(int ribbon=0;ribbon<3;ribbon++)
+{
+    int begin=vertices.Count;
+    for(int step=0;step<=segments;step++)
+    {
+        float t=step/(float)segments;float angle=t*Mathf.PI*3.4f+ribbon*Mathf.PI*2/3;
+        float radius=Mathf.Lerp(.45f,2.8f,Mathf.Pow(t,.8f));float width=Mathf.Sin(t*Mathf.PI)*.28f;
+        for(int edge=0;edge<2;edge++)
+        {
+            float y=t*3.8f+(edge==0?-width:width);
+            vertices.Add(new Vector3(Mathf.Cos(angle)*radius,y,Mathf.Sin(angle)*radius));uv.Add(new Vector2(t*2,edge));
+            colors.Add(new Color(1,1,1,Mathf.Sin(t*Mathf.PI)*.65f));
+        }
+        if(step==segments)continue;
+        int a=begin+step*2;triangles.AddRange(new[]{a,a+2,a+1,a+1,a+2,a+3});
+        triangles.AddRange(new[]{a+1,a+2,a,a+3,a+2,a+1});
+    }
+}
+var mesh=new Mesh();mesh.name="Yura_WindRibbon";mesh.SetVertices(vertices);mesh.SetUVs(0,uv);mesh.SetColors(colors);mesh.SetTriangles(triangles,0);mesh.RecalculateNormals();mesh.RecalculateBounds();AssetDatabase.CreateAsset(mesh,meshPath);
+var preview=new PreviewRenderUtility();
+try
+{
+    var go=new GameObject("Yura_Tornado");preview.AddSingleGO(go);
+    var ps=go.AddComponent<ParticleSystem>();ps.Stop(true,ParticleSystemStopBehavior.StopEmittingAndClear);
+    var main=ps.main;main.duration=3;main.loop=false;main.startLifetime=3;main.startSpeed=0;main.startSize=1;main.maxParticles=1;main.startRotation3D=true;main.startColor=new Color(.5f,.95f,.85f,1);main.playOnAwake=true;
+    var emission=ps.emission;emission.rateOverTime=0;emission.SetBursts(new[]{new ParticleSystem.Burst(0,1)});
+    var shape=ps.shape;shape.enabled=false;
+    var rotation=ps.rotationOverLifetime;rotation.enabled=true;rotation.separateAxes=true;rotation.x=0;rotation.y=3.5f;rotation.z=0;
+    var color=ps.colorOverLifetime;color.enabled=true;var gradient=new Gradient();gradient.SetKeys(new[]{new GradientColorKey(Color.white,0),new GradientColorKey(Color.white,1)},new[]{new GradientAlphaKey(0,0),new GradientAlphaKey(1,.06f),new GradientAlphaKey(.8f,.8f),new GradientAlphaKey(0,1)});color.color=gradient;
+    var renderer=ps.GetComponent<ParticleSystemRenderer>();renderer.renderMode=ParticleSystemRenderMode.Mesh;renderer.mesh=mesh;renderer.sharedMaterial=AssetDatabase.LoadAssetAtPath<Material>("Assets/ExternalAssets/FX/Hovl Studio/HSFiles/Materials/Laser1.mat");renderer.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;renderer.receiveShadows=false;
+    var dust=UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/03.Prefabs/Effects/Signature/Polish/DoubleAxe_Dust.prefab"));dust.name="바닥 바람 먼지";dust.transform.SetParent(go.transform,false);
+    foreach(var particle in dust.GetComponentsInChildren<ParticleSystem>(true)){particle.Stop(false,ParticleSystemStopBehavior.StopEmittingAndClear);var dm=particle.main;dm.startColor=new Color(.55f,.6f,.58f,.22f);dm.startSizeMultiplier*=.7f;dm.duration=2.7f;var de=particle.emission;de.rateOverTime=10;}
+    PrefabUtility.SaveAsPrefabAsset(go,folder+"Yura_Tornado.prefab");
+}
+finally{preview.Cleanup();}
+foreach(var name in new[]{"Sera_Impact","Lili_Impact","Reine_Impact","MyoRyeong_Impact"})
+{
+    var path=folder+name+".prefab";var go=PrefabUtility.LoadPrefabContents(path);
+    try
+    {
+        var root=go.GetComponent<ParticleSystem>();root.Stop(false,ParticleSystemStopBehavior.StopEmittingAndClear);var main=root.main;main.startSizeMultiplier*=.35f;
+        var emission=root.emission;
+        for(int i=0;i<emission.burstCount;i++){var burst=emission.GetBurst(i);burst.count=6;emission.SetBurst(i,burst);}
+        foreach(var ps in go.GetComponentsInChildren<ParticleSystem>(true))if(ps.name=="Ground ring"){var rm=ps.main;rm.startLifetimeMultiplier=1.8f;}
+        PrefabUtility.SaveAsPrefabAsset(go,path);
+    }
+    finally{PrefabUtility.UnloadPrefabContents(go);}
+}
+AssetDatabase.SaveAssetIfDirty(mesh);
+return "바람 연속 리본 메시와 지면 충격 4종 수정";

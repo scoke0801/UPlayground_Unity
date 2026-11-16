@@ -19,8 +19,8 @@ MonoBehaviour:
   Duration: 0.7
   Delay: 0
   PitchAmplitude: 0
-  YawAmplitude: 0.4
-  RollAmplitude: 0.6
+  YawAmplitude: 0.2
+  RollAmplitude: 0
   DirectionalBias: 0.5
   AttenuateByDistance: 0
   AttenuationRange: 25

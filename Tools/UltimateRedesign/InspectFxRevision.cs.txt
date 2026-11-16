@@ -1,0 +1,25 @@
+var paths=new[]{"Assets/03.Prefabs/Effects/Signature/Katana_Signature.prefab","Assets/03.Prefabs/Effects/Signature/DoubleAxe_Signature.prefab","Assets/03.Prefabs/Effects/Signature/Staff_Signature.prefab","Assets/03.Prefabs/Effects/Signature/GreatSword_Impact_Signature.prefab"};
+var dir="output/ultimate-redesign/fx-revision";System.IO.Directory.CreateDirectory(dir);
+var report=new System.Text.StringBuilder();
+foreach(var path in paths)
+{
+    var preview=new PreviewRenderUtility();
+    try
+    {
+        var go=UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(path));preview.AddSingleGO(go);go.SetActive(true);
+        var particles=go.GetComponentsInChildren<ParticleSystem>(true);
+        foreach(var ps in particles){ps.Stop(false,ParticleSystemStopBehavior.StopEmittingAndClear);ps.useAutoRandomSeed=false;ps.randomSeed=17;}
+        preview.camera.transform.position=new Vector3(5,4,-7);preview.camera.transform.LookAt(new Vector3(0,1,2));
+        preview.camera.fieldOfView=45;preview.camera.nearClipPlane=.01f;preview.camera.farClipPlane=100;
+        foreach(float time in new[]{.12f,.35f,.8f})
+        {
+            foreach(var ps in particles)ps.Simulate(time,false,true,true);
+            preview.BeginStaticPreview(new Rect(0,0,640,640));preview.Render(true);var texture=preview.EndStaticPreview();
+            var file=dir+"/"+go.name.Replace("(Clone)","")+"_"+time.ToString("F2",System.Globalization.CultureInfo.InvariantCulture)+".png";
+            System.IO.File.WriteAllBytes(file,texture.EncodeToPNG());UnityEngine.Object.DestroyImmediate(texture);
+            report.AppendLine(file);
+        }
+    }
+    finally{preview.Cleanup();}
+}
+return report.ToString();

@@ -1,0 +1,107 @@
+if(EditorApplication.isPlaying||EditorApplication.isCompiling||EditorUtility.scriptCompilationFailed)throw new System.InvalidOperationException("오류 없는 편집 모드 필요");
+var owners=new[]{"Raon","Arin","Hwarin","Reine","Lian","SeolA","Sera","Lili","YeonHoa","Myomyo","Yura","MyoRyeong"};
+var motionRoot="Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/UltimateRedesign/";
+var clipRoot="Assets/07.Animations/Player/UltimateRedesign/";
+var fxRoot="Assets/03.Prefabs/Effects/Signature/GripRevision/";
+var assets=new System.Collections.Generic.List<UnityEngine.Object>();
+var backup="ArtSource/Animation/UltimateGripRevision/Before/";
+System.Action<UnityEngine.Object> protect=asset=>{
+    if(asset==null)throw new System.InvalidOperationException("저장 대상 누락");
+    var path=AssetDatabase.GetAssetPath(asset);var destination=backup+path;
+    if(System.IO.File.Exists(destination))throw new System.InvalidOperationException("기존 백업 보호 "+destination);
+    System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(destination));
+    System.IO.File.Copy(path,destination);if(System.IO.File.Exists(path+".meta"))System.IO.File.Copy(path+".meta",destination+".meta");assets.Add(asset);
+};
+System.Func<string,GameObject> fx=name=>{var result=AssetDatabase.LoadAssetAtPath<GameObject>(fxRoot+name+".prefab");if(result==null)throw new System.InvalidOperationException(name+" FX 없음");return result;};
+var report=new System.Text.StringBuilder();
+var offsets=new System.Text.StringBuilder();
+Undo.IncrementCurrentGroup();var group=Undo.GetCurrentGroup();Undo.SetCurrentGroupName("궁극기 파지와 FX 개선");
+try
+{
+    foreach(var owner in owners)
+    {
+        var motion=AssetDatabase.LoadAssetAtPath<UPlayGround.Animation.MotionSetAsset>(motionRoot+owner+"_Ultimate.asset");
+        var clip=AssetDatabase.LoadAssetAtPath<AnimationClip>(clipRoot+owner+"_GripRevision.anim");
+        if(motion==null||clip==null)throw new System.InvalidOperationException(owner+" 입력 없음");
+        foreach(var e in motion.motionSet.globalEvents)if(e is UPlayGround.Data.Event.WeaponGripOffsetEvent)throw new System.InvalidOperationException("이미 적용됨 "+owner);
+        protect(motion);protect(clip);Undo.RecordObject(motion,"궁극기 연결");Undo.RecordObject(clip,"파지 커브를 구간 이벤트로 이관");
+        var byPath=new System.Collections.Generic.Dictionary<string,Vector3>();
+        foreach(var binding in AnimationUtility.GetCurveBindings(clip))
+        {
+            if(binding.type!=typeof(UnityEngine.Animations.ParentConstraint)||!binding.propertyName.StartsWith("m_TranslationOffsets.Array.data[0]."))continue;
+            Vector3 value;byPath.TryGetValue(binding.path,out value);int coordinate="xyz".IndexOf(binding.propertyName[binding.propertyName.Length-1]);
+            value[coordinate]=AnimationUtility.GetEditorCurve(clip,binding).Evaluate(0);byPath[binding.path]=value;
+            AnimationUtility.SetEditorCurve(clip,binding,null);
+        }
+        foreach(var entry in byPath)
+        {
+            var slot=entry.Key=="Weapon/Sword_L"?UPlayGround.Components.WeaponVisibilitySlot.Sub:UPlayGround.Components.WeaponVisibilitySlot.Main;
+            motion.motionSet.globalEvents.Insert(0,new UPlayGround.Data.Event.WeaponGripOffsetEvent{startTime=0,endTime=clip.length,slot=slot,translationOffset=entry.Value,executionOrder=-100});
+            offsets.AppendLine(owner+" | "+entry.Key+" | "+entry.Value.ToString("F6"));
+        }
+        var source=motion.motionSet.motions[0].motionClip;
+        motion.motionSet.motions[0].motionClip=clip;motion.motionSet.motions[0].motionName=clip.name;
+        var events=motion.motionSet.globalEvents;
+        for(int i=events.Count-1;i>=0;i--)
+        {
+            var particle=events[i] as UPlayGround.Data.Event.BeginParticleEvent;if(particle==null)continue;
+            var old=particle.particlePrefab.name;
+            if(owner=="Hwarin"&&(old=="DoubleAxe_Signature"||old=="Weapon_Trail")){events.RemoveAt(i);continue;}
+            if(owner=="Lian"&&old=="Whip_Rim"){events.RemoveAt(i);continue;}
+            if(old=="WeaponReturn_Flash_Signature"){particle.particlePrefab=fx("WeaponReturn_Compact");particle.endTime=Mathf.Min(particle.endTime,particle.startTime+.25f);}
+            if(owner=="Arin"&&old=="Katana_Signature"){particle.particlePrefab=fx("Arin_GoldSlash");particle.endTime=particle.startTime+.55f;}
+            if(owner=="Raon"&&old=="Katana_Signature")particle.endTime=particle.startTime+.55f;
+            if(owner=="Lian"&&old=="Weapon_Trail")particle.particlePrefab=fx("Lian_WhipTrace");
+            if((owner=="Sera"||owner=="Lili")&&old=="GreatSword_Impact_Signature")particle.particlePrefab=fx(owner+"_Impact");
+            if(owner=="SeolA"&&old=="Bow_Launch_Signature")
+            {
+                particle.particlePrefab=fx("SeolA_Launch");particle.spawnPointName="Bow";particle.offset=Vector3.zero;particle.endTime=particle.startTime+.3f;
+            }
+            if(owner=="YeonHoa"||owner=="Myomyo")
+            {
+                if(old=="Staff_Charge_Signature")
+                {
+                    particle.startTime=particle.endTime-.55f;particle.spawnPointName="Staff";
+                    particle.offset=new Vector3(0,owner=="YeonHoa"?-.5772f:-.444f,0);
+                }
+                if(old=="Staff_Signature")
+                {
+                    particle.particlePrefab=fx(owner+"_Beam");
+                    var head=owner=="YeonHoa"?new Vector3(-.0019f,1.3415f,1.2193f):new Vector3(-.06f,1.1631f,1.0909f);
+                    particle.offset=head-new Vector3(0,1.2f,.5f);
+                    particle.endTime=owner=="YeonHoa"?3.14f:3.54f;
+                }
+            }
+        }
+        if(owner=="Hwarin")foreach(float time in new[]{.8f,1.36f,1.92f,2.48f,3.04f})
+            events.Add(new UPlayGround.Data.Event.BeginParticleEvent{startTime=time,endTime=time+.38f,particlePrefab=fx("Hwarin_FireArc"),attachToTarget=true,destroyOnFinish=true,offset=new Vector3(0,.9f,0)});
+        report.AppendLine(owner+" source="+AssetDatabase.GetAssetPath(source)+" clip="+AssetDatabase.GetAssetPath(clip)+" gripEvents="+byPath.Count);
+        EditorUtility.SetDirty(motion);EditorUtility.SetDirty(clip);
+    }
+    foreach(var pair in new[]{new[]{"Projectile_DualBladeSignatureTornado","Yura_Tornado"},new[]{"Projectile_SwordShieldSignatureFall","MyoRyeong_Shield"}})
+    {
+        var definition=AssetDatabase.LoadMainAssetAtPath("Assets/10.Datas/Projectile/Signature/"+pair[0]+".asset");protect(definition);Undo.RecordObject(definition,"투사체 외형 개선");
+        var serialized=new SerializedObject(definition);serialized.FindProperty("visualPrefab").objectReferenceValue=fx(pair[1]);serialized.ApplyModifiedProperties();
+    }
+    var database=AssetDatabase.LoadMainAssetAtPath("Assets/10.Datas/Path/FXPrefabDatabase.asset");protect(database);Undo.RecordObject(database,"착탄 FX 개선");
+    var db=new SerializedObject(database);var entries=db.FindProperty("prefabs");int replaced=0;
+    for(int i=0;i<entries.arraySize;i++)
+    {
+        var entry=entries.GetArrayElementAtIndex(i);var key=entry.FindPropertyRelative("key").stringValue;
+        if(key=="Signature_Spear_Impact"){entry.FindPropertyRelative("prefab").objectReferenceValue=fx("Reine_Impact");replaced++;}
+        if(key=="Signature_SwordShield_Impact"){entry.FindPropertyRelative("prefab").objectReferenceValue=fx("MyoRyeong_Impact");replaced++;}
+    }
+    if(replaced!=2)throw new System.InvalidOperationException("착탄 FX 키 불일치 "+replaced);
+    db.ApplyModifiedProperties();
+    foreach(var asset in assets)AssetDatabase.SaveAssetIfDirty(asset);
+    Undo.CollapseUndoOperations(group);
+    System.IO.File.WriteAllText("ArtSource/Animation/UltimateGripRevision/applied.txt",report.ToString());
+    System.IO.File.WriteAllText("ArtSource/Animation/UltimateGripRevision/grip-offsets.txt",offsets.ToString());
+    return report.ToString();
+}
+catch
+{
+    Undo.RevertAllDownToGroup(group);
+    foreach(var asset in assets)AssetDatabase.SaveAssetIfDirty(asset);
+    throw;
+}

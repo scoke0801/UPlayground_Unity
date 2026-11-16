@@ -23,6 +23,14 @@ namespace UPlayGround.Data
         [Tooltip("투샷/와이드처럼 두 인물을 담는 구도의 거리 상한(m). 일반 샷의 maxDistance와 별도로 둔다.")]
         [Min(0.1f)] public float maxFramingDistance = 9f;
 
+        [Header("인물 관통 방지")]
+        [Tooltip("카메라가 화자·청자 몸통에서 최소한 떨어져야 하는 수평 반경(m). 0이면 끈다. " +
+                 "벽 충돌로 카메라 암이 접혀도 인물 안으로 파고들지 않게 밀어낸다.")]
+        [Min(0f)] public float actorClearanceRadius = 0.75f;
+
+        [Tooltip("인물 몸통으로 간주하는 높이(m). 카메라가 발밑~이 높이 사이에 있을 때만 밀어낸다.")]
+        [Min(0.1f)] public float actorClearanceHeight = 2.2f;
+
         [Header("블렌드 시간")]
         [Tooltip("화자 전환 등 hard cut에 가까운 즉시 전환 시간(초). 0이면 즉시 스냅.")]
         [Min(0f)] public float cutInstantTime = 0f;

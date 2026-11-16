@@ -18,7 +18,7 @@ MonoBehaviour:
   Noise: 0
   Duration: 1.6
   Delay: 0
-  PitchAmplitude: 0.3
+  PitchAmplitude: 0.15
   YawAmplitude: 0
   RollAmplitude: 0
   DirectionalBias: 0.5

@@ -532,7 +532,19 @@ namespace UPlayGround.Data.Event
                 if (material.HasProperty(MainTexID))
                     return material.GetTexture(MainTexID);
 
-                return material.mainTexture;
+                var shader = material.shader;
+                if (shader != null)
+                {
+                    for (int i = 0; i < shader.GetPropertyCount(); i++)
+                    {
+                        if (shader.GetPropertyType(i) == UnityEngine.Rendering.ShaderPropertyType.Texture
+                            && (shader.GetPropertyFlags(i) & UnityEngine.Rendering.ShaderPropertyFlags.MainTexture) != 0)
+                            return material.GetTexture(shader.GetPropertyNameId(i));
+                    }
+                }
+
+                // VFX처럼 메인 텍스처 속성이 없는 셰이더는 mainTexture 조회 자체가 경고를 낸다.
+                return null;
             }
 
             private static Color ResolveSourceColor(Material material)

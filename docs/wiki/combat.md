@@ -1,5 +1,19 @@
 # 전투와 실행 데이터
 
+- 2026-11-15 [라온 런타임 운동 데이터 연결 수정](../work-status/motion-impact-build-fix.md): 전용 무기 모션 세트에 빠진 MotionImpact 연결을 복구하고 기존 4개 공격을 재베이크했다. 전체 MotionImpact·MotionWarp 빌드 전 검사 통과, 미매핑 경고 12건 잔존. 재발 방지 절차는 [전투 저작 지침 6.2](../../Assets/docs/guide/COMBAT_SYSTEM_AUTHORING_GUIDE.md#62-런타임-운동-데이터-연결재베이크)에 연결. Player 빌드·실전 타격 감각은 사용자 테스트 대기.
+
+- 2026-11-15 [MotionWarp 빌드 차단 수정](../work-status/motionwarp-build-fix.md): MotionSet 4개의 실행 설정 이관, Katana 리그별 v3 프로필 13개 베이크, 아린·라온 제자리 구간 이동 가중치 정리. 전체 빌드 전 매핑 검증 오류 0·미매핑 경고 12. 재발 방지 절차는 [전투 저작 지침 6.1](../../Assets/docs/guide/COMBAT_SYSTEM_AUTHORING_GUIDE.md#61-motionwarp-설정프로필-준비)에 연결했으며 신규·복제·클립/리그 변경 시 같은 작업에서 검증한다. Player 빌드·실전 감각은 사용자 테스트 대기.
+
+- 2026-11-15 [궁극기 손·무기 결합과 FX 재작업](../work-status/weapon-signature/GRIP_FX_REVISION.md): 12명 파지 수정 클립·구간 보정/복구·FX 파생 13종을 적용했다. 관련 EditMode 29/29 통과, 유라 나선 바람 메시·재질과 충격광 추가 수정 및 활성 FX 참조 확인을 수행했다. 범위 밖 손가락 커브, 양손 도달 거리, 클립 보정값 잔류를 수정하고 화린 참격 반복·지팡이 빔·착탄/회수 효과를 조정했다. 이전 버전의 품질 반려는 유효하며 이번 수정본의 실전·미술 인수는 아직 받지 않았다. 자동 검사와 정지 프리뷰는 미술 합격 근거가 아니다.
+
+- 2026-11-15 [궁극기 전신 모션 재제작](../work-status/weapon-signature/MOTION_PRODUCTION.md): **12명 모션 품질 사용자 반려·재작업 필요. 전체 완료 판정 철회.** 사용자 피드백은 전원 모션 품질 실패이며 단순 검수 대기가 아니다. 데이터 적용 이력과 EditMode20/20·이전 PlayMode7/7 기록은 보존하지만 미술 합격 근거가 아니다. 537프레임은 12Hz 정지 샘플이며 실제 전투 영상이 아니다. 기존 독립 QA로 품질 합격을 주장하지 않는다. 최종 축 수정 후 추가13건은 미수행. [검수 결과·남은 항목](../work-status/weapon-signature/USER_TEST_REDESIGN.md).
+
+- 2026-11-15 **궁극기 동작 품질 재반려·재설계:** 사용자 지시로 Sol 웹 조사 후 리드가 [12명 모션 제작 기준](../../Assets/docs/design/combat/player/ULTIMATE_MOTION_REDESIGN.md)을 재구성했다. [출처·조사 제한·상태](../work-status/weapon-signature/REFERENCE_REDESIGN.md). 조사 당시 실제 영상 재생 미확보. 후속 신규 모션 제작 상태는 위 항목 참조. 이전 카메라 조율·자동검사는 궁극기 미술 인수 근거가 아니다.
+
+- 2026-11-15 [궁극기 품질 재작업](../work-status/weapon-signature/QUALITY_REVISION.md): 컷인10모션 연장, 12모델 포즈 샘플·9무기 카메라31SO 개선, 화린 반복 감속/되감기·다단 히트스톱 제거, 레이네 오른손 발사점 연결 및 생성기 반영. 최종 EditMode17/17, 회전301샘플 정지·역행0. 실제 전투·창 투척 연기·FX 합성·미술 인수는 사용자 테스트 대기다.
+
+- 2026-11-15 [잔상 텍스처·Fauna 렌더 오류 수정](../work-status/afterimage-fauna-render-errors.md): 텍스처 속성이 없는 VFX 머티리얼의 무조건 `mainTexture` 조회를 제거했다. Unity 컴파일·관련 EditMode22/22·PlayMode2/2 통과, 실제 잔상 RF01 사용자 테스트 대기.
+
 2026-11-14 사용자 정상 컴파일 뒤 MCP에서 충돌 필터 회귀 포함 관련 43/43, E01 60초 구르기 0회/최대 17.904m/복귀 재교전을 확인했다. 실제 두 궁수에 공격이 명중했으나 구르기 후 공격 기회는 미검증이다. E03 급경사 복귀는 NavMesh `PathPartial`로 실패했다. 추가 국소 우회 실험은 효과가 불충분해 원복했다. [실측·전체 AI 검사 151/152·남은 검증](../work-status/monster-bt-improvement/MCP_VALIDATION.md)을 확인한다.
 
 ## 정본

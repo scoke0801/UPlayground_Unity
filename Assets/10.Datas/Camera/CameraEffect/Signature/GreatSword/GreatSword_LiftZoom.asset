@@ -15,8 +15,8 @@ MonoBehaviour:
   effectKey: Signature.GreatSword.LiftZoom
   priority: 20
   duration: 0.9
-  blendInDuration: 0.05
-  blendOutDuration: 0.3
+  blendInDuration: 0.16
+  blendOutDuration: 0.24
   blendInCurve:
     serializedVersion: 2
     m_Curve:

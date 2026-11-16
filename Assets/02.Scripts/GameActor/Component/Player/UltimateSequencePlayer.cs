@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Animation;
+using UPlayGround.Combat;
 using UPlayGround.Data;
 using UPlayGround.Data.Actor.Animation;
 using UPlayGround.Data.EnumType;
@@ -566,6 +567,16 @@ namespace UPlayGround.Components
             }
 
             public override bool CanTransitionState(ActorStateId fromState) => true;
+
+            /// <summary>
+            /// 일반 공격(Light/Hit/Heavy/KnockBack/Pull)은 데미지만 받고 궁극기를 끊지 못한다.
+            /// 적 제압 공격(Stun/Airborne/Knockdown/Grab)만 리액션으로 시전을 끊는다.
+            /// </summary>
+            public override bool CanPlayHitReaction(in HitContext hit)
+                => hit.ReactionType is AttackReactionType.Stun
+                    or AttackReactionType.Airborne
+                    or AttackReactionType.Knockdown
+                    or AttackReactionType.Grab;
 
             public override bool BlocksExitTo(GameActorState newState)
                 => !_canExit && newState?.StateId != ActorStateId.Death;

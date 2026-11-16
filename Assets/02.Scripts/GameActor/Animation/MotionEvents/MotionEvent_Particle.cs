@@ -52,7 +52,7 @@ namespace UPlayGround.Data.Event
                 particleLifeTime = 0f;
             }
 
-            Debug.Log("PlayParticleEvent");
+            Debug.Log($"PlayParticleEvent target={target.name}, {DescribeOrigin()}");
             Transform spawnPoint = target.transform;
             if (String.IsNullOrEmpty(spawnPointName) == false)
             {
@@ -114,6 +114,11 @@ namespace UPlayGround.Data.Event
             }
         }
 
+        private string DescribeOrigin()
+        {
+            return SourceExecutor != null ? SourceExecutor.DescribeEventOrigin(this) : "origin=(unknown)";
+        }
+
         /// <summary>도약 프레임의 루트 높이와 무관하게 액터 외부의 가장 가까운 지면을 찾는다.</summary>
         private bool TryGetGroundPose(Vector3 position, Transform actorRoot, out RaycastHit ground)
         {
@@ -147,7 +152,7 @@ namespace UPlayGround.Data.Event
         {
             if (_instance != null && destroyOnFinish == true)
             {
-                Debug.Log("PlayParticleEvent - OnComplete");
+                Debug.Log($"PlayParticleEvent - OnComplete target={target.name}, {DescribeOrigin()}");
                 GameObject.Destroy(_instance);
                 _instance = null;
             }

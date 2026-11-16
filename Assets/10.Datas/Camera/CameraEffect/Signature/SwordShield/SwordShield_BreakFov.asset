@@ -15,8 +15,8 @@ MonoBehaviour:
   effectKey: Signature.SwordShield.BreakFov
   priority: 20
   duration: 0.29999995
-  blendInDuration: 0.05
-  blendOutDuration: 0.11999998
+  blendInDuration: 0.08999999
+  blendOutDuration: 0.14999998
   blendInCurve:
     serializedVersion: 2
     m_Curve:

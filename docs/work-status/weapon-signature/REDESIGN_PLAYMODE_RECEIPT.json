@@ -1,0 +1,35 @@
+{
+  "result": {
+    "success": true,
+    "message": "Test job status retrieved.",
+    "error": null,
+    "data": {
+      "job_id": "494897be3025400ca632403b76a7457f",
+      "status": "succeeded",
+      "mode": "PlayMode",
+      "started_unix_ms": 1794714564654,
+      "finished_unix_ms": 1794714584328,
+      "last_update_unix_ms": 1794714584328,
+      "progress": {
+        "completed": 7,
+        "total": 7,
+        "current_test_full_name": null,
+        "current_test_started_unix_ms": null,
+        "last_finished_test_full_name": "UPlayGround.Ability.PlayModeTests.SignatureProjectileLifetimeTests.화살비는_수명경계에서도_대상당6회를넘지않고_재대여하면_횟수가초기화된다",
+        "last_finished_unix_ms": 1794714584235,
+        "stuck_suspected": false,
+        "editor_is_focused": false,
+        "run_in_background": true,
+        "focus_nudge_attempts": null,
+        "focus_nudge_limit": null,
+        "focus_nudge_status": null,
+        "blocked_reason": null,
+        "failures_so_far": [],
+        "failures_capped": false
+      },
+      "error": null,
+      "result": null
+    },
+    "hint": null
+  }
+}

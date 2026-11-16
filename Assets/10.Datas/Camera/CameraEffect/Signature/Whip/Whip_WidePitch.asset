@@ -15,8 +15,8 @@ MonoBehaviour:
   effectKey: Signature.Whip.WidePitch
   priority: 20
   duration: 1.5
-  blendInDuration: 0.05
-  blendOutDuration: 0.3
+  blendInDuration: 0.16
+  blendOutDuration: 0.24
   blendInCurve:
     serializedVersion: 2
     m_Curve:
@@ -67,7 +67,7 @@ MonoBehaviour:
     m_RotationOrder: 4
   useUnscaledTime: 0
   yawDelta: 0
-  pitchDelta: 8
+  pitchDelta: 6
   rotationCurve:
     serializedVersion: 2
     m_Curve:

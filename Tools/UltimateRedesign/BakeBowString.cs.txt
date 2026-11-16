@@ -1,0 +1,26 @@
+var path="Assets/07.Animations/Player/UltimateRedesign/SeolA_Ultimate.anim";
+var output=AssetDatabase.LoadAssetAtPath<AnimationClip>(path);
+var input=UnityEngine.Object.Instantiate(output);
+var go=UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/03.Prefabs/Actor/Player/Models/PlayerModel_SeolA.prefab"));
+try{
+var an=go.GetComponent<Animator>();an.enabled=false;
+var bow=go.transform.Find("Weapon/Bow");
+var c=bow.GetComponent<UnityEngine.Animations.ParentConstraint>();c.enabled=false;
+var stringBone=bow.Find("Skeleton_P09_Bow/Bow_Root/String");var rest=stringBone.localPosition;
+var finger=an.GetBoneTransform(HumanBodyBones.RightMiddleProximal);if(finger==null)finger=an.GetBoneTransform(HumanBodyBones.RightHand);
+var curves=new[]{new AnimationCurve(),new AnimationCurve(),new AnimationCurve()};
+var releaseOffset=Vector3.zero;
+for(int f=0;f<=96;f++){
+input.SampleAnimation(go,f/30f);
+var h=c.GetSource(0).sourceTransform;bow.position=h.TransformPoint(c.GetTranslationOffset(0));bow.rotation=h.rotation*Quaternion.Euler(c.GetRotationOffset(0));
+var target=stringBone.parent.InverseTransformPoint(finger.position);
+Vector3 pos;
+if(f<45){var engage=Mathf.SmoothStep(0,1,Mathf.Clamp01((f-8f)/10f));pos=Vector3.Lerp(rest,target,engage);releaseOffset=pos-rest;}
+else{var t=(f-45)/30f;var recoil=Mathf.Exp(-t*32f)*Mathf.Cos(t*65f);pos=rest+releaseOffset*recoil;}
+for(int i=0;i<3;i++)curves[i].AddKey(f/30f,pos[i]);
+}
+Undo.RecordObject(output,"궁극기 활시위 당김과 해제 동기화");
+var bindingPath=AnimationUtility.CalculateTransformPath(stringBone,go.transform);
+for(int i=0;i<3;i++)AnimationUtility.SetEditorCurve(output,EditorCurveBinding.FloatCurve(bindingPath,typeof(Transform),"m_LocalPosition."+new[]{"x","y","z"}[i]),curves[i]);
+EditorUtility.SetDirty(output);AssetDatabase.SaveAssets();System.IO.File.WriteAllText("output/ultimate-redesign/bow-string-receipt.txt","SeolA string three position curves. Hand engagement F8..18; release F45; damped recoil. Target visual acceptance pending.");return "시위 커브 저장";
+}finally{UnityEngine.Object.DestroyImmediate(go);UnityEngine.Object.DestroyImmediate(input);}

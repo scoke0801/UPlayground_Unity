@@ -173,7 +173,7 @@ namespace UPlayGround.EditorTools
                         overrideFov = true, fovKickAmount = 0f
                     }
                 };
-                if (weapon == "Katana") phase.reactionProfile.manualOverride.hitStopDuration = 0f;
+                if (weapon is "Katana" or "DoubleAxe") phase.reactionProfile.manualOverride.hitStopDuration = 0f;
                 if (weapon == "DualBlade" && i == 1) phase.reactionProfile.manualOverride.hitStopDuration = 0f;
                 payload.attackInfo.baseInfo.hitPhases.Add(phase);
             }
@@ -221,9 +221,11 @@ namespace UPlayGround.EditorTools
             else if (weapon == "DoubleAxe")
             {
                 AnimationClip clip = WhirlwindClip(false);
-                AddClip(motion, clip, 0f, .25f, .4f);
-                for (int i = 0; i < 5; i++) AddClip(motion, clip, .25f, .75f, .5f);
-                AddClip(motion, clip, .75f, 1f, 1f);
+                // 가속·감속까지 되감으면 매 회전마다 정지하므로 연속 회전부만 늘린다.
+                AddClip(motion, clip, 0f, .95f / clip.length, .4f);
+                AddClip(motion, clip, .95f / clip.length, 1.75f / clip.length, 2.5f);
+                AddClip(motion, clip, 1.75f / clip.length, 1f, 1f);
+                motion.internalBlendDuration = 0f;
             }
             else if (weapon == "DualBlade") AddClip(motion, WhirlwindClip(true), 0f, 1f, duration);
             else
@@ -342,7 +344,9 @@ namespace UPlayGround.EditorTools
                 projectileDefinition = Projectile(weapon), hitPhaseIndex = phase, suppressWeaponAim = true,
                 targetMode = weapon == "DualBlade" ? ProjectileTargetMode.Forward : ProjectileTargetMode.TargetPosition,
                 projectTargetToGround = weapon != "DualBlade", playerTargetFallbackDistance = fallback,
-                spawnOffset = weapon == "Spear" ? new Vector3(0, 1.4f, .4f) : new Vector3(0, 1f, .5f),
+                spawnPointName = weapon == "Spear" ? "Hand.R" : string.Empty,
+                spawnOffset = weapon == "Spear" ? Vector3.zero : new Vector3(0, 1f, .5f),
+                useSpawnRotation = weapon != "Spear",
                 groundLayerMask = (1 << 0) | (1 << 3), groundProbeHeight = 12, groundProbeDistance = 30
             }, frame / 30f, frame / 30f + .01f);
 
@@ -364,11 +368,8 @@ namespace UPlayGround.EditorTools
 
         private static void BuildFace(Recipe recipe, MotionSet motion)
         {
-            bool shortPanel = recipe.Weapon == "Katana" || recipe.Weapon == "Staff" || recipe.Weapon == "DualBlade";
-            float hold = recipe.Weapon switch { "Katana" => .25f, "Staff" or "DualBlade" => .35f, "DoubleAxe" => .8f,
-                "Whip" or "SwordShield" => .6f, _ => .5f };
             Add(motion, new UltimateFaceStripMotionEvent
-            { inDuration = shortPanel ? .12f : .18f, hold = hold, outDuration = shortPanel ? .15f : .2f }, 0, recipe.Frames / 30f);
+            { inDuration = .24f, hold = Mathf.Min(1.2f, recipe.Frames / 30f - .59f), outDuration = .3f }, 0, recipe.Frames / 30f);
         }
 
         private static void BuildCamera(Recipe recipe, MotionSet motion)
@@ -425,6 +426,9 @@ namespace UPlayGround.EditorTools
         private static void Camera(MotionSet motion, string weapon, string key, float start, float end,
             float fov, float zoom, float pitch = 0, bool unscaled = false, Vector3 offset = default)
         {
+            fov = Mathf.Clamp(fov, -4f, 7f);
+            zoom = Mathf.Clamp(zoom, -.6f, 1.6f);
+            pitch = Mathf.Clamp(pitch, -8f, 6f);
             var evt = new CameraEffectEvent();
             float duration = end - start;
             if (fov != 0) { var data = Effect<FOVCameraEffectData>(weapon, key + "Fov", duration, unscaled); data.fovDelta = fov; data.fovCurve = AnimationCurve.Constant(0, 1, 1); evt.effectDataList.Add(data); }
@@ -438,7 +442,14 @@ namespace UPlayGround.EditorTools
             T data = GetOrCreate<T>(CameraRoot + weapon + "/" + weapon + "_" + key + ".asset");
             data.effectKey = "Signature." + weapon + "." + key;
             data.duration = duration; data.priority = 20; data.useUnscaledTime = unscaled;
-            data.blendInDuration = Mathf.Min(.05f, duration * .2f); data.blendOutDuration = Mathf.Min(.3f, duration * .4f);
+            bool framing = data is FOVCameraEffectData or ZoomCameraEffectData or RotationCameraEffectData;
+            data.blendInDuration = Mathf.Min(framing ? .16f : .05f, duration * (framing ? .3f : .2f));
+            data.blendOutDuration = Mathf.Min(framing ? .24f : .3f, duration * (framing ? .5f : .4f));
+            if (framing)
+            {
+                data.blendInCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
+                data.blendOutCurve = AnimationCurve.EaseInOut(0, 1, 1, 0);
+            }
             Dirty(data); return data;
         }
 
@@ -464,7 +475,9 @@ namespace UPlayGround.EditorTools
         {
             var shake = GetOrCreate<CameraShakeData>("Assets/10.Datas/Camera/CameraShake/Signature_" + weapon + "_" + key + ".asset");
             shake.key = "Signature_" + weapon + "_" + key; shake.Duration = end - start;
-            shake.PitchAmplitude = pitch; shake.YawAmplitude = yaw; shake.RollAmplitude = roll;
+            shake.PitchAmplitude = continuous ? pitch * .5f : pitch;
+            shake.YawAmplitude = continuous ? yaw * .5f : yaw;
+            shake.RollAmplitude = continuous ? 0f : roll;
             shake.DirectionalBias = weapon == "Katana" ? .7f : .5f;
             shake.Frequency = continuous ? 5 : 22;
             shake.Dampening = continuous ? CameraShakeData.DampeningType.Constant : CameraShakeData.DampeningType.EaseOut;

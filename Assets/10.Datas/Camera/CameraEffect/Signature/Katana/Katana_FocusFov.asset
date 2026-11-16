@@ -15,8 +15,8 @@ MonoBehaviour:
   effectKey: Signature.Katana.FocusFov
   priority: 20
   duration: 0.4
-  blendInDuration: 0.05
-  blendOutDuration: 0.16000001
+  blendInDuration: 0.120000005
+  blendOutDuration: 0.2
   blendInCurve:
     serializedVersion: 2
     m_Curve:

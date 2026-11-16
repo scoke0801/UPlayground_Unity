@@ -1,0 +1,58 @@
+if(EditorApplication.isCompiling||EditorUtility.scriptCompilationFailed)throw new System.InvalidOperationException("컴파일 완료 필요");
+var folder="Assets/03.Prefabs/Effects/Signature/GripRevision";
+if(!AssetDatabase.IsValidFolder(folder))AssetDatabase.CreateFolder("Assets/03.Prefabs/Effects/Signature","GripRevision");
+var report=new System.Collections.Generic.List<string>();
+var sources=new[]{"Assets/ExternalAssets/FX/Simple Stylized Slash/Prefabs/fireslash.prefab","Assets/03.Prefabs/Effects/Signature/Katana_Signature.prefab","Assets/03.Prefabs/Effects/Signature/Staff_Signature.prefab","Assets/03.Prefabs/Effects/Signature/Staff_Signature.prefab","Assets/03.Prefabs/Effects/Signature/WeaponReturn_Flash_Signature.prefab","Assets/03.Prefabs/Effects/Signature/Polish/Weapon_Trail.prefab"};
+var names=new[]{"Hwarin_FireArc","Arin_GoldSlash","YeonHoa_Beam","Myomyo_Beam","WeaponReturn_Compact","Lian_WhipTrace"};
+var colors=new[]{new Color(1,.33f,.08f,1),new Color(1,.74f,.3f,1),new Color(.3f,.75f,1,1),new Color(.75f,.35f,1,1),new Color(.65f,.85f,1,1),new Color(.6f,.4f,1,1)};
+for(int index=0;index<names.Length;index++)
+{
+    var path=folder+"/"+names[index]+".prefab";
+    if(AssetDatabase.LoadMainAssetAtPath(path)!=null){report.Add("기존 후보 보존 "+path);continue;}
+    var preview=new PreviewRenderUtility();
+    try
+    {
+        var go=UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>(sources[index]));preview.AddSingleGO(go);go.name=names[index];go.SetActive(true);
+        var tint=colors[index];
+        foreach(var ps in go.GetComponentsInChildren<ParticleSystem>(true))
+        {
+            ps.Stop(false,ParticleSystemStopBehavior.StopEmittingAndClear);
+            var main=ps.main;var emission=ps.emission;
+            main.playOnAwake=true;
+            if(index==0){main.startLifetimeMultiplier*=.42f;main.duration=Mathf.Min(main.duration,.5f);main.loop=false;main.simulationSpeed=1.2f;}
+            if(index==1){main.startColor=tint;if(ps.name.Contains("Smoke")){main.startSizeMultiplier*=.55f;main.startLifetimeMultiplier*=.6f;}if(ps.name=="Hit"||ps.name=="Flare")main.startSizeMultiplier*=.65f;}
+            if(index==2||index==3)
+            {
+                main.startColor=tint;
+                if(ps.name=="Darkness"||ps.name=="SparksBlack"||ps.name=="Shockwave"){emission.enabled=false;continue;}
+                if(ps.name=="Halo"){main.startSizeMultiplier*=.45f;emission.rateOverTimeMultiplier*=.25f;}
+                if(ps.name=="Trails"||ps.name=="Fire")emission.rateOverTimeMultiplier*=.4f;
+            }
+            if(index==4){main.startLifetimeMultiplier*=.3f;main.startSizeMultiplier*=.2f;main.startColor=tint;main.loop=false;}
+            var renderer=ps.GetComponent<ParticleSystemRenderer>();renderer.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;renderer.receiveShadows=false;
+        }
+        if(index==0)go.transform.localScale=Vector3.one*.75f;
+        if(index==2||index==3)
+        {
+            var line=go.GetComponent<LineRenderer>();
+            line.sharedMaterial=AssetDatabase.LoadAssetAtPath<Material>("Assets/ExternalAssets/FX/Hovl Studio/HSFiles/Materials/Laser1.mat");
+            line.widthMultiplier=.65f;
+            line.widthCurve=new AnimationCurve(new Keyframe(0,.35f),new Keyframe(.05f,1),new Keyframe(.9f,.75f),new Keyframe(1,.08f));
+            line.startColor=tint;line.endColor=new Color(tint.r,tint.g,tint.b,.6f);line.textureMode=LineTextureMode.Stretch;
+            var coreObject=new GameObject("빔 중심광");coreObject.transform.SetParent(go.transform,false);
+            var core=coreObject.AddComponent<LineRenderer>();EditorUtility.CopySerialized(line,core);
+            core.sharedMaterial=AssetDatabase.LoadAssetAtPath<Material>("Assets/ExternalAssets/FX/Hovl Studio/HSFiles/Materials/Laser2.mat");
+            core.widthMultiplier=.18f;core.startColor=new Color(1,1,1,.95f);core.endColor=Color.Lerp(Color.white,tint,.35f);
+            line.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;core.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;
+        }
+        if(index==5)
+        {
+            var trail=go.GetComponent<TrailRenderer>();trail.time=.12f;trail.widthMultiplier=.48f;trail.minVertexDistance=.025f;
+            trail.startColor=new Color(.9f,.75f,1,.8f);trail.endColor=new Color(.4f,.2f,1,0);
+            trail.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;trail.receiveShadows=false;
+        }
+        PrefabUtility.SaveAsPrefabAsset(go,path);report.Add(path);
+    }
+    finally{preview.Cleanup();}
+}
+return report;

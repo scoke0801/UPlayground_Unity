@@ -63,6 +63,7 @@ namespace UPlayGround.Components
         public float GaugeRatio   => _maxGauge > 0f ? _currentGauge / _maxGauge : 0f;
 
         private PlayerCombat _combat;
+        private AttributeSetRuntime _subscribedAttributes;
         private bool[] _cooldownWasActive;
 
         private void Awake()
@@ -76,16 +77,31 @@ namespace UPlayGround.Components
         {
             if (_combat != null)
                 _combat.OnAttackHit += HandleAttackHit;
-            if (AbilitySystem?.Attributes != null)
-                AbilitySystem.Attributes.AttributeChanged += OnAttributeChanged;
+            BindAttributes();
+        }
+
+        // 다른 컴포넌트의 OnEnable이 PlayerActor.Awake보다 먼저 실행될 수 있다.
+        private void Start() => BindAttributes();
+
+        private void BindAttributes()
+        {
+            var attributes = AbilitySystem?.Attributes;
+            if (ReferenceEquals(_subscribedAttributes, attributes)) return;
+            if (_subscribedAttributes != null)
+                _subscribedAttributes.AttributeChanged -= OnAttributeChanged;
+            _subscribedAttributes = attributes;
+            if (_subscribedAttributes == null) return;
+            _subscribedAttributes.AttributeChanged += OnAttributeChanged;
+            OnGaugeChanged?.Invoke(_currentGauge, _maxGauge);
         }
 
         private void OnDisable()
         {
             if (_combat != null)
                 _combat.OnAttackHit -= HandleAttackHit;
-            if (AbilitySystem?.Attributes != null)
-                AbilitySystem.Attributes.AttributeChanged -= OnAttributeChanged;
+            if (_subscribedAttributes != null)
+                _subscribedAttributes.AttributeChanged -= OnAttributeChanged;
+            _subscribedAttributes = null;
         }
 
         private void OnAttributeChanged(AttributeChangedEvent change)

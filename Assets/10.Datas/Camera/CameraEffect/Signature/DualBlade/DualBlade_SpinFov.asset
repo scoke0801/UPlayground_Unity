@@ -15,8 +15,8 @@ MonoBehaviour:
   effectKey: Signature.DualBlade.SpinFov
   priority: 20
   duration: 0.7
-  blendInDuration: 0.05
-  blendOutDuration: 0.28
+  blendInDuration: 0.16
+  blendOutDuration: 0.24
   blendInCurve:
     serializedVersion: 2
     m_Curve:

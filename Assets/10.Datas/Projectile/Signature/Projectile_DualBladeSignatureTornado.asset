@@ -12,9 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f72c3f48c494179b74f82af3f0c1a63, type: 3}
   m_Name: Projectile_DualBladeSignatureTornado
   m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Projectile.ProjectileDefinitionSO
-  visualPrefab: {fileID: 4912673817859163197, guid: 6bce2f64e04e8c24fb548e427dd18fea, type: 3}
+  visualPrefab: {fileID: 6776250265892527667, guid: a8ed08f424f47c547a7a78b1ee4777bf, type: 3}
   hitEffectKey: 
   detonationEffectKey: 
+  landingTelegraphPrefab: {fileID: 0}
   keepWorldOrientation: 1
   detachTrailOnReturn: 1
   motion:

@@ -15,8 +15,8 @@ MonoBehaviour:
   effectKey: Signature.Spear.ThrowFov
   priority: 20
   duration: 0.100000024
-  blendInDuration: 0.020000005
-  blendOutDuration: 0.04000001
+  blendInDuration: 0.030000009
+  blendOutDuration: 0.050000012
   blendInCurve:
     serializedVersion: 2
     m_Curve:
@@ -66,7 +66,7 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 4
   useUnscaledTime: 0
-  fovDelta: -6
+  fovDelta: -4
   fovCurve:
     serializedVersion: 2
     m_Curve:

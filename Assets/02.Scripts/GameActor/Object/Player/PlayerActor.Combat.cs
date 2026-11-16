@@ -421,7 +421,7 @@ namespace UPlayGround
             // 슈퍼아머 체크: 한 단계 이상 차징 완료 시 물리 충격(밀려남) 및 상태 전환 무시
             bool hasSuperArmor = MovementController.CurrentState is PlayerChargeState chargeState &&
                                  chargeState.HasChargedAtLeastOneStage;
-            bool suppressHitReaction = MovementController.CurrentState.SuppressesHitReaction;
+            bool suppressHitReaction = !MovementController.CurrentState.CanPlayHitReaction(hit);
             bool ignoreHitReaction = hasSuperArmor || suppressHitReaction;
             ActorStateId stateId = MovementController.CurrentState.StateId;
             ReactionDecision reactionDecision = ReactionResolver.ResolvePlayerReaction(

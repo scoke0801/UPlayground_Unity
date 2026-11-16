@@ -19,6 +19,7 @@ using UPlayGround.Data.Party;
 using UPlayGround.Data.Projectile;
 using UPlayGround.Data.Stat;
 using UPlayGround.Gameplay.Tag;
+using Motion = UPlayGround.Animation.Motion;
 
 namespace UPlayGround.Ability.Tests
 {
@@ -27,6 +28,7 @@ namespace UPlayGround.Ability.Tests
     {
         private const string AbilityRoot = "Assets/10.Datas/Ability/Player/Signature/";
         private const string MotionRoot = "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Signature/";
+        private const string RedesignedMotionRoot = "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/UltimateRedesign/";
         private const string DefaultSetPath = "Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/AbilitySet_PlayerDefaultAttackData.asset";
         private const string DefaultAbilityPath = "Assets/10.Datas/Ability/Migrated/PlayerDefaultAttackData/GA_PlayerDefaultAttackData_Ultimate.asset";
         private static readonly string[] Characters =
@@ -51,21 +53,22 @@ namespace UPlayGround.Ability.Tests
                 var attack = ((UPlayGroundMotionAbilityPayloadSO)payload).attackInfo;
                 MotionSetAsset motion = animator.PlayerMotionSet.GetAbilityMotionAsset(definition.defaultWeaponType, attack.motionKey);
                 Assert.That(motion, Is.Not.Null, name);
-                string expected = name == "Raon" ? "Katana_Raon" : definition.defaultWeaponType.ToString();
-                Assert.That(AssetDatabase.GetAssetPath(motion), Is.EqualTo(MotionRoot + expected + "_Signature.asset"), name);
+
+                Assert.That(AssetDatabase.GetAssetPath(motion), Is.EqualTo(RedesignedMotionRoot + name + "_Ultimate.asset"), name);
                 Assert.That(motion.motionSet.globalEvents.OfType<UltimateFaceStripMotionEvent>().Count(), Is.EqualTo(1), name);
                 Assert.That(definition.ultimateFaceSprite, Is.Not.Null, name + " 얼굴 Sprite 누락");
             }
         }
 
         [Test]
-        public void 같은무기의_공유궁극기는_실행을공유하고_컷인만_각자의것을쓴다()
+        public void 같은무기의_공유궁극기는_Ability를공유하고_모션과컷인은_각자의것을쓴다()
         {
             foreach (string[] pair in new[] { new[] { "Sera", "Lili" }, new[] { "YeonHoa", "Myomyo" } })
             {
                 PlayerCharacterDefinitionSO first = Definition(pair[0]), second = Definition(pair[1]);
                 Assert.That(first.abilitySet.GetPlayerAbility(PlayerSkillSlot.Ultimate),
                     Is.SameAs(second.abilitySet.GetPlayerAbility(PlayerSkillSlot.Ultimate)), string.Join("/", pair));
+                Assert.That(LiveMotion(pair[0]), Is.Not.SameAs(LiveMotion(pair[1])));
                 Assert.That(first.ultimateFaceSprite, Is.Not.Null);
                 Assert.That(second.ultimateFaceSprite, Is.Not.Null);
                 Assert.That(second.ultimateFaceSprite, Is.Not.SameAs(first.ultimateFaceSprite));
@@ -164,7 +167,7 @@ namespace UPlayGround.Ability.Tests
                 Assert.That(detonate.onHit, Is.False);
                 Assert.That(detonate.onExpire, Is.True);
                 if (expected.weapon == "SwordShield") Assert.That(definition.landingTelegraphPrefab, Is.Not.Null);
-                var spawn = Motion(expected.weapon).motionSet.globalEvents.OfType<SpawnProjectileEvent>().Single();
+                var spawn = AllEvents(LiveMotion(expected.weapon == "Spear" ? "Reine" : "MyoRyeong").motionSet).OfType<SpawnProjectileEvent>().Single();
                 Assert.That(spawn.projectileDefinition, Is.SameAs(definition));
                 Assert.That(spawn.projectTargetToGround, Is.True);
                 Assert.That(spawn.playerTargetFallbackDistance, Is.EqualTo(expected.distance));
@@ -175,13 +178,16 @@ namespace UPlayGround.Ability.Tests
         [Test]
         public void 실제타격횟수와_장판틱을합산하면_각궁극기의_기준수치를_보존한다()
         {
-            foreach (string weapon in Weapons)
+            foreach (string character in Characters)
             {
-                var payload = Payload(weapon);
+                var definition = Definition(character);
+                string weapon = definition.defaultWeaponType.ToString();
+                var payload = (UPlayGroundMotionAbilityPayloadSO)definition.abilitySet.GetPlayerAbility(PlayerSkillSlot.Ultimate).variants.Single().executionPayload;
+                MotionEventBase[] events = AllEvents(LiveMotion(character).motionSet).ToArray();
                 var source = Load<UPlayGroundMotionAbilityPayloadSO>(AbilityRoot + "SourcePayload_" + (weapon == "Spear" ? "GreatSword" : weapon) + ".asset");
                 var counts = new int[payload.attackInfo.baseInfo.hitPhases.Count];
-                foreach (BeginCollisionEvent collision in Motion(weapon).motionSet.globalEvents.OfType<BeginCollisionEvent>()) counts[collision.hitPhaseIndex]++;
-                foreach (SpawnProjectileEvent spawn in Motion(weapon).motionSet.globalEvents.OfType<SpawnProjectileEvent>())
+                foreach (BeginCollisionEvent collision in events.OfType<BeginCollisionEvent>()) counts[collision.hitPhaseIndex]++;
+                foreach (SpawnProjectileEvent spawn in events.OfType<SpawnProjectileEvent>())
                     counts[spawn.hitPhaseIndex] += spawn.projectileDefinition.GetBehavior<AreaTickProjectileBehavior>()?.maxHitsPerTarget ?? 1;
                 Vector3 actual = Vector3.zero;
                 for (int i = 0; i < counts.Length; i++)
@@ -214,23 +220,148 @@ namespace UPlayGround.Ability.Tests
         [Test]
         public void 거대검은_본타시각에_지면에닿고_채찍은_몸과무기의_재생길이를_맞춘다()
         {
-            MotionSet greatSword = Motion("GreatSword").motionSet;
-            var prop = greatSword.globalEvents.OfType<TimedPropEvent>().Single();
-            var collision = greatSword.globalEvents.OfType<BeginCollisionEvent>().Single(value => value.hitPhaseIndex == 0);
-            float time = Mathf.InverseLerp(prop.startTime, prop.endTime, collision.startTime);
-            Assert.That(prop.positionProgress.Evaluate(time), Is.EqualTo(1f).Within(.001f));
-            Assert.That(prop.endOffset.y, Is.EqualTo(0f));
-            Assert.That(prop.endOffset.z, Is.EqualTo(7f));
-            Assert.That(prop.dissolveAmount, Is.Not.Null);
-            Assert.That(prop.dissolveAmount.Evaluate(0), Is.EqualTo(1).Within(.001f));
-            Assert.That(prop.dissolveAmount.Evaluate(time), Is.EqualTo(0).Within(.001f));
-            Assert.That(prop.dissolveAmount.Evaluate(1), Is.EqualTo(1).Within(.001f));
-            var material = prop.prefab.GetComponentInChildren<Renderer>().sharedMaterial;
-            Assert.That(material.HasProperty(prop.dissolveProperty), Is.True);
-            Assert.That(material.GetColor("_EdgeColor").maxColorComponent, Is.GreaterThan(1f));
-            Assert.That(Motion("Whip").motionSet.TotalDuration,
-                Is.EqualTo(Load<MotionSetAsset>(MotionRoot + "Whip_Weapon_Signature.asset").motionSet.TotalDuration).Within(.001f));
+            foreach (string character in new[] { "Sera", "Lili" })
+            {
+                MotionSet greatSword = LiveMotion(character).motionSet;
+                var prop = AllEvents(greatSword).OfType<TimedPropEvent>().Single();
+                var collision = AllEvents(greatSword).OfType<BeginCollisionEvent>().Single(value => value.hitPhaseIndex == 0);
+                float time = Mathf.InverseLerp(EventStart(greatSword, prop), EventStart(greatSword, prop) + prop.endTime - prop.startTime, EventStart(greatSword, collision));
+                Assert.That(prop.positionProgress.Evaluate(time), Is.EqualTo(1f).Within(.001f));
+                Assert.That(prop.endOffset.y, Is.EqualTo(0f));
+                Assert.That(prop.endOffset.z, Is.EqualTo(7f));
+                Assert.That(prop.dissolveAmount, Is.Not.Null);
+                Assert.That(prop.dissolveAmount.Evaluate(0), Is.EqualTo(1).Within(.001f));
+                Assert.That(prop.dissolveAmount.Evaluate(time), Is.EqualTo(0).Within(.001f));
+                Assert.That(prop.dissolveAmount.Evaluate(1), Is.EqualTo(1).Within(.001f));
+                var material = prop.prefab.GetComponentInChildren<Renderer>().sharedMaterial;
+                Assert.That(material.HasProperty(prop.dissolveProperty), Is.True);
+                Assert.That(material.GetColor("_EdgeColor").maxColorComponent, Is.GreaterThan(1f));
+            }
+            var weaponSet = Load<ActorAnimationMotionSet>("Assets/10.Datas/Actor/Animation/WeaponMotion/Whip/WhipMotionSet.asset");
+            var weaponMotion = weaponSet.GetAbilityMotionAsset(new MotionKey("Whip.Ultimate"));
+            Assert.That(weaponMotion, Is.Not.Null);
+            Assert.That(AssetDatabase.GetAssetPath(weaponMotion), Is.EqualTo(RedesignedMotionRoot + "Lian_Weapon_Ultimate.asset"));
+            Assert.That(LiveMotion("Lian").motionSet.TotalDuration,
+                Is.EqualTo(weaponMotion.motionSet.TotalDuration).Within(.001f));
         }
+
+        [Test]
+        public void 새궁극기12개는_독립된모션과_유효한전체타임라인을_가진다()
+        {
+            var assets = Characters.Select(LiveMotion).ToArray();
+            Assert.That(assets.Distinct().Count(), Is.EqualTo(Characters.Length));
+            Assert.That(assets.Select(AssetDatabase.GetAssetPath).Select(AssetDatabase.AssetPathToGUID).Distinct().Count(), Is.EqualTo(Characters.Length));
+            foreach (MotionSetAsset asset in assets.Append(Load<MotionSetAsset>(RedesignedMotionRoot + "Lian_Weapon_Ultimate.asset")))
+            {
+                MotionSet set = asset.motionSet;
+                AssertFinite(set.TotalDuration, asset.name);
+                Assert.That(set.TotalDuration, Is.GreaterThan(0f), asset.name);
+                AssertTimeline(set.motions, set.globalEvents, set.TotalDuration, asset.name);
+                foreach (MotionLayer layer in set.layers)
+                {
+                    Assert.That(layer, Is.Not.Null, asset.name);
+                    AssertTimeline(layer.motions, layer.globalEvents, set.TotalDuration, asset.name + "/" + layer.layerName);
+                }
+            }
+        }
+
+        [Test]
+        public void 새궁극기는_원본의_타격페이즈별횟수와_투사체정의를_보존한다()
+        {
+            foreach (string character in Characters)
+            {
+                string weapon = Definition(character).defaultWeaponType.ToString();
+                MotionSet source = Motion(character == "Raon" ? "Katana_Raon" : weapon).motionSet;
+                MotionEventBase[] before = AllEvents(source).ToArray();
+                MotionEventBase[] after = AllEvents(LiveMotion(character).motionSet).ToArray();
+                CollectionAssert.AreEquivalent(before.OfType<BeginCollisionEvent>().Select(e => e.hitPhaseIndex),
+                    after.OfType<BeginCollisionEvent>().Select(e => e.hitPhaseIndex), character + " 충돌 페이즈/횟수");
+                CollectionAssert.AreEquivalent(before.OfType<SpawnProjectileEvent>().Select(e => (e.hitPhaseIndex, e.projectileDefinition)),
+                    after.OfType<SpawnProjectileEvent>().Select(e => (e.hitPhaseIndex, e.projectileDefinition)), character + " 투사체 페이즈/횟수/정의");
+            }
+        }
+
+        [Test]
+        public void 캔슬은_마지막타격또는발사후에열리고_중력구간은_겹치지않는다()
+        {
+            foreach (string character in Characters)
+            {
+                MotionSet set = LiveMotion(character).motionSet;
+                MotionEventBase[] events = AllEvents(set).ToArray();
+                var impacts = events.Where(e => e is BeginCollisionEvent || e is SpawnProjectileEvent).ToArray();
+                Assert.That(impacts, Is.Not.Empty, character);
+                float lastImpact = impacts.Max(e => EventStart(set, e));
+                var cancels = events.OfType<CancelWindowEvent>().ToArray();
+                Assert.That(cancels, Is.Not.Empty, character);
+                foreach (var cancel in cancels)
+                    Assert.That(EventStart(set, cancel), Is.GreaterThanOrEqualTo(lastImpact - .001f), character + " 타격 전 캔슬");
+                var gravity = events.OfType<AttackGravityEvent>().OrderBy(e => EventStart(set, e)).ToArray();
+                for (int i = 1; i < gravity.Length; i++)
+                {
+                    float previousEnd = EventStart(set, gravity[i - 1]) + gravity[i - 1].endTime - gravity[i - 1].startTime;
+                    Assert.That(EventStart(set, gravity[i]), Is.GreaterThanOrEqualTo(previousEnd - .001f), character + " 중력 구간 중첩");
+                }
+            }
+            MotionSet spear = LiveMotion("Reine").motionSet;
+            var spawn = AllEvents(spear).OfType<SpawnProjectileEvent>().Single();
+            var visibility = AllEvents(spear).OfType<WeaponSlotVisibilityEvent>().Single();
+            Assert.That(EventStart(spear, visibility), Is.EqualTo(EventStart(spear, spawn)).Within(.001f), "창은 발사 순간에 손에서 사라져야 합니다.");
+        }
+
+        private static MotionSetAsset LiveMotion(string character)
+        {
+            var definition = Definition(character);
+            var model = Load<GameObject>("Assets/03.Prefabs/Actor/Player/Models/PlayerModel_" + character + ".prefab");
+            var animator = model.GetComponentInChildren<PlayerActorAnimator>(true);
+            Assert.That(animator, Is.Not.Null, character);
+            var payload = (UPlayGroundMotionAbilityPayloadSO)definition.abilitySet.GetPlayerAbility(PlayerSkillSlot.Ultimate).variants.Single().executionPayload;
+            var motion = animator.PlayerMotionSet.GetAbilityMotionAsset(definition.defaultWeaponType, payload.attackInfo.motionKey);
+            Assert.That(motion, Is.Not.Null, character);
+            return motion;
+        }
+
+        private static IEnumerable<MotionEventBase> AllEvents(MotionSet set)
+            => set.globalEvents.Concat(set.motions.SelectMany(m => m.events))
+                .Concat(set.layers.Where(l => l.enabled).SelectMany(l => l.globalEvents.Concat(l.motions.SelectMany(m => m.events))));
+
+        private static float EventStart(MotionSet set, MotionEventBase motionEvent)
+        {
+            Assert.That(set.TryGetEventGlobalStart(motionEvent, out float start), Is.True);
+            return start;
+        }
+
+        private static void AssertTimeline(IEnumerable<Motion> motions, IEnumerable<MotionEventBase> events, float duration, string context)
+        {
+            foreach (Motion motion in motions)
+            {
+                Assert.That(motion, Is.Not.Null, context);
+                Assert.That(motion.motionClip, Is.Not.Null, context);
+                AssertFinite(motion.clipStartTime, context);
+                AssertFinite(motion.clipEndTime, context);
+                AssertFinite(motion.playbackSpeed, context);
+                AssertFinite(motion.Duration, context);
+                Assert.That(motion.playbackSpeed, Is.GreaterThan(0f), context);
+                Assert.That(motion.Duration, Is.GreaterThan(0f), context);
+                AssertEvents(motion.events, motion.Duration, context);
+            }
+            AssertEvents(events, duration, context);
+        }
+
+        private static void AssertEvents(IEnumerable<MotionEventBase> events, float duration, string context)
+        {
+            foreach (MotionEventBase motionEvent in events)
+            {
+                Assert.That(motionEvent, Is.Not.Null, context + " 이벤트 역직렬화 누락");
+                AssertFinite(motionEvent.startTime, context);
+                AssertFinite(motionEvent.endTime, context);
+                Assert.That(motionEvent.startTime, Is.GreaterThanOrEqualTo(0f), context);
+                Assert.That(motionEvent.endTime, Is.GreaterThanOrEqualTo(motionEvent.startTime), context);
+                Assert.That(motionEvent.endTime, Is.LessThanOrEqualTo(duration + .001f), context + "/" + motionEvent.GetType().Name);
+            }
+        }
+
+        private static void AssertFinite(float value, string context)
+            => Assert.That(float.IsNaN(value) || float.IsInfinity(value), Is.False, context);
 
         private static PlayerCharacterDefinitionSO Definition(string character)
             => Load<PlayerCharacterDefinitionSO>("Assets/10.Datas/Party/PlayerCharacters/PlayerCharacterDefinition_" + character + ".asset");

@@ -1,0 +1,375 @@
+{
+  "grip": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"success\":true,\"message\":\"Test job status retrieved.\",\"error\":null,\"data\":{\"job_id\":\"2b459693a1904306b6f0a73db76c6948\",\"status\":\"succeeded\",\"mode\":\"EditMode\",\"started_unix_ms\":1794720102018,\"finished_unix_ms\":1794720113260,\"last_update_unix_ms\":1794720113260,\"progress\":{\"completed\":9,\"total\":9,\"current_test_full_name\":null,\"current_test_started_unix_ms\":null,\"last_finished_test_full_name\":\"UPlayGround.Combat.Tests.WeaponSlotVisibilityTests.ResetInvalidatesOldTokenWithoutReleasingNewRequest\",\"last_finished_unix_ms\":1794720113007,\"stuck_suspected\":false,\"editor_is_focused\":false,\"run_in_background\":true,\"focus_nudge_attempts\":null,\"focus_nudge_limit\":null,\"focus_nudge_status\":null,\"blocked_reason\":null,\"failures_so_far\":[],\"failures_capped\":false},\"error\":null,\"result\":{\"mode\":\"EditMode\",\"summary\":{\"total\":9,\"passed\":9,\"failed\":0,\"skipped\":0,\"durationSeconds\":0.8652491,\"resultState\":\"Passed\"},\"results\":[{\"name\":\"겹친보정을_어느순서로끝내도_마지막에원래파지를복구한다(True)\",\"fullName\":\"UPlayGround.Combat.Tests.WeaponGripOffsetTests.겹친보정을_어느순서로끝내도_마지막에원래파지를복구한다(True)\",\"state\":\"Passed\",\"durationSeconds\":0.0219844,\"message\":null,\"stackTrace\":null,\"output\":\"\"},{\"name\":\"겹친보정을_어느순서로끝내도_마지막에원래파지를복구한다(False)\",\"fullName\":\"UPlayGround.Combat.Tests.WeaponGripOffsetTests.겹친보정을_어느순서로끝내도_마지막에원래파지를복구한다(False)\",\"state\":\"Passed\",\"durationSeconds\":0.0007442,\"message\":null,\"stackTrace\":null,\"output\":\"\"},{\"name\":\"모델정리뒤_이전토큰은_새보정을해제하지않는다\",\"fullName\":\"UPlayGround.Combat.Tests.WeaponGripOffsetTests.모델정리뒤_이전토큰은_새보정을해제하지않는다\",\"state\":\"Passed\",\"durationSeconds\":0.0013625,\"message\":null,\"stackTrace\":null,\"output\":\"\"},{\"name\":\"사망정리는_양쪽파지를복구한다\",\"fullName\":\"UPlayGround.Combat.Tests.WeaponGripOffsetTests.사망정리는_양쪽파지를복구한다\",\"state\":\"Passed\",\"durationSeconds\":0.001447,\"message\":null,\"stackTrace\":null,\"output\":\"\"},{\"name\":\"MainAndSubRequestsAreIndependent\",\"fullName\":\"UPlayGround.Combat.Tests.WeaponSlotVisibilityTests.MainAndSubRequestsAreIndependent\",\"state\":\"Passed\",\"durationSeconds\":0.006941,\"message\":null,\"stackTrace\":null,\"output\":\"\"},{\"name\":\"ModelCleanupRestoresBothSlotsWithoutChangingTheirActiveState\",\"fullName\":\"UPlayGround.Combat.Tests.WeaponSlotVisibilityTests.ModelCleanupRestoresBothSlotsWithoutChangingTheirActiveState\",\"state\":\"Passed\",\"durationSeconds\":0.0031716,\"message\":null,\"stackTrace\":null,\"output\":\"\"},{\"name\":\"OverlappingRequestsRestoreOnlyAfterLastTokenAndPreserveDisabledRenderers\",\"fullName\":\"UPlayGround.Combat.Tests.WeaponSlotVisibilityTests.OverlappingRequestsRestoreOnlyAfterLastTokenAndPreserveDisabledRenderers\",\"state\":\"Passed\",\"durationSeconds\":0.0008349,\"message\":null,\"stackTrace\":null,\"output\":\"\"},{\"name\":\"OwnerDeathRestoresHiddenWeapon\",\"fullName\":\"UPlayGround.Combat.Tests.WeaponSlotVisibilityTests.OwnerDeathRestoresHiddenWeapon\",\"state\":\"Passed\",\"durationSeconds\":0.0007511,\"message\":null,\"stackTrace\":null,\"output\":\"\"},{\"name\":\"ResetInvalidatesOldTokenWithoutReleasingNewRequest\",\"fullName\":\"UPlayGround.Combat.Tests.WeaponSlotVisibilityTests.ResetInvalidatesOldTokenWithoutReleasingNewRequest\",\"state\":\"Passed\",\"durationSeconds\":0.0007031,\"message\":null,\"stackTrace\":null,\"output\":\"\"}]}},\"hint\":null}"
+      }
+    ],
+    "structuredContent": {
+      "result": {
+        "success": true,
+        "message": "Test job status retrieved.",
+        "error": null,
+        "data": {
+          "job_id": "2b459693a1904306b6f0a73db76c6948",
+          "status": "succeeded",
+          "mode": "EditMode",
+          "started_unix_ms": 1794720102018,
+          "finished_unix_ms": 1794720113260,
+          "last_update_unix_ms": 1794720113260,
+          "progress": {
+            "completed": 9,
+            "total": 9,
+            "current_test_full_name": null,
+            "current_test_started_unix_ms": null,
+            "last_finished_test_full_name": "UPlayGround.Combat.Tests.WeaponSlotVisibilityTests.ResetInvalidatesOldTokenWithoutReleasingNewRequest",
+            "last_finished_unix_ms": 1794720113007,
+            "stuck_suspected": false,
+            "editor_is_focused": false,
+            "run_in_background": true,
+            "focus_nudge_attempts": null,
+            "focus_nudge_limit": null,
+            "focus_nudge_status": null,
+            "blocked_reason": null,
+            "failures_so_far": [],
+            "failures_capped": false
+          },
+          "error": null,
+          "result": {
+            "mode": "EditMode",
+            "summary": {
+              "total": 9,
+              "passed": 9,
+              "failed": 0,
+              "skipped": 0,
+              "durationSeconds": 0.8652491,
+              "resultState": "Passed"
+            },
+            "results": [
+              {
+                "name": "겹친보정을_어느순서로끝내도_마지막에원래파지를복구한다(True)",
+                "fullName": "UPlayGround.Combat.Tests.WeaponGripOffsetTests.겹친보정을_어느순서로끝내도_마지막에원래파지를복구한다(True)",
+                "state": "Passed",
+                "durationSeconds": 0.0219844,
+                "message": null,
+                "stackTrace": null,
+                "output": ""
+              },
+              {
+                "name": "겹친보정을_어느순서로끝내도_마지막에원래파지를복구한다(False)",
+                "fullName": "UPlayGround.Combat.Tests.WeaponGripOffsetTests.겹친보정을_어느순서로끝내도_마지막에원래파지를복구한다(False)",
+                "state": "Passed",
+                "durationSeconds": 0.0007442,
+                "message": null,
+                "stackTrace": null,
+                "output": ""
+              },
+              {
+                "name": "모델정리뒤_이전토큰은_새보정을해제하지않는다",
+                "fullName": "UPlayGround.Combat.Tests.WeaponGripOffsetTests.모델정리뒤_이전토큰은_새보정을해제하지않는다",
+                "state": "Passed",
+                "durationSeconds": 0.0013625,
+                "message": null,
+                "stackTrace": null,
+                "output": ""
+              },
+              {
+                "name": "사망정리는_양쪽파지를복구한다",
+                "fullName": "UPlayGround.Combat.Tests.WeaponGripOffsetTests.사망정리는_양쪽파지를복구한다",
+                "state": "Passed",
+                "durationSeconds": 0.001447,
+                "message": null,
+                "stackTrace": null,
+                "output": ""
+              },
+              {
+                "name": "MainAndSubRequestsAreIndependent",
+                "fullName": "UPlayGround.Combat.Tests.WeaponSlotVisibilityTests.MainAndSubRequestsAreIndependent",
+                "state": "Passed",
+                "durationSeconds": 0.006941,
+                "message": null,
+                "stackTrace": null,
+                "output": ""
+              },
+              {
+                "name": "ModelCleanupRestoresBothSlotsWithoutChangingTheirActiveState",
+                "fullName": "UPlayGround.Combat.Tests.WeaponSlotVisibilityTests.ModelCleanupRestoresBothSlotsWithoutChangingTheirActiveState",
+                "state": "Passed",
+                "durationSeconds": 0.0031716,
+                "message": null,
+                "stackTrace": null,
+                "output": ""
+              },
+              {
+                "name": "OverlappingRequestsRestoreOnlyAfterLastTokenAndPreserveDisabledRenderers",
+                "fullName": "UPlayGround.Combat.Tests.WeaponSlotVisibilityTests.OverlappingRequestsRestoreOnlyAfterLastTokenAndPreserveDisabledRenderers",
+                "state": "Passed",
+                "durationSeconds": 0.0008349,
+                "message": null,
+                "stackTrace": null,
+                "output": ""
+              },
+              {
+                "name": "OwnerDeathRestoresHiddenWeapon",
+                "fullName": "UPlayGround.Combat.Tests.WeaponSlotVisibilityTests.OwnerDeathRestoresHiddenWeapon",
+                "state": "Passed",
+                "durationSeconds": 0.0007511,
+                "message": null,
+                "stackTrace": null,
+                "output": ""
+              },
+              {
+                "name": "ResetInvalidatesOldTokenWithoutReleasingNewRequest",
+                "fullName": "UPlayGround.Combat.Tests.WeaponSlotVisibilityTests.ResetInvalidatesOldTokenWithoutReleasingNewRequest",
+                "state": "Passed",
+                "durationSeconds": 0.0007031,
+                "message": null,
+                "stackTrace": null,
+                "output": ""
+              }
+            ]
+          }
+        },
+        "hint": null
+      }
+    },
+    "isError": false
+  },
+  "signature": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"success\":true,\"message\":\"Test job status retrieved.\",\"error\":null,\"data\":{\"job_id\":\"aa42f50252194ee2ada1b9b2445161d6\",\"status\":\"succeeded\",\"mode\":\"EditMode\",\"started_unix_ms\":1794720198535,\"finished_unix_ms\":1794720216200,\"last_update_unix_ms\":1794720216200,\"progress\":{\"completed\":20,\"total\":20,\"current_test_full_name\":null,\"current_test_started_unix_ms\":null,\"last_finished_test_full_name\":\"UPlayGround.Combat.Tests.SignatureMotionEventTests.플레이어전용_이벤트는_다른대상과_몬스터실행을_무시한다\",\"last_finished_unix_ms\":1794720215968,\"stuck_suspected\":false,\"editor_is_focused\":false,\"run_in_background\":true,\"focus_nudge_attempts\":null,\"focus_nudge_limit\":null,\"focus_nudge_status\":null,\"blocked_reason\":null,\"failures_so_far\":[],\"failures_capped\":false},\"error\":null,\"result\":{\"mode\":\"EditMode\",\"summary\":{\"total\":20,\"passed\":20,\"failed\":0,\"skipped\":0,\"durationSeconds\":5.2128987,\"resultState\":\"Passed\"},\"results\":[{\"name\":\"같은무기의_공유궁극기는_Ability를공유하고_모션과컷인은_각자의것을쓴다\",\"fullName\":\"UPlayGround.Ability.Tests.SignatureAbilityDataTests.같은무기의_공유궁극기는_Ability를공유하고_모션과컷인은_각자의것을쓴다\",\"state\":\"Passed\",\"durationSeconds\":1.2630229,\"message\":null,\"stackTrace\":null,\"output\":\"\"},{\"name\":\"거대검은_본타시각에_지면에닿고_채찍은_몸과무기의_재생길이를_맞춘다\",\"fullName\":\"UPlayGround.Ability.Tests.SignatureAbilityDataTests.거대검은_본타시각에_지면에닿고_채찍은_몸과무기의_재생길이를_맞춘다\",\"state\":\"Passed\",\"durationSeconds\":0.1444531,\"message\":null,\"stackTrace\":null,\"output\":\"\"},{\"name\":\"기존궁극기9개의_GUID와_새모션11개의_독립성을_보존한다\",\"fullName\":\"UPlayGround.Ability.Tests.SignatureAbilityDataTests.기존궁극기9개의_GUID와_새모션11개의_독립성을_보존한다\",\"state\":\"Passed\",\"durationSeconds\":0.3885699,\"message\":null,\"stackTrace\":null,\"output\":\"\"},{\"name\":\"방패없는_궁극기동안은_반격을막고_피해감소를_한번적용한다\",\"fullName\":\"UPlayGround.Ability.Tests.SignatureAbilityDataTests.방패없는_궁극기동안은_반격을막고_피해감소를_한번적용한다\",\"state\":\"Passed\",\"durationSeconds\":0.0063686,\"message\":null,\"stackTrace\":null,\"output\":\"\"},{\"name\":\"새궁극기12개는_독립된모션과_유효한전체타임라인을_가진다\",\"fullName\":\"UPlayGround.Ability.Tests.SignatureAbilityDataTests.새궁극기12개는_독립된모션과_유효한전체타임라인을_가진다\",\"state\":\"Passed\",\"durationSeconds\":2.1894884,\"message\":null,\"stackTrace\":null,\"output\":\"\"},{\"name\":\"새궁극기는_원본의_타격페이즈별횟수와_투사체정의를_보존한다\",\"fullName\":\"UPlayGround.Ability.Tests.SignatureAbilityDataTests.새궁극기는_원본의_타격페이즈별횟수와_투사체정의를_보존한다\",\"state\":\"Passed\",\"durationSeconds\":0.0082496,\"message\":null,\"stackTrace\":null,\"output\":\"\"},{\"name\":\"실제타격횟수와_장판틱을합산하면_각궁극기의_기준수치를_보존한다\",\"fullName\":\"UPlayGround.Ability.Tests.SignatureAbilityDataTests.실제타격횟수와_장판틱을합산하면_각궁극기의_기준수치를_보존한다\",\"state\":\"Passed\",\"durationSeconds\":0.0204296,\"message\":null,\"stackTrace\":null,\"output\":\"\"},{\"name\":\"정규12명은_자기정의와_실제모델의_일반형궁극기와_컷인으로_연결된다\",\"fullName\":\"UPlayGround.Ability.Tests.SignatureAbilityDataTests.정규12명은_자기정의와_실제모델의_일반형궁극기와_컷인으로_연결된다\",\"state\":\"Passed\",\"durationSeconds\":0.0041771,\"message\":null,\"stackTrace\":null,\"output\":\"\"},{\"name\":\"창_분리는_공유Default와_지팡이기반과_공통모션을_변경하지않는다\",\"fullName\":\"UPlayGround.Ability.Tests.SignatureAbilityDataTests.창_분리는_공유Default와_지팡이기반과_공통모션을_변경하지않는다\",\"state\":\"Passed\",\"durationSeconds\":0.052248,\"message\":null,\"stackTrace\":null,\"output\":\"\"},{\"name\":\"창_착탄은_비어있던Default대신_대검기준의_한번짜리_피해를쓴다\",\"fullName\":\"UPlayGround.Ability.Tests.SignatureAbilityDataTests.창_착탄은_비어있던Default대신_대검기준의_한번짜리_피해를쓴다\",\"state\":\"Passed\",\"durationSeconds\":0.0029382,\"message\":null,\"stackTrace\":null,\"output\":\"\"},{\"name\":\"창과방패는_비행접촉으로_중복피해없이_지정시간에_한번폭발한다\",\"fullName\":\"UPlayGround.Ability.Tests.SignatureAbilityDataTests.창과방패는_비행접촉으로_중복피해없이_지정시간에_한번폭발한다\",\"state\":\"Passed\",\"durationSeconds\":0.0015448,\"message\":null,\"stackTrace\":null,\"output\":\"\"},{\"name\":\"캔슬은_마지막타격또는발사후에열리고_중력구간은_겹치지않는다\",\"fullName\":\"UPlayGround.Ability.Tests.SignatureAbilityDataTests.캔슬은_마지막타격또는발사후에열리고_중력구간은_겹치지않는다\",\"state\":\"Passed\",\"durationSeconds\":0.0060946,\"message\":null,\"stackTrace\":null,\"output\":\"\"},{\"name\":\"화살비와_토네이도는_독립된지면장판이며_최대틱수와_사망회수를_가진다\",\"fullName\":\"UPlayGround.Ability.Tests.SignatureAbilityDataTests.화살비와_토네이도는_독립된지면장판이며_최대틱수와_사망회수를_가진다\",\"state\":\"Passed\",\"durationSeconds\":0.0009804,\"message\":null,\"stackTrace\":null,\"output\":\"\"},{\"name\":\"같은얼굴이벤트를_다른시전자가써도_이전종료가_새패널을닫지않는다\",\"fullName\":\"UPlayGround.Combat.Tests.SignatureMotionEventTests.같은얼굴이벤트를_다른시전자가써도_이전종료가_새패널을닫지않는다\",\"state\":\"Passed\",\"durationSeconds\":0.0251834,\"message\":null,\"stackTrace\":null,\"output\":\"\"},{\"name\":\"대상없는_플레이어투사체는_높은발사점이아닌_액터루트의_전방을쓴다\",\"fullName\":\"UPlayGround.Combat.Tests.SignatureMotionEventTests.대상없는_플레이어투사체는_높은발사점이아닌_액터루트의_전방을쓴다\",\"state\":\"Passed\",\"durationSeconds\":0.0022482,\"message\":null,\"stackTrace\":null,\"output\":\"\"},{\"name\":\"도약중력은_기존상승하강배율에_곱하고_구간끝에서_복구한다\",\"fullName\":\"UPlayGround.Combat.Tests.SignatureMotionEventTests.도약중력은_기존상승하강배율에_곱하고_구간끝에서_복구한다\",\"state\":\"Passed\",\"durationSeconds\":0.0012152,\"message\":null,\"stackTrace\":null,\"output\":\"\"},{\"name\":\"무기조준IK가없어도_원거리락온을_정면폴백보다_우선한다\",\"fullName\":\"UPlayGround.Combat.Tests.SignatureMotionEventTests.무기조준IK가없어도_원거리락온을_정면폴백보다_우선한다\",\"state\":\"Passed\",\"durationSeconds\":0.0008893,\"message\":null,\"stackTrace\":null,\"output\":\"\"},{\"name\":\"얼굴이없는_정의는_패널을표시하지않는다\",\"fullName\":\"UPlayGround.Combat.Tests.SignatureMotionEventTests.얼굴이없는_정의는_패널을표시하지않는다\",\"state\":\"Passed\",\"durationSeconds\":0.0005257,\"message\":null,\"stackTrace\":null,\"output\":\"\"},{\"name\":\"입력이동_이전구간종료가_새구간을_닫지않는다\",\"fullName\":\"UPlayGround.Combat.Tests.SignatureMotionEventTests.입력이동_이전구간종료가_새구간을_닫지않는다\",\"state\":\"Passed\",\"durationSeconds\":0.0008256,\"message\":null,\"stackTrace\":null,\"output\":\"\"},{\"name\":\"플레이어전용_이벤트는_다른대상과_몬스터실행을_무시한다\",\"fullName\":\"UPlayGround.Combat.Tests.SignatureMotionEventTests.플레이어전용_이벤트는_다른대상과_몬스터실행을_무시한다\",\"state\":\"Passed\",\"durationSeconds\":0.0034756,\"message\":null,\"stackTrace\":null,\"output\":\"\"}]}},\"hint\":null}"
+      }
+    ],
+    "structuredContent": {
+      "result": {
+        "success": true,
+        "message": "Test job status retrieved.",
+        "error": null,
+        "data": {
+          "job_id": "aa42f50252194ee2ada1b9b2445161d6",
+          "status": "succeeded",
+          "mode": "EditMode",
+          "started_unix_ms": 1794720198535,
+          "finished_unix_ms": 1794720216200,
+          "last_update_unix_ms": 1794720216200,
+          "progress": {
+            "completed": 20,
+            "total": 20,
+            "current_test_full_name": null,
+            "current_test_started_unix_ms": null,
+            "last_finished_test_full_name": "UPlayGround.Combat.Tests.SignatureMotionEventTests.플레이어전용_이벤트는_다른대상과_몬스터실행을_무시한다",
+            "last_finished_unix_ms": 1794720215968,
+            "stuck_suspected": false,
+            "editor_is_focused": false,
+            "run_in_background": true,
+            "focus_nudge_attempts": null,
+            "focus_nudge_limit": null,
+            "focus_nudge_status": null,
+            "blocked_reason": null,
+            "failures_so_far": [],
+            "failures_capped": false
+          },
+          "error": null,
+          "result": {
+            "mode": "EditMode",
+            "summary": {
+              "total": 20,
+              "passed": 20,
+              "failed": 0,
+              "skipped": 0,
+              "durationSeconds": 5.2128987,
+              "resultState": "Passed"
+            },
+            "results": [
+              {
+                "name": "같은무기의_공유궁극기는_Ability를공유하고_모션과컷인은_각자의것을쓴다",
+                "fullName": "UPlayGround.Ability.Tests.SignatureAbilityDataTests.같은무기의_공유궁극기는_Ability를공유하고_모션과컷인은_각자의것을쓴다",
+                "state": "Passed",
+                "durationSeconds": 1.2630229,
+                "message": null,
+                "stackTrace": null,
+                "output": ""
+              },
+              {
+                "name": "거대검은_본타시각에_지면에닿고_채찍은_몸과무기의_재생길이를_맞춘다",
+                "fullName": "UPlayGround.Ability.Tests.SignatureAbilityDataTests.거대검은_본타시각에_지면에닿고_채찍은_몸과무기의_재생길이를_맞춘다",
+                "state": "Passed",
+                "durationSeconds": 0.1444531,
+                "message": null,
+                "stackTrace": null,
+                "output": ""
+              },
+              {
+                "name": "기존궁극기9개의_GUID와_새모션11개의_독립성을_보존한다",
+                "fullName": "UPlayGround.Ability.Tests.SignatureAbilityDataTests.기존궁극기9개의_GUID와_새모션11개의_독립성을_보존한다",
+                "state": "Passed",
+                "durationSeconds": 0.3885699,
+                "message": null,
+                "stackTrace": null,
+                "output": ""
+              },
+              {
+                "name": "방패없는_궁극기동안은_반격을막고_피해감소를_한번적용한다",
+                "fullName": "UPlayGround.Ability.Tests.SignatureAbilityDataTests.방패없는_궁극기동안은_반격을막고_피해감소를_한번적용한다",
+                "state": "Passed",
+                "durationSeconds": 0.0063686,
+                "message": null,
+                "stackTrace": null,
+                "output": ""
+              },
+              {
+                "name": "새궁극기12개는_독립된모션과_유효한전체타임라인을_가진다",
+                "fullName": "UPlayGround.Ability.Tests.SignatureAbilityDataTests.새궁극기12개는_독립된모션과_유효한전체타임라인을_가진다",
+                "state": "Passed",
+                "durationSeconds": 2.1894884,
+                "message": null,
+                "stackTrace": null,
+                "output": ""
+              },
+              {
+                "name": "새궁극기는_원본의_타격페이즈별횟수와_투사체정의를_보존한다",
+                "fullName": "UPlayGround.Ability.Tests.SignatureAbilityDataTests.새궁극기는_원본의_타격페이즈별횟수와_투사체정의를_보존한다",
+                "state": "Passed",
+                "durationSeconds": 0.0082496,
+                "message": null,
+                "stackTrace": null,
+                "output": ""
+              },
+              {
+                "name": "실제타격횟수와_장판틱을합산하면_각궁극기의_기준수치를_보존한다",
+                "fullName": "UPlayGround.Ability.Tests.SignatureAbilityDataTests.실제타격횟수와_장판틱을합산하면_각궁극기의_기준수치를_보존한다",
+                "state": "Passed",
+                "durationSeconds": 0.0204296,
+                "message": null,
+                "stackTrace": null,
+                "output": ""
+              },
+              {
+                "name": "정규12명은_자기정의와_실제모델의_일반형궁극기와_컷인으로_연결된다",
+                "fullName": "UPlayGround.Ability.Tests.SignatureAbilityDataTests.정규12명은_자기정의와_실제모델의_일반형궁극기와_컷인으로_연결된다",
+                "state": "Passed",
+                "durationSeconds": 0.0041771,
+                "message": null,
+                "stackTrace": null,
+                "output": ""
+              },
+              {
+                "name": "창_분리는_공유Default와_지팡이기반과_공통모션을_변경하지않는다",
+                "fullName": "UPlayGround.Ability.Tests.SignatureAbilityDataTests.창_분리는_공유Default와_지팡이기반과_공통모션을_변경하지않는다",
+                "state": "Passed",
+                "durationSeconds": 0.052248,
+                "message": null,
+                "stackTrace": null,
+                "output": ""
+              },
+              {
+                "name": "창_착탄은_비어있던Default대신_대검기준의_한번짜리_피해를쓴다",
+                "fullName": "UPlayGround.Ability.Tests.SignatureAbilityDataTests.창_착탄은_비어있던Default대신_대검기준의_한번짜리_피해를쓴다",
+                "state": "Passed",
+                "durationSeconds": 0.0029382,
+                "message": null,
+                "stackTrace": null,
+                "output": ""
+              },
+              {
+                "name": "창과방패는_비행접촉으로_중복피해없이_지정시간에_한번폭발한다",
+                "fullName": "UPlayGround.Ability.Tests.SignatureAbilityDataTests.창과방패는_비행접촉으로_중복피해없이_지정시간에_한번폭발한다",
+                "state": "Passed",
+                "durationSeconds": 0.0015448,
+                "message": null,
+                "stackTrace": null,
+                "output": ""
+              },
+              {
+                "name": "캔슬은_마지막타격또는발사후에열리고_중력구간은_겹치지않는다",
+                "fullName": "UPlayGround.Ability.Tests.SignatureAbilityDataTests.캔슬은_마지막타격또는발사후에열리고_중력구간은_겹치지않는다",
+                "state": "Passed",
+                "durationSeconds": 0.0060946,
+                "message": null,
+                "stackTrace": null,
+                "output": ""
+              },
+              {
+                "name": "화살비와_토네이도는_독립된지면장판이며_최대틱수와_사망회수를_가진다",
+                "fullName": "UPlayGround.Ability.Tests.SignatureAbilityDataTests.화살비와_토네이도는_독립된지면장판이며_최대틱수와_사망회수를_가진다",
+                "state": "Passed",
+                "durationSeconds": 0.0009804,
+                "message": null,
+                "stackTrace": null,
+                "output": ""
+              },
+              {
+                "name": "같은얼굴이벤트를_다른시전자가써도_이전종료가_새패널을닫지않는다",
+                "fullName": "UPlayGround.Combat.Tests.SignatureMotionEventTests.같은얼굴이벤트를_다른시전자가써도_이전종료가_새패널을닫지않는다",
+                "state": "Passed",
+                "durationSeconds": 0.0251834,
+                "message": null,
+                "stackTrace": null,
+                "output": ""
+              },
+              {
+                "name": "대상없는_플레이어투사체는_높은발사점이아닌_액터루트의_전방을쓴다",
+                "fullName": "UPlayGround.Combat.Tests.SignatureMotionEventTests.대상없는_플레이어투사체는_높은발사점이아닌_액터루트의_전방을쓴다",
+                "state": "Passed",
+                "durationSeconds": 0.0022482,
+                "message": null,
+                "stackTrace": null,
+                "output": ""
+              },
+              {
+                "name": "도약중력은_기존상승하강배율에_곱하고_구간끝에서_복구한다",
+                "fullName": "UPlayGround.Combat.Tests.SignatureMotionEventTests.도약중력은_기존상승하강배율에_곱하고_구간끝에서_복구한다",
+                "state": "Passed",
+                "durationSeconds": 0.0012152,
+                "message": null,
+                "stackTrace": null,
+                "output": ""
+              },
+              {
+                "name": "무기조준IK가없어도_원거리락온을_정면폴백보다_우선한다",
+                "fullName": "UPlayGround.Combat.Tests.SignatureMotionEventTests.무기조준IK가없어도_원거리락온을_정면폴백보다_우선한다",
+                "state": "Passed",
+                "durationSeconds": 0.0008893,
+                "message": null,
+                "stackTrace": null,
+                "output": ""
+              },
+              {
+                "name": "얼굴이없는_정의는_패널을표시하지않는다",
+                "fullName": "UPlayGround.Combat.Tests.SignatureMotionEventTests.얼굴이없는_정의는_패널을표시하지않는다",
+                "state": "Passed",
+                "durationSeconds": 0.0005257,
+                "message": null,
+                "stackTrace": null,
+                "output": ""
+              },
+              {
+                "name": "입력이동_이전구간종료가_새구간을_닫지않는다",
+                "fullName": "UPlayGround.Combat.Tests.SignatureMotionEventTests.입력이동_이전구간종료가_새구간을_닫지않는다",
+                "state": "Passed",
+                "durationSeconds": 0.0008256,
+                "message": null,
+                "stackTrace": null,
+                "output": ""
+              },
+              {
+                "name": "플레이어전용_이벤트는_다른대상과_몬스터실행을_무시한다",
+                "fullName": "UPlayGround.Combat.Tests.SignatureMotionEventTests.플레이어전용_이벤트는_다른대상과_몬스터실행을_무시한다",
+                "state": "Passed",
+                "durationSeconds": 0.0034756,
+                "message": null,
+                "stackTrace": null,
+                "output": ""
+              }
+            ]
+          }
+        },
+        "hint": null
+      }
+    },
+    "isError": false
+  }
+}

@@ -1,0 +1,115 @@
+if (EditorApplication.isCompiling || EditorUtility.scriptCompilationFailed) throw new System.InvalidOperationException("컴파일 완료 필요");
+var owner = "Hwarin";
+var weaponName = "DoubleAxe";
+var axisLocal = Vector3.back;
+var twoHanded = true;
+var motion = AssetDatabase.LoadAssetAtPath<UPlayGround.Animation.MotionSetAsset>("Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/UltimateRedesign/"+owner+"_Ultimate.asset");
+var source = motion.motionSet.motions[0].motionClip;
+var candidatePath = "Assets/07.Animations/Player/UltimateRedesign/"+owner+"_GripRevision.anim";
+var existing=AssetDatabase.LoadAssetAtPath<AnimationClip>(candidatePath);
+if(existing!=null) throw new System.InvalidOperationException("기존 후보 보호: "+candidatePath);
+var clip = UnityEngine.Object.Instantiate(source);
+clip.name = owner+"_GripRevision";
+var preview = new PreviewRenderUtility();
+HumanPoseHandler handler = null;
+try
+{
+    var go=UnityEngine.Object.Instantiate(AssetDatabase.LoadAssetAtPath<GameObject>("Assets/03.Prefabs/Actor/Player/Models/PlayerModel_"+owner+".prefab"));
+    preview.AddSingleGO(go); go.SetActive(true);
+    var animator=go.GetComponent<Animator>(); animator.enabled=false;
+    foreach(var binding in AnimationUtility.GetCurveBindings(clip))
+    {
+        if(!binding.propertyName.StartsWith("LeftHand.")&&!binding.propertyName.StartsWith("RightHand."))continue;
+        float value=binding.propertyName.Contains("Spread")?0f:binding.propertyName.Contains("Thumb")?-.25f:binding.propertyName.Contains("1 Stretched")?-.55f:-.65f;
+        AnimationUtility.SetEditorCurve(clip,binding,AnimationCurve.Constant(0,clip.length,value));
+    }
+    var weapon=go.transform.Find("Weapon/"+weaponName);
+    var constraint=weapon.GetComponent<UnityEngine.Animations.ParentConstraint>(); constraint.enabled=false;
+    var mesh=weapon.GetComponentInChildren<MeshFilter>(true).transform;
+    var right=animator.GetBoneTransform(HumanBodyBones.RightHand);
+    var left=animator.GetBoneTransform(HumanBodyBones.LeftHand);
+    var upper=animator.GetBoneTransform(HumanBodyBones.LeftUpperArm);
+    var lower=animator.GetBoneTransform(HumanBodyBones.LeftLowerArm);
+    var rightUpper=animator.GetBoneTransform(HumanBodyBones.RightUpperArm);
+    var rightLower=animator.GetBoneTransform(HumanBodyBones.RightLowerArm);
+    var rightMiddle=animator.GetBoneTransform(HumanBodyBones.RightMiddleProximal);
+    var rightTip=animator.GetBoneTransform(HumanBodyBones.RightMiddleDistal);
+    var leftMiddle=animator.GetBoneTransform(HumanBodyBones.LeftMiddleProximal);
+    var leftTip=animator.GetBoneTransform(HumanBodyBones.LeftMiddleDistal);
+    var index=animator.GetBoneTransform(HumanBodyBones.LeftIndexProximal);
+    var little=animator.GetBoneTransform(HumanBodyBones.LeftLittleProximal);
+    clip.SampleAnimation(go,0);
+    weapon.position=right.TransformPoint(constraint.GetTranslationOffset(0));
+    weapon.rotation=right.rotation*Quaternion.Euler(constraint.GetRotationOffset(0));
+    var palm=(rightMiddle.position+rightTip.position)*.5f;
+    var localPalm=mesh.InverseTransformPoint(palm);
+    var shaftPoint=axisLocal*Vector3.Dot(localPalm,axisLocal);
+    var correction=palm-mesh.TransformPoint(shaftPoint);
+    var offset=constraint.GetTranslationOffset(0)+right.InverseTransformVector(correction);
+    var path=AnimationUtility.CalculateTransformPath(weapon,go.transform);
+    for(int i=0;i<3;i++) AnimationUtility.SetEditorCurve(clip,EditorCurveBinding.FloatCurve(path,typeof(UnityEngine.Animations.ParentConstraint),"m_TranslationOffsets.Array.data[0]."+"xyz"[i]),AnimationCurve.Constant(0,clip.length,offset[i]));
+    handler=new HumanPoseHandler(animator.avatar,animator.transform);
+    var curves=new AnimationCurve[HumanTrait.MuscleCount];for(int i=0;i<curves.Length;i++)curves[i]=new AnimationCurve();
+    float maximumError=0;string worst="";
+    int frames=Mathf.CeilToInt(clip.length*60);
+    for(int frame=0;frame<=frames;frame++)
+    {
+        float time=Mathf.Min(frame/60f,clip.length);
+        clip.SampleAnimation(go,time);
+        weapon.position=right.TransformPoint(offset);
+        weapon.rotation=right.rotation*Quaternion.Euler(constraint.GetRotationOffset(0));
+        if(twoHanded)
+        {
+            var axis=mesh.TransformDirection(axisLocal).normalized;
+            var contact=(rightMiddle.position+rightTip.position)*.5f+axis*.16f;
+            var grasp=(index.position-little.position).normalized;
+            if(Vector3.Dot(grasp,axis)<0)axis=-axis;
+            var rotation=Quaternion.FromToRotation(grasp,axis)*left.rotation;
+            var localGrip=Quaternion.Inverse(left.rotation)*(((leftMiddle.position+leftTip.position)*.5f)-left.position);
+            var target=contact-rotation*localGrip;
+            var reach=(Vector3.Distance(upper.position,lower.position)+Vector3.Distance(lower.position,left.position))*.94f;
+            if(Vector3.Distance(upper.position,target)>reach){
+                var shift=(upper.position-target).normalized*(Vector3.Distance(upper.position,target)-reach);
+                var rightTarget=right.position+shift;
+                var rightRotation=right.rotation;
+                for(int iteration=0;iteration<64;iteration++){
+                    rightLower.rotation=Quaternion.FromToRotation(right.position-rightLower.position,rightTarget-rightLower.position)*rightLower.rotation;
+                    rightUpper.rotation=Quaternion.FromToRotation(right.position-rightUpper.position,rightTarget-rightUpper.position)*rightUpper.rotation;
+                }
+                right.rotation=rightRotation;
+                contact=(rightMiddle.position+rightTip.position)*.5f+mesh.TransformDirection(axisLocal).normalized*.16f;
+                target=contact-rotation*localGrip;
+            }
+            // 현재 굽힘 평면에서 작은 회전만 누적해 팔꿈치가 반대편으로 튀지 않게 한다.
+            var root=upper.position;var direction=(target-root).normalized;
+            float a=Vector3.Distance(root,lower.position),b=Vector3.Distance(lower.position,left.position);
+            float distance=Mathf.Clamp(Vector3.Distance(root,target),Mathf.Abs(a-b)+.0001f,a+b-.0001f);
+            var pole=Vector3.ProjectOnPlane(lower.position-root,direction);
+            if(pole.sqrMagnitude<.000001f)pole=Vector3.ProjectOnPlane(-go.transform.forward,direction);
+            float along=(a*a-b*b+distance*distance)/(2*distance);
+            var elbow=root+direction*along+pole.normalized*Mathf.Sqrt(Mathf.Max(0,a*a-along*along));
+            upper.rotation=Quaternion.FromToRotation(lower.position-root,elbow-root)*upper.rotation;
+            lower.rotation=Quaternion.FromToRotation(left.position-lower.position,target-lower.position)*lower.rotation;
+            left.rotation=rotation;
+            var error=Vector3.Distance((leftMiddle.position+leftTip.position)*.5f,contact);if(error>maximumError){maximumError=error;worst=" time="+time+" reach="+Vector3.Distance(upper.position,target)+" length="+(Vector3.Distance(upper.position,lower.position)+Vector3.Distance(lower.position,left.position));}
+        }
+        var pose=new HumanPose();handler.GetHumanPose(ref pose);
+        for(int i=0;i<curves.Length;i++)curves[i].AddKey(time,pose.muscles[i]);
+    }
+    if(maximumError>.025f)throw new System.InvalidOperationException("보조손 접촉 초과: "+maximumError+worst);
+    if(twoHanded)for(int i=0;i<curves.Length;i++)
+    {
+        var muscle=HumanTrait.MuscleName[i];
+        if(muscle.StartsWith("Right Arm")||muscle.StartsWith("Right Forearm")||muscle.StartsWith("Right Hand")||muscle.StartsWith("Right Shoulder")||muscle.StartsWith("Left Arm")||muscle.StartsWith("Left Forearm")||muscle.StartsWith("Left Hand")||muscle.StartsWith("Left Shoulder"))
+            AnimationUtility.SetEditorCurve(clip,EditorCurveBinding.FloatCurve("",typeof(Animator),muscle),curves[i]);
+    }
+    AssetDatabase.CreateAsset(clip,candidatePath);
+    AssetDatabase.SaveAssetIfDirty(clip);
+    return new {owner=owner,path=candidatePath,primaryCorrection=correction.ToString("F4"),secondarySolveError=maximumError,frames=frames+1,source=AssetDatabase.GetAssetPath(source)};
+}
+finally
+{
+    if(handler!=null)handler.Dispose();
+    preview.Cleanup();
+    if(!AssetDatabase.Contains(clip))UnityEngine.Object.DestroyImmediate(clip);
+}

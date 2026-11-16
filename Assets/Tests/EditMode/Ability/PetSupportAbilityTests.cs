@@ -32,6 +32,43 @@ namespace UPlayGround.Ability.Tests
             _actor.Abilities.GrantTemporaryAbilities(new[] { ability }); return ability;
         }
         [Test]
+        public void 자원_런타임이_늦게_준비되어도_게이지_변경을_중복없이_알린다()
+        {
+            var root = new GameObject("게이지 초기화 순서");
+            root.SetActive(false);
+            try
+            {
+                const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+                var player = root.AddComponent<PlayerActor>();
+                var gauge = root.AddComponent<global::UPlayGround.Components.PlayerAbilityResourceView>();
+                typeof(global::UPlayGround.Components.PlayerAbilityResourceView).GetMethod("Awake", flags).Invoke(gauge, null);
+                typeof(global::UPlayGround.Components.PlayerAbilityResourceView).GetMethod("OnEnable", flags).Invoke(gauge, null);
+                var system = root.AddComponent<global::UPlayGround.Gameplay.Ability.AbilitySystemComponent>();
+                system.EnsureInitialized();
+                system.InitializeDefaultAttributes();
+                typeof(GameActor).GetField("<AbilitySystem>k__BackingField", flags).SetValue(player, system);
+                int notifications = 0;
+                float displayed = -1f;
+                gauge.OnGaugeChanged += (current, maximum) => { notifications++; displayed = current; };
+                typeof(global::UPlayGround.Components.PlayerAbilityResourceView).GetMethod("Start", flags).Invoke(gauge, null);
+                Assert.That(notifications, Is.EqualTo(1), "준비 직후 현재값을 알린다");
+                typeof(global::UPlayGround.Components.PlayerAbilityResourceView).GetMethod("OnEnable", flags).Invoke(gauge, null);
+                gauge.SetGauge(30f);
+                Assert.That(notifications, Is.EqualTo(2));
+                Assert.That(displayed, Is.EqualTo(30f));
+                typeof(global::UPlayGround.Components.PlayerAbilityResourceView).GetMethod("OnDisable", flags).Invoke(gauge, null);
+                gauge.SetGauge(60f);
+                Assert.That(notifications, Is.EqualTo(2));
+                typeof(global::UPlayGround.Components.PlayerAbilityResourceView).GetMethod("OnEnable", flags).Invoke(gauge, null);
+                Assert.That(displayed, Is.EqualTo(60f));
+                gauge.SetGauge(0f);
+                Assert.That(displayed, Is.Zero);
+                Assert.That(notifications, Is.EqualTo(4));
+            }
+            finally { UnityEngine.Object.DestroyImmediate(root); }
+        }
+
+        [Test]
         public void 지원불가_순간의_완벽방어와_피격신호는_쿨다운없이_버린다()
         {
             var root = new GameObject("지원 불가 신호"); root.SetActive(false);

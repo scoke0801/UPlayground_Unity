@@ -1,0 +1,129 @@
+{
+  "job_id": "ac87ae2948dc4daa989211f5c1b3d686",
+  "status": "succeeded",
+  "mode": "EditMode",
+  "started_unix_ms": 1794709184227,
+  "finished_unix_ms": 1794709198184,
+  "last_update_unix_ms": 1794709198184,
+  "progress": {
+    "completed": 10,
+    "total": 10,
+    "current_test_full_name": null,
+    "current_test_started_unix_ms": null,
+    "last_finished_test_full_name": "UPlayGround.UI.Tests.StaminaHudTests.훈련장에서는_초기값과_교체_완전회복_뒤에도_유지하고_퇴장하면_숨긴다",
+    "last_finished_unix_ms": 1794709197972,
+    "stuck_suspected": false,
+    "editor_is_focused": true,
+    "run_in_background": true,
+    "focus_nudge_attempts": null,
+    "focus_nudge_limit": null,
+    "focus_nudge_status": null,
+    "blocked_reason": null,
+    "failures_so_far": [],
+    "failures_capped": false
+  },
+  "error": null,
+  "result": {
+    "mode": "EditMode",
+    "summary": {
+      "total": 10,
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0,
+      "durationSeconds": 1.3789633,
+      "resultState": "Passed"
+    },
+    "results": [
+      {
+        "name": "곡선_게이지의_잔량별_렌더링을_기록한다",
+        "fullName": "UPlayGround.UI.Tests.StaminaHudTests.곡선_게이지의_잔량별_렌더링을_기록한다",
+        "state": "Passed",
+        "durationSeconds": 0.5401572,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "물결_재질은_HUD마다_분리되고_공유_에셋을_수정하지_않는다",
+        "fullName": "UPlayGround.UI.Tests.StaminaHudTests.물결_재질은_HUD마다_분리되고_공유_에셋을_수정하지_않는다",
+        "state": "Passed",
+        "durationSeconds": 0.0193244,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "소비와_회복만_활동으로_기록하고_최대값_변경은_무시한다(45.0f)",
+        "fullName": "UPlayGround.UI.Tests.StaminaHudTests.소비와_회복만_활동으로_기록하고_최대값_변경은_무시한다(45.0f)",
+        "state": "Passed",
+        "durationSeconds": 0.0154898,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "소비와_회복만_활동으로_기록하고_최대값_변경은_무시한다(55.0f)",
+        "fullName": "UPlayGround.UI.Tests.StaminaHudTests.소비와_회복만_활동으로_기록하고_최대값_변경은_무시한다(55.0f)",
+        "state": "Passed",
+        "durationSeconds": 0.012615,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "처음_표시와_순간이동은_즉시_맞추고_미세진동은_무시한다",
+        "fullName": "UPlayGround.UI.Tests.StaminaHudTests.처음_표시와_순간이동은_즉시_맞추고_미세진동은_무시한다",
+        "state": "Passed",
+        "durationSeconds": 0.0131099,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "초기값과_교체값은_잔량과_무관하게_숨긴다(100.0f)",
+        "fullName": "UPlayGround.UI.Tests.StaminaHudTests.초기값과_교체값은_잔량과_무관하게_숨긴다(100.0f)",
+        "state": "Passed",
+        "durationSeconds": 0.0093959,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "초기값과_교체값은_잔량과_무관하게_숨긴다(35.0f)",
+        "fullName": "UPlayGround.UI.Tests.StaminaHudTests.초기값과_교체값은_잔량과_무관하게_숨긴다(35.0f)",
+        "state": "Passed",
+        "durationSeconds": 0.0087388,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "초기값과_교체값은_잔량과_무관하게_숨긴다(0.0f)",
+        "fullName": "UPlayGround.UI.Tests.StaminaHudTests.초기값과_교체값은_잔량과_무관하게_숨긴다(0.0f)",
+        "state": "Passed",
+        "durationSeconds": 0.0082903,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "회복_대기와_회복_중에는_유지하고_완전히_회복한_뒤_지연하여_숨긴다",
+        "fullName": "UPlayGround.UI.Tests.StaminaHudTests.회복_대기와_회복_중에는_유지하고_완전히_회복한_뒤_지연하여_숨긴다",
+        "state": "Passed",
+        "durationSeconds": 0.0086378,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "훈련장에서는_초기값과_교체_완전회복_뒤에도_유지하고_퇴장하면_숨긴다",
+        "fullName": "UPlayGround.UI.Tests.StaminaHudTests.훈련장에서는_초기값과_교체_완전회복_뒤에도_유지하고_퇴장하면_숨긴다",
+        "state": "Passed",
+        "durationSeconds": 0.0120737,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      }
+    ]
+  }
+}

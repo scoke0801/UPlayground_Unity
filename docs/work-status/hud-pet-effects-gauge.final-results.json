@@ -1,0 +1,250 @@
+{
+  "job_id": "99101f3ed68a4f33b55df96c03001d46",
+  "status": "failed",
+  "mode": "EditMode",
+  "started_unix_ms": 1794708422678,
+  "finished_unix_ms": 1794708438079,
+  "last_update_unix_ms": 1794708438079,
+  "progress": {
+    "completed": 22,
+    "total": 22,
+    "current_test_full_name": null,
+    "current_test_started_unix_ms": null,
+    "last_finished_test_full_name": "UPlayGround.UI.Tests.UltimateEnergyRailTests.채움은_정규화된_자원량을_따른다(float.NaN,100.0f,0.0f)",
+    "last_finished_unix_ms": 1794708437831,
+    "stuck_suspected": false,
+    "editor_is_focused": false,
+    "run_in_background": true,
+    "focus_nudge_attempts": null,
+    "focus_nudge_limit": null,
+    "focus_nudge_status": null,
+    "blocked_reason": null,
+    "failures_so_far": [
+      {
+        "full_name": "UPlayGround.UI.Tests.UltimateEnergyRailTests.HUD_레일의_필수_참조가_연결되어_있다",
+        "message": "  _keyPrompt\r\n  Expected: not null\r\n  But was:  null\r\n"
+      },
+      {
+        "full_name": "UPlayGround.UI.Tests.UltimateEnergyRailTests.미습득_필살기도_공용_스킬_게이지는_표시한다",
+        "message": "System.NullReferenceException : Object reference not set to an instance of an object"
+      },
+      {
+        "full_name": "UPlayGround.UI.Tests.UltimateEnergyRailTests.준비_연출은_일시_제한에_유지되고_자원_소비시_꺼진다",
+        "message": "System.NullReferenceException : Object reference not set to an instance of an object"
+      }
+    ],
+    "failures_capped": false
+  },
+  "error": null,
+  "result": {
+    "mode": "EditMode",
+    "summary": {
+      "total": 22,
+      "passed": 19,
+      "failed": 3,
+      "skipped": 0,
+      "durationSeconds": 1.7931004,
+      "resultState": "Failed(Child)"
+    },
+    "results": [
+      {
+        "name": "무효대상_확정실패는_효과와_쿨다운을_소비하지_않는다",
+        "fullName": "UPlayGround.Ability.Tests.PetSupportAbilityTests.무효대상_확정실패는_효과와_쿨다운을_소비하지_않는다",
+        "state": "Passed",
+        "durationSeconds": 0.1313841,
+        "message": null,
+        "stackTrace": null,
+        "output": "[Services] 등록되지 않은 서비스 계약 요청: UPlayGround.Manager.IActorObjectService\r\n"
+      },
+      {
+        "name": "버프는_실제_Attribute에_적용하고_snapshot은_적용레벨을_보존한다(\"Pet.Skill.AttackBuff\",\"Combat.AttackPower\",1,100.0f,104.0f)",
+        "fullName": "UPlayGround.Ability.Tests.PetSupportAbilityTests.버프는_실제_Attribute에_적용하고_snapshot은_적용레벨을_보존한다(\"Pet.Skill.AttackBuff\",\"Combat.AttackPower\",1,100.0f,104.0f)",
+        "state": "Passed",
+        "durationSeconds": 0.0402245,
+        "message": null,
+        "stackTrace": null,
+        "output": "[Services] 등록되지 않은 서비스 계약 요청: UPlayGround.Manager.IPartyService\r\n"
+      },
+      {
+        "name": "버프는_실제_Attribute에_적용하고_snapshot은_적용레벨을_보존한다(\"Pet.Skill.AttackBuff\",\"Combat.AttackPower\",5,100.0f,112.0f)",
+        "fullName": "UPlayGround.Ability.Tests.PetSupportAbilityTests.버프는_실제_Attribute에_적용하고_snapshot은_적용레벨을_보존한다(\"Pet.Skill.AttackBuff\",\"Combat.AttackPower\",5,100.0f,112.0f)",
+        "state": "Passed",
+        "durationSeconds": 0.0036227,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "버프는_실제_Attribute에_적용하고_snapshot은_적용레벨을_보존한다(\"Pet.Skill.DefenseBuff\",\"Combat.Defense\",1,0.2f,0.212f)",
+        "fullName": "UPlayGround.Ability.Tests.PetSupportAbilityTests.버프는_실제_Attribute에_적용하고_snapshot은_적용레벨을_보존한다(\"Pet.Skill.DefenseBuff\",\"Combat.Defense\",1,0.2f,0.212f)",
+        "state": "Passed",
+        "durationSeconds": 0.0037644,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "버프는_실제_Attribute에_적용하고_snapshot은_적용레벨을_보존한다(\"Pet.Skill.DefenseBuff\",\"Combat.Defense\",5,0.2f,0.236f)",
+        "fullName": "UPlayGround.Ability.Tests.PetSupportAbilityTests.버프는_실제_Attribute에_적용하고_snapshot은_적용레벨을_보존한다(\"Pet.Skill.DefenseBuff\",\"Combat.Defense\",5,0.2f,0.236f)",
+        "state": "Passed",
+        "durationSeconds": 0.0038058,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "자원_런타임이_늦게_준비되어도_게이지_변경을_중복없이_알린다",
+        "fullName": "UPlayGround.Ability.Tests.PetSupportAbilityTests.자원_런타임이_늦게_준비되어도_게이지_변경을_중복없이_알린다",
+        "state": "Passed",
+        "durationSeconds": 0.00874,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "지원불가_순간의_완벽방어와_피격신호는_쿨다운없이_버린다",
+        "fullName": "UPlayGround.Ability.Tests.PetSupportAbilityTests.지원불가_순간의_완벽방어와_피격신호는_쿨다운없이_버린다",
+        "state": "Passed",
+        "durationSeconds": 0.022556,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "파티지원_쿨다운은_캐릭터_초기화와_snapshot_복원으로_초기화되지_않는다",
+        "fullName": "UPlayGround.Ability.Tests.PetSupportAbilityTests.파티지원_쿨다운은_캐릭터_초기화와_snapshot_복원으로_초기화되지_않는다",
+        "state": "Passed",
+        "durationSeconds": 0.0133469,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "회복은_최대체력에_비례하고_다른_지원의_쿨다운을_쓰지_않는다(1,8.0f)",
+        "fullName": "UPlayGround.Ability.Tests.PetSupportAbilityTests.회복은_최대체력에_비례하고_다른_지원의_쿨다운을_쓰지_않는다(1,8.0f)",
+        "state": "Passed",
+        "durationSeconds": 0.0098687,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "회복은_최대체력에_비례하고_다른_지원의_쿨다운을_쓰지_않는다(5,16.0f)",
+        "fullName": "UPlayGround.Ability.Tests.PetSupportAbilityTests.회복은_최대체력에_비례하고_다른_지원의_쿨다운을_쓰지_않는다(5,16.0f)",
+        "state": "Passed",
+        "durationSeconds": 0.0021682,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "HUD_레일의_필수_참조가_연결되어_있다",
+        "fullName": "UPlayGround.UI.Tests.UltimateEnergyRailTests.HUD_레일의_필수_참조가_연결되어_있다",
+        "state": "Failed",
+        "durationSeconds": 0.4501444,
+        "message": "  _keyPrompt\r\n  Expected: not null\r\n  But was:  null\r\n",
+        "stackTrace": "at UPlayGround.UI.Tests.UltimateEnergyRailTests.HUD_레일의_필수_참조가_연결되어_있다 () [0x00081] in C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\Tests\\EditMode\\UI\\UltimateEnergyRailTests.cs:64\r\n",
+        "output": ""
+      },
+      {
+        "name": "눈금은_넘어선_구간만_점등한다",
+        "fullName": "UPlayGround.UI.Tests.UltimateEnergyRailTests.눈금은_넘어선_구간만_점등한다",
+        "state": "Passed",
+        "durationSeconds": 0.0125726,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "미습득_필살기도_공용_스킬_게이지는_표시한다",
+        "fullName": "UPlayGround.UI.Tests.UltimateEnergyRailTests.미습득_필살기도_공용_스킬_게이지는_표시한다",
+        "state": "Failed:Error",
+        "durationSeconds": 0.0112035,
+        "message": "System.NullReferenceException : Object reference not set to an instance of an object",
+        "stackTrace": "  at UPlayGround.UI.Tests.UltimateEnergyRailTests.미습득_필살기도_공용_스킬_게이지는_표시한다 () [0x0003e] in C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\Tests\\EditMode\\UI\\UltimateEnergyRailTests.cs:169 \r\n  at (wrapper managed-to-native) System.Reflection.RuntimeMethodInfo.InternalInvoke(System.Reflection.RuntimeMethodInfo,object,object[],System.Exception&)\r\n  at System.Reflection.RuntimeMethodInfo.Invoke (System.Object obj, System.Reflection.BindingFlags invokeAttr, System.Reflection.Binder binder, System.Object[] parameters, System.Globalization.CultureInfo culture) [0x0006a] in <41d29b352f6a475ab1bf7c6628b82790>:0 ",
+        "output": ""
+      },
+      {
+        "name": "버프_행과_펫_발동_알림은_레일_위에서_겹치지_않는다",
+        "fullName": "UPlayGround.UI.Tests.UltimateEnergyRailTests.버프_행과_펫_발동_알림은_레일_위에서_겹치지_않는다",
+        "state": "Passed",
+        "durationSeconds": 0.0112577,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "속성_색은_레일과_불티에_적용되고_기존_투명도는_유지된다",
+        "fullName": "UPlayGround.UI.Tests.UltimateEnergyRailTests.속성_색은_레일과_불티에_적용되고_기존_투명도는_유지된다",
+        "state": "Passed",
+        "durationSeconds": 0.0110949,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "잔량과_같은_잔상은_에너지_윤곽을_덮지_않는다",
+        "fullName": "UPlayGround.UI.Tests.UltimateEnergyRailTests.잔량과_같은_잔상은_에너지_윤곽을_덮지_않는다",
+        "state": "Passed",
+        "durationSeconds": 0.0073368,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "준비_연출은_일시_제한에_유지되고_자원_소비시_꺼진다",
+        "fullName": "UPlayGround.UI.Tests.UltimateEnergyRailTests.준비_연출은_일시_제한에_유지되고_자원_소비시_꺼진다",
+        "state": "Failed:Error",
+        "durationSeconds": 0.0087288,
+        "message": "System.NullReferenceException : Object reference not set to an instance of an object",
+        "stackTrace": "  at UPlayGround.UI.Tests.UltimateEnergyRailTests.준비_연출은_일시_제한에_유지되고_자원_소비시_꺼진다 () [0x0003e] in C:\\UsingProject\\UnityProject\\UPlayground\\Assets\\Tests\\EditMode\\UI\\UltimateEnergyRailTests.cs:144 \r\n  at (wrapper managed-to-native) System.Reflection.RuntimeMethodInfo.InternalInvoke(System.Reflection.RuntimeMethodInfo,object,object[],System.Exception&)\r\n  at System.Reflection.RuntimeMethodInfo.Invoke (System.Object obj, System.Reflection.BindingFlags invokeAttr, System.Reflection.Binder binder, System.Object[] parameters, System.Globalization.CultureInfo culture) [0x0006a] in <41d29b352f6a475ab1bf7c6628b82790>:0 ",
+        "output": ""
+      },
+      {
+        "name": "채움은_정규화된_자원량을_따른다(70.0f,100.0f,0.7f)",
+        "fullName": "UPlayGround.UI.Tests.UltimateEnergyRailTests.채움은_정규화된_자원량을_따른다(70.0f,100.0f,0.7f)",
+        "state": "Passed",
+        "durationSeconds": 0.0089597,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "채움은_정규화된_자원량을_따른다(-5.0f,100.0f,0.0f)",
+        "fullName": "UPlayGround.UI.Tests.UltimateEnergyRailTests.채움은_정규화된_자원량을_따른다(-5.0f,100.0f,0.0f)",
+        "state": "Passed",
+        "durationSeconds": 0.0074924,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "채움은_정규화된_자원량을_따른다(250.0f,100.0f,1.0f)",
+        "fullName": "UPlayGround.UI.Tests.UltimateEnergyRailTests.채움은_정규화된_자원량을_따른다(250.0f,100.0f,1.0f)",
+        "state": "Passed",
+        "durationSeconds": 0.0091173,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "채움은_정규화된_자원량을_따른다(50.0f,0.0f,0.0f)",
+        "fullName": "UPlayGround.UI.Tests.UltimateEnergyRailTests.채움은_정규화된_자원량을_따른다(50.0f,0.0f,0.0f)",
+        "state": "Passed",
+        "durationSeconds": 0.0083432,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      },
+      {
+        "name": "채움은_정규화된_자원량을_따른다(float.NaN,100.0f,0.0f)",
+        "fullName": "UPlayGround.UI.Tests.UltimateEnergyRailTests.채움은_정규화된_자원량을_따른다(float.NaN,100.0f,0.0f)",
+        "state": "Passed",
+        "durationSeconds": 0.0073933,
+        "message": null,
+        "stackTrace": null,
+        "output": ""
+      }
+    ]
+  }
+}

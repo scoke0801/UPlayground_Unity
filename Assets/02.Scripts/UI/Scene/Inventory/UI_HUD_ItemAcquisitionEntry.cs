@@ -104,8 +104,9 @@ namespace UPlayGround.UI
             if (_itemData == null)
                 return;
 
+            // 한글 UI 폰트(Maplestory Light SDF)에 곱하기 기호(×) 글리프가 없어 두부 문자로 깨지므로 영문 x를 쓴다.
             _itemInfoText.text = _count > 1
-                ? $"{_itemData.itemName}  ×{_count}"
+                ? $"{_itemData.itemName}  x{_count}"
                 : _itemData.itemName;
         }
 

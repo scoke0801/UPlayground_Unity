@@ -24,6 +24,38 @@ namespace UPlayGround.UI.Tests
         public void TearDown() => UnityEngine.Object.DestroyImmediate(_hud);
 
         [Test]
+        public void 버프_행과_펫_발동_알림은_레일_위에서_겹치지_않는다()
+        {
+            var effects = (RectTransform)_hud.transform.Find("EffectArea");
+            var rail = (RectTransform)_rail.transform;
+            Assert.That(effects.anchoredPosition.y - rail.anchoredPosition.y, Is.InRange(40f, 65f));
+            foreach (string name in new[] { "PetSupport", "PetSupportSecond" })
+            {
+                var pet = (RectTransform)_hud.transform.Find(name);
+                Assert.That(pet.anchoredPosition.x - pet.rect.width * .5f,
+                    Is.GreaterThan(effects.anchoredPosition.x + effects.rect.width * .5f));
+                var indicator = pet.GetComponent<UIPetSupportIndicator>();
+                const System.Reflection.BindingFlags flags = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+                typeof(UIPetSupportIndicator).GetMethod("OnEnable", flags).Invoke(indicator, null);
+                var data = new SerializedObject(indicator);
+                Assert.That(((Image)data.FindProperty("_icon").objectReferenceValue).enabled, Is.False);
+                Assert.That(((TMPro.TMP_Text)data.FindProperty("_status").objectReferenceValue).enabled, Is.False);
+                typeof(UIPetSupportIndicator).GetMethod("Update", flags).Invoke(indicator, null);
+                Assert.That(((Image)data.FindProperty("_icon").objectReferenceValue).enabled, Is.False);
+                Assert.That(((TMPro.TMP_Text)data.FindProperty("_status").objectReferenceValue).enabled, Is.False);
+                if (name == "PetSupport")
+                {
+                    typeof(UIPetSupportIndicator).GetField("_flashEnds", flags).SetValue(indicator, Time.unscaledTime + 1f);
+                    typeof(UIPetSupportIndicator).GetMethod("Update", flags).Invoke(indicator, null);
+                    Assert.That(((TMPro.TMP_Text)data.FindProperty("_status").objectReferenceValue).enabled, Is.True);
+                    typeof(UIPetSupportIndicator).GetField("_flashEnds", flags).SetValue(indicator, 0f);
+                    typeof(UIPetSupportIndicator).GetMethod("Update", flags).Invoke(indicator, null);
+                    Assert.That(((TMPro.TMP_Text)data.FindProperty("_status").objectReferenceValue).enabled, Is.False);
+                }
+            }
+        }
+
+        [Test]
         public void HUD_레일의_필수_참조가_연결되어_있다()
         {
             Assert.That(_rail, Is.Not.Null);

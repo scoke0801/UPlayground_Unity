@@ -31,6 +31,9 @@ namespace UPlayGround.UI
             _signatureVersion = _progression?.SignatureActivationVersion ?? 0;
             _activationVersion = _feedback?.SupportActivationVersion ?? 0;
             _flashEnds = 0f; _nextRefresh = 0f;
+            _signatureEnds = 0f;
+            if (_icon != null) _icon.enabled = false;
+            if (_status != null) _status.enabled = false;
         }
 
         private void Update()
@@ -44,15 +47,8 @@ namespace UPlayGround.UI
                 if (_progression == null) Services.TryGet(out _progression);
                 string id = _progression != null ? _progression.GetSupportId(_slotIndex) : _feedback?.SelectedSupportId;
                 var skill = _pets?.Catalog?.skills?.Find(id);
-                _icon.enabled = skill?.icon != null;
-                bool unlocked = _slotIndex < (_progression?.SupportSlotCount ?? 1);
-                _icon.enabled &= unlocked;
-                _status.enabled = unlocked;
                 _icon.sprite = skill?.icon;
-                _available = unlocked && skill?.supportAbility != null && _feedback?.CanSupport == true;
-                string text = skill == null ? "도움을 골라 주세요" : Time.unscaledTime < _signatureEnds
-                    ? "손놀림이 가벼워요" : _available ? "도움 대기" : "지금은 쉬는 중";
-                if (_status.text != text) _status.text = text;
+                _available = skill?.supportAbility != null && _feedback?.CanSupport == true;
             }
             int version = _feedback?.SupportActivationVersion ?? 0;
             if (_activationVersion != version)
@@ -70,6 +66,15 @@ namespace UPlayGround.UI
                     ? ability.variants[0].targetEffects[0].durationSeconds : 0f;
                 _signatureEnds = Time.unscaledTime + duration;
                 _flashEnds = _signatureEnds;
+            }
+            bool unlocked = _slotIndex < (_progression?.SupportSlotCount ?? 1);
+            bool visible = unlocked && Time.unscaledTime < _flashEnds;
+            _icon.enabled = visible && _icon.sprite != null;
+            _status.enabled = visible;
+            if (visible)
+            {
+                string text = Time.unscaledTime < _signatureEnds ? "손놀림이 가벼워요" : "도와줄게요";
+                if (_status.text != text) _status.text = text;
             }
             float alpha = Time.unscaledTime < _flashEnds
                 ? _flashMinimumAlpha + (1f - _flashMinimumAlpha) * Mathf.Abs(Mathf.Sin(Time.unscaledTime * _flashFrequency))

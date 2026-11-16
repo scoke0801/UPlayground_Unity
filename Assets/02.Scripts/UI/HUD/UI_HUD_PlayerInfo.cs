@@ -126,7 +126,6 @@ namespace UPlayGround.UI
 
         private bool _isInCombat = false;
         private bool _hasReducedMotion;
-        private bool _hasTrainingEncounter;
 
         #region UI_Base
         protected override void OnShow()
@@ -138,12 +137,6 @@ namespace UPlayGround.UI
             _boardHpFill.fillAmount      = 1.0f;
             _boardHpWhiteFill.fillAmount = 1.0f;
 
-            if (UISvc.Actors == null) return;
-
-            _playerActor = UISvc.Actors.Player;
-            if (_playerActor == null) return;
-
-            _playerActor.EnsureCharacterRuntimeInitialized();
             _settings = UISvc.Settings?.Data;
             _worldCamera = Svc.Camera?.GetMainCamera();
             _staminaParent = _staminaPanel != null ? _staminaPanel.parent as RectTransform : null;
@@ -152,20 +145,7 @@ namespace UPlayGround.UI
             // KCC 보간과 카메라 LateUpdate가 끝난 뒤 같은 프레임의 화면 좌표를 사용합니다.
             Canvas.willRenderCanvases -= RenderStamina;
             Canvas.willRenderCanvases += RenderStamina;
-            BindUltimateEnergy();
-
-            _playerActor.OnHpChanged         += SetHp;
-            _playerActor.OnSkillGaugeChanged += SetSkillGauge;
-            _playerActor.OnStaminaChanged    += SetStamina;
-
-            SetHp(_playerActor.CurrentHealth, _playerActor.MaxHealth);
-
-            float gauge    = _playerActor.SkillGauge?.CurrentGauge ?? 0f;
-            float maxGauge = _playerActor.SkillGauge?.MaxGauge     ?? 0f;
-            SetSkillGaugeImmediate(gauge, maxGauge);
-            SetStaminaImmediate(
-                _playerActor.Stamina?.Current ?? 0f,
-                _playerActor.Stamina?.Maximum ?? 0f);
+            BindPlayer(UISvc.Actors?.Player);
 
             var partyManager = UISvc.Party;
             if (partyManager != null)
@@ -174,8 +154,6 @@ namespace UPlayGround.UI
                 partyManager.OnPartyProgressionChanged += OnCharacterProgressionChanged;
             }
 
-            RefreshCharacterIdentity();
-            BindEffectReader(_playerActor.Effects);
         }
 
         protected override void OnHide()
@@ -185,15 +163,7 @@ namespace UPlayGround.UI
             KillStaminaTweens();
             StopAllCoroutines();
             _hpFillCoroutine = null;
-            UnbindUltimateEnergy();
-            _hasStaminaSnapshot = false;
-
-            if (_playerActor != null)
-            {
-                _playerActor.OnHpChanged         -= SetHp;
-                _playerActor.OnSkillGaugeChanged -= SetSkillGauge;
-                _playerActor.OnStaminaChanged    -= SetStamina;
-            }
+            UnbindPlayer();
 
             var partyManager = UISvc.Party;
             if (partyManager != null)
@@ -208,6 +178,41 @@ namespace UPlayGround.UI
 
         protected override void OnClose() { }
         #endregion
+
+        private void UnbindPlayer()
+        {
+            if (_playerActor != null)
+            {
+                _playerActor.OnHpChanged -= SetHp;
+                _playerActor.OnSkillGaugeChanged -= SetSkillGauge;
+                _playerActor.OnStaminaChanged -= SetStamina;
+            }
+            _playerActor = null;
+            _hasStaminaSnapshot = false;
+            UnbindUltimateEnergy();
+            UnbindEffectReader();
+        }
+
+        private void BindPlayer(PlayerActor player)
+        {
+            UnbindPlayer();
+            ResetStaminaPresentation();
+            ClearCharacterIdentity();
+            _playerActor = player;
+            if (_playerActor == null) return;
+            _playerActor.EnsureCharacterRuntimeInitialized();
+            BindUltimateEnergy();
+            _playerActor.OnHpChanged += SetHp;
+            _playerActor.OnSkillGaugeChanged += SetSkillGauge;
+            _playerActor.OnStaminaChanged += SetStamina;
+            SetHp(_playerActor.CurrentHealth, _playerActor.MaxHealth);
+            SetSkillGaugeImmediate(_playerActor.SkillGauge?.CurrentGauge ?? 0f,
+                _playerActor.SkillGauge?.MaxGauge ?? 0f);
+            SetStaminaImmediate(_playerActor.Stamina?.Current ?? 0f,
+                _playerActor.Stamina?.Maximum ?? 0f);
+            RefreshCharacterIdentity();
+            BindEffectReader(_playerActor.Effects);
+        }
 
         protected override void Update()
         {
@@ -228,18 +233,13 @@ namespace UPlayGround.UI
             }
             if (Time.unscaledTime >= _nextAbilityRefresh)
             {
+                // HUD 재표시가 없는 씬 이동·지연 생성에서도 이전 액터 구독을 교체한다.
+                var player = UISvc.Actors?.Player;
+                if (!ReferenceEquals(_playerActor, player)) BindPlayer(player);
                 // HUD보다 늦게 준비되거나 씬 전환으로 교체된 카메라도 추적한다.
                 _worldCamera = Svc.Camera?.GetMainCamera();
                 RefreshCharacterIdentity();
                 RefreshUltimateAvailability();
-                bool hasTrainingEncounter = Services.TryGet<IUITrainingService>(out var training)
-                    && training.HasEncounter;
-                if (hasTrainingEncounter && !_hasTrainingEncounter)
-                {
-                    _lastStaminaChangeTime = Time.unscaledTime;
-                    SetStaminaVisibility(true);
-                }
-                _hasTrainingEncounter = hasTrainingEncounter;
                 _nextAbilityRefresh = Time.unscaledTime + _abilityStateRefreshInterval;
             }
             if (_energyRail != null) _energyRail.Tick(Time.unscaledTime, reduceMotion);

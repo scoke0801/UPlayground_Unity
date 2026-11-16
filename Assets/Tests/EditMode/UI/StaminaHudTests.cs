@@ -88,6 +88,47 @@ namespace UPlayGround.UI.Tests
         }
 
         [Test]
+        public void 늦게_생성되거나_씬에서_교체된_플레이어의_소비알림을_받고_회복후_숨긴다()
+        {
+            var actorType = System.Type.GetType("UPlayGround.PlayerActor, UPlayGround.Actor", throwOnError: true);
+            var changed = actorType.GetField("OnStaminaChanged", PrivateInstance);
+            var first = new GameObject("이전 씬 플레이어");
+            var second = new GameObject("훈련장 플레이어");
+            first.SetActive(false);
+            second.SetActive(false);
+            try
+            {
+                var previous = first.AddComponent(actorType);
+                var current = second.AddComponent(actorType);
+                Call("BindPlayer", new object[] { null });
+                Call("BindPlayer", previous);
+                Call("SetStaminaImmediate", 100f, 100f);
+                ((System.Action<float, float>)changed.GetValue(previous)).Invoke(70f, 100f);
+                Call("RefreshStaminaVisibility", Time.unscaledTime);
+                Assert.That(Get<CanvasGroup>("_staminaGroup").alpha, Is.EqualTo(1f));
+                Call("BindPlayer", current);
+                Assert.That(changed.GetValue(previous), Is.Null, "이전 씬의 알림 구독을 해제한다");
+                Call("SetStaminaImmediate", 100f, 100f);
+                Call("RefreshStaminaVisibility", Time.unscaledTime + 10f);
+                Assert.That(Get<CanvasGroup>("_staminaGroup").alpha, Is.Zero, "훈련장도 초기에는 숨긴다");
+                ((System.Action<float, float>)changed.GetValue(current)).Invoke(60f, 100f);
+                Call("RefreshStaminaVisibility", Time.unscaledTime);
+                Assert.That(Get<CanvasGroup>("_staminaGroup").alpha, Is.EqualTo(1f));
+                ((System.Action<float, float>)changed.GetValue(current)).Invoke(100f, 100f);
+                Call("RefreshStaminaVisibility", Time.unscaledTime + 10f);
+                Assert.That(Get<CanvasGroup>("_staminaGroup").alpha, Is.Zero);
+                Call("UnbindPlayer");
+                Assert.That(changed.GetValue(current), Is.Null);
+            }
+            finally
+            {
+                Call("UnbindPlayer");
+                UnityEngine.Object.DestroyImmediate(first);
+                UnityEngine.Object.DestroyImmediate(second);
+            }
+        }
+
+        [Test]
         public void 처음_표시와_순간이동은_즉시_맞추고_미세진동은_무시한다()
         {
             var panel = Get<RectTransform>("_staminaPanel");

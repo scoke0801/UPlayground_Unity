@@ -1,4 +1,4 @@
-#if UNITY_EDITOR
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -6,7 +6,7 @@ using UnityEngine.InputSystem;
 namespace UPlayGround.UI
 {
     /// <summary>
-    /// UI_Scene_Map 디버그 텔레포트 확장 (에디터 전용).
+    /// UI_Scene_Map 디버그 텔레포트 확장 (에디터·Development Build 전용).
     /// Ctrl + 좌클릭한 지도 지점의 지면으로 플레이어를 즉시 옮겨 맵 검수 이동 시간을 줄인다.
     /// </summary>
     public partial class UI_Scene_Map

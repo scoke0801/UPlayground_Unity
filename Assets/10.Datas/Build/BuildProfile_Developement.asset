@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: UPlayGround.BuildManager.Editor::UPlayGround.Tool.Editor.Build.BuildManagerProfileSO
   profileName: Development
   outputRoot: Builds
-  outputDirectory: C:/UsingProject/UnityProject/BuildOutput
+  outputDirectory: C:/UsingProject/UnityProject/BuildOuptut_BuildManager
   executableName: UPlayground
   scenes:
   - {fileID: 102900000, guid: 7ca8a75150222a949b43231e9cb603d2, type: 3}

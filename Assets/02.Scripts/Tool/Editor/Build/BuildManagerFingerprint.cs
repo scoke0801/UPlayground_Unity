@@ -23,6 +23,7 @@ namespace UPlayGround.Tool.Editor.Build
                 if (Path.GetFileName(path) == "EditorBuildSettings.asset") continue;
                 rows.Add(path + ":" + File.ReadAllText(path));
             }
+            AddRenderingInputs(rows);
             return HashRows(rows);
         }
 
@@ -42,7 +43,20 @@ namespace UPlayGround.Tool.Editor.Build
                 foreach (AddressableAssetEntry entry in group.entries)
                     rows.Add(entry.guid + ":" + AssetDatabase.GetAssetDependencyHash(entry.AssetPath));
             }
+            AddRenderingInputs(rows);
             return HashRows(rows);
+        }
+
+        private static void AddRenderingInputs(List<string> rows)
+        {
+            // 렌더 설정은 주소 지정 에셋의 의존성이 아니어도 셰이더 변형을 제거한다.
+            foreach (string path in new[] { "ProjectSettings/GraphicsSettings.asset", "ProjectSettings/QualitySettings.asset" })
+                rows.Add(path + ":" + File.ReadAllText(path));
+            foreach (string guid in AssetDatabase.FindAssets("t:RenderPipelineAsset t:RenderPipelineGlobalSettings", new[] { "Assets" }))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                rows.Add(path + ":" + AssetDatabase.GetAssetDependencyHash(path));
+            }
         }
 
         /// <summary>기존 콘텐츠를 exe 빌드에 재사용할 때 확인할 플랫폼별 캐시 기록 위치.</summary>

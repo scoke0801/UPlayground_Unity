@@ -51,7 +51,7 @@ namespace UPlayGround.UI
     ///        └─ Box/{Message, Buttons/{YesButton, NoButton}}   ← _confirmMessageText/_confirmYesButton/_confirmNoButton
     ///
     /// ■ 브라우즈 모드 / 파스트트래블: UI_Scene_Map.Browse.cs 참조.
-    /// ■ 디버그 텔레포트 (에디터 전용, Ctrl + 좌클릭): UI_Scene_Map.DebugTeleport.cs 참조.
+    /// ■ 디버그 텔레포트 (에디터·Development Build 전용, Ctrl + 좌클릭): UI_Scene_Map.DebugTeleport.cs 참조.
     /// </code>
     /// </summary>
     [RequireComponent(typeof(Canvas))]
@@ -768,7 +768,7 @@ namespace UPlayGround.UI
         /// </summary>
         private void OnMapPrimaryClick(PointerEventData e)
         {
-#if UNITY_EDITOR
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
             if (TryHandleDebugTeleportClick(e))
                 return;
 #endif

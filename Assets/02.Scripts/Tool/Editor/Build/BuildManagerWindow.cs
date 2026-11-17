@@ -52,9 +52,6 @@ namespace UPlayGround.Tool.Editor.Build
         }
 
         private void OnDisable() => Undo.undoRedoPerformed -= OnUndoRedo;
-        private void OnFocus() => InvalidateStatus();
-        private void OnProjectChange() => InvalidateStatus();
-
         private void OnUndoRedo()
         {
             if (_profile != null) AssetDatabase.SaveAssetIfDirty(_profile);
@@ -257,6 +254,9 @@ namespace UPlayGround.Tool.Editor.Build
             {
                 if (!GUILayout.Button("선택한 폴더에 " + s_modeLabels[(int)_mode] + " 실행", GUILayout.Height(32f))) return;
             }
+            // 포커스·프로젝트 변경으로는 자동 갱신하지 않으므로, 실행 직전에 최신 상태로 다시 점검한다.
+            RefreshStatus();
+            if (_assessment == null || BuildPreflight.HasError(_issues)) return;
             if (!EditorUtility.DisplayDialog("빌드 실행", s_modeLabels[(int)_mode] + "\n" + _profile.GetOutputDirectory() + "\n기존 파일을 갱신합니다.", "실행", "취소")) return;
             BuildManagerResult result = BuildManagerRunner.Run(_profile, _mode, _allowStaleContent);
             _lastResult = (result.Success ? "성공: " : "실패: ") + result.Summary;

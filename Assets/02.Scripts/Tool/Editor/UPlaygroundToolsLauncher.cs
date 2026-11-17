@@ -149,6 +149,7 @@ namespace UPlayGround.Editor
             }),
             ("월드 / 맵", new[]
             {
+                Tool("WorldBuilder 지형 저작", "WorldBuilder.Authoring", "신규 월드의 지형 명령·Sculpt·RAW 편집을 관리합니다.", "P01 미리보기 씬과 WorldDefinition을 연결해 비파괴 높이·Hole 명령, 캡처, 재생성, Undo/Redo를 사용합니다. Base RAW와 기존 게임 월드는 보존합니다."),
                 Tool("GPU 환경 생물 검사", "UPlayGround/월드/환경 생물/서식지 검증", "현재 씬의 프로필·베이크·CPU 보존과 용량을 검사합니다.", "저작 변경 뒤 실행합니다. 지형/설정 stale, Missing Script, 종별 Capacity와 fallback 수를 확인합니다. 실제 성능과 미술 인수는 별도입니다."),
                 Tool("GPU 환경 생물 베이크", "UPlayGround/월드/환경 생물/GPU 서식지 베이크", "선택한 GPU 서식지의 좌표·안전 구를 검사하고 렌더를 연결합니다.", "GPU 생물 프리팹을 배치하거나 옮긴 뒤 실행합니다. 정적 장애물과 잘못된 앵커를 거절하고 기존 설정을 보존한 씬 전용 URP 복제 프로필을 연결합니다. 결과를 확인한 뒤 씬을 저장합니다."),
                 Tool("환경 반응 모니터", "World/환경 반응 모니터", "선택한 환경의 열·젖음·연료·파괴 상태를 확인합니다.", "Play 중 상자 단면에 열·물·구조 피해를 입력합니다. 실제 비는 날씨 미리보기를 사용하고, 저장과 복원은 기존 게임 기능으로 검증합니다."),

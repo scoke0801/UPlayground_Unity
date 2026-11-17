@@ -1,0 +1,16 @@
+{
+    "schemaVersion": 1,
+    "worldGuid": "35c2ca802bd64575961ac7cda330ac91",
+    "sourcePath": "docs/전달용/OpenWorld_HeightMap_Design_Regional_v1_1_Handoff/atlas/01_Regional_Heightmap_2049_R16LE_SouthFirst.raw",
+    "profilePath": "Assets/10.Datas/WorldBuilder/35c2ca802bd64575961ac7cda330ac91.asset",
+    "contentHash": "59c7d2f4625cdaad5fae142c0133b54b4c4e4bb6e65264bd28bc647cacb85181",
+    "encoding": "R16_UNORM",
+    "byteOrder": "little-endian",
+    "rowOrigin": "south",
+    "width": 2049,
+    "height": 2049,
+    "sampleSpacing": 1.0,
+    "originY": 0.0,
+    "verticalRange": 700.0,
+    "originalVerticalRange": 2800.0
+}

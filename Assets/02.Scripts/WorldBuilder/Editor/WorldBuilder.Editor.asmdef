@@ -1,0 +1,14 @@
+{
+  "name": "WorldBuilder.Editor",
+  "rootNamespace": "UPlayGround.WorldBuilder.Editor",
+  "references": [
+    "WorldBuilder.Core",
+    "WorldBuilder.Data",
+    "UPlayGround.EditorTools"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "noEngineReferences": false,
+  "autoReferenced": true
+}

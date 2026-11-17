@@ -1,0 +1,16 @@
+{
+  "name": "WorldBuilder.EditModeTests",
+  "rootNamespace": "UPlayGround.WorldBuilder.Tests",
+  "references": [
+    "WorldBuilder.Core",
+    "WorldBuilder.Data",
+    "WorldBuilder.Editor"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

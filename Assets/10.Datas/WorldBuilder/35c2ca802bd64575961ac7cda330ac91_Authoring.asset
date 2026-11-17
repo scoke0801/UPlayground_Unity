@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9fde6389ae73f2b4985a26c9d60e840d, type: 3}
+  m_Name: 35c2ca802bd64575961ac7cda330ac91_Authoring
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.WorldDefinition
+  _worldGuid: 35c2ca802bd64575961ac7cda330ac91
+  _profile: {fileID: 11400000, guid: aec1071327cd0eb47b6cd577a130375e, type: 2}
+  _baseHeight: {fileID: 4900000, guid: 716188f2ce7b8cc4499c444452622ecb, type: 3}
+  _baseSha256: 59c7d2f4625cdaad5fae142c0133b54b4c4e4bb6e65264bd28bc647cacb85181
+  _sourceRevision: d33d0b37ba3fc3c1e7c074c65ad9ce6338ef4600ccfe62f6fee71ea80cdc28f6
+  _previewSceneGuid: c38ffcc2b7e211b44af3227d09daf3fa
+  _operations: []
+  _activeSession:
+    rid: -2
+  _appliedTerrainHash: c1cbd0c9e08c757af974756cc34b45769684714777e340b643252a79a031810c
+  _appliedStackHash: 7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8
+  _dirtyLayers: 0
+  _dirtyX: 0
+  _dirtyZ: 0
+  _dirtyWidth: 0
+  _dirtyHeight: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }

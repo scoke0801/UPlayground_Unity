@@ -1,0 +1,16 @@
+{
+    "schemaVersion": 1,
+    "worldGuid": "32742014596749a481700c6e6c9b0307",
+    "sourcePath": "docs/전달용/OpenWorld_HeightMap_Design_Regional_v1_1_Handoff/core/samples/openworld_2049_r16le.raw",
+    "profilePath": "Assets/10.Datas/WorldBuilder/32742014596749a481700c6e6c9b0307.asset",
+    "contentHash": "c67d9a3a34c7af0ce7a9c76877679488df8134cb0d64bd431120cc28571a72ca",
+    "encoding": "R16_UNORM",
+    "byteOrder": "little-endian",
+    "rowOrigin": "south",
+    "width": 2049,
+    "height": 2049,
+    "sampleSpacing": 1.0,
+    "originY": -80.0,
+    "verticalRange": 480.0,
+    "originalVerticalRange": 480.0
+}

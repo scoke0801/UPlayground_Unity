@@ -1,0 +1,8 @@
+{
+  "name": "WorldBuilder.Core",
+  "rootNamespace": "UPlayGround.WorldBuilder.Core",
+  "references": [],
+  "includePlatforms": [],
+  "noEngineReferences": true,
+  "autoReferenced": true
+}

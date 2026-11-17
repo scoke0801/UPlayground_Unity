@@ -1,0 +1,118 @@
+{
+  "checks": [
+    {
+      "name": "raw_byte_count",
+      "pass": true
+    },
+    {
+      "name": "png_uint16_roundtrip",
+      "pass": true
+    },
+    {
+      "name": "height_range",
+      "pass": true
+    },
+    {
+      "name": "raw_reconstruction_error",
+      "pass": true
+    },
+    {
+      "name": "seam_E_0_0",
+      "pass": true
+    },
+    {
+      "name": "seam_N_0_0",
+      "pass": true
+    },
+    {
+      "name": "seam_E_1_0",
+      "pass": true
+    },
+    {
+      "name": "seam_N_1_0",
+      "pass": true
+    },
+    {
+      "name": "seam_E_2_0",
+      "pass": true
+    },
+    {
+      "name": "seam_N_2_0",
+      "pass": true
+    },
+    {
+      "name": "seam_N_3_0",
+      "pass": true
+    },
+    {
+      "name": "seam_E_0_1",
+      "pass": true
+    },
+    {
+      "name": "seam_N_0_1",
+      "pass": true
+    },
+    {
+      "name": "seam_E_1_1",
+      "pass": true
+    },
+    {
+      "name": "seam_N_1_1",
+      "pass": true
+    },
+    {
+      "name": "seam_E_2_1",
+      "pass": true
+    },
+    {
+      "name": "seam_N_2_1",
+      "pass": true
+    },
+    {
+      "name": "seam_N_3_1",
+      "pass": true
+    },
+    {
+      "name": "seam_E_0_2",
+      "pass": true
+    },
+    {
+      "name": "seam_N_0_2",
+      "pass": true
+    },
+    {
+      "name": "seam_E_1_2",
+      "pass": true
+    },
+    {
+      "name": "seam_N_1_2",
+      "pass": true
+    },
+    {
+      "name": "seam_E_2_2",
+      "pass": true
+    },
+    {
+      "name": "seam_N_2_2",
+      "pass": true
+    },
+    {
+      "name": "seam_N_3_2",
+      "pass": true
+    },
+    {
+      "name": "seam_E_0_3",
+      "pass": true
+    },
+    {
+      "name": "seam_E_1_3",
+      "pass": true
+    },
+    {
+      "name": "seam_E_2_3",
+      "pass": true
+    }
+  ],
+  "scope": "File-level numerical checks only. Unity compilation/import/PlayMode/PlayerBuild NOT run.",
+  "allPass": true
+}

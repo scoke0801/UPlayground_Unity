@@ -1,0 +1,38 @@
+UPlayground 저장소에 HeightMap 기반 비파괴 오픈월드 제작 도구 WorldBuilder v1을 구현해 주세요.
+
+기준 문서:
+- 27~29장: 새 지역 컨셉과 P10 확정 추가 명세
+- atlas/Regional_Atlas_Manifest.json: C 샘플/지역 좌표/시안 목록 (B 기술 샘플과 별도)
+- IMPLEMENTATION_SPEC.md: HTML과 같은 구현 명세의 텍스트 버전
+- OpenWorld_HeightMap_Design.html: 그림·레이아웃 확인용
+- samples/sample_manifest.json: 실제 기술 샘플의 좌표·포맷·파일 목록
+HTML의 base64 이미지를 통째로 컨텍스트에 넣지 말고 텍스트 명세부터 읽으세요.
+
+작업 원칙:
+1. 저장소의 AGENTS.md/CLAUDE.md 등 프로젝트 지침을 먼저 읽고, 실제 ProjectVersion.txt와 manifest/packages-lock, asmdef, 기존 맵/씬 로딩/세이브/미니맵/AI 서비스를 조사하세요. 라이브러리 기록은 참고이며 실제 저장소가 우선입니다.
+2. git status와 기존 미커밋 파일을 기록하고 보존하세요. 기존 전투·카메라·퀘스트·세이브 서비스를 교체하거나 스크립트를 일괄 이동하지 마세요. .meta/GUID/직렬화 타입과 기존 Addressables 키를 보존하세요. 무단 upgrade, reset/clean, commit/push를 하지 마세요.
+3. 문서의 D01~D12 결정을 기본 계약으로 적용하세요. 새로운 확장은 preset 데이터로 가능하게 하고, 새로운 알고리즘만 코드 확장으로 분리하세요. 설계 재작성만 하고 끝내지 말고 실제 파일을 수정·작성하세요.
+4. P00~P09를 순서대로 구현하고, 이어서 P10 지역형 통합을 수행하세요. 각 단계는 작동하는 단위로 만들고 해당 T01~T26 및 P10의 T27~T35 게이트를 실행하세요. 단계가 끝날 때마다 계속할지 묻지 말고, 실행 가능한 다음 단계로 진행하세요.
+5. source HeightField / 저작 operation / 수동 override / baked output을 분리하세요. 같은 입력 재생성에서 수작업이 유지되어야 합니다. Seed/좌표/알고리즘 변경 시 충돌을 명시하며 조용히 잘못 매칭하지 마세요.
+6. 좌표계는 +X 동, +Z 북, RAW row0 남, heights[z,x]입니다. Height 513²와 Hole 512²를 혼동하지 마세요. SetHoles의 true는 표면, false는 구멍입니다. 샘플의 실제 import 대상은 16-bit RAW이며 AI 참고 이미지를 정량 높이 데이터로 사용하지 마세요. 원본 기술 B는 Y=-80..400m/2km, 신규 지역 C는 Y=0..2800m/XZ 미확정이며 별개입니다. C의 canonical SouthFirst RAW만 동일 좌표 규약으로 사용하세요.
+7. 모든 생성은 취소/실패 안전하게 만들고, 이전 Published Bake를 보호하세요. Dirty rebuild와 full rebuild의 논리 결과 동등성을 테스트하세요.
+8. 강/호수/폭포는 수면, 하상, 수역 판정을 분리하고 URP에서 구현하세요. 동굴은 Terrain Holes + 모듈 Mesh로 구현하세요. 식생은 장식/상호작용을 분리하세요.
+9. Addressables 청크 로딩은 실제 Player build에서 검증하세요. activateOnLoad=false를 상시 대기 스트리밍 패턴으로 사용하지 마세요. Ready 전 이동을 막고 handle 소유권/해제를 검증하세요.
+10. Unity object/AssetDatabase/Physics 조작은 메인 스레드, 순수 수치 작업만 worker로 분리하세요. 성능 목표를 측정한 사실처럼 보고하지 마세요.
+
+작업 기록:
+INTEGRATION_AUDIT.md, PLAN.md, PROGRESS.md, DECISIONS.md, TEST_REPORT.md, PERFORMANCE_REPORT.md를 유지하세요. PROGRESS에는 단계별 상태, 수정 파일, 실제 명령/테스트, 결과, 미완료 및 다음 작업을 남기세요. 코드 예시를 그대로 복사했다고 구현 완료로 처리하지 마세요.
+
+검증 규칙:
+컴파일·EditMode·PlayMode·Addressables 콘텐츠 build·Player build·프로파일링을 실제 실행한 항목만 성공으로 표시하세요. 현재 환경에서 실행할 수 없으면 미실행 사유와 필요한 검증을 구체적으로 남기세요. 유니티/아트 리소스 부재는 primitive 테스트 자원으로 기능 경로를 완성하되 상용 아트 품질을 완성했다고 주장하지 마세요. 빈 메서드, TODO, 예외 무시, 항상 성공 반환으로 완료를 가장하지 마세요.
+
+최종 보고:
+구현 단계와 완료 상태, 변경 파일, 실제 실행한 테스트, 성능 측정 조건/결과, 기존 기능 영향, 알려진 제한을 보고하세요. 핵심 기능 또는 필수 검증이 미완료이면 v1 완료라고 선언하지 마세요.
+
+
+[추가 확정] P10 지역형 아틀라스 통합
+- 우거진 숲/가을 숲/메마른 지역/평야·성/고산 지대 5개 Region을 구현하고 성/강가 마을/호수 마을 3개 주요 POI를 데이터로 지정하세요.
+- 강가와 호수 마을은 각각 River/Lake에 종속된 Settlement POI이지 독립 biome이 아닙니다.
+- 앵커 (u,v)와 반경은 27장/atlas manifest의 미확정 후보 위치입니다. 경사/수위/도로 경로/성문·부두의 실질 사용 가능성을 검사하고 수동 Lock 후 재생성 보존해야 합니다.
+- P10-A 자료 검사 -> P10-B Region/POI/Water/Road 계획 -> P10-C 데이터 기반 배치 -> P10-D 실플레이/수용검증까지 진행하세요. T27~T35를 실행 가능한 실제 테스트와 수동 QA로 구분해 보고하세요.
+- 컨셉 이미지 PNG와 지도 오버레이는 참조 아트이며 실제 Unity Terrain 결과물인 것처럼 보고하지 마세요.

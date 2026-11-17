@@ -1,6 +1,14 @@
-﻿# 월드와 아트
+# 월드와 아트
 
-2026-11-16 WorldBuilder 지역형 HeightMap 오픈월드 설계 v1.1 반영: 외부 인계본(`docs/전달용/OpenWorld_HeightMap_Design_Regional_v1_1_Handoff/`)을 분석해 [설계 요약·정본 후보](../../Assets/docs/design/world-art/open-world/WORLDBUILDER_REGIONAL_HEIGHTMAP_DESIGN.md)로 정리했다. 16-bit RAW 기반 비파괴 월드 제작 도구(D01~D12, P00~P10, T01~T35)이며 기술 fixture B(2km, −80~400m)와 지역 prototype C(5 바이옴+3 POI, 0~2800m, XZ 미확정)를 구분한다. **설계만 있고 Unity 구현·컴파일·Play·Player 빌드는 미수행**(전달본 검증은 파일 수준). 기존 월드와의 관계(신규 월드 vs 기존 편집 도구)와 C의 월드 크기는 착수 전 사용자 결정이 필요하다. 컨셉 PNG는 높이 데이터가 아닌 참조 아트다.
+2026-11-16 WorldBuilder 미리보기 광택 제보 수정: RGBA 알파1이 최대 smoothness로 해석돼 금속처럼 보였다. B/C 전용 TerrainLayer와 생성 코드를 **매끄러움 상수0**으로 수정했고 실제 Unity 전후 화면에서 반짝임 제거를 확인했다. 지형/원본34파일 SHA 변경0. [수정·검증·사용자 확인](../work-status/open-world/WORLDBUILDER.md#사용자-제보--미리보기-지형-광택-수정-2026-11-16).
+
+2026-11-16 [빌드 식생 검정 원인·수정](../work-status/vegetation-build-black.md#지정-빌드-내부-분석과-수정--2026-11-16): 지정 Player 내부15종에서 SSAO off 변형0, 관련 식생·Terrain/Lit의 DBuffer off도0임을 확인했다. Quality RP 사전 필터가 원인이어서 기존 호수 Renderer를 기본 RP의 대체 Renderer로 등록하고 렌더 설정을 콘텐츠/Player 지문에 반영했다. 수정 전 실패 재현·수정 후 **BuildManager EditMode33/33 통과**, 같은 식생 셰이더의 DBuffer 입력 없는 on 변형에서RGB0/정상 off 변형에서초록색을 GPU로 재현했다. 이전 주변광 후보는 근거 불충분으로 보류. 임시 분석 자료5.10GB 제거·작은 근거 보존. 새 Player/Addressables 빌드·수정본 화면은 사용자 테스트 대기다.
+
+2026-11-16 WorldBuilder 지역형 HeightMap: [설계 정본](../../Assets/docs/design/world-art/open-world/WORLDBUILDER_REGIONAL_HEIGHTMAP_DESIGN.md)에 따라 **P00 조사·P01 수치 기반·P02 비파괴 저작 구현과 자동 검사 통과**. [작업 상태·자산·검증·남은 확인](../work-status/open-world/WORLDBUILDER.md), [지형 저작 지침](../../Assets/docs/guide/WORLDBUILDER_TERRAIN_AUTHORING_GUIDE.md).
+
+P01은 B(−80/480m)·C(0/700m)를 각각4×4 Terrain으로 저장하고 재로드·방향 화면을 확인했다. C700m의 경사 중앙값30.31°/p90 60.04°/p99 73.94°/최대83.28°여서 후속 필수 동선 조형이 필요하다. P01의 실제 KCC·동적 LOD·미술 인수는 사용자 테스트 대기다.
+
+P02는 TerrainOperation·Sculpt/RAW 세션·Undo/Redo·Dirty DAG를 구현했다. **최종 EditMode38/38 통과**, 높이/Hole 각20회 Undo/Redo·Dirty/Full bit 동등·타 객체/native 브러시 Undo 격리 확인. 툴 런처 **월드 / 맵 → WorldBuilder 지형 저작**, C 저작 정의 연결 완료(명령0·씬dirty=false). P01파일94개와 B원본24파일 SHA 보존. 실제 브러시/외부 편집기 UX·디스크 중간 실패·실제 도메인 리로드 실험은 미수행/사용자 확인 대기다. P03 이후·PlayMode·Player/Addressables 빌드는 미수행이며 컨셉 PNG를 Terrain 입력으로 사용하지 않는다.
 
 미니맵 물 가독성 수정(2026-11-15): 활성 물 표면7개에 밝은 파랑 불투명 재질을 임시 적용해 재촬영·배경 연결했다. 촬영 후 원래 재질7/7 복원 확인, 씬·품질 설정 보존. [현재 지도·검증](../work-status/lake-waterfall.md#폭포-반영-미니맵-재촬영--2026-11-15).
 
@@ -62,5 +70,3 @@ LakeVillageWorld 대기 프레임 저하(2026-11-14~15): [조사·최종 근거]
 ## Unity FX 제작 스킬
 
 2026-11-14: [uplayground-vfx 정본](../../.claude/skills/uplayground-vfx/SKILL.md)을 작성하고 Codex 사용자 스킬 폴더에 설치했다. 기존 Unity MCP·Shuriken·MotionEvent·무기 궤적·풀을 활용하며 VFX Graph 노드 편집 제한을 명시했다. 정본/설치본 구조 검사와 3개 파일 해시 대조 통과. 실제 FX 제작·Unity 실행·미술 검증은 미수행이다. [설치·검증·사용법](../work-status/uplayground-vfx-skill.md).
-
-

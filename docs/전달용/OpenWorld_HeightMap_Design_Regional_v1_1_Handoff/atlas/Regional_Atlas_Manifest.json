@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "sampleId": "regional-atlas-20261116",
+  "status": "concept-prototype-not-baked-world",
+  "purpose": "Supplementary regional concept reference. Not a drop-in replacement for the 2km technical sample.",
+  "heightmap": {
+    "northFirstReferenceRaw": "01_World_Heightmap_2049_R16LE.raw",
+    "northFirstReferencePng": "01_World_Heightmap_2049_16bit.png",
+    "canonicalImportRaw": "01_Regional_Heightmap_2049_R16LE_SouthFirst.raw",
+    "encoding": "R16_UNORM",
+    "byteOrder": "little-endian",
+    "width": 2049,
+    "height": 2049,
+    "canonicalRow0": "south (+Z=0)",
+    "imageRow0": "north (+Z=max)",
+    "xAxis": "west-to-east",
+    "zAxis": "south-to-north",
+    "heightRangeMeters": 2800.0,
+    "originYMeters": 0.0,
+    "heightEquation": "worldY=(sample/65535.0)*2800",
+    "note": "Horizontal span is not asserted; choose worldSizeX/Z in Project/WorldProfile and validate sample spacing and terrain LOD before importing as production world.",
+    "sha256": {
+      "sourceNorthFirstRaw": "b896c0b861f91c86d1337fab94fdbd6c4deabcebfc81481d4906485249da442f",
+      "canonicalSouthFirstRaw": "59c7d2f4625cdaad5fae142c0133b54b4c4e4bb6e65264bd28bc647cacb85181",
+      "sourcePng": "2ae4b0eb6917530ae159c2190781aaa183d2463955017e93877c08cadd8a0912"
+    }
+  },
+  "regionCoordinates": {
+    "u": "normalized X from west(0) to east(1)",
+    "v": "normalized Z from south(0) to north(1)",
+    "importance": "anchors and radii are planning starting points; not per-pixel classified ground truth or authored playable placements"
+  },
+  "regionalDefinitions": [
+    {
+      "id": "dense_forest",
+      "kind": "Biome",
+      "anchorUV": [
+        0.14,
+        0.47
+      ],
+      "influenceRadiiUV": [
+        0.16,
+        0.26
+      ],
+      "conceptImage": "02_Dense_Forest.png"
+    },
+    {
+      "id": "autumn_forest",
+      "kind": "Biome",
+      "anchorUV": [
+        0.28,
+        0.76
+      ],
+      "influenceRadiiUV": [
+        0.19,
+        0.16
+      ],
+      "conceptImage": "03_Autumn_Forest.png"
+    },
+    {
+      "id": "arid_badlands",
+      "kind": "Biome",
+      "anchorUV": [
+        0.88,
+        0.48
+      ],
+      "influenceRadiiUV": [
+        0.15,
+        0.23
+      ],
+      "conceptImage": "04_Arid_Badlands.png"
+    },
+    {
+      "id": "castle_plains",
+      "kind": "Biome + Capital POI",
+      "anchorUV": [
+        0.49,
+        0.46
+      ],
+      "influenceRadiiUV": [
+        0.23,
+        0.21
+      ],
+      "conceptImage": "05_Plains_Castle.png"
+    },
+    {
+      "id": "high_alpine",
+      "kind": "Biome",
+      "anchorUV": [
+        0.73,
+        0.87
+      ],
+      "influenceRadiiUV": [
+        0.29,
+        0.14
+      ],
+      "conceptImage": "06_High_Alpine.png"
+    },
+    {
+      "id": "riverside_village",
+      "kind": "Settlement POI",
+      "anchorUV": [
+        0.38,
+        0.54
+      ],
+      "influenceRadiiUV": [
+        0.055,
+        0.055
+      ],
+      "conceptImage": "07_Riverside_Village.png"
+    },
+    {
+      "id": "lakeside_village",
+      "kind": "Settlement POI",
+      "anchorUV": [
+        0.72,
+        0.21
+      ],
+      "influenceRadiiUV": [
+        0.065,
+        0.055
+      ],
+      "conceptImage": "08_Lakeside_Village.png"
+    }
+  ],
+  "technicalBaseline": {
+    "manifest": "core/samples/sample_manifest.json",
+    "status": "separate immutable 2048x2048m 480m-height functional fixture"
+  },
+  "unsupportedInHeightmap": [
+    "vegetation",
+    "materials",
+    "architecture",
+    "cave interior",
+    "overhang",
+    "water geometry",
+    "waterfall VFX",
+    "roads"
+  ],
+  "implementationCaveats": [
+    "generated art not screenshot from numeric R16",
+    "river geometry and river profile not hydrologically validated",
+    "geometric source sample resolution may be too low for large worlds; author higher detail per terrain tile"
+  ]
+}

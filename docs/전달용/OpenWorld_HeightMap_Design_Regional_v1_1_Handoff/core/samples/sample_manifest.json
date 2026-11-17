@@ -1,0 +1,416 @@
+{
+  "schemaVersion": 1,
+  "sampleId": "openworld-heightmap-20261116",
+  "seed": 20261116,
+  "purpose": "Technical sample: analytic landforms and authored water/plot stamps. Not a validated game level or hydrology simulation.",
+  "heightFile": "openworld_2049_r16le.raw",
+  "encoding": "R16_UNORM",
+  "byteOrder": "little-endian",
+  "width": 2049,
+  "height": 2049,
+  "layout": "row-major",
+  "row0": "south (z=0)",
+  "xDirection": "west to east (+X)",
+  "zDirection": "south to north (+Z)",
+  "worldOriginMeters": [
+    0,
+    -80.0,
+    0
+  ],
+  "worldSizeMeters": [
+    2048.0,
+    480.0,
+    2048.0
+  ],
+  "sampleSpacingMeters": 1.0,
+  "seaLevelMeters": 0.0,
+  "pngFile": "openworld_2049_gray16.png",
+  "pngRow0": "north; vertically flip on decode to canonical south-first grid",
+  "heightEquation": "worldY = -80 + (ushort/65535.0)*480",
+  "tileCells": 512,
+  "tileSamples": 513,
+  "tileCount": [
+    4,
+    4
+  ],
+  "quantizationStepMeters": 0.0073243305104142824,
+  "statistics": {
+    "minWorldY": -43.6627311706543,
+    "maxWorldY": 335.9430236816406,
+    "uniqueUInt16": 47982
+  },
+  "sha256": "c67d9a3a34c7af0ce7a9c76877679488df8134cb0d64bd431120cc28571a72ca",
+  "tiles": [
+    {
+      "tile": [
+        0,
+        0
+      ],
+      "file": "tiles/tile_00_00_513_r16le.raw",
+      "originMeters": [
+        0,
+        -80.0,
+        0
+      ],
+      "sha256": "faa669414439b530712d0d0f26e130433f0bbdb090ca5ab0801fc1ae22325c72"
+    },
+    {
+      "tile": [
+        1,
+        0
+      ],
+      "file": "tiles/tile_01_00_513_r16le.raw",
+      "originMeters": [
+        512,
+        -80.0,
+        0
+      ],
+      "sha256": "3108ddc4561602c585c9f9889ed99b13a300b8be899a28ee2e9588efda4edf47"
+    },
+    {
+      "tile": [
+        2,
+        0
+      ],
+      "file": "tiles/tile_02_00_513_r16le.raw",
+      "originMeters": [
+        1024,
+        -80.0,
+        0
+      ],
+      "sha256": "96f244490f9e5e6dab10b2008e438008982683989f790ffab02a48464a025c4b"
+    },
+    {
+      "tile": [
+        3,
+        0
+      ],
+      "file": "tiles/tile_03_00_513_r16le.raw",
+      "originMeters": [
+        1536,
+        -80.0,
+        0
+      ],
+      "sha256": "e658c2968b198f11188cb372a7b1c2d84990a50fe2787cf7626bfe6f6f6330c0"
+    },
+    {
+      "tile": [
+        0,
+        1
+      ],
+      "file": "tiles/tile_00_01_513_r16le.raw",
+      "originMeters": [
+        0,
+        -80.0,
+        512
+      ],
+      "sha256": "69d942bf8a9f7fb25abad55dc5d62283fb11e71591b38381440f8db950302be6"
+    },
+    {
+      "tile": [
+        1,
+        1
+      ],
+      "file": "tiles/tile_01_01_513_r16le.raw",
+      "originMeters": [
+        512,
+        -80.0,
+        512
+      ],
+      "sha256": "baae97c0366b91ca22f6dff72cf44ff538cc00ad3c906ba445e8428bbf8d1696"
+    },
+    {
+      "tile": [
+        2,
+        1
+      ],
+      "file": "tiles/tile_02_01_513_r16le.raw",
+      "originMeters": [
+        1024,
+        -80.0,
+        512
+      ],
+      "sha256": "8c2adc746014918e83a93f10d3f1ffd26b31741a87bdbd26151985af3eda6d46"
+    },
+    {
+      "tile": [
+        3,
+        1
+      ],
+      "file": "tiles/tile_03_01_513_r16le.raw",
+      "originMeters": [
+        1536,
+        -80.0,
+        512
+      ],
+      "sha256": "ef5abd9dfb0c6d0bd5698aac13f202ef90c75988addf4365cb9a6be5a55801e0"
+    },
+    {
+      "tile": [
+        0,
+        2
+      ],
+      "file": "tiles/tile_00_02_513_r16le.raw",
+      "originMeters": [
+        0,
+        -80.0,
+        1024
+      ],
+      "sha256": "be87b1d3dec68b3256b474fff9d1eb3f0eee5d760768e6f37bcc2a5999d1f1d9"
+    },
+    {
+      "tile": [
+        1,
+        2
+      ],
+      "file": "tiles/tile_01_02_513_r16le.raw",
+      "originMeters": [
+        512,
+        -80.0,
+        1024
+      ],
+      "sha256": "a1655240e0e0f40907a664c8ff1d1fe642d031447289394acc73ea1eaeb46b1a"
+    },
+    {
+      "tile": [
+        2,
+        2
+      ],
+      "file": "tiles/tile_02_02_513_r16le.raw",
+      "originMeters": [
+        1024,
+        -80.0,
+        1024
+      ],
+      "sha256": "10509c0779dc923e4aa729c3626271ec5ec477daf880b02a65bbd04c3602088e"
+    },
+    {
+      "tile": [
+        3,
+        2
+      ],
+      "file": "tiles/tile_03_02_513_r16le.raw",
+      "originMeters": [
+        1536,
+        -80.0,
+        1024
+      ],
+      "sha256": "22330f04426af6d85c02d8b5394f7a9bb4ca38537e0ec9e88539b69d312550c4"
+    },
+    {
+      "tile": [
+        0,
+        3
+      ],
+      "file": "tiles/tile_00_03_513_r16le.raw",
+      "originMeters": [
+        0,
+        -80.0,
+        1536
+      ],
+      "sha256": "4aca8a786ed313f866bceee5b8b230a38e026d88ed1578f6caa499c0ffefdab5"
+    },
+    {
+      "tile": [
+        1,
+        3
+      ],
+      "file": "tiles/tile_01_03_513_r16le.raw",
+      "originMeters": [
+        512,
+        -80.0,
+        1536
+      ],
+      "sha256": "1e8d8948f9adc940f4f033bc470db65716c75ca280b9e0f5d1c75fac17d8ad93"
+    },
+    {
+      "tile": [
+        2,
+        3
+      ],
+      "file": "tiles/tile_02_03_513_r16le.raw",
+      "originMeters": [
+        1024,
+        -80.0,
+        1536
+      ],
+      "sha256": "c2d816a8b695926d2d4abeb3bed23c805141baf3093fe0288e5cb826b9b5a522"
+    },
+    {
+      "tile": [
+        3,
+        3
+      ],
+      "file": "tiles/tile_03_03_513_r16le.raw",
+      "originMeters": [
+        1536,
+        -80.0,
+        1536
+      ],
+      "sha256": "1a6ab0ba5f7276dfb38a4ad69378b1906cd7ed02b209390f7b98d8ddf466b0b3"
+    }
+  ],
+  "waterGuides": {
+    "units": "meters; x,z positions in world space; surfaceY is absolute worldY",
+    "riverPoints": [
+      {
+        "x": 1474.56,
+        "z": 1617.92,
+        "surfaceY": 119.0,
+        "width": 12.0
+      },
+      {
+        "x": 1454.08,
+        "z": 1495.04,
+        "surfaceY": 100.0,
+        "width": 14.0
+      },
+      {
+        "x": 1413.12,
+        "z": 1331.2,
+        "surfaceY": 78.0,
+        "width": 16.0
+      },
+      {
+        "x": 1351.68,
+        "z": 1208.32,
+        "surfaceY": 75.0,
+        "width": 18.0
+      },
+      {
+        "x": 1269.76,
+        "z": 1105.92,
+        "surfaceY": 68.0,
+        "width": 18.0
+      },
+      {
+        "x": 1187.84,
+        "z": 1024.0,
+        "surfaceY": 59.0,
+        "width": 18.0
+      },
+      {
+        "x": 1105.92,
+        "z": 942.08,
+        "surfaceY": 49.0,
+        "width": 19.0
+      },
+      {
+        "x": 1095.68,
+        "z": 911.36,
+        "surfaceY": 48.0,
+        "width": 19.0
+      },
+      {
+        "x": 1085.44,
+        "z": 890.88,
+        "surfaceY": 26.0,
+        "width": 19.0
+      },
+      {
+        "x": 1003.52,
+        "z": 819.2,
+        "surfaceY": 22.0,
+        "width": 20.0
+      },
+      {
+        "x": 921.6,
+        "z": 737.28,
+        "surfaceY": 18.0,
+        "width": 20.0
+      },
+      {
+        "x": 819.2,
+        "z": 634.88,
+        "surfaceY": 13.0,
+        "width": 20.0
+      },
+      {
+        "x": 696.32,
+        "z": 532.48,
+        "surfaceY": 8.0,
+        "width": 22.0
+      },
+      {
+        "x": 593.92,
+        "z": 409.6,
+        "surfaceY": 4.0,
+        "width": 22.0
+      },
+      {
+        "x": 471.04,
+        "z": 307.2,
+        "surfaceY": 1.0,
+        "width": 26.0
+      },
+      {
+        "x": 368.64,
+        "z": 204.8,
+        "surfaceY": 0.0,
+        "width": 28.0
+      }
+    ],
+    "lake": {
+      "centerXZ": [
+        1413.12,
+        1331.2
+      ],
+      "radiiXZ": [
+        112.64,
+        92.16
+      ],
+      "surfaceY": 78.0
+    },
+    "waterfallHint": {
+      "upstreamXZ": [
+        1095.68,
+        911.36
+      ],
+      "upstreamY": 48.0,
+      "downstreamXZ": [
+        1085.44,
+        890.88
+      ],
+      "downstreamY": 26.0
+    }
+  },
+  "poiHints": [
+    {
+      "id": "settlement-start",
+      "xz": [
+        778.24,
+        860.16
+      ],
+      "padY": 28.0,
+      "type": "settlement"
+    },
+    {
+      "id": "landmark-north",
+      "xz": [
+        839.68,
+        1372.16
+      ],
+      "padY": 46.0,
+      "type": "landmark"
+    }
+  ],
+  "orientationFixture": {
+    "file": "orientation_test_33_r16le.raw",
+    "resolution": 33,
+    "normalizedCorners": {
+      "SW": 0.1,
+      "SE": 0.3,
+      "NW": 0.6,
+      "NE": 0.8
+    }
+  },
+  "notIncluded": [
+    "water meshes",
+    "cave meshes",
+    "prefabs",
+    "navmesh",
+    "validated traversal",
+    "hydraulic erosion",
+    "Unity import verification"
+  ]
+}

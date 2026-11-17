@@ -1,0 +1,24 @@
+{
+  "timestampLocal": "2026-11-16",
+  "htmlSections": 29,
+  "htmlImageElements": 14,
+  "totalEmbeddedImages": 14,
+  "missingLocalAnchors": [],
+  "uniqueIds": true,
+  "atlasRegions": 7,
+  "regionArtFileHashes": {
+    "02_Dense_Forest.png": "e6880e0de7da4e533331f72849e7d44d81a3e853d7a04b929f82c7f0955a0dbc",
+    "03_Autumn_Forest.png": "2f251605a07dfce323821396d2d78c570c310ad993a2c2f8434d32f4693ab318",
+    "04_Arid_Badlands.png": "a9393f1b8ff0e32b5c55d58bcfd7873988623b6610558b61f3e8f8ae019e9871",
+    "05_Plains_Castle.png": "2b7091b1c5ffa6e4b9acfe3f876c99aed741e591ff7178f528b244e9070d9eb5",
+    "06_High_Alpine.png": "38718963950c94b33e71ec556b5f8d6ae4c7db29f3f08de6b7d2a7d1220f1c03",
+    "07_Riverside_Village.png": "a540d14d43f782893ee342b3c8e529db1a43eb366727d996ef780061d86e0fd5",
+    "08_Lakeside_Village.png": "7fe466612fc071903e62b546add9bda05f7dc4f990d3aec3610161dc0126fa94"
+  },
+  "rawReferenceNorthFirstMatchesPng": true,
+  "rawSouthFirstMatchesReferenceWhenFlipped": true,
+  "sampleBPreserved": true,
+  "unityTestRun": false,
+  "playerBuildRun": false,
+  "note": "Only document/raw/image file validations performed; generated arts not exact terrain rendering."
+}

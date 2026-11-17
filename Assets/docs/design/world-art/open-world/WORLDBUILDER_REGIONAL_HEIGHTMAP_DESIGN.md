@@ -2,8 +2,15 @@
 
 - 종류: 설계 · 분야: 월드·아트
 - 출처: [전달 폴더](../../../../../docs/전달용/OpenWorld_HeightMap_Design_Regional_v1_1_Handoff/README_FIRST.md) (2026-11-16 작성 외부 인계본). 상세 계약 원문은 [IMPLEMENTATION_SPEC.md](../../../../../docs/전달용/OpenWorld_HeightMap_Design_Regional_v1_1_Handoff/IMPLEMENTATION_SPEC.md) 29장, 이 문서는 요약과 이 저장소 기준의 판단이다.
-- 상태: **설계만 있음. Unity 구현·컴파일·Play Mode·Player 빌드 모두 미수행.** 전달본의 검증([DOCUMENT_VALIDATION_v1_1.json](../../../../../docs/전달용/OpenWorld_HeightMap_Design_Regional_v1_1_Handoff/DOCUMENT_VALIDATION_v1_1.json))은 문서·RAW·이미지 파일 수준에 한정되며 `unityTestRun=false`, `playerBuildRun=false`다.
+- 작업 상태: [P00 조사·P01/P02 구현과 검증](../../../../../docs/work-status/open-world/WORLDBUILDER.md). 이후 단계는 미구현이다. [P02 지형 저작 지침](../../../guide/WORLDBUILDER_TERRAIN_AUTHORING_GUIDE.md). 전달본의 검증([DOCUMENT_VALIDATION_v1_1.json](../../../../../docs/전달용/OpenWorld_HeightMap_Design_Regional_v1_1_Handoff/DOCUMENT_VALIDATION_v1_1.json))은 문서·RAW·이미지 파일 수준에 한정되며 현재 Unity 구현 검증과 구분한다.
 - 기존 [연속 월드 통합](OPEN_WORLD_INTEGRATION_PLAN.md)·[정규 월드 제작 설계안](REGULAR_WORLD_PRODUCTION_DESIGN.html)과의 관계는 아래 「기존 문서와의 관계」를 본다.
+
+## 0. 사용자 결정 (2026-11-16)
+
+- **C의 월드 크기는 HeightMap 샘플에 맞춘다: 2,048m × 2,048m, 2049² 샘플, 간격 1m.** 512m Terrain 4×4, 타일 513²로 B와 같은 구조다.
+- **WorldBuilder는 신규 월드 제작 도구로 진행한다.** 기존 월드(생명의 호수 등)를 편집·교체하지 않는다. 기존 씬 로더·세이브·미니맵과는 어댑터로만 연결한다.
+- **수직 범위: 700m로 확정(사용자 결정, 2026-11-16).** 월드에 적용하는 범위는 originY=0, verticalRange=700m(`worldY = sample/65535 × 700`)이며 WorldProfile 파라미터로 둔다. 원본 RAW와 `heightRangeMeters=2800` 기록은 보존한다. 아래는 이 결정의 근거다.
+- (근거) 2,800m를 2,048m 위에 그대로 올리면 평지가 아니다. 2026-11-16 SouthFirst RAW 실측(4칸 간격 표본): 높이 5.0~2,563.4m, 경사 중앙값 66.8°·상위 10% 81.8°·최대 88.3°. 보행로 출발값12°와 맞지 않아 수직 범위를700m로 정했다. P00의700m 전수 측정도 중앙값30.31°·p90 60.04°·p99 73.94°·최대83.28°로 가파르다. KCC 설정상60°·Nav 설정상45°를 넘어서는 구간은 후속 필수 동선 조형·검증이 필요하다. 원본 RAW와 `heightRangeMeters=2800` 기록은 보존한다.
 
 ## 1. 한 줄 요약
 
@@ -54,13 +61,13 @@ v1 비범위: 복셀 굴착, 런타임 지형 파괴, 유체 시뮬레이션, �
 | 목적 | 2km 타일·경계·배치·임포트 기능 검증 | 7개 지역 토폴로지·배치·수계 통합 계획 |
 | 입력 파일 | `core/samples/openworld_2049_r16le.raw` | `atlas/01_Regional_Heightmap_2049_R16LE_SouthFirst.raw` |
 | 해상도 | 2049² | 2049² |
-| XZ 크기 | 2,048m × 2,048m (확정) | **미확정**. 이동 속도·해상도 예산으로 선택 |
+| XZ 크기 | 2,048m × 2,048m (확정) | 2,048m × 2,048m (2026-11-16 사용자 결정, 간격 1m) |
 | 높이 | originY=−80m, 범위 480m (−43.7~335.9m 실측) | originY=0m, 범위 2,800m (`worldY=sample/65535×2800`) |
 | 상태 | 파일 검증, Unity 미검증. **불변 fixture** | 파일 방향·내용 검사, Unity 미검증 |
 
 - B는 P00~P09/T01~T26 기능 검증용으로 유지한다. C가 있다고 B 단계를 P10으로 대체·생략하지 않는다.
 - C의 `01_World_Heightmap_2049_R16LE.raw`(첫 행 북)와 `01_World_Heightmap_2049_16bit.png`는 참조용이고 **Unity 통합에는 SouthFirst RAW만** 쓴다. 무결성은 `Regional_Atlas_Manifest.json`의 SHA-256으로 확인한다.
-- C의 XZ가 미확정이므로 2,049 샘플 간격(예: 2km면 1m, 8km면 약 4m)과 Terrain 해상도·LOD 예산을 함께 정해야 한다. 2,800m 수직 범위는 B(480m)의 약 5.8배라 같은 해상도에서 양자화 간격이 약 0.043m/단계로 커진다. 큰 월드는 타일별 고해상도 디테일 저작이 필요하다는 전달본의 주의와 같다.
+- C는0장의 결정에 따라 XZ2,048m·간격1m·수직700m로 적용한다(약0.0107m/단계). 표의2,800m는 원본 manifest의 기록이며 적용 범위가 아니다. 더 큰 월드는 Terrain 해상도·LOD 예산을 별도 검증해야 한다.
 - 컨셉 PNG 7장은 높이 데이터와 포토매칭되지 않은 AI 참조 아트다. Terrain 입력으로 쓰지 않고 실제 Unity 결과물처럼 보고하지 않는다.
 
 ## 6. 지역 계획 (C)
@@ -108,16 +115,16 @@ T27~T35: C 이미지가 Terrain RAW로 오인되지 않음 / RAW 방향·SHA / �
 
 ## 9. 이 저장소에서 적용할 때의 판단
 
-- 전달본은 `Assets/02.Scripts/WorldBuilder/` 구조를 제안하지만 이 저장소의 asmdef 경계·서비스 계약(AGENTS.md, [아키텍처](../../../../.claude/rules/architecture.md))이 우선이다. 구현 전 P00에서 실제 asmdef·씬 로더·세이브·미니맵 서비스와 대조해 어댑터 지점을 정한다.
+- 전달본은 `Assets/02.Scripts/WorldBuilder/` 구조를 제안하지만 이 저장소의 asmdef 경계·서비스 계약(AGENTS.md, [아키텍처](../../../../../.claude/rules/architecture.md))이 우선이다. 구현 전 P00에서 실제 asmdef·씬 로더·세이브·미니맵 서비스와 대조해 어댑터 지점을 정한다.
 - 전달본이 인용한 Unity 6000.3.21f1 / URP 17.3.0 / Addressables 2.9.1은 외부 기록이다. 실제 `ProjectVersion.txt`·`manifest.json`로 재확인한다.
-- 현재 월드(생명의 호수 등)는 이미 Terrain·NavMesh·Addressables로 구성돼 있다. WorldBuilder v1은 기존 월드를 교체하지 않으며, **신규 월드 제작 도구**인지 **기존 월드 편집 도구**인지는 아직 정해지지 않았다. 구현 착수 전 사용자 결정이 필요한 항목이다.
+- 현재 월드(생명의 호수 등)는 이미 Terrain·NavMesh·Addressables로 구성돼 있다. WorldBuilder v1은 **신규 월드 제작 도구**로 확정(0장)이며 기존 월드를 교체·편집하지 않는다.
 - 전달본은 `activateOnLoad=false` 상시 대기 스트리밍 금지, handle 소유권, Ready 전 이동 차단을 요구한다. 기존 Addressables 키는 보존한다.
 - 빌드·Player 검증은 별도 사용자 지시 없이 실행하지 않는다(AGENTS.md 3항). P08의 Player 검증도 지시를 받은 뒤 한다.
 
 ## 10. 미결정·위험
 
-1. C의 월드 XZ 크기(2km/4km/8km 등)와 Terrain 해상도·LOD 예산.
-2. 기존 월드와의 관계(신규 월드 vs 기존 월드 편집 도구).
+1. (해결) C의 수직 범위는 700m로 확정(0장). 5장 표의 2,800m와 양자화 간격 서술은 원본 RAW 기준이며, 월드 적용 시에는 700m(약 0.0107m/단계)를 쓴다.
+2. (해결) 월드 크기와 신규 월드 도구 여부는 0장에서 확정.
 3. C의 수문 그래프는 수문 검증이 안 된 개념이다. 강 프로파일을 새로 저작해야 한다.
 4. 컨셉 이미지와 HeightMap이 정합되지 않아 지역 외형 인수는 이미지 비교가 아니라 Unity 화면과 사용자 확인으로 한다.
 5. 범위가 매우 크다(P00~P10, T01~T35). 단계별로 위키·상태 문서를 갱신하며 수직 단위로 진행한다.

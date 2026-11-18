@@ -1,5 +1,8 @@
 # 전투와 실행 데이터
 
+- 2026-11-17 [KINEMATION MotionWarping 조사](../work-status/kinemation-motion-warping-investigation.md): 구매 패키지의 다구간 루트 이동 보정·파쿠르 예제·Editor 구조를 조사했다. 현재 전투 실행은 자체 MotionWarpController이며 구매 TwoBoneIk는 무기 파지·조준·글라이더에서 사용 중이다. 구매 실행 컴포넌트의 Rigidbody 위치 인자·빈 구간·상태 복구 위험을 정적으로 확인했다. 구현 변경·Unity 실행 검증은 하지 않았다.
+- 같은 조사 문서의 **KCC 연동 검토**: 목표 자세 평가와 상태의 UpdateVelocity/UpdateRotation 적용 분리로 연동 가능하다. MoveCharacter는 현재 Simulator의 시간 배율 미적용 Phase 1에서 처리되므로 단순 API 교체는 비권장이다. 전투 실행은 유지하고 정적 낮은 턱부터 기존 MotionSet/KCC 경로로 연결하는 안을 제시했다. 구현·실행 검증은 미수행이다.
+
 - 2026-11-15 [라온 런타임 운동 데이터 연결 수정](../work-status/motion-impact-build-fix.md): 전용 무기 모션 세트에 빠진 MotionImpact 연결을 복구하고 기존 4개 공격을 재베이크했다. 전체 MotionImpact·MotionWarp 빌드 전 검사 통과, 미매핑 경고 12건 잔존. 재발 방지 절차는 [전투 저작 지침 6.2](../../Assets/docs/guide/COMBAT_SYSTEM_AUTHORING_GUIDE.md#62-런타임-운동-데이터-연결재베이크)에 연결. Player 빌드·실전 타격 감각은 사용자 테스트 대기.
 
 - 2026-11-15 [MotionWarp 빌드 차단 수정](../work-status/motionwarp-build-fix.md): MotionSet 4개의 실행 설정 이관, Katana 리그별 v3 프로필 13개 베이크, 아린·라온 제자리 구간 이동 가중치 정리. 전체 빌드 전 매핑 검증 오류 0·미매핑 경고 12. 재발 방지 절차는 [전투 저작 지침 6.1](../../Assets/docs/guide/COMBAT_SYSTEM_AUTHORING_GUIDE.md#61-motionwarp-설정프로필-준비)에 연결했으며 신규·복제·클립/리그 변경 시 같은 작업에서 검증한다. Player 빌드·실전 감각은 사용자 테스트 대기.

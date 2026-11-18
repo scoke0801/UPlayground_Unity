@@ -77,6 +77,10 @@ namespace UPlayGround.Components.LivingWorld
         private bool _isSocial, _isFinishing, _hasFinishedMotion;
         private Action _completion;
         private ulong _execution;
+        private UPlayGround.Data.Actor.NPC.NpcWorkAlignmentSO _workAlignment;
+        private Vector3 _workAlignmentOrigin, _workAlignmentTarget;
+        private Quaternion _workAlignmentStartRotation, _workAlignmentTargetRotation;
+        private bool _workAlignmentComplete;
         private readonly RaycastHit[] _joinHits = new RaycastHit[8];
         public NpcLifeController Life { get; internal set; }
         public event Action Cancelled;
@@ -100,7 +104,10 @@ namespace UPlayGround.Components.LivingWorld
             && (string.IsNullOrEmpty(_requiredFlag) || _flags.GetFlag(_requiredFlag))
             && (string.IsNullOrEmpty(_blockedFlag) || !_flags.GetFlag(_blockedFlag));
         public float SpeedMultiplier => _speedMultiplier;
-        public float ArrivalDistance => _arrivalDistance;
+        public float ArrivalDistance => HasReservation && _waypoint >= _activeStep.waypoints.Length
+            && _activeStep.point.Alignment != null && _activeStep.point.Alignment.IsValid
+                ? _activeStep.point.Alignment.ArrivalDistance : _arrivalDistance;
+        public bool IsAligningWork => IsWorking && _workAlignment != null && !_workAlignmentComplete && !_isFinishing;
         public float FadeSeconds => _fadeSeconds;
         public bool NeedsShelter => _needsShelter;
         public string MapId => _mapId;
@@ -156,6 +163,12 @@ namespace UPlayGround.Components.LivingWorld
             var expected = take ? step.point.Motion : step.endMotion;
             if (expected == null || routine._actor.Animator.CurrentMotionAsset != expected
                 || take == routine._isFinishing) return false;
+            // 긴 렌더 프레임에서 접촉 이벤트가 물리 적용보다 먼저 와도 먼 도구를 집지 않는다.
+            if (take && routine._workAlignment != null && !routine.HasWorkAlignmentArrived())
+            {
+                routine.ReportBlocked();
+                return false;
+            }
             if (take)
             {
                 if (!step.point.TryTakeSceneProp(routine, routine._reservation, routine.PropSocket)) return false;
@@ -421,13 +434,34 @@ namespace UPlayGround.Components.LivingWorld
             { _bestDistance = distance; _stuckElapsed = 0f; }
             if (_elapsed >= _travelTimeout || _stuckElapsed >= _stuckSeconds)
             { _useRest = true; CancelRoutine(); return false; }
-            if (Vector3.ProjectOnPlane(offset, _controller.Motor.CharacterUp).magnitude > _arrivalDistance
+            if (Vector3.ProjectOnPlane(offset, _controller.Motor.CharacterUp).magnitude > ArrivalDistance
                 || Mathf.Abs(Vector3.Dot(offset, _controller.Motor.CharacterUp)) > _heightTolerance) return true;
             if (!_controller.Motor.GroundingStatus.IsStableOnGround) return true;
             if (_waypoint < _activeStep.waypoints.Length)
             { _waypoint++; _bestDistance = float.PositiveInfinity; _stuckElapsed = 0f; return true; }
             if (Quaternion.Angle(_controller.Motor.TransientRotation, Target.rotation) > _brain.WorkFacingTolerance)
             { _stuckElapsed = 0f; return true; }
+            var alignment = _activeStep.point.Alignment;
+            if (alignment != null)
+            {
+                var motor = _controller.Motor;
+                Vector3 facing = Vector3.ProjectOnPlane(Target.forward, motor.CharacterUp);
+                if (facing.sqrMagnitude <= 0.000001f || _activeStep.point.Motion == null
+                    || _actor.Animator == null)
+                { ReportBlocked(); return false; }
+                Quaternion targetRotation = Quaternion.LookRotation(facing.normalized, motor.CharacterUp);
+                if (!alignment.CanStart(motor.TransientPosition, motor.TransientRotation,
+                        Target.position, targetRotation, motor.CharacterUp))
+                { ReportBlocked(); return false; }
+                if (alignment.alignBeforeMotion && !alignment.HasArrived(motor.TransientPosition,
+                        motor.TransientRotation, Target.position, targetRotation, motor.CharacterUp)) return true;
+                _workAlignment = alignment;
+                _workAlignmentOrigin = motor.TransientPosition;
+                _workAlignmentTarget = Target.position;
+                _workAlignmentStartRotation = motor.TransientRotation;
+                _workAlignmentTargetRotation = targetRotation;
+                _workAlignmentComplete = alignment.alignBeforeMotion;
+            }
             _isWorking = true;
             _elapsed = 0f;
             SetWorkPoseEvaluation(_activeStep.point.HasSceneProp);
@@ -435,6 +469,50 @@ namespace UPlayGround.Components.LivingWorld
             if (_activeStep.point.Motion != null) _actor.Animator?.PlayMotion(_activeStep.point.Motion, _fadeSeconds);
             else _actor.Animator?.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, _fadeSeconds);
             return true;
+        }
+
+        /// <summary>작업 모션이 평가한 시각을 사용해 KCC 수평 이동만 보정한다.</summary>
+        public bool TryGetWorkAlignmentVelocity(Vector3 position, Vector3 up, float deltaTime, out Vector3 velocity)
+        {
+            velocity = Vector3.zero;
+            if (!IsAligningWork || !CanRun) return false;
+            velocity = _workAlignment.EvaluateVelocity(_workAlignmentOrigin, _workAlignmentTarget,
+                position, up, WorkAlignmentTime, deltaTime);
+            return true;
+        }
+
+        /// <summary>이동과 같은 모션 시각을 읽되 구간 시간을 별도로 진행시키지 않는다.</summary>
+        public bool TryGetWorkAlignmentRotation(Quaternion rotation, float deltaTime, out Quaternion result)
+        {
+            result = rotation;
+            if (!IsAligningWork || !CanRun) return false;
+            if (deltaTime <= 0f || !_workAlignment.IsValid) return true;
+            float alpha = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(WorkAlignmentTime / _workAlignment.endTime));
+            Quaternion desired = Quaternion.Slerp(_workAlignmentStartRotation, _workAlignmentTargetRotation, alpha);
+            result = Quaternion.RotateTowards(rotation, desired, _workAlignment.maxRotationSpeed * deltaTime);
+            return true;
+        }
+
+        private float WorkAlignmentTime => _actor.Animator.CurrentMotionAsset == _activeStep.point.Motion
+            ? _actor.Animator.CurrentEvaluatedMotionSetTime : 0f;
+
+        private bool HasWorkAlignmentArrived()
+        {
+            var motor = _controller.Motor;
+            return _workAlignment.HasArrived(motor.TransientPosition, motor.TransientRotation,
+                _workAlignmentTarget, _workAlignmentTargetRotation, motor.CharacterUp);
+        }
+
+        /// <summary>마지막 요청을 KCC가 소비한 뒤 도착을 확정하고 충돌 손실을 순간이동으로 보충하지 않는다.</summary>
+        public void CompleteWorkAlignmentStep(float deltaTime)
+        {
+            if (!IsAligningWork || deltaTime <= 0f) return;
+            if (!CanRun || _actor.Animator.CurrentMotionAsset != _activeStep.point.Motion
+                || !_controller.Motor.GroundingStatus.IsStableOnGround)
+            { ReportBlocked(); return; }
+            if (WorkAlignmentTime < _workAlignment.endTime) return;
+            if (!HasWorkAlignmentArrived()) { ReportBlocked(); return; }
+            _workAlignmentComplete = true;
         }
 
         /// <summary>대화·취소·로드·비활성화에서 임시 소유권만 정리한다. 완료 사실은 쓰지 않는다.</summary>
@@ -447,6 +525,8 @@ namespace UPlayGround.Components.LivingWorld
                 _actor.Animator.OnMotionSetCompleted -= _completion;
             _completion = null;
             _isFinishing = _hasFinishedMotion = _isSocial = false;
+            _workAlignment = null;
+            _workAlignmentComplete = false;
             if (_activeStep?.point != null) _activeStep.point.Release(this, _reservation);
             _activeStep = null;
             _isWorking = false;

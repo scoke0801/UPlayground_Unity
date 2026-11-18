@@ -1,0 +1,26 @@
+﻿[
+    {
+        "profile":  "Assets/10.Datas/NpcLife/Profiles/CookWorkAlignment.asset",
+        "prefab":  "Assets/03.Prefabs/LivingWorld/NPC/JoyRoutine.prefab",
+        "beforeMotion":  true,
+        "references":  1
+    },
+    {
+        "profile":  "Assets/10.Datas/NpcLife/Profiles/HerbWorkAlignment.asset",
+        "prefab":  "Assets/03.Prefabs/LivingWorld/NPC/HazelRoutine.prefab",
+        "beforeMotion":  true,
+        "references":  1
+    },
+    {
+        "profile":  "Assets/10.Datas/NpcLife/Profiles/CargoWorkAlignment.asset",
+        "prefab":  "Assets/03.Prefabs/LivingWorld/NPC/MorganRoutine.prefab",
+        "beforeMotion":  true,
+        "references":  2
+    },
+    {
+        "profile":  "Assets/10.Datas/NpcLife/Profiles/StationaryHerbWorkAlignment.asset",
+        "prefab":  "Assets/03.Prefabs/Characters/ScenarioResidents/Npc/Npc_Sodam/Npc_Sodam.prefab",
+        "beforeMotion":  true,
+        "references":  1
+    }
+]

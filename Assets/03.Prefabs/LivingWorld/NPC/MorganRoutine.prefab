@@ -97,6 +97,7 @@ MonoBehaviour:
   _pointId: lake.transport.cart
   _isSheltered: 0
   _motion: {fileID: 11400000, guid: 215f2323c1e57864895377a1d45ff41a, type: 2}
+  _alignment: {fileID: 11400000, guid: e578dc36e5954d6fabcf913aa685fe6a0, type: 2}
   _heldPropPrefab: {fileID: 0}
 --- !u!1 &6603815499211666601
 GameObject:
@@ -146,6 +147,7 @@ MonoBehaviour:
   _pointId: lake.transport.inspect
   _isSheltered: 0
   _motion: {fileID: 11400000, guid: 31a3cd18a4a71a34095dad0fb95c2a28, type: 2}
+  _alignment: {fileID: 11400000, guid: e578dc36e5954d6fabcf913aa685fe6a0, type: 2}
   _heldPropPrefab: {fileID: 0}
 --- !u!1 &7694247830741258306
 GameObject:

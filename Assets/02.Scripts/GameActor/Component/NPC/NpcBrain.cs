@@ -71,6 +71,7 @@ namespace UPlayGround.Components
         [Header("고정 작업")]
         [Tooltip("배회하지 않을 때 생활 방향으로 돌아온 뒤 재생할 작업 모션")]
         [SerializeField] private UPlayGround.Animation.MotionSetAsset _workMotion;
+        [SerializeField] private UPlayGround.Data.Actor.NPC.NpcWorkAlignmentSO _workAlignment;
         [Min(0f), SerializeField] private float _workFacingTolerance = 3f;
 
         private Vector3 _spawnPosition;
@@ -108,6 +109,8 @@ namespace UPlayGround.Components
         public float WanderSpeedMultiplier => _wanderSpeedMultiplier;
         public float WanderArrivalDistance => _wanderArrivalDistance;
         public UPlayGround.Animation.MotionSetAsset WorkMotion => _workMotion;
+        public UPlayGround.Data.Actor.NPC.NpcWorkAlignmentSO WorkAlignment => _workAlignment;
+        public Vector3 HomePosition => _spawnPosition;
         public Quaternion HomeRotation => _homeRotation;
         public float WorkFacingTolerance => _workFacingTolerance;
 

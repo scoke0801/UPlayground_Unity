@@ -52,6 +52,8 @@ namespace UPlayGround.State
         public override void UpdateRotation(ref Quaternion rotation, float deltaTime)
         {
             if (_routine == null || !_routine.CanRun || _routine.Target == null) return;
+            if (_routine.TryGetWorkAlignmentRotation(rotation, deltaTime, out var aligned))
+            { rotation = aligned; return; }
             Vector3 direction = Vector3.ProjectOnPlane(_routine.Target.position - motor.TransientPosition, motor.CharacterUp);
             Quaternion target = direction.magnitude <= _routine.ArrivalDistance
                 ? _routine.Target.rotation : Quaternion.LookRotation(direction.normalized, motor.CharacterUp);
@@ -63,6 +65,12 @@ namespace UPlayGround.State
             // 접지를 잃었을 때 컨트롤러가 누적한 중력을 다음 KCC 스텝에도 보존한다.
             velocity = motor.GroundingStatus.IsStableOnGround
                 ? Vector3.zero : Vector3.Project(velocity, motor.CharacterUp);
+            if (_routine != null && motor.GroundingStatus.IsStableOnGround
+                && _routine.TryGetWorkAlignmentVelocity(motor.TransientPosition, motor.CharacterUp, deltaTime, out var alignmentVelocity))
+            {
+                velocity += alignmentVelocity;
+                return;
+            }
             if (_routine == null || !_routine.CanRun || _routine.IsWorking || _routine.Target == null
                 || !motor.GroundingStatus.IsStableOnGround) return;
             Vector3 offset = Vector3.ProjectOnPlane(_routine.Target.position - motor.TransientPosition, motor.CharacterUp);
@@ -75,12 +83,19 @@ namespace UPlayGround.State
         public override void OnMovementHit(Collider hitCollider, Vector3 hitNormal, Vector3 hitPoint,
             ref KinematicCharacterController.HitStabilityReport hitStabilityReport)
         {
-            if (_routine == null || _routine.IsWorking || _routine.Target == null || hitStabilityReport.IsStable) return;
+            if (_routine == null || _routine.IsWorking && !_routine.IsAligningWork
+                || _routine.Target == null || hitStabilityReport.IsStable) return;
             // KCC의 가장자리 판정은 걸을 수 있는 지형도 일시적으로 불안정하다고 보고한다.
             // 지면 법선까지 벽으로 취급하면 완만한 흙길에서 일과가 즉시 취소된다.
             if (Vector3.Dot(hitNormal, motor.CharacterUp) >= Mathf.Cos(motor.MaxStableSlopeAngle * Mathf.Deg2Rad)) return;
             Vector3 direction = Vector3.ProjectOnPlane(_routine.Target.position - motor.TransientPosition, motor.CharacterUp);
             if (Vector3.Dot(direction, hitNormal) < 0f) _routine.ReportBlocked();
+        }
+
+        public override void AfterCharacterUpdate(float deltaTime)
+        {
+            base.AfterCharacterUpdate(deltaTime);
+            _routine?.CompleteWorkAlignmentStep(deltaTime);
         }
     }
 }

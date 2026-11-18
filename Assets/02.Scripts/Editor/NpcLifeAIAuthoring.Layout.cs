@@ -316,6 +316,7 @@ namespace UPlayGround.Editor
             var template = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/03.Prefabs/LivingWorld/NPC/YeonmokRoutine.prefab");
             if (template == null) throw new InvalidOperationException("수선 일과 원본이 없습니다.");
             var templatePoint = template.GetComponentsInChildren<NpcWorkPoint>(true).Single(p => p.PointId == point.PointId);
+            Set(point, "_alignment", templatePoint.Alignment);
             var authoredProp = new SerializedObject(templatePoint).FindProperty("_sceneProp").objectReferenceValue as Transform;
             if (authoredProp == null) throw new InvalidOperationException("저작된 수선 소품 접촉 위치가 없습니다.");
             Set(point, "_motion", motion);

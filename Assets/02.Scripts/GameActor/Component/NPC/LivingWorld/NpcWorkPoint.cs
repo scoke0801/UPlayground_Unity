@@ -12,6 +12,7 @@ namespace UPlayGround.Components.LivingWorld
         [SerializeField] private string _pointId;
         [SerializeField] private bool _isSheltered;
         [SerializeField] private MotionSetAsset _motion;
+        [SerializeField] private UPlayGround.Data.Actor.NPC.NpcWorkAlignmentSO _alignment;
         [SerializeField] private GameObject _heldPropPrefab;
         [Tooltip("접촉 이벤트로 집고 내려놓는 현장 소품. 지정하면 임시 소품을 생성하지 않는다.")]
         [SerializeField] private Transform _sceneProp;
@@ -27,6 +28,7 @@ namespace UPlayGround.Components.LivingWorld
         public string PointId => _pointId;
         public bool IsSheltered => _isSheltered;
         public MotionSetAsset Motion => _motion;
+        public UPlayGround.Data.Actor.NPC.NpcWorkAlignmentSO Alignment => _alignment;
         public GameObject HeldPropPrefab => _heldPropPrefab;
         public bool HasSceneProp => _sceneProp != null;
         public bool IsScenePropHeldBy(UnityEngine.Object owner) => owner != null && _propHolder == owner;

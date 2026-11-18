@@ -203,6 +203,7 @@ MonoBehaviour:
   _pointId: lake.meal.prep
   _isSheltered: 0
   _motion: {fileID: 11400000, guid: 9d0bbac485a1abb46aafaa6540bb5982, type: 2}
+  _alignment: {fileID: 11400000, guid: 8daa09bfbd094ba8a956d3580ade1ae4, type: 2}
   _heldPropPrefab: {fileID: 7707451595459109860, guid: 014739c8d38c51a43b612d00d0a42c64, type: 3}
 --- !u!1 &8510416143534049332
 GameObject:

@@ -19,6 +19,10 @@ namespace UPlayGround.State
         private float _wanderDelayTimer;
         private float _wanderDelay;
         private bool _isWorking;
+        private bool _isApproachingWork, _workAlignmentFailed;
+        private float _workApproachElapsed;
+        private bool UsesFixedWork => _brain != null && !_brain.EnableWander && _brain.WorkMotion != null
+            && (npcController.Routine == null || !npcController.Routine.HasMovementControl);
         /// <summary>고정 작업 모션이 실제 시작된 뒤에만 작업 발화를 허용한다.</summary>
         public bool IsWorking => _isWorking;
 
@@ -34,6 +38,8 @@ namespace UPlayGround.State
             _wanderDelay = _brain != null ? _brain.SamplePatrolWaitTime() : 0f;
             _brain?.BeginIdleLook(_brain.EnableWander ? motor.TransientRotation : _brain.HomeRotation);
             _isWorking = false;
+            _isApproachingWork = _workAlignmentFailed = false;
+            _workApproachElapsed = 0f;
             gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, 0.25f);
         }
 
@@ -59,12 +65,40 @@ namespace UPlayGround.State
                 return;
             }
 
-            if (_brain != null && !_brain.EnableWander && _brain.WorkMotion != null
-                && (npcController.Routine == null || !npcController.Routine.HasMovementControl))
+            if (UsesFixedWork)
             {
+                var alignment = _brain.WorkAlignment;
+                if (!_isWorking && alignment != null)
+                {
+                    if (_workAlignmentFailed) return;
+                    _workApproachElapsed += deltaTime;
+                    bool ready = alignment.HasArrived(motor.TransientPosition, motor.TransientRotation,
+                        _brain.HomePosition, _brain.HomeRotation, motor.CharacterUp)
+                        && motor.GroundingStatus.IsStableOnGround;
+                    if (!alignment.IsValid || !alignment.alignBeforeMotion || !ready && _workApproachElapsed > alignment.approachTimeout
+                        || Vector3.ProjectOnPlane(_brain.HomePosition - motor.TransientPosition, motor.CharacterUp).magnitude > alignment.captureDistance)
+                    {
+                        _workAlignmentFailed = true;
+                        gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Idle, 0.25f);
+                        return;
+                    }
+                    if (!ready)
+                    {
+                        bool moving = motor.GroundingStatus.IsStableOnGround
+                            && Vector3.ProjectOnPlane(_brain.HomePosition - motor.TransientPosition, motor.CharacterUp).magnitude > alignment.positionTolerance;
+                        if (_isApproachingWork != moving)
+                        {
+                            _isApproachingWork = moving;
+                            gameActor.Animator.PlayMotion(moving ? UPlayGround.Data.Actor.Animation.MotionTags.Walk
+                                : UPlayGround.Data.Actor.Animation.MotionTags.Idle, 0.25f);
+                        }
+                        return;
+                    }
+                }
                 // 상대를 바라본 채 손 작업을 재개하면 소품 밖을 집게 되므로 먼저 작업 방향을 회복한다.
                 if (!_isWorking && Quaternion.Angle(motor.TransientRotation, _brain.HomeRotation) <= _brain.WorkFacingTolerance)
                 {
+                    _isApproachingWork = false;
                     gameActor.Animator.PlayMotion(_brain.WorkMotion, 0.25f);
                     _isWorking = true;
                 }
@@ -85,10 +119,14 @@ namespace UPlayGround.State
         public override void UpdateRotation(ref Quaternion currentRotation, float deltaTime)
         {
             if (npcActor.IsRoutinePaused || npcActor.IsInteracting() || npcActor.IsDialogueStaged) return;
-            if (_brain != null && !_brain.EnableWander && _brain.WorkMotion != null
-                && (npcController.Routine == null || !npcController.Routine.HasMovementControl))
-                currentRotation = Quaternion.Slerp(currentRotation, _brain.HomeRotation,
+            if (UsesFixedWork)
+            {
+                Vector3 direction = Vector3.ProjectOnPlane(_brain.HomePosition - motor.TransientPosition, motor.CharacterUp);
+                Quaternion facing = _isApproachingWork && direction.sqrMagnitude > 0.000001f
+                    ? Quaternion.LookRotation(direction, motor.CharacterUp) : _brain.HomeRotation;
+                currentRotation = Quaternion.Slerp(currentRotation, facing,
                     1f - Mathf.Exp(-npcController.OrientationSharpness * deltaTime));
+            }
             currentRotation = currentRotation.normalized;
         }
 
@@ -97,6 +135,15 @@ namespace UPlayGround.State
             // 일과 취소 직후에도 컨트롤러가 누적한 낙하 속도를 유지한다.
             currentVelocity = motor.GroundingStatus.IsStableOnGround
                 ? Vector3.zero : Vector3.Project(currentVelocity, motor.CharacterUp);
+            if (!UsesFixedWork || _isWorking || _workAlignmentFailed || npcActor.IsRoutinePaused
+                || npcActor.IsInteracting() || npcActor.IsDialogueStaged || deltaTime <= 0f
+                || !motor.GroundingStatus.IsStableOnGround) return;
+            var alignment = _brain.WorkAlignment;
+            if (alignment == null || !alignment.IsValid || !alignment.alignBeforeMotion) return;
+            Vector3 offset = Vector3.ProjectOnPlane(_brain.HomePosition - motor.TransientPosition, motor.CharacterUp);
+            if (offset.magnitude <= alignment.positionTolerance || offset.magnitude > alignment.captureDistance) return;
+            Vector3 direction = motor.GetDirectionTangentToSurface(offset.normalized, motor.GroundingStatus.GroundNormal);
+            currentVelocity = direction * Mathf.Min(alignment.maxSpeed, offset.magnitude / deltaTime);
         }
     }
 }

@@ -95,6 +95,27 @@ namespace UPlayGround.Combat.Tests
             Assert.That(Quaternion.Angle(restored, look), Is.LessThanOrEqualTo(40.01f));
         }
 
+        [Test]
+        public void 고정_작업의_자리_복원과_모션_교체는_정렬_설정을_보존한다()
+        {
+            var profile = ScriptableObject.CreateInstance<UPlayGround.Data.Actor.NPC.NpcWorkAlignmentSO>();
+            var motion = ScriptableObject.CreateInstance<MotionSetAsset>();
+            try
+            {
+                SetField(_brain, "_workAlignment", profile);
+                Vector3 position = new(4f, 2f, 7f);
+                Quaternion rotation = Quaternion.Euler(0f, 110f, 0f);
+                _brain.SetHomePose(position, rotation);
+                _brain.SetWorkMotion(motion);
+                Assert.That(_brain.HomePosition, Is.EqualTo(position));
+                Assert.That(Quaternion.Angle(_brain.HomeRotation, rotation), Is.LessThan(.001f));
+                Assert.That(_brain.WorkAlignment, Is.SameAs(profile));
+                _brain.SetWorkMotion(null);
+                Assert.That(_brain.WorkAlignment, Is.SameAs(profile));
+            }
+            finally { UnityEngine.Object.DestroyImmediate(profile); UnityEngine.Object.DestroyImmediate(motion); }
+        }
+
         [TestCase("_routinePauses", 1)]
         [TestCase("_dialogueStageHolds", 1)]
         [TestCase("_isInteracting", true)]

@@ -97,6 +97,7 @@ MonoBehaviour:
   _pointId: lake.care.pack
   _isSheltered: 0
   _motion: {fileID: 11400000, guid: c59d0af9b43b2bd4bb01a29d1bae09ba, type: 2}
+  _alignment: {fileID: 11400000, guid: f4ed1f82cfc849f7a27711c0d22b55d9, type: 2}
   _heldPropPrefab: {fileID: 6158654481307205887, guid: b35c7eacb02894145a10529f18ce66c3, type: 3}
 --- !u!1 &7669736944863004112
 GameObject:

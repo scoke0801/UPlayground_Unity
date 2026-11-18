@@ -2,6 +2,7 @@ using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 using UPlayGround.Components.LivingWorld;
+using UPlayGround.Data.Actor.NPC;
 
 namespace UPlayGround.Combat.Tests
 {
@@ -136,4 +137,100 @@ namespace UPlayGround.Combat.Tests
             Assert.IsFalse(_point.IsScenePropHeldBy(routine));
         }
     }
+
+    /// <summary>접촉 전 정렬이 물리 스텝·정지·충돌에서 순간이동을 만들지 않는지 검사한다.</summary>
+    public sealed class NpcWorkAlignmentTests
+    {
+        private NpcWorkAlignmentSO _settings;
+
+        [SetUp]
+        public void SetUp() => _settings = ScriptableObject.CreateInstance<NpcWorkAlignmentSO>();
+
+        [TearDown]
+        public void TearDown() => UnityEngine.Object.DestroyImmediate(_settings);
+
+        [TestCase(30)]
+        [TestCase(60)]
+        [TestCase(120)]
+        public void 보정은_다른_물리_주기에서도_접촉_전에_도착하고_높이를_보존한다(int rate)
+        {
+            Vector3 origin = new(10f, 3f, 20f), position = origin, target = origin + Vector3.forward * .14f;
+            float deltaTime = 1f / rate;
+            for (int step = 1; step <= Mathf.CeilToInt(_settings.endTime * rate); step++)
+            {
+                Vector3 velocity = _settings.EvaluateVelocity(origin, target, position, Vector3.up, step * deltaTime, deltaTime);
+                Assert.That(velocity.magnitude, Is.LessThanOrEqualTo(_settings.maxSpeed + .00001f));
+                position += velocity * deltaTime;
+            }
+            Assert.That(Vector3.Distance(position, target), Is.LessThanOrEqualTo(_settings.positionTolerance));
+            Assert.That(position.y, Is.EqualTo(origin.y));
+        }
+
+        [Test]
+        public void 히트스톱에서는_모션이_진행했어도_이동하지_않는다()
+        {
+            Assert.That(_settings.EvaluateVelocity(Vector3.zero, Vector3.forward * .1f,
+                Vector3.zero, Vector3.up, _settings.endTime, 0f), Is.EqualTo(Vector3.zero));
+        }
+
+        [Test]
+        public void 같은_모션_표본을_다시_소비해도_이동을_중복하지_않는다()
+        {
+            Vector3 target = Vector3.forward * .1f;
+            Vector3 velocity = _settings.EvaluateVelocity(Vector3.zero, target, Vector3.zero, Vector3.up, .2f, .1f);
+            Vector3 position = velocity * .1f;
+            Assert.That(_settings.EvaluateVelocity(Vector3.zero, target, position, Vector3.up, .2f, .1f).magnitude,
+                Is.LessThan(.00001f));
+        }
+
+        [Test]
+        public void 벽에_막힌_위치는_시간이_끝나도_도착으로_판정하지_않는다()
+        {
+            Vector3 target = Vector3.forward * .1f;
+            Assert.IsFalse(_settings.HasArrived(Vector3.zero, Quaternion.identity, target, Quaternion.identity, Vector3.up));
+            Assert.IsTrue(_settings.HasArrived(target, Quaternion.identity, target, Quaternion.identity, Vector3.up));
+        }
+
+        [Test]
+        public void 큰_거리와_높이와_회전은_짧은_보정으로_처리하지_않는다()
+        {
+            Assert.IsFalse(_settings.CanStart(Vector3.zero, Quaternion.identity, Vector3.forward, Quaternion.identity, Vector3.up));
+            Assert.IsFalse(_settings.CanStart(Vector3.zero, Quaternion.identity, Vector3.up, Quaternion.identity, Vector3.up));
+            Assert.IsFalse(_settings.CanStart(Vector3.zero, Quaternion.identity, Vector3.zero,
+                Quaternion.Euler(0f, 90f, 0f), Vector3.up));
+            Assert.IsTrue(_settings.CanStart(Vector3.zero, Quaternion.identity, Vector3.forward * .1f,
+                Quaternion.Euler(0f, 5f, 0f), Vector3.up));
+        }
+
+        [Test]
+        public void 수평_정렬을_마쳐도_접촉_전에_높이가_이탈하면_도착으로_보지_않는다()
+        {
+            Assert.IsFalse(_settings.HasArrived(Vector3.up, Quaternion.identity,
+                Vector3.zero, Quaternion.identity, Vector3.up));
+        }
+
+        [Test]
+        public void 시작부터_접촉하는_모션은_보정_진입반경이_아닌_정밀_도착반경까지_걷는다()
+        {
+            _settings.alignBeforeMotion = true;
+            Assert.That(_settings.ArrivalDistance, Is.EqualTo(_settings.positionTolerance));
+            Assert.IsFalse(_settings.HasArrived(Vector3.forward * .02f, Quaternion.identity,
+                Vector3.zero, Quaternion.identity, Vector3.up));
+            _settings.alignBeforeMotion = false;
+            Assert.That(_settings.ArrivalDistance, Is.EqualTo(_settings.captureDistance));
+        }
+
+        [TestCase(0f)]
+        [TestCase(-1f)]
+        [TestCase(float.NaN)]
+        [TestCase(float.PositiveInfinity)]
+        public void 무효_구간은_예약_실행을_허용하지_않는다(float endTime)
+        {
+            _settings.endTime = endTime;
+            Assert.IsFalse(_settings.IsValid);
+            Assert.That(_settings.EvaluateVelocity(Vector3.zero, Vector3.forward, Vector3.zero, Vector3.up, 1f, .02f),
+                Is.EqualTo(Vector3.zero));
+        }
+    }
+
 }

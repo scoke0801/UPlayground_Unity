@@ -49,6 +49,7 @@ MonoBehaviour:
   _pointId: lake.repair.work
   _isSheltered: 0
   _motion: {fileID: 11400000, guid: 006d5165546226047830f4a8b9a510c0, type: 2}
+  _alignment: {fileID: 11400000, guid: 780e8f13e24d47fe9e5d4b6de04fdc77, type: 2}
   _heldPropPrefab: {fileID: 0}
   _sceneProp: {fileID: 2085644616627366198}
 --- !u!1 &5624441791660172272

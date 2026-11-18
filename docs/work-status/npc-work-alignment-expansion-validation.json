@@ -1,0 +1,16 @@
+﻿{
+    "reusedPrevious56Tests":  false,
+    "errors":  0,
+    "exitCode":  0,
+    "unityCompile":  "미확인",
+    "warnings":  26,
+    "prefabs":  4,
+    "elapsedSeconds":  11.92,
+    "source":  "보조 C# 컴파일과 저장 파일 정적 검사",
+    "command":  "dotnet build UPlayGround.Combat.Tests.csproj --no-restore --nologo -v:q",
+    "scope":  "조이·헤이즐·모건·소담 정렬 확대",
+    "references":  5,
+    "newProfiles":  4,
+    "userPlay":  "사용자 테스트 대기",
+    "unityTests":  "미수행: 기존 MCP 연결 반복 종료"
+}

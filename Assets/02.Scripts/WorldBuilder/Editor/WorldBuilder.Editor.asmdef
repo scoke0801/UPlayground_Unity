@@ -4,7 +4,10 @@
   "references": [
     "WorldBuilder.Core",
     "WorldBuilder.Data",
-    "UPlayGround.EditorTools"
+    "WorldBuilder.Runtime",
+    "UPlayGround.EditorTools",
+    "Unity.Splines",
+    "Unity.Mathematics"
   ],
   "includePlatforms": [
     "Editor"

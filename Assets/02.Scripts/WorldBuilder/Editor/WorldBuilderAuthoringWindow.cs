@@ -10,7 +10,7 @@ using UPlayGround.WorldBuilder.Data;
 namespace UPlayGround.WorldBuilder.Editor
 {
     /// <summary>단계별 저작·캡처·외부 RAW 왕복을 한 곳에서 실행하는 작업 창.</summary>
-    public sealed class WorldBuilderAuthoringWindow : EditorWindow
+    public sealed partial class WorldBuilderAuthoringWindow : EditorWindow
     {
         [SerializeField] private WorldDefinition _definition;
         private WorldTerrainAuthoringSession _session;
@@ -31,8 +31,8 @@ namespace UPlayGround.WorldBuilder.Editor
             UPlaygroundEditorUX.PrepareRoot(rootVisualElement);
             var scroll = new ScrollView();
             rootVisualElement.Add(scroll);
-            scroll.Add(UPlaygroundEditorUX.CreateHeader("WorldBuilder · 지형 저작", "Base를 보존하고 수정 명령을 쌓습니다. 브러시는 Sculpt 시작 후 사용하세요.", "Terrain Icon", "P02"));
-            _status = new HelpBox("P01 미리보기 씬을 열고 저작 정의를 연결하세요.", HelpBoxMessageType.Info);
+            scroll.Add(UPlaygroundEditorUX.CreateHeader("WorldBuilder · 지형·배치·계획 저작", "Base와 수동 의도를 보존합니다. 브러시는 Sculpt 시작 후 사용하세요.", "Terrain Icon", "P04"));
+            _status = new HelpBox("WorldBuilder 미리보기 씬을 열고 저작 정의를 연결하세요.", HelpBoxMessageType.Info);
             scroll.Add(_status);
             _definitionField = new ObjectField("저작 정의") { objectType = typeof(WorldDefinition), value = _definition, allowSceneObjects = false };
             _definitionField.RegisterValueChangedCallback(change => Run(() => { _definition = change.newValue as WorldDefinition; Bind(); }));
@@ -43,6 +43,8 @@ namespace UPlayGround.WorldBuilder.Editor
                 _definitionField.SetValueWithoutNotify(_definition);
                 Bind();
             });
+            CreatePlacementUI(scroll);
+            CreatePlanningUI(scroll);
             var bounds = new RectIntField("표본 영역 X/Z/너비/높이") { value = _bounds };
             bounds.RegisterValueChangedCallback(change => _bounds = change.newValue);
             scroll.Add(bounds);
@@ -115,6 +117,7 @@ namespace UPlayGround.WorldBuilder.Editor
             _session?.Dispose();
             _session = null;
             if (_definition != null) _session = new WorldTerrainAuthoringSession(_definition, WorldBuilderAuthoringAssets.FindTerrains(_definition));
+            if (_definition != null && _definition.Planning != null) { _planningAsset = _definition.Planning; _planningField?.SetValueWithoutNotify(_planningAsset); }
             RefreshOperations();
         }
 

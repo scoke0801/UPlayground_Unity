@@ -1,5 +1,10 @@
-# 월드와 아트
+﻿# 월드와 아트
 
+2026-11-18 **WorldBuilder P04 구현·최종 검증 중**: Region/POI·부지·Spline 도로·필수 교량 연결, 계획 SO/지형/씬 Undo와 실패 복원을 구현했다. 전체2km 규격을 유지한 별도512m 검증 구역에서 실제 연결 화면을 확인했고, 현재 관련91건을 재실행 중이다. [현재 상태·검사·남은 확인](../work-status/open-world/WORLDBUILDER.md#p04-planning), [P04 저작·사용자 테스트](../../Assets/docs/guide/WORLDBUILDER_PLANNING_AUTHORING_GUIDE.md). P05 수계 생성은 아직 진행하지 않았다.
+
+2026-11-17 **WorldBuilder P03 구현·자동 검사 통과**: 전역 후보·안정 ID/sourceIdentity·회전 footprint 공간 해시·실제 필터·수동 Override와 P02 Dirty 연결. 최종 관련 **EditMode60/60**, Delete/변환 각20회 Undo/Redo·Dirty/Full·저장/재로드·결합 실패 복원 확인. 독립 QA 지적을 수정·재검증했다. [코드·데이터·검증·남은 항목](../work-status/open-world/WORLDBUILDER.md#p03--공통-배치-기반-2026-11-17), [배치 저작/테스트 지침](../../Assets/docs/guide/WORLDBUILDER_PLACEMENT_AUTHORING_GUIDE.md).
+
+별도 [P03 검증 씬](../../Assets/WorldBuilder/Worlds/d303d303d303d303d303d303d303d303/P03Validation.unity)은 2,048m·2049²·700m 규격을 유지하고512m 구역에 기본 소품250개를 저장했다. 경계 양쪽123/127개·고정 footprint/spacing·Delete 부재·Pin 보존·실제 카메라 캡처 확인. B/C·전달본145파일 SHA 변경0. Dirty는 전역 재평가를 사용하며 부분 갱신 성능 최적화는 후속이다. 실제 창/Scene UX·기존 도메인 리로드/디스크 실패·미술 인수는 사용자 테스트 대기다. P03 종료 당시에는 P04 착수 전이었다.
 2026-11-16 WorldBuilder 미리보기 광택 제보 수정: RGBA 알파1이 최대 smoothness로 해석돼 금속처럼 보였다. B/C 전용 TerrainLayer와 생성 코드를 **매끄러움 상수0**으로 수정했고 실제 Unity 전후 화면에서 반짝임 제거를 확인했다. 지형/원본34파일 SHA 변경0. [수정·검증·사용자 확인](../work-status/open-world/WORLDBUILDER.md#사용자-제보--미리보기-지형-광택-수정-2026-11-16).
 
 2026-11-16 [빌드 식생 검정 원인·수정](../work-status/vegetation-build-black.md#지정-빌드-내부-분석과-수정--2026-11-16): 지정 Player 내부15종에서 SSAO off 변형0, 관련 식생·Terrain/Lit의 DBuffer off도0임을 확인했다. Quality RP 사전 필터가 원인이어서 기존 호수 Renderer를 기본 RP의 대체 Renderer로 등록하고 렌더 설정을 콘텐츠/Player 지문에 반영했다. 수정 전 실패 재현·수정 후 **BuildManager EditMode33/33 통과**, 같은 식생 셰이더의 DBuffer 입력 없는 on 변형에서RGB0/정상 off 변형에서초록색을 GPU로 재현했다. 이전 주변광 후보는 근거 불충분으로 보류. 임시 분석 자료5.10GB 제거·작은 근거 보존. 새 Player/Addressables 빌드·수정본 화면은 사용자 테스트 대기다.
@@ -8,7 +13,7 @@
 
 P01은 B(−80/480m)·C(0/700m)를 각각4×4 Terrain으로 저장하고 재로드·방향 화면을 확인했다. C700m의 경사 중앙값30.31°/p90 60.04°/p99 73.94°/최대83.28°여서 후속 필수 동선 조형이 필요하다. P01의 실제 KCC·동적 LOD·미술 인수는 사용자 테스트 대기다.
 
-P02는 TerrainOperation·Sculpt/RAW 세션·Undo/Redo·Dirty DAG를 구현했다. **최종 EditMode38/38 통과**, 높이/Hole 각20회 Undo/Redo·Dirty/Full bit 동등·타 객체/native 브러시 Undo 격리 확인. 툴 런처 **월드 / 맵 → WorldBuilder 지형 저작**, C 저작 정의 연결 완료(명령0·씬dirty=false). P01파일94개와 B원본24파일 SHA 보존. 실제 브러시/외부 편집기 UX·디스크 중간 실패·실제 도메인 리로드 실험은 미수행/사용자 확인 대기다. P03 이후·PlayMode·Player/Addressables 빌드는 미수행이며 컨셉 PNG를 Terrain 입력으로 사용하지 않는다.
+P02는 TerrainOperation·Sculpt/RAW 세션·Undo/Redo·Dirty DAG를 구현했다. **최종 EditMode38/38 통과**, 높이/Hole 각20회 Undo/Redo·Dirty/Full bit 동등·타 객체/native 브러시 Undo 격리 확인. 툴 런처 **월드 / 맵 → WorldBuilder 지형 저작**, C 저작 정의 연결 완료(명령0·씬dirty=false). P01파일94개와 B원본24파일 SHA 보존. 실제 브러시/외부 편집기 UX·디스크 중간 실패·실제 도메인 리로드 실험은 미수행/사용자 확인 대기다. P02 종료 당시 P04 이후·PlayMode·Player/Addressables 빌드는 미수행이었으며 컨셉 PNG를 Terrain 입력으로 사용하지 않는다.
 
 미니맵 물 가독성 수정(2026-11-15): 활성 물 표면7개에 밝은 파랑 불투명 재질을 임시 적용해 재촬영·배경 연결했다. 촬영 후 원래 재질7/7 복원 확인, 씬·품질 설정 보존. [현재 지도·검증](../work-status/lake-waterfall.md#폭포-반영-미니맵-재촬영--2026-11-15).
 

@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93fcbd8483441e2418b43249f5623c43, type: 3}
+  m_Name: Props
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.PlacementRuleAsset
+  layerGuid: 00000000000000000000000000000014
+  ruleGuid: 00000000000000000000000000000015
+  prefabGuid: a50517586352c6040b1baa96d35fe908
+  ruleTag: 
+  isEnabled: 1
+  mandatory: 0
+  seedSalt: 0
+  slots: 1
+  minimumCount: 0
+  cellSize: 32
+  jitter: 1
+  density: 1
+  region:
+    serializedVersion: 2
+    x: 256
+    y: 0
+    width: 512
+    height: 512
+  minHeight: -1000
+  maxHeight: 10000
+  maxSlope: 45
+  spacing: 2
+  minScale: 1
+  maxScale: 1
+  maxSupportDelta: 1
+  surfaceId: terrain

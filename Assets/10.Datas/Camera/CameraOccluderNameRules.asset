@@ -469,3 +469,18 @@ MonoBehaviour:
     coversInterior: 0
     note: "\uD3ED\uD3EC \uB4A4 \uB3D9\uAD74 \uC2E4\uBB3C \uCC9C\uC7A5\xB7\uBCBD/\uC9C4\uC785
       \uACBD\uC0AC"
+  - namePattern: WB_P04_House_
+    isPrefix: 1
+    mode: 0
+    coversInterior: 1
+    note: "P04 \uAC80\uC99D \uAD6C\uC870\uBB3C. \uC6D0\uBCF8 \uADDC\uCE59\uC740 \uC720\uC9C0."
+  - namePattern: WB_P04_Bridge_
+    isPrefix: 1
+    mode: 1
+    coversInterior: 0
+    note: "P04 \uAC80\uC99D \uAD6C\uC870\uBB3C. \uC6D0\uBCF8 \uADDC\uCE59\uC740 \uC720\uC9C0."
+  - namePattern: WB_P04_Road_
+    isPrefix: 1
+    mode: 1
+    coversInterior: 0
+    note: "P04 \uAC80\uC99D \uAD6C\uC870\uBB3C. \uC6D0\uBCF8 \uADDC\uCE59\uC740 \uC720\uC9C0."

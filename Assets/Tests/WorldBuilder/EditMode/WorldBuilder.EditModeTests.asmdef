@@ -4,7 +4,10 @@
   "references": [
     "WorldBuilder.Core",
     "WorldBuilder.Data",
-    "WorldBuilder.Editor"
+    "WorldBuilder.Editor",
+    "WorldBuilder.Runtime",
+    "Unity.Splines",
+    "Unity.Mathematics"
   ],
   "includePlatforms": [
     "Editor"

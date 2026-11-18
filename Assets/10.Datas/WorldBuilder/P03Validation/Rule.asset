@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93fcbd8483441e2418b43249f5623c43, type: 3}
+  m_Name: Rule
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.PlacementRuleAsset
+  layerGuid: e018725089eb413aabb409496ec82f2f
+  ruleGuid: 6bc997fa59364829b7a4f89ab03251c2
+  prefabGuid: 331e56d1dfc3abe44b8ff330600a54e1
+  ruleTag: 
+  isEnabled: 1
+  mandatory: 0
+  seedSalt: 0
+  slots: 1
+  minimumCount: 0
+  cellSize: 32
+  jitter: 1
+  density: 1
+  region:
+    serializedVersion: 2
+    x: 256
+    y: 0
+    width: 512
+    height: 512
+  minHeight: -1000
+  maxHeight: 10000
+  maxSlope: 45
+  spacing: 3
+  minScale: 1
+  maxScale: 1
+  maxSupportDelta: 1
+  surfaceId: terrain

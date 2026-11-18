@@ -285,7 +285,26 @@ namespace UPlayGround.WorldBuilder.Editor
             dirty = dirty.HasValue ? SampleRect.Union(dirty.Value, bounds) : bounds;
         }
 
-        private void Commit(List<TerrainOperationRecord> records, SampleRect dirty, bool clearSession, string label)
+        /// <summary>지정 계획의 파생 연산만 바꾸고 Sculpt·다른 저작 레이어를 같은 트랜잭션에서 보존한다.</summary>
+        public void ReplaceOwnedOperations(string ownerGuid, IReadOnlyList<TerrainOperationRecord> replacements, Action applyPlanningData)
+        {
+            PlacementIdentity.ValidateGuid(ownerGuid); EnsureReadyForBake();
+            var records = new List<TerrainOperationRecord>(); SampleRect? dirty = null;
+            foreach (var record in _definition.Operations)
+            {
+                if (record.ownerPlanGuid != ownerGuid) records.Add(record.Clone());
+                else dirty = dirty.HasValue ? SampleRect.Union(dirty.Value, record.ToCore(_definition.SourceRevision).Bounds) : record.ToCore(_definition.SourceRevision).Bounds;
+            }
+            foreach (var record in replacements)
+            {
+                if (record.ownerPlanGuid != ownerGuid) throw new ArgumentException("계획 연산 소유자가 다릅니다.");
+                var bounds = record.ToCore(_definition.SourceRevision).Bounds;
+                records.Add(record.Clone()); dirty = dirty.HasValue ? SampleRect.Union(dirty.Value, bounds) : bounds;
+            }
+            Commit(records, dirty ?? SampleRect.Full(_definition.Profile.SampleCount), false, "월드 계획 적용", applyPlanningData);
+        }
+
+        private void Commit(List<TerrainOperationRecord> records, SampleRect dirty, bool clearSession, string label, Action applyPlanningData = null)
         {
             var source = _definition.ReadSource();
             var operations = new List<TerrainOperation>();
@@ -302,11 +321,14 @@ namespace UPlayGround.WorldBuilder.Editor
             try
             {
                 Undo.RegisterCompleteObjectUndo(_definition, label);
+                applyPlanningData?.Invoke();
                 _definition.SetOperations(records);
                 if (clearSession) _definition.SetSession(null);
                 _terrain.Apply(result, dirty);
                 WorldDirtyFlags changed = WorldDirtyFlags.Height | WorldDirtyFlags.Holes;
                 RecordApplied(_terrain.Read(), _definition.DirtyLayers | DirtyDependencyGraph.Expand(changed), dirty);
+                WorldPlacementAuthoring.RebuildInTransaction(_definition, result);
+                SaveDefinition();
                 _logical = result;
                 _logicalStackHash = CurrentStackHash();
                 SaveTerrains();
@@ -336,6 +358,10 @@ namespace UPlayGround.WorldBuilder.Editor
                 string stackHash = CurrentStackHash();
                 // 전역 Undo 알림에는 다른 객체와 Unity 기본 브러시도 포함된다.
                 if (stackHash == _logicalStackHash) return;
+                if (_terrain.Read().ComputeHash() == _definition.AppliedTerrainHash)
+                {
+                    _logical = Build(); _logicalStackHash = stackHash; _lastAppliedHash = _definition.AppliedTerrainHash; return;
+                }
                 if (_terrain.Read().ComputeHash() != _lastAppliedHash) throw new InvalidOperationException("UncapturedTerrainEdits: Undo가 외부 편집을 덮어쓸 수 없습니다.");
                 _logical = Build();
                 string targetCache = CachePath(_definition.AppliedTerrainHash);
@@ -359,6 +385,8 @@ namespace UPlayGround.WorldBuilder.Editor
         private void EnsureStackApplied()
         {
             if (_definition.AppliedStackHash != CurrentStackHash()) throw new InvalidOperationException("OperationStackChanged: 먼저 레이어를 재생성하거나 세션 충돌을 해결하세요.");
+            // 다른 정상 저작 세션이 적용한 계획 패치를 현재 창의 수치 캐시에도 반영한다.
+            if (_logicalStackHash != CurrentStackHash()) { _logical = Build(); _logicalStackHash = CurrentStackHash(); }
         }
 
         private void RecordApplied(TerrainBuildResult physical, WorldDirtyFlags dirty, SampleRect? region = null)
@@ -368,6 +396,7 @@ namespace UPlayGround.WorldBuilder.Editor
             Directory.CreateDirectory(Path.GetDirectoryName(cache));
             if (!File.Exists(cache)) File.WriteAllBytes(cache, TerrainSnapshotCodec.Encode(physical));
             _definition.SetAppliedState(_lastAppliedHash, CurrentStackHash(), dirty, region);
+            if (_definition.Planning != null) WorldPlanningUndoRestore.Track(_definition);
             SaveDefinition();
         }
 

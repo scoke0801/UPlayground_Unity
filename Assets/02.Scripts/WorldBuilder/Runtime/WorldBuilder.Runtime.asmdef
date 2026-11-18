@@ -1,0 +1,7 @@
+﻿{
+  "name": "WorldBuilder.Runtime",
+  "rootNamespace": "UPlayGround.WorldBuilder.Runtime",
+  "references": [],
+  "includePlatforms": [],
+  "autoReferenced": true
+}

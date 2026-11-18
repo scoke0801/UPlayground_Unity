@@ -24,6 +24,73 @@ namespace UPlayGround.WorldBuilder.Data
         [SerializeField] private WorldDirtyFlags _dirtyLayers;
         [SerializeField] private int _dirtyX, _dirtyZ, _dirtyWidth, _dirtyHeight;
 
+        // P02의 sourceRevision은 Base·좌표만 식별한다. 배치 버전은 별도로 유지한다.
+        [SerializeField] private int _placementSeed, _generationEpoch;
+        [SerializeField] private PlacementCatalog _placementCatalog;
+        [SerializeField] private List<PlacementRuleAsset> _placementRules = new List<PlacementRuleAsset>();
+        [SerializeField] private List<PlacementOverride> _placementOverrides = new List<PlacementOverride>();
+        [SerializeField] private List<PlacementReservation> _placementReservations = new List<PlacementReservation>();
+        [SerializeField] private List<PlacementRecord> _placements = new List<PlacementRecord>();
+        [SerializeField] private string _placementHash;
+        [SerializeField] private int _appliedPlacementSeed, _appliedGenerationEpoch;
+        [SerializeField] private WorldPlan _planning;
+        public WorldPlan Planning => _planning;
+
+        /// <summary>계획 소유 예약만 교체하고 사용자가 저작한 기존 예약을 보존한다.</summary>
+        public void SetPlanning(WorldPlan planning, IReadOnlyList<PlacementReservation> reservations)
+        {
+            if (planning == null) throw new ArgumentNullException(nameof(planning));
+            PlacementIdentity.ValidateGuid(planning.planGuid);
+            if (_planning != null && _planning != planning) throw new InvalidOperationException("이미 연결된 계획 자산은 명시적 이관 없이 교체할 수 없습니다.");
+            var copy = new List<PlacementReservation>();
+            foreach (var reservation in _placementReservations) if (reservation.ownerPlanGuid != planning.planGuid) copy.Add(reservation.Clone());
+            foreach (var reservation in reservations) { var item = reservation.Clone(); item.ownerPlanGuid = planning.planGuid; copy.Add(item); }
+            _planning = planning; _placementReservations = copy;
+            _dirtyLayers |= DirtyDependencyGraph.Expand(WorldDirtyFlags.Structures);
+        }
+        public int PlacementSeed => _placementSeed;
+        public int GenerationEpoch => _generationEpoch;
+        public PlacementCatalog PlacementCatalog => _placementCatalog;
+        public IReadOnlyList<PlacementRuleAsset> PlacementRules => _placementRules;
+        public IReadOnlyList<PlacementOverride> PlacementOverrides => _placementOverrides;
+        public IReadOnlyList<PlacementReservation> PlacementReservations => _placementReservations;
+        public IReadOnlyList<PlacementRecord> Placements => _placements;
+        public string PlacementHash => _placementHash;
+
+        /// <summary>Inspector 직접 편집도 seed/epoch 계약을 우회하지 못하게 검사한다.</summary>
+        public void ValidatePlacementVersion()
+        {
+            if (!string.IsNullOrEmpty(_placementHash) && (_generationEpoch < _appliedGenerationEpoch
+                || (_placementSeed != _appliedPlacementSeed && _generationEpoch <= _appliedGenerationEpoch)))
+                throw new InvalidOperationException("SeedEpochConflict: seed 변경에는 epoch 증가가 필요합니다.");
+        }
+
+        /// <summary>seed 변경은 epoch 증가를 동반하며 기존 Override·지형 원본을 초기화하지 않는다.</summary>
+        public void SetPlacementVersion(int seed, int epoch)
+        {
+            if (epoch < _generationEpoch || epoch < 0 || (seed != _placementSeed && epoch <= _generationEpoch)) throw new ArgumentException("seed 변경에는 epoch 증가가 필요합니다.");
+            _placementSeed = seed; _generationEpoch = epoch;
+            _dirtyLayers |= WorldDirtyFlags.Placement;
+        }
+        /// <summary>Editor 트랜잭션 안에서만 저작 의도 스냅샷을 교체한다.</summary>
+        public void SetPlacementOverrides(IReadOnlyList<PlacementOverride> overrides)
+        {
+            var copy = new List<PlacementOverride>();
+            foreach (var item in overrides) copy.Add(item.Clone());
+            _placementOverrides = copy;
+            _dirtyLayers |= WorldDirtyFlags.Placement;
+        }
+        /// <summary>검증된 파생 배치를 저장하고 배치 Dirty만 소비한다.</summary>
+        public void SetPlacements(PlacementBuildResult result)
+        {
+            if (result.HasErrors) throw new InvalidOperationException("배치 오류가 있어 기존 결과를 보존합니다.");
+            var copy = new List<PlacementRecord>();
+            foreach (var item in result.Records) copy.Add(item.Clone());
+            _placements = copy; _placementHash = result.ComputeHash();
+            _appliedPlacementSeed = _placementSeed; _appliedGenerationEpoch = _generationEpoch;
+            _dirtyLayers &= ~WorldDirtyFlags.Placement;
+        }
+
         public string WorldGuid => _worldGuid;
         public WorldProfile Profile => _profile;
         public string SourceRevision => _sourceRevision;
@@ -124,6 +191,7 @@ namespace UPlayGround.WorldBuilder.Data
     public sealed class TerrainOperationRecord
     {
         public string operationGuid;
+        public string ownerPlanGuid, ownerElementGuid;
         public TerrainOperationKind kind;
         public int x, z, width, height;
         public float value;

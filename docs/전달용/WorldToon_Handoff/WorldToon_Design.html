@@ -1,0 +1,1492 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Unity URP 경량 월드 툰 셰이더 설계. Claude와 Codex 구현 전달용."><title>WorldToon · 경량 월드 툰 셰이더 설계안</title><style>
+:root{--ink:#18302f;--muted:#627572;--paper:#f4f7f4;--white:#fff;--line:#dce5de;--accent:#207c68;--dark:#173e38;--mint:#b9ecd1;--code:#14332f}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:32px}body{margin:0;background:var(--paper);color:var(--ink);font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;font-size:15px;line-height:1.86;word-break:keep-all;overflow-wrap:anywhere}
+a{color:var(--accent);text-underline-offset:4px}a:hover{color:#105b4c}button{font:inherit;cursor:pointer}
+.sidebar{width:245px;position:fixed;inset:0 auto 0 0;background:#edf2ed;border-right:1px solid var(--line);padding:28px 19px 20px;display:flex;flex-direction:column;z-index:10}.brand{font-size:18px;line-height:1.3;font-weight:850;letter-spacing:-.6px;color:var(--dark)}.brand small{display:block;font-size:10px;letter-spacing:2px;font-weight:650;margin:8px 0 20px;color:var(--muted)}.toc-label{font-size:10px;font-weight:800;color:var(--muted);letter-spacing:1.5px;margin-bottom:9px}.nav-links{overflow:auto;scrollbar-width:thin;padding-right:4px;flex:1}.nav-links a{display:flex;align-items:flex-start;gap:9px;font-size:12px;line-height:1.6;text-decoration:none;color:#576c66;border-radius:6px;padding:7px 7px;margin:1px 0}.nav-links a span{color:#79918a;font-size:10px;font-weight:750;min-width:18px;padding-top:2px;font-variant-numeric:tabular-nums}.nav-links a:hover,.nav-links a.active{background:#dcece3;color:#135742}.side-foot{border-top:1px solid var(--line);padding-top:14px;margin-top:15px;font-size:10px;color:var(--muted);line-height:1.8}
+main{margin-left:245px;padding:35px 45px 70px;max-width:1600px}.page-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px;font-size:11px;letter-spacing:1.2px;color:var(--muted);gap:12px}.page-top button{background:white;border:1px solid var(--line);padding:7px 13px;border-radius:7px;color:var(--ink);font-size:12px;letter-spacing:0}.hero{background:var(--dark);border-radius:14px;padding:42px 45px;color:#f0faf3;position:relative;overflow:hidden}.eyebrow{color:var(--mint);font-size:11px;letter-spacing:2px;font-weight:700}.hero h1{font-size:44px;line-height:1.3;letter-spacing:-2px;margin:17px 0 17px;font-weight:830}.hero h1 span{color:var(--mint)}.hero p{color:#c4dbd1;max-width:720px;font-size:15px;line-height:1.9;margin:0}.tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:25px}.tags span{padding:5px 10px;font-size:11px;letter-spacing:.4px;border:1px solid #55776a;color:#d5eddf;border-radius:4px}.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;margin:18px 0 25px}.card{border:1px solid var(--line);border-radius:9px;padding:18px 20px;background:var(--white)}.card b{display:block;font-size:15px;margin-bottom:5px}.card p{margin:0;color:var(--muted);font-size:12px;line-height:1.8}.card .num{font-size:10px;letter-spacing:1.5px;color:var(--accent);margin-bottom:6px;font-weight:800}.status{font-size:12px;background:#fff5df;border:1px solid #efdfb9;padding:14px 18px;border-radius:8px;color:#785b28;margin:0 0 34px}
+.article{background:white;border:1px solid var(--line);border-radius:12px;padding:15px 38px 40px}.article h2{font-size:25px;line-height:1.5;letter-spacing:-.8px;margin:54px 0 18px;padding-top:26px;border-top:1px solid var(--line);color:#164b3e;scroll-margin-top:25px}.article h2:first-child{border-top:0;margin-top:0}.article h3{font-size:18px;line-height:1.5;margin:29px 0 12px;letter-spacing:-.4px}.article p{margin:14px 0}.article strong{font-weight:780;color:#153d34}.article em{color:var(--muted)}.article blockquote{margin:20px 0;padding:8px 20px;background:#f0f7f1;border-left:4px solid #79b29a;color:#456057}.article ol,.article ul{padding-left:23px}.article li{margin-bottom:7px}.article code{font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;font-size:.85em;border-radius:4px;background:#eff4ef;padding:2px 5px;color:#285e4e;word-break:break-word}.article pre{margin:21px 0;border:1px solid #254d41;border-radius:9px;background:var(--code);padding:20px 22px;color:#e0f1e6;overflow:auto;white-space:pre;tab-size:4;line-height:1.85}.article pre code{background:none;color:inherit;padding:0;font-size:12px;word-break:normal;overflow-wrap:normal;white-space:pre}.table-wrap{margin:20px 0;overflow-x:auto;border:1px solid var(--line);border-radius:8px}table{border-collapse:collapse;width:100%;font-size:12.5px;line-height:1.7;min-width:560px}th{background:#e9f1e9;color:#234c3e;font-weight:800;text-align:left;padding:12px 14px;border-bottom:1px solid #d1e0d4}td{padding:12px 14px;border-bottom:1px solid #e4ece4;vertical-align:top}tr:last-child td{border-bottom:none}tbody tr:nth-child(even){background:#f9fbf8}td:first-child{font-weight:600;min-width:100px}table code{font-size:11px;padding:1px 3px}td a{overflow-wrap:anywhere}.cite{display:inline-flex;font-size:9px;line-height:1.2;font-weight:750;margin:0 2px;text-decoration:none;background:#e4f0e7;border:1px solid #c8dfcf;border-radius:4px;padding:2px 4px;vertical-align:super;letter-spacing:.2px}.article hr{border:0;border-top:1px solid var(--line);margin:34px 0}.doc-footer{display:flex;justify-content:space-between;gap:12px;margin-top:25px;color:var(--muted);font-size:11px}.back-top{position:fixed;right:22px;bottom:22px;background:var(--dark);color:white;text-decoration:none;border-radius:20px;font-size:12px;padding:8px 16px;box-shadow:0 3px 12px #0b39261c}.back-top:hover{color:var(--mint)}
+@media(min-width:1600px){main{margin-left:calc(245px + (100vw - 1600px)/2);max-width:1325px}.sidebar{padding-left:24px}}
+@media(max-width:1150px){.sidebar{width:210px;padding:24px 13px}main{margin-left:210px;padding:25px 25px 60px}.article{padding:12px 24px 32px}.hero{padding:32px}.hero h1{font-size:36px}.cards{gap:9px}.card{padding:14px}}
+@media(max-width:800px){.sidebar{position:relative;width:auto;border-right:none;border-bottom:1px solid var(--line);padding:17px 20px}.brand{font-size:17px}.brand small{margin:5px 0 0}.toc-label,.nav-links,.side-foot{display:none}main{margin-left:0;padding:18px 15px 45px}.page-top{font-size:9px}.hero{padding:26px 22px;border-radius:9px}.hero h1{font-size:31px;letter-spacing:-1.2px}.hero p{font-size:13px}.cards{grid-template-columns:1fr;gap:8px;margin:14px 0}.card{padding:12px 16px}.card .num{float:left;min-width:55px;margin-top:3px}.card b{font-size:14px;margin-left:55px}.card p{margin-left:55px}.status{font-size:11px;margin-bottom:20px}.article{padding:7px 18px 27px;border-radius:9px}.article h2{font-size:22px;margin-top:37px}.article h3{font-size:17px}body{font-size:14px}.article pre{padding:15px}.back-top{right:14px;bottom:15px}}
+@media print{@page{size:A4;margin:17mm 15mm}.sidebar,.page-top button,.back-top{display:none}body{background:white;font-size:9.5pt;line-height:1.7}main{margin:0;max-width:none;padding:0}.hero{border-radius:0;padding:22px;background:#173e38 !important;print-color-adjust:exact}.hero h1{font-size:25pt}.hero p{font-size:10pt}.cards{gap:8px}.card{padding:10px}.card p{font-size:8pt}.article{border:0;padding:0}.article h2{font-size:17pt;break-after:avoid;margin-top:25px}.article h3{break-after:avoid;font-size:12pt}.article table{font-size:8pt;min-width:0}.article th,.article td{padding:7px 8px}.article pre{white-space:pre-wrap;word-break:break-all;font-size:8pt;break-inside:avoid;print-color-adjust:exact}.article pre code{white-space:pre-wrap;font-size:8pt}.table-wrap{overflow:visible}.hero,.cards,.status{break-inside:avoid}tr{break-inside:avoid}thead{display:table-header-group}.doc-footer{font-size:8pt}a{color:inherit;text-decoration:none}.cite{vertical-align:baseline}}
+</style></head>
+<body id="top"><aside class="sidebar"><div class="brand">WorldToon<small>IMPLEMENTATION DESIGN</small></div><div class="toc-label">CONTENTS / 21 SECTIONS</div><nav class="nav-links" aria-label="문서 목차"><a href="#s00"><span>00</span>결정 요약</a><a href="#s01"><span>01</span>범위와 보호 규칙</a><a href="#s02"><span>02</span>G0 — 프로젝트 조사와 기준선</a><a href="#s03"><span>03</span>구조 — 표현은 공유하고 렌더링은 분리</a><a href="#s04"><span>04</span>공통 툰 라이팅 계약</a><a href="#s05"><span>05</span>프리셋·데이터 모델</a><a href="#s06"><span>06</span>Mesh — 일반 NPC와 오브젝트</a><a href="#s07"><span>07</span>Foliage — 식생 전용</a><a href="#s08"><span>08</span>Terrain — Terrain4 전용 경로</a><a href="#s09"><span>09</span>렌더 패스와 기능 의존성</a><a href="#s10"><span>10</span>배칭·인스턴싱·런타임 비용</a><a href="#s11"><span>11</span>LOD·품질 단계와 가시성</a><a href="#s12"><span>12</span>머티리얼 변환 도구 — 복제와 복구 우선</a><a href="#s13"><span>13</span>Shader Variant·빌드·Addressables</a><a href="#s14"><span>14</span>에디터 사용성과 오류 코드</a><a href="#s15"><span>15</span>구현 단계와 종료 조건</a><a href="#s16"><span>16</span>검증 씬과 테스트 명세</a><a href="#s17"><span>17</span>성능 측정과 도입/중단 기준</a><a href="#s18"><span>18</span>에이전트 산출물과 완료 보고</a><a href="#s19"><span>19</span>v1 이후 확장 조건</a><a href="#s20"><span>20</span>확인한 공식 자료와 적용 범위</a></nav><div class="side-foot">v1.0 · 2026.11.16<br>Unity 6 / URP<br>Claude · Codex 전달용</div></aside>
+<main><div class="page-top"><span>RENDERING SYSTEMS / DESIGN HANDOFF</span><button onclick="window.print()">인쇄 / PDF로 저장</button></div>
+<header class="hero"><div class="eyebrow">WORLD TOON / PERFORMANCE BY DESIGN</div><h1>캐릭터의 표현은 남기고,<br><span>월드의 비용은 줄인다.</span></h1><p>플레이어의 lilToon은 유지하고, 주변 NPC·오브젝트·식생·지형은 필요한 표현만 갖춘 셰이더로 분리합니다. 공통 툰 명암, 비파괴 변환, 실제 빌드 검증을 기준으로 도입합니다.</p><div class="tags"><span>Unity 6 + URP</span><span>ShaderLab + HLSL</span><span>3 Shader Families</span><span>28 Validation Tests</span></div></header>
+<div class="cards"><div class="card"><div class="num">KEEP</div><b>lilToon과 원본 보호</b><p>플레이어·주요 캐릭터 유지<br>분석 후 복제하고 선택 적용</p></div><div class="card"><div class="num">SPLIT</div><b>Mesh · Foliage · Terrain</b><p>명암 규칙은 공통화<br>렌더링 경로는 용도별 분리</p></div><div class="card"><div class="num">VERIFY</div><b>측정 후 도입 결정</b><p>동일 조건 A/B와 Player 검증<br>효과가 없는 대상은 원본 유지</p></div></div>
+<div class="status"><strong>문서 상태:</strong> 구현 설계 및 작업 지시서입니다. 실제 프로젝트의 코드 구현·컴파일·GPU 측정 결과를 포함하지 않습니다. 버전과 렌더링 경로는 G0에서 확인합니다.</div>
+<article class="article">
+
+<h2 id="s00">00. 결정 요약</h2>
+<p><strong>캐릭터용 lilToon은 유지한다. 주변 월드는 동일한 툰 명암 규칙을 공유하는 경량 셰이더군으로 분리한다.</strong> 하나의 거대한 셰이더에 모든 기능을 넣지 않는다. NPC와 일반 메시 오브젝트는 같은 Mesh 계열을 사용하고, 식생과 Unity Terrain은 각각의 렌더링 요구를 처리한다.</p>
+<p>이 문서는 <strong>구현 명세</strong>다. 셰이더 소스 구현, 프로젝트 컴파일, 실제 GPU 성능 검증까지 완료되었다는 의미는 아니다. 성능 수치와 초기 파라미터는 별도 표기가 없으면 설계 목표이며 측정 결과가 아니다.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확정할 방향</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>기준 환경</td>
+<td>Unity 6 + URP. 정확한 에디터·패키지 버전 및 렌더링 경로는 G0에서 프로젝트 파일로 확정</td>
+</tr>
+<tr>
+<td>구현 방식</td>
+<td>ShaderLab + HLSL. 공통 라이팅·알파·바람 로직을 include로 재사용</td>
+</tr>
+<tr>
+<td>기본 외형</td>
+<td>Base Color + 2단 툰 명암 + 주 광원 그림자 + 환경광 + Fog</td>
+</tr>
+<tr>
+<td>기본 제외</td>
+<td>Outline, MatCap, Rim, PBR 금속 반사, Parallax, Fur, Refraction, 범용 Transparent</td>
+</tr>
+<tr>
+<td>Mesh</td>
+<td>NPC·몬스터·건물·바위·일반 소품. Opaque/Cutout, Lite/Standard의 제한된 프리셋</td>
+</tr>
+<tr>
+<td>Foliage</td>
+<td>Cutout + 양면 선택 + 정점 바람 + 검증된 인스턴싱 경로</td>
+</tr>
+<tr>
+<td>Terrain</td>
+<td>Unity Terrain 전용. v1은 타일당 Terrain Layer 최대 4개, 원거리 Basemap·Holes·Terrain Instancing 유지</td>
+</tr>
+<tr>
+<td>교체 정책</td>
+<td>분석 → 복제 → 미리보기 → 검증 → 명시적 적용. 원본 일괄 덮어쓰기 금지</td>
+</tr>
+<tr>
+<td>도입 순서</td>
+<td>G0 조사 → Mesh 최소본 → 식생 → NPC → Terrain → 실제 빌드 검증</td>
+</tr>
+<tr>
+<td>성공 판정</td>
+<td>외형·기능 검증과 측정이 모두 통과한 범위만 적용. 개선이 없으면 기존 재질 유지</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>먼저 고칠 기존 설명의 오해:</strong> lilToon을 쓴다는 사실만으로 무겁다고 단정하지 않는다. lilToon은 자체 최적화와 Lite 변환을 제공한다. 비교 기준은 최적화된 실제 Player 빌드이며, 코드 줄 수나 Inspector 옵션 수로 성능을 판정하지 않는다.<a class="cite" href="#ref-S01" title="공식 근거 S01">S01</a><a class="cite" href="#ref-S02" title="공식 근거 S02">S02</a></p>
+<h2 id="s01">01. 범위와 보호 규칙</h2>
+<h3>1.1 대상 분류</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>분류</th>
+<th>기본 처리</th>
+<th>예외</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>플레이어·주요 연출 캐릭터</td>
+<td>기존 lilToon 유지</td>
+<td>사용자가 별도로 승인한 경우만 변경</td>
+</tr>
+<tr>
+<td>일반 NPC·일반 몬스터</td>
+<td>Mesh Standard 또는 Mesh Lite</td>
+<td>특수 얼굴·눈·머리카락·투명 재질은 슬롯별 원본 유지 가능</td>
+</tr>
+<tr>
+<td>건물·바위·절벽·동굴 메시</td>
+<td>Mesh Lite, 조명 요구가 있으면 Standard</td>
+<td>물·유리·특수 반사·특수 VFX는 제외</td>
+</tr>
+<tr>
+<td>Unity Terrain</td>
+<td>Terrain4</td>
+<td>5개 이상 레이어/미지원 기능이 있으면 기존 Terrain Lit 유지</td>
+</tr>
+<tr>
+<td>잔디·나뭇잎·덤불</td>
+<td>Foliage</td>
+<td>SpeedTree 전용 변형·빌보드는 별도 호환 검증 전 원본 유지</td>
+</tr>
+<tr>
+<td>나무 줄기</td>
+<td>Mesh Lite/Standard</td>
+<td>줄기까지 바람 변형이 필요하면 별도 승인된 Foliage 프리셋</td>
+</tr>
+<tr>
+<td>수면·폭포·안개·파티클</td>
+<td>기존 셰이더 유지</td>
+<td>이번 작업 범위 밖</td>
+</tr>
+</tbody>
+</table></div>
+<p>NPC도 <strong>모델 전체가 아닌 머티리얼 슬롯 단위</strong>로 이관할 수 있어야 한다. 옷·피부는 WorldToon, 눈·투명 머리카락은 원본으로 남기는 부분 적용을 허용한다. 혼합 적용이 무조건 빠른 것은 아니므로 실제 패스 수와 외형을 함께 확인한다.</p>
+<h3>1.2 비목표</h3>
+<p>이번 작업으로 lilToon 전체 기능, 자체 렌더 파이프라인, GPU 군중 스키닝, VAT, Compute 기반 식생 생성기, 새 월드 스트리밍 시스템을 만들지 않는다. 기존 Animancer·Animator·AI·NavMesh·게임플레이·월드 생성 구조는 변경하지 않는다. 신규 외부 에셋 구매와 엔진/URP 업그레이드를 필수 조건으로 만들지 않는다.</p>
+<p><strong>금지:</strong> <code>Library/PackageCache</code> 직접 수정, URP 패키지의 공용 라이팅 코드 전역 패치, 원본 lilToon 소스 수정, 원본 재질·텍스처·TerrainData 덮어쓰기, 프로파일링 없이 전체 월드 강제 교체.</p>
+<h2 id="s02">02. G0 — 프로젝트 조사와 기준선</h2>
+<p>이전 대화의 버전 번호를 현재 저장소의 확정값으로 사용하지 않는다. 아래 항목을 읽어 <code>Docs/WorldToon/ProjectAudit.md</code>에 기록한다. 버전이 다르다는 이유만으로 프로젝트를 업그레이드하지 않는다.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>조사 항목</th>
+<th>확인할 파일·데이터</th>
+<th>결정에 미치는 영향</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>에디터·URP·Shader Graph 버전</td>
+<td><code>ProjectSettings/ProjectVersion.txt</code>, <code>Packages/manifest.json</code>, <code>Packages/packages-lock.json</code></td>
+<td>include 경로, 매크로, 패스 구현 기준</td>
+</tr>
+<tr>
+<td>렌더링 경로</td>
+<td>Graphics/Quality의 모든 URP Asset 및 Renderer Data</td>
+<td>Forward, Forward+, Deferred 여부</td>
+</tr>
+<tr>
+<td>실제 타깃</td>
+<td>Build Profile/Player 설정, 지원 그래픽스 API</td>
+<td>컴파일·성능 측정 대상</td>
+</tr>
+<tr>
+<td>카메라 기능</td>
+<td>SSAO, TAA/STP, Motion Blur, MSAA, Depth Texture, Depth Priming, 카메라 스택</td>
+<td>DepthNormals·MotionVectors·알파 처리</td>
+</tr>
+<tr>
+<td>조명 기능</td>
+<td>Main/Additional Lights, 그림자, Mixed Lighting, Lightmap, Light Probes, APV, Rendering Layers</td>
+<td>필수 라이팅 기능 및 배리언트</td>
+</tr>
+<tr>
+<td>특수 렌더링</td>
+<td>Decal Renderer Feature, DBuffer/Screen-space, 커스텀 안개, 물 Depth 사용</td>
+<td>별도 호환 요구</td>
+</tr>
+<tr>
+<td>lilToon</td>
+<td>설치 버전, 최적화 설정, 실제 사용 재질과 키워드</td>
+<td>원본 보존·변환 가능성·비교 기준</td>
+</tr>
+<tr>
+<td>월드 지형</td>
+<td>TerrainData, 타일별 레이어 수, Holes, Basemap 거리, Instancing</td>
+<td>Terrain4 적용 대상</td>
+</tr>
+<tr>
+<td>식생</td>
+<td>Terrain Detail/Tree, MeshRenderer, 기존 인스턴서, LODGroup, SpeedTree</td>
+<td>셰이더가 연결될 실제 렌더링 경로</td>
+</tr>
+<tr>
+<td>NPC</td>
+<td>SkinnedMeshRenderer 수, 슬롯 수, 기존 LOD, BlendShape, 재질 애니메이션</td>
+<td>스키닝 유지 및 변환 위험</td>
+</tr>
+<tr>
+<td>빌드 자산</td>
+<td>Addressables 그룹, 품질별 재질, 스트리핑 설정</td>
+<td>Player에서 누락되는 변형 방지</td>
+</tr>
+</tbody>
+</table></div>
+<p>기록 형식은 <code>확인됨 / 해당 없음 / 미확인</code>을 구분한다. 자동 조사로 확정 가능한 값은 사용자에게 다시 묻지 않는다. 에디터·플레이어를 실행할 수 없으면 정적 조사와 테스트 코드를 먼저 작성하고, 실행 검증은 <code>NOT_RUN</code>으로 남긴다.</p>
+<p><strong>렌더링 경로 결정:</strong> v1의 우선 지원은 실제 프로젝트의 Forward 또는 Forward+다. Deferred가 활성화되어 있으면 <code>UniversalForwardOnly</code> 경로 및 필요한 DepthNormals를 검증하는 별도 분기를 사용한다. 셰이더 때문에 프로젝트 전체를 Forward로 자동 변경하지 않으며, 검증 전 Deferred 지원 완료라고 쓰지 않는다.<a class="cite" href="#ref-S09" title="공식 근거 S09">S09</a></p>
+<h2 id="s03">03. 구조 — 표현은 공유하고 렌더링은 분리</h2>
+<pre tabindex="0"><code class="language-text">기존 캐릭터                         WorldToon
+lilToon (수정하지 않음)             WorldToonStyleProfile
+        │                          색조 / 명암 경계 / 환경광 강도
+        │ 외형 기준                         │
+        └──────────────┬────────────────────┘
+                       │   ToonLighting.hlsl
+         ┌─────────────┼───────────────┐
+         │             │               │
+      Mesh 계열      Foliage 계열     Terrain 계열
+   NPC / 건물 / 바위  풀 / 잎 / 덤불  Terrain4 + Basemap
+   기존 Renderer     기존 배치 시스템  Terrain 네이티브 경로
+         │             │               │
+         └────── 검증·변환·품질 프리셋 도구 ──┘
+</code></pre>
+<p>WorldToon의 공통 프로파일은 <strong>WorldToon 셰이더군</strong>을 제어한다. lilToon까지 같은 수식으로 바뀌는 것이 아니다. 원본 캐릭터와 나란히 놓고 색감·대비·그림자 밝기를 맞춘다. 모든 재질의 물리적 수치가 같거나 픽셀 단위로 동일해야 한다는 목표는 두지 않는다.</p>
+<h3>3.1 권장 파일 구조</h3>
+<p>실제 프로젝트의 네임스페이스·asmdef·폴더 규칙이 있으면 그것을 우선한다. 아래는 기본안이다.</p>
+<pre tabindex="0"><code class="language-text">Assets/Project/Rendering/WorldToon/
+  Runtime/
+    WorldToonStyleProfile.cs
+    WorldToonQualityProfile.cs
+    WorldToonGlobals.cs
+    WorldToonMaterialRegistry.cs
+    WorldToonRendering.Runtime.asmdef
+  Shaders/
+    WorldToonMesh.shader
+    WorldToonFoliage.shader
+    WorldToonTerrain4.shader
+    Hidden/WorldToonTerrainBaseMap.shader
+    Hidden/WorldToonTerrainBaseMapGen.shader
+    Includes/
+      WorldToonInput.hlsl
+      WorldToonLighting.hlsl
+      WorldToonURPAdapter.hlsl
+      WorldToonAlpha.hlsl
+      WorldToonWind.hlsl
+      WorldToonMeshPasses.hlsl
+      WorldToonFoliagePasses.hlsl
+      WorldToonTerrainPasses.hlsl
+  Editor/
+    WorldToonShaderGUI.cs
+    WorldToonAuditWindow.cs
+    WorldToonMaterialConverter.cs
+    WorldToonTerrainValidator.cs
+    WorldToonBuildValidator.cs
+    WorldToonVariantManifest.cs
+    WorldToonRendering.Editor.asmdef
+  Profiles/
+  Generated/Materials/
+  Generated/Textures/
+  Tests/EditMode/
+  Tests/PlayMode/
+  Samples/WorldToonValidation.unity
+Docs/WorldToon/
+  ProjectAudit.md
+  Decisions.md
+  ConversionReport.json
+  ValidationReport.md
+  PerformanceReport.md
+  ThirdPartyNotices.md
+</code></pre>
+<p><strong>각 단계에서 실제로 사용하는 파일만 만든다.</strong> 빈 구현 파일을 한꺼번에 만드는 방식은 피한다. 특히 Renderer Feature는 기본적으로 필요하지 않다. 선택적 Outline·특수 효과를 위해 미리 RenderGraph 패스를 추가하지 않는다.</p>
+<h2 id="s04">04. 공통 툰 라이팅 계약</h2>
+<h3>4.1 최소 수식</h3>
+<p>아래는 <strong>의도 설명용 의사 코드</strong>이며 복사 즉시 컴파일되는 URP 코드가 아니다. 실제 조명/프로브 함수와 구조체는 설치된 URP 패키지 기준으로 작성한다.</p>
+<pre tabindex="0"><code class="language-hlsl">// 입력 색은 선형 공간. normalWS와 lightDirWS는 정규화.
+half ndl = saturate(dot(normalWS, mainLight.direction));
+half edge = max(style.bandSoftness, material.minimumEdgeWidth);
+// AA 보정은 옵션. 필요한 프리셋에서만 화면 미분을 사용한다.
+edge = max(edge, optionalDerivativeAA(ndl));
+half band = smoothstep(style.bandThreshold - edge,
+                       style.bandThreshold + edge, ndl);
+half visibility = saturate(mainLight.shadowAttenuation)
+                * mainLight.distanceAttenuation;
+
+half3 directTint = lerp(style.shadeTint, style.litTint, band);
+half3 direct = mainLight.color * directTint * visibility;
+half3 indirect = SampleSelectedGI(normalWS) * style.indirectStrength;
+
+half3 extra = EvaluateEnabledAdditionalIrradiance();
+half3 color = baseColor * (direct + indirect * occlusion + extra);
+color += materialEmission; // v1 기본값 0. 미지원 재질은 변환 제외.
+return ApplyProjectFog(color);
+</code></pre>
+<p><strong>규칙:</strong> 툰 명암 단계와 그림자맵 가시성을 구분한다. shadow attenuation을 명암 입력에 섞은 뒤 또 곱해 그림자를 이중으로 어둡게 만들지 않는다. 위 식은 하나의 아트 모델이며 물리 기반 BRDF는 아니다. Shade Tint는 어두운 쪽의 직접광 표현이고, 밤·실내의 최소 밝기는 별도 환경광/프로브 정책으로 결정한다.</p>
+<p>주 광원이 꺼졌는데 재질이 자체 발광하듯 밝게 남는 하드코딩을 금지한다. <code>GetMainLight()</code>만 호출하고 그림자를 지원했다고 판정하지 않는다. 설치된 URP의 shadow 좌표·cascade·shadow mask 경로를 사용한다.<a class="cite" href="#ref-S08" title="공식 근거 S08">S08</a></p>
+<h3>4.2 표현 정책</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>요소</th>
+<th>v1 결정</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>명암</td>
+<td>2단, 경계 Softness 조절. 3단 이상과 Ramp Texture는 기본 제외</td>
+</tr>
+<tr>
+<td>Base Color</td>
+<td><code>_BaseMap × _BaseColor</code>. 텍스처 없는 단색은 White 텍스처로 호환</td>
+</tr>
+<tr>
+<td>주 광원</td>
+<td>URP가 제공하는 Main Light 방향·색·세기 사용</td>
+</tr>
+<tr>
+<td>환경광</td>
+<td>Mesh는 필요한 SH/프로브/라이트맵 경로. Terrain Detail은 별도 정책</td>
+</tr>
+<tr>
+<td>그림자</td>
+<td>Near/Mid 기본 수신. Far는 명시적 무그림자 프리셋 허용</td>
+</tr>
+<tr>
+<td>안개</td>
+<td>프로젝트의 실제 URP Fog 경로와 통합. 임의의 별도 거리 안개 중복 적용 금지</td>
+</tr>
+<tr>
+<td>Normal Map</td>
+<td>Standard의 승인된 재질만. Lite/Foliage/Terrain4 기본 제외</td>
+</tr>
+<tr>
+<td>반사·하이라이트</td>
+<td>기본 제외. 중요한 금속·보석은 기존 셰이더 유지</td>
+</tr>
+<tr>
+<td>Emission</td>
+<td>v1 기본 제외. 필수 에셋은 보존하거나 별도 승인된 확장으로 구현</td>
+</tr>
+<tr>
+<td>SSAO</td>
+<td>프로젝트에서 요구할 때 표면 기여도 처리까지 검증. DepthNormals 출력만으로 수신 완료라고 하지 않음</td>
+</tr>
+<tr>
+<td>색 공간</td>
+<td>프로젝트 설정 유지. 신규 프로파일·베이크 산출물의 sRGB/Linear 정책을 명시</td>
+</tr>
+</tbody>
+</table></div>
+<h3>4.3 추가 광원</h3>
+<p><code>MainOnly</code>와 <code>MainPlusAdditional</code> 두 모드를 둔다. <strong>단순함을 이유로 횃불·실내 조명이 필요한 NPC를 MainOnly로 강제하지 않는다.</strong> 밤의 마을·실내 NPC와 가까운 건축물은 Standard를 기본 후보로 둔다.</p>
+<p>추가 광원은 기본적으로 단순 확산광이며, 광원마다 완전한 다단 툰 램프를 반복하지 않는다. 추가 광원 그림자는 v1 기본 제외하되 실제 게임의 필수 표현이면 G0에서 의존성으로 승격한다. 기능을 제외했을 때 외형이 허용되지 않는 재질은 원본 유지 대상으로 분류한다.</p>
+<p>Forward와 Forward+의 광원 순회 방식은 다르다. 설치 버전의 공식 루프를 사용하며, Forward+에서 <code>GetAdditionalLightsCount()</code>만 이용한 단순 <code>for</code> 루프를 만들지 않는다. 비주광 방향광과 clustered punctual light 경로를 확인한다. 최신 웹 예제의 <code>_FORWARD_PLUS</code> 또는 이름이 다른 매크로를 현재 패키지에 존재하는지 확인 없이 복사하지 않는다.<a class="cite" href="#ref-S07" title="공식 근거 S07">S07</a></p>
+<p><strong>v1은 임의의 ‘첫 두 개 광원’ 제한을 만들지 않는다.</strong> 어떤 광원이 먼저 나오는지에 의존하는 결과와 팝핑을 피하기 위해, 현재 렌더러의 광원 목록을 따르거나 프리셋 전체에서 추가 광원을 끈다. 더 강한 광원 예산은 별도 검증 과제로 남긴다.</p>
+<h2 id="s05">05. 프리셋·데이터 모델</h2>
+<h3>5.1 셰이더와 품질 프리셋 구분</h3>
+<p>품질 등급마다 셰이더 코드를 복제하지 않는다. 한 계열의 공통 코드와 소수의 승인된 정적 조합을 사용한다. 색·명암 경계·바람 세기는 일반 상수이고, 큰 비용 차이를 만드는 기능만 정적 키워드로 분리한다.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>프리셋 ID</th>
+<th>대상</th>
+<th>주광 그림자 수신</th>
+<th>추가 광원</th>
+<th>Normal Map</th>
+<th>Outline</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MeshLite</code></td>
+<td>야외 바위·단순 소품·일반 NPC</td>
+<td>켬</td>
+<td>끔</td>
+<td>끔</td>
+<td>없음</td>
+</tr>
+<tr>
+<td><code>MeshStandard</code></td>
+<td>가까운 NPC·실내·횃불 주변</td>
+<td>켬</td>
+<td>켬</td>
+<td>기본 끔, 승인 재질만 켬</td>
+<td>없음</td>
+</tr>
+<tr>
+<td><code>MeshFar</code></td>
+<td>작은 화면 점유의 원거리 LOD</td>
+<td>끔</td>
+<td>끔</td>
+<td>끔</td>
+<td>없음</td>
+</tr>
+<tr>
+<td><code>FoliageNear</code></td>
+<td>가까운 풀·잎</td>
+<td>켬</td>
+<td>기본 끔</td>
+<td>끔</td>
+<td>없음</td>
+</tr>
+<tr>
+<td><code>FoliageFar</code></td>
+<td>원거리 식생/승인된 LOD</td>
+<td>끔</td>
+<td>끔</td>
+<td>끔</td>
+<td>없음</td>
+</tr>
+<tr>
+<td><code>Terrain4</code></td>
+<td>주 지형</td>
+<td>켬</td>
+<td>기본 끔, 요구 시 승인 조합</td>
+<td>끔</td>
+<td>없음</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>MeshFar</code>도 기본 주광 방향과 환경광은 유지한다. ‘Far = Unlit’로 자동 전환하여 낮밤이 깨지게 하지 않는다. 정확한 프리셋-키워드 조합은 <code>WorldToonVariantManifest</code>가 단일 기준이다.</p>
+<h3>5.2 ScriptableObject 계약</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>타입</th>
+<th>책임</th>
+<th>포함하지 않을 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>WorldToonStyleProfile</code></td>
+<td>Lit/Shade Tint, 명암 Threshold/Softness, 간접광 강도, 식생 환경광 색</td>
+<td>머티리얼마다 매 프레임 반복되는 로직</td>
+</tr>
+<tr>
+<td><code>WorldToonQualityProfile</code></td>
+<td>프리셋 선택, 선택적 그림자 정책, 기존 LOD/식생 시스템에 넘길 거리·밀도 가이드</td>
+<td>새로운 월드 스트리밍/AI/스키닝 시스템</td>
+</tr>
+<tr>
+<td><code>WorldToonVariantManifest</code></td>
+<td>사용 셰이더·프리셋·키워드·패스·플랫폼 목록</td>
+<td>임의의 전역 키워드 활성화</td>
+</tr>
+<tr>
+<td><code>WorldToonMaterialRegistry</code></td>
+<td>변환 재질 및 품질별 재질 참조, 원본 매핑</td>
+<td>런타임 재질 무한 생성</td>
+</tr>
+</tbody>
+</table></div>
+<p>구조 예시:</p>
+<pre tabindex="0"><code class="language-csharp">// 설계 계약 예시. 실제 파일·직렬화·네임스페이스는 프로젝트 규칙을 따른다.
+public enum WorldToonPreset
+{
+    MeshLite, MeshStandard, MeshFar,
+    FoliageNear, FoliageFar, Terrain4
+}
+
+public enum WorldToonConversionStatus
+{
+    Ready, NeedsReview, Unsupported, Protected, Applied, RolledBack
+}
+
+public interface IWorldToonMaterialAnalyzer
+{
+    MaterialAnalysis Analyze(Material source, RendererContext context);
+}
+
+public interface IWorldToonMaterialConverter
+{
+    ConversionResult CreateCopy(MaterialAnalysis analysis,
+                                WorldToonPreset preset,
+                                string destinationFolder);
+}
+</code></pre>
+<h3>5.3 전역 상태 계약</h3>
+<p><code>WorldToonGlobals</code> 하나가 <code>_WT_*</code> 전역 스타일 및 바람 시간/이전 시간을 제공한다. 재질별 값은 <code>UnityPerMaterial</code>, 전역값은 별도 전역 uniform으로 구분한다. <strong>같은 이름을 Material Property와 Global 양쪽에 넣어 우선순위를 혼동하지 않는다.</strong> 글로벌 스타일을 각 머티리얼에 매 프레임 복사하지 않는다.</p>
+<p>색조 프로파일은 시작·변경 시 갱신하고, 바람 시간만 필요하면 프레임마다 갱신한다. 낮밤 시스템이 있으면 기존 시스템의 이벤트/시간값을 소비하며 두 번째 태양 제어기를 만들지 않는다. Additive Scene 로드 시 중복 컨트롤러를 경고하고 소유자를 하나로 고정한다. Disable/도메인 리로드/Play Mode 종료 시 기본값 복구와 테스트 간 상태 격리를 제공한다.</p>
+<p>전역 스타일은 모든 카메라에서 공유한다. 다른 스타일을 요구하는 프리뷰 카메라는 별도 미리보기 환경 또는 상태 저장·복구로 격리하며, 게임 카메라의 값을 덮어쓰지 않는다. 미래의 바이옴별 값은 머티리얼/데이터 확장으로 처리하고, v1에서 청크마다 전역 색을 경쟁적으로 설정하지 않는다.</p>
+<h2 id="s06">06. Mesh — 일반 NPC와 오브젝트</h2>
+<p>NPC와 소품을 서로 다른 라이팅 코드로 만들지 않는다. <code>WorldToonMesh.shader</code>에서 같은 표현을 사용하되 프리셋과 원본 재질의 알파 요구를 구분한다.</p>
+<h3>6.1 표면 계약</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>항목</th>
+<th>규칙</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Opaque</td>
+<td>기본. <code>ZWrite On</code>, 불투명 블렌드, 기본 Back-face culling</td>
+</tr>
+<tr>
+<td>Cutout</td>
+<td>실제 구멍이 필요한 슬롯만 사용. Base alpha·Cutoff를 모든 관련 패스에서 동일하게 적용</td>
+</tr>
+<tr>
+<td>Transparent</td>
+<td>v1 미지원. 불투명으로 조용히 변환하지 않고 <code>Unsupported</code> 또는 원본 유지</td>
+</tr>
+<tr>
+<td>양면</td>
+<td>실제로 필요한 재질만. 임의로 전체 NPC와 건물을 <code>Cull Off</code>로 설정하지 않음</td>
+</tr>
+<tr>
+<td>Normal Map</td>
+<td>Standard의 승인 조합만. Tangent·스케일·방향 및 DepthNormals 일관성 검사</td>
+</tr>
+<tr>
+<td>텍스처</td>
+<td>BaseMap 필수 슬롯. Packed Map·추가 샘플은 필요성을 입증한 뒤 확장</td>
+</tr>
+<tr>
+<td>그림자</td>
+<td>수신 여부와 생성 여부를 구분. 생성은 Renderer/LOD 정책도 함께 다룸</td>
+</tr>
+<tr>
+<td>베이크 조명</td>
+<td>기존 Lightmap을 사용하는 건물은 UV·샘플링·Meta·Mixed Lighting 의존성 유지</td>
+</tr>
+<tr>
+<td>이동 NPC의 GI</td>
+<td>현재 프로젝트의 Light Probes 또는 APV 요구에 맞춤. 지원하지 않으면 배포 차단</td>
+</tr>
+</tbody>
+</table></div>
+<p>샘플 수 목표는 <strong>BaseMap 1회, Standard에서 승인된 Normal Map 1회 추가</strong>다. 이는 표면 재질 샘플만 센 값이며 shadow map, lightmap, APV, SSAO 등 전체 샘플 수가 1~2회라는 뜻이 아니다.</p>
+<h3>6.2 NPC 연결 규칙</h3>
+<p>SkinnedMeshRenderer, Bone, BlendShape, Animancer 동작은 그대로 둔다. 새로운 버텍스 셰이더에서 CPU/GPU 스키닝을 다시 구현하지 않는다. 일반 MeshRenderer용 GPU Instancing 옵션을 켰다고 SkinnedMeshRenderer NPC가 자동으로 인스턴싱되는 것은 아니다.<a class="cite" href="#ref-S05" title="공식 근거 S05">S05</a></p>
+<p>변환 전에 재질 속성을 애니메이션/게임 코드가 수정하는지 조사한다. <code>_MainTex</code>, <code>_Color</code>, 디졸브, 피격색, 투명도 등의 문자열 프로퍼티 참조도 검색한다. 이름이 바뀌면 어댑터 또는 명시적 호출부 수정이 필요하다. 기존 속성을 무시한 채 ‘보이는 것만’ 통과시키지 않는다.</p>
+<p>NPC 얼굴의 조명 품질이 부족하면 얼굴 SDF·머리카락 스텐실·전용 하이라이트를 v1에 모두 추가하지 않는다. 우선 그 슬롯 또는 해당 NPC를 원본 유지 대상으로 돌린다. 대화 카메라로 확대되는 NPC는 일반 군중과 별도로 검증한다.</p>
+<p><strong>효과의 범위:</strong> 셰이더 단순화는 라이팅/샘플링/일부 패스 비용을 줄일 후보이다. NPC의 AI, 애니메이션 평가, 스키닝, 머티리얼 슬롯 수, 삼각형 수는 별개다. 이 비용이 병목이면 해당 시스템의 별도 최적화 과제로 기록한다.</p>
+<h2 id="s07">07. Foliage — 식생 전용</h2>
+<p>식생은 단순한 색 계산뿐 아니라 알파 픽셀, 겹침, 양면, 그림자, 바람, 배치 효율을 함께 관리한다. 기본 정책은 <strong>Cutout + 한 개의 BaseMap + 단순 툰 명암 + 정점 바람</strong>이다. Transparent 블렌딩은 기본 경로로 제공하지 않는다. Cutout도 비용이 없다는 뜻은 아니며 타깃 장치에서 측정한다.</p>
+<h3>7.1 지원 경로</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>경로</th>
+<th>v1 방침</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>기존 Terrain의 Instanced Detail Mesh</td>
+<td>우선 검증. 프리팹 재질·셰이더와 인스턴싱 변형 확인</td>
+</tr>
+<tr>
+<td>기존 MeshRenderer + LODGroup</td>
+<td>지원. 실제 SRP Batcher/Instancing 경로를 측정</td>
+</tr>
+<tr>
+<td>이미 있는 명시적 인스턴서</td>
+<td>기존 데이터 계약에 연결. 셰이더만 별도로 교체</td>
+</tr>
+<tr>
+<td>신규 Compute/Indirect 식생 시스템</td>
+<td>v1에서 만들지 않음</td>
+</tr>
+<tr>
+<td>Terrain의 레거시 Grass/Vertex Lit</td>
+<td>커스텀 재질의 모든 속성이 적용된다고 가정하지 않음</td>
+</tr>
+<tr>
+<td>Terrain Tree/SpeedTree</td>
+<td>Detail과 동일하다고 취급하지 않음. 바람·빌보드·LOD 호환성을 별도 검사</td>
+</tr>
+</tbody>
+</table></div>
+<p>Unity의 Instanced Detail Mesh는 지정한 프리팹의 재질/셰이더를 사용하지만, 해당 경로의 인스턴스별 Light Probe/Lightmap 조명에는 제약이 있다. 일반 MeshRenderer의 프로브 경로를 그대로 사용할 수 있다고 가정하지 않는다.<a class="cite" href="#ref-S06" title="공식 근거 S06">S06</a></p>
+<p><strong>Terrain Detail의 기본 GI는 전역 하늘/땅 색 기반의 저비용 환경광</strong>으로 정한다. 따라서 동굴·실내의 위치별 간접광은 자동으로 해결되지 않는다. 그런 공간에는 Terrain Detail을 배치하지 않거나 검증된 프로브 대응 렌더링 경로를 사용한다. APV의 월드 위치 샘플링은 향후 선택지지만, Terrain Detail 기본 지원으로 표기하지 않는다.</p>
+<h3>7.2 정점 바람 데이터</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>데이터</th>
+<th>v1 의미</th>
+<th>기본값/검증</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Vertex Color R</td>
+<td>바람 가중치. 뿌리 0, 끝 1</td>
+<td>색이 없으면 자동으로 1로 간주하지 말고 경고</td>
+</tr>
+<tr>
+<td>Vertex Color G</td>
+<td>예약, v1 미사용</td>
+<td>기존 AO/색 데이터 덮어쓰기 금지</td>
+</tr>
+<tr>
+<td>Vertex Color B</td>
+<td>선택적 위상/개체 변주 보조</td>
+<td>미사용 시 고정값</td>
+</tr>
+<tr>
+<td>Vertex Color A</td>
+<td>예약, v1 미사용</td>
+<td>BaseMap alpha와 혼동하지 않음</td>
+</tr>
+<tr>
+<td>Material Wind Amplitude</td>
+<td>최대 횡방향 이동량의 기준</td>
+<td>월드 단위 정의 및 bounds 확장에 사용</td>
+</tr>
+<tr>
+<td>Global Wind Direction</td>
+<td>월드 수평 방향</td>
+<td>0 벡터 입력에 안전한 기본값</td>
+</tr>
+<tr>
+<td>Current/Previous Wind Time</td>
+<td>게임 시간 기준</td>
+<td>일시정지 시 정지, 카메라 컷/재시작 시 history reset</td>
+</tr>
+</tbody>
+</table></div>
+<p>기본 바람은 월드 공간 위치/개체 위상으로 계산하는 저주파 1~2개의 사인파와 정점 가중치다. 추가 노이즈 텍스처를 필수로 하지 않는다. 바람에 의해 위치가 달라진 정점을 ShadowCaster·DepthOnly·DepthNormals·MotionVectors에도 일관되게 적용한다. ShadowCaster의 bias는 변형된 위치·노멀 처리와 맞춰 검증한다.</p>
+<p>기존 모델에 Vertex Color가 없거나 다른 용도로 사용 중이면 원본 메시를 수정하지 않는다. 복제 메시의 높이 기반 가중치 생성은 <strong>단순 풀 모델에만 명시적으로 실행</strong>할 수 있다. 여러 줄기·수관이 섞인 나무에는 자동 생성 성공을 보장하지 않는다.</p>
+<p>월드 피벗/오브젝트 원점을 위상값으로 사용하는 경로는 Static Batching과의 호환을 확인한다. 필요하면 바람 대상의 Static Batching만 제외한다. 프로젝트 전체의 배칭을 끄지 않는다.</p>
+<h3>7.3 양면 노멀·경계·그림자</h3>
+<p>양면 카드는 앞/뒤 면 노멀 처리 규칙을 명시한다. 기본은 뒷면 노멀 반전 후 라이팅하고, 스타일용 상향 노멀 혼합은 선택적 재질값으로 둔다. 나무 줄기나 모든 NPC에 이 보정을 적용하지 않는다.</p>
+<p>알파 Cutoff, UV, LOD 디더, 정점 변형을 패스별로 복붙하지 말고 공통 함수로 유지한다. 작은 잎의 mip에서 형상이 갑자기 사라지는지 검사한다. 알파 커버리지/텍스처 임포트 조정은 원본 대신 복제 자산에 적용하고, 과도한 카드 겹침을 셰이더만으로 해결하려 하지 않는다.</p>
+<p>잔디의 그림자 <strong>생성</strong>은 기본 Off 후보이고, 근거리 중요 덤불·수목은 On 후보다. 모두 실제 검증 후 채택한다. Shader의 Receive Shadows Off만으로 ShadowCaster 비용이 사라진다고 설명하지 않는다. Renderer, Terrain Detail 경로 및 실제 shadow draw를 확인한다.</p>
+<p>바람의 최대 변위만큼 culling bounds가 안전해야 한다. Terrain Detail처럼 bounds를 직접 제어하기 어려운 경로는 그 렌더러의 지원 방식을 확인하고 카메라 가장자리 테스트를 통과시키기 전 적용하지 않는다. <code>updateWhenOffscreen=true</code> 같은 광범위한 우회 설정을 기본 해결책으로 쓰지 않는다.</p>
+<h2 id="s08">08. Terrain — Terrain4 전용 경로</h2>
+<p><strong>Unity Terrain에 일반 Mesh 셰이더를 그대로 넣는 방식은 사용하지 않는다.</strong> Terrain의 control/splat blending, 타일 좌표, height-derived normal, instancing, holes, 원거리 basemap 등 네이티브 계약을 유지한 상태에서 최종 라이팅을 WorldToon으로 교체한다.</p>
+<h3>8.1 구현 원칙</h3>
+<p>설치된 URP 패키지의 <code>Shaders/Terrain/</code> 구현을 읽고 정확한 버전·관련 파일을 기록한다. 필요한 파일/로직만 프로젝트 소유 영역으로 분리하며, 출처와 고지사항을 유지한다. GitHub <code>master</code>는 구조를 이해하는 자료일 뿐 설치 버전의 대체물이 아니다. Terrain Lit의 BaseMap/생성 셰이더 의존 구조는 공식 소스에서도 확인할 수 있다.<a class="cite" href="#ref-S11" title="공식 근거 S11">S11</a><a class="cite" href="#ref-S12" title="공식 근거 S12">S12</a></p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>구성</th>
+<th>책임</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>WorldToonTerrain4.shader</code></td>
+<td>최대 4개 TerrainLayer의 표면 혼합 + 툰 라이팅</td>
+</tr>
+<tr>
+<td><code>WorldToonTerrainBaseMap.shader</code></td>
+<td>원거리 합성 색을 같은 명암·그림자·안개 규칙으로 렌더링</td>
+</tr>
+<tr>
+<td><code>WorldToonTerrainBaseMapGen.shader</code></td>
+<td>원거리용 표면 데이터 생성. 시간대 라이팅을 텍스처에 굽지 않음</td>
+</tr>
+<tr>
+<td><code>WorldToonTerrainValidator</code></td>
+<td>레이어 수, 의존 셰이더, holes, basemap, 타일 경계 검사</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>v1에서는 Terrain 한 타일의 등록 Layer 수를 4개 이하로 제한한다.</strong> 월드 전체에 4개 재질만 쓰라는 뜻이 아니다. 숲·가을숲·메마른 지역·평야·고산·강가·호숫가 등 바이옴마다 다른 4개 이하의 타일 팔레트를 사용할 수 있다. 지역/바이옴 종류와 한 타일의 Terrain Layer 개수는 별개다.</p>
+<p>URP의 레이어 패스 비용을 고려한 보수적 제한이며, 4개를 초과하는 기존 타일을 자동으로 잘라내거나 페인트 데이터를 재배치하지 않는다. 해당 타일은 원본 Terrain Lit 유지와 <code>WT-TERRAIN-001</code> 경고 대상으로 둔다.<a class="cite" href="#ref-S10" title="공식 근거 S10">S10</a></p>
+<h3>8.2 근거리 처리 순서</h3>
+<pre tabindex="0"><code class="language-text">Terrain native vertex/instance setup
+  → UV / control map / layer scale·offset
+  → layer weight blend (최대 4)
+  → Base Color 혼합
+  → 지형 노멀과 선택된 GI 준비
+  → WorldToon 라이팅 한 번
+  → Main Shadow / 필요한 Additional Light / Fog
+</code></pre>
+<p>v1은 레이어별 Normal Map·Height Blend·고급 Mask Map·Tri-planar를 기본 제외한다. <strong>기존 Terrain이 이에 의존하면 일반 변환 대상이 아니다.</strong> 실제 사용 의존성을 검사해 <code>NeedsReview</code>로 남기고 유지한다. TerrainLayer의 레이아웃, 타일링, 색상 remap, 알파 의미도 정확히 지원하는 범위를 문서화한다.</p>
+<p>4개 레이어를 하나의 패스에서 혼합한 뒤 툰 라이팅을 수행한다. 향후 다중 AddPass를 추가할 때 각 패스의 비선형 툰 계산·환경광·안개가 누적되어 색이 변할 수 있으므로 단순한 패스 복제를 금지한다. v1은 AddPass 확장을 하지 않는다.</p>
+<h3>8.3 필수 검증</h3>
+<p>타일 경계의 높이·색·노멀, 가까운 지형과 원거리 Basemap의 색감, Basemap 재생성, Terrain Holes의 컬러·깊이·그림자, Terrain Instancing On/Off, 캐스케이드 경계, 낮밤 전환을 검증한다. Holes나 basemap이 깨지면 ‘최적화 때문에 생긴 제한’으로 묵인하지 않는다.</p>
+<p>원거리용 텍스처에는 낮 시간의 명암을 굽지 않는다. Basemap 거리 변경은 별도 품질 최적화이며 동일 조건 A/B에서는 고정한다. <code>_Control</code>, <code>_Splat*</code>, Terrain 전용 바인딩을 월드 전역으로 직접 덮어쓰지 않는다.</p>
+<h2 id="s09">09. 렌더 패스와 기능 의존성</h2>
+<p>‘Forward 한 패스’는 <strong>컬러 라이팅 패스가 한 개</strong>라는 뜻이다. 그림자·깊이·모션벡터까지 포함하여 draw가 무조건 한 번이라는 뜻이 아니다. 필요 없는 패스를 실행하지 않는 것과, 필요한 패스를 제거해 화면을 깨뜨리는 것을 구분한다.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>패스/기능</th>
+<th>적용 조건</th>
+<th>반드시 일치할 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>UniversalForward</code> 또는 <code>UniversalForwardOnly</code></td>
+<td>실제 렌더링 경로에 따라 선정</td>
+<td>공통 라이팅, Base alpha, 인스턴스 데이터</td>
+</tr>
+<tr>
+<td><code>ShadowCaster</code></td>
+<td>그림자를 생성하는 재질/렌더러</td>
+<td>Cutout·바람·LOD 상태, 올바른 bias</td>
+</tr>
+<tr>
+<td><code>DepthOnly</code></td>
+<td>Depth prepass/Depth Priming 등 필요 시</td>
+<td>실제 표면 실루엣·정점 변형</td>
+</tr>
+<tr>
+<td><code>DepthNormals</code> 계열</td>
+<td>SSAO/노멀 요구 기능이 있을 때</td>
+<td>URP가 기대하는 노멀 인코딩·알파·변형</td>
+</tr>
+<tr>
+<td><code>MotionVectors</code></td>
+<td>현재 TAA/STP/Motion Blur 등 요구 시</td>
+<td>스키닝, 이전 위치/시간, 알파, 디더</td>
+</tr>
+<tr>
+<td><code>Meta</code></td>
+<td>GI 베이크 대상 정적 재질</td>
+<td>색/발광 입력. 툰 그림자 자체를 베이크하지 않음</td>
+</tr>
+<tr>
+<td>Scene selection/picking</td>
+<td>에디터 선택/페인팅에 필요한 경우</td>
+<td>Terrain/식생 선택과 도구 사용 정상</td>
+</tr>
+<tr>
+<td>Decal 지원</td>
+<td>프로젝트의 필수 decal이 있을 때</td>
+<td>실제 DBuffer/Screen-space 경로를 별도 검증</td>
+</tr>
+</tbody>
+</table></div>
+<p>패스의 <strong>이름(Name)</strong> 과 <strong>LightMode 태그</strong>를 혼동하지 않는다. <code>DepthNormals</code>/<code>DepthNormalsOnly</code>는 실제 설치 버전과 렌더러 요구를 따르며, 이름만 둘 다 복제해 중복 렌더링을 만들지 않는다.<a class="cite" href="#ref-S09" title="공식 근거 S09">S09</a></p>
+<p>URP의 Motion Vector fallback은 알파 클리핑·LOD CrossFade·커스텀 정점 변형을 자동으로 정확하게 처리하는 만능 해결책이 아니다. 바람 식생에는 현재/이전 프레임의 변형을 계산하는 전용 처리가 필요하다. 단순 skinned/transform motion에 fallback을 재사용하더라도 해당 조건을 충족하는지 확인한다.<a class="cite" href="#ref-S13" title="공식 근거 S13">S13</a></p>
+<p>GI는 SH, Lightmap, APV를 한꺼번에 더하지 않는다. 프로젝트가 실제로 사용하는 경로를 선택하고 Mixed Lighting의 직접광 중복도 방지한다. APV가 필요한 프로젝트에서 단순 <code>SampleSH</code> 호출만으로 ‘프로브 지원 완료’라 하지 않는다.<a class="cite" href="#ref-S14" title="공식 근거 S14">S14</a></p>
+<p><strong>Decal 유의점:</strong> URP Lit에 보이던 스킬 바닥 표시가 커스텀 셰이더에도 자동으로 보인다고 가정하지 않는다. 기존 스킬 인디케이터/DBuffer 데칼이 필수이면 통합 테스트 항목으로 승격한다. 이를 위해 전체 PBR 라이팅을 다시 가져오기보다 필요한 입력 처리만 연결하며, 미지원 상태에서는 해당 표면 이관을 보류한다.</p>
+<h2 id="s10">10. 배칭·인스턴싱·런타임 비용</h2>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>대상/경로</th>
+<th>기본 방침</th>
+<th>금지할 가정</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>다양한 MeshRenderer 소품</td>
+<td>SRP Batcher 호환 유지</td>
+<td>SRP Batcher가 모든 draw call을 합친다는 설명</td>
+</tr>
+<tr>
+<td>SkinnedMeshRenderer NPC</td>
+<td>SRP Batcher 호환 및 재질/패스 최소화</td>
+<td>Enable Instancing만으로 NPC 군중 인스턴싱 완성</td>
+</tr>
+<tr>
+<td>반복 식생</td>
+<td>기존 Terrain Instanced Detail 또는 검증된 인스턴서</td>
+<td>Material checkbox만 확인하고 성공 판정</td>
+</tr>
+<tr>
+<td>선택적 개체 색 변화</td>
+<td>제한된 공유 재질 팔레트/기존 instance data</td>
+<td>모든 Renderer에 MPB를 무조건 배포</td>
+</tr>
+<tr>
+<td>바람·시간·월드 스타일</td>
+<td>소수의 전역값</td>
+<td>잔디/NPC마다 Update에서 SetFloat/SetColor</td>
+</tr>
+</tbody>
+</table></div>
+<p>SRP Batcher는 렌더 상태 설정의 CPU 비용을 줄이는 경로다. 커스텀 셰이더의 재질 상수는 단일 <code>UnityPerMaterial</code> CBUFFER에 모으고, 같은 셰이더의 모든 패스에서 레이아웃을 일치시킨다. 일반 Renderer에 MaterialPropertyBlock을 적용하면 SRP Batcher 호환성에 영향을 주므로 사용을 제한한다.<a class="cite" href="#ref-S03" title="공식 근거 S03">S03</a><a class="cite" href="#ref-S04" title="공식 근거 S04">S04</a></p>
+<p><strong>단, MPB를 전면 금지하지 않는다.</strong> 명시적 인스턴싱 경로에서 필요한 인스턴스/프로브 데이터 전달 등은 별도 계약이다. SRP Batcher와 명시적 인스턴싱을 같은 것으로 취급하지 않는다. 프로젝트 전체의 SRP Batcher를 끄는 변경은 v1에서 금지한다.<a class="cite" href="#ref-S05" title="공식 근거 S05">S05</a></p>
+<p><code>.material</code> 접근으로 런타임 재질 복제를 만들지 않는다. 변환/품질용 재질은 에디터에서 생성·참조하고, 런타임은 등록된 참조를 적용한다. 특수한 개체별 피격색·디졸브는 현재 게임 시스템의 요구를 확인하고 별도 승인한다.</p>
+<p>런타임 정상 상태 목표는 이 모듈이 만드는 <strong>프레임당 관리 힙 할당 0 B</strong>, 오브젝트 수에 비례하는 재질 갱신 루프 없음, 불필요한 자체 Tick 컴포넌트 없음이다. 실제 Profiler 측정으로 검증한다. 셰이더 include의 <code>half</code> 사용이 모든 GPU에서 항상 더 빠르다고 가정하지 않으며 월드 위치·시간·행렬은 필요한 정밀도를 유지한다.</p>
+<h2 id="s11">11. LOD·품질 단계와 가시성</h2>
+<p>기존 <code>LODGroup</code>과 식생 시스템의 거리/밀도 기능을 먼저 사용한다. 셰이더에서 픽셀을 버리는 것만으로 오브젝트의 제출·정점 처리가 사라졌다고 보지 않는다. 거리에 따른 비표시는 실제 culling/LOD 시스템이 담당한다.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>단계</th>
+<th>재질 정책</th>
+<th>기하·배치 정책</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Near</td>
+<td>필요한 그림자·추가 조명·알파·Normal 유지</td>
+<td>원본 또는 가까운 LOD</td>
+</tr>
+<tr>
+<td>Mid</td>
+<td>Normal 제거 후보, 단순 라이팅, 중요 그림자 유지</td>
+<td>기존 저해상도 LOD 및 밀도 축소</td>
+</tr>
+<tr>
+<td>Far</td>
+<td>주광 + 환경광, 그림자 수신/생성 축소 후보</td>
+<td>더 단순한 LOD·기존 빌보드·컬링</td>
+</tr>
+</tbody>
+</table></div>
+<p>고정 거리 20/50/100m를 모든 대상에 강제하지 않는다. NPC의 화면 크기, 나무 높이, 카메라 FOV와 기존 LOD 기준을 따른다. 자동 인스턴싱 Detail 경로가 개체별 프리셋 교체를 지원하지 않으면 그 경로에 없는 기능을 구현했다고 쓰지 않는다. v1에서 FoliageFar는 <strong>그 기능을 제공하는 렌더링 경로에만</strong> 사용한다.</p>
+<p>CrossFade를 사용할 때는 컬러·깊이·노멀·그림자·모션벡터에서 해당 URP 버전의 규칙을 적용한다. 화면 공간과 shadow map 공간이 다르다는 점도 검증한다. LOD 전환 시 두 LOD가 동시에 렌더되는 구간의 비용을 별도로 측정한다.</p>
+<p>품질 설정을 낮춘다는 이유로 멀리 있는 건물 내부가 항상 밝아지거나 NPC가 밤에 발광하면 실패다. 낮은 품질도 아트 방향의 최소 기준을 유지해야 한다.</p>
+<h2 id="s12">12. 머티리얼 변환 도구 — 복제와 복구 우선</h2>
+<h3>12.1 사용자 흐름</h3>
+<pre tabindex="0"><code class="language-text">선택 자산/프리팹/씬 범위 지정
+  → Analyze (읽기 전용)
+  → 보호 대상·미지원 기능·코드 의존성 보고
+  → 프리셋 선택 + 복제 생성
+  → 원본/변환본 A/B 미리보기
+  → Validate
+  → 선택 항목만 Apply
+  → Manifest 저장
+  → 필요하면 Rollback
+</code></pre>
+<p>기본 동작은 Analyze다. 창을 열거나 스캔했다는 이유만으로 원본이 변경되지 않는다. 출력은 <code>Generated/Materials</code>, <code>Generated/Textures</code> 아래로 제한한다. 프리팹은 가능하면 Variant/복제본으로 검증하고, 실제 원본 참조 교체는 사용자가 선택한 범위와 승인된 목록에만 수행한다.</p>
+<h3>12.2 변환 가능성</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>원본 기능</th>
+<th>기본 처리</th>
+<th>위험</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Base Texture·Color·UV transform</td>
+<td>설치 버전의 속성을 확인해 복사</td>
+<td>색을 굽고 다시 Tint를 곱하는 이중 적용</td>
+</tr>
+<tr>
+<td>Opaque/Cutout·Cutoff·Cull</td>
+<td>실질 렌더 모드까지 확인해 대응</td>
+<td>Render Queue만 보고 Transparent를 오판</td>
+</tr>
+<tr>
+<td>단순 Normal Map</td>
+<td>Standard만 복사 후보</td>
+<td>Tangent·강도·패킹 차이</td>
+</tr>
+<tr>
+<td>lilToon 색 보정·2nd/3rd layer</td>
+<td>지원되는 정적 베이크 후 검토</td>
+<td>애니메이션/UV/특수 Blend 재현 불가</td>
+</tr>
+<tr>
+<td>Shadow/Rim/MatCap/Specular</td>
+<td>근사치 또는 제외를 명시</td>
+<td>원본 외형 보존을 보장할 수 없음</td>
+</tr>
+<tr>
+<td>Transparent·굴절·털·스텐실·특수 얼굴</td>
+<td>자동 변환 제외</td>
+<td>불투명 처리 시 파손</td>
+</tr>
+<tr>
+<td>재질 애니메이션/게임 코드 프로퍼티</td>
+<td>사용처와 새 속성 매핑 검증</td>
+<td>피격·소멸·상호작용 연출 파손</td>
+</tr>
+<tr>
+<td>Terrain</td>
+<td>전용 Validator만 사용</td>
+<td>일반 Material Converter로 처리 금지</td>
+</tr>
+</tbody>
+</table></div>
+<p>lilToon 공식 도구의 베이크 기능은 일부 정적 색/레이어 통합에 활용할 수 있다. 해당 버전에 호출 가능한 안정적 API가 확인되지 않으면 reflection으로 내부 메서드를 무리하게 호출하지 말고 수동 베이크 단계로 표시한다. <strong>베이크는 시점·조명 의존 효과나 애니메이션 기능까지 보존하는 만능 변환이 아니다.</strong><a class="cite" href="#ref-S01" title="공식 근거 S01">S01</a></p>
+<h3>12.3 보고·복구 데이터</h3>
+<p>각 항목은 <code>sourceMaterialGuid</code>, <code>sourceDependencyHash</code>, <code>targetMaterialGuid</code>, <code>presetId</code>, <code>renderer/prefab path</code>, <code>materialSlot</code>, <code>sourceShaderName</code>, <code>sourceKeywords</code>, <code>warnings</code>, <code>status</code>, <code>toolVersion</code>을 기록한다.</p>
+<p>같은 원본+설정으로 다시 실행하면 기존 생성본을 재사용하거나 충돌을 보고한다. <code>material (1)</code>, <code>(2)</code>가 누적되는 변환기를 만들지 않는다. 이미 사람이 수정한 생성본은 hash 차이를 경고하고 자동 덮어쓰지 않는다.</p>
+<p>적용은 Editor Undo와 영구 매핑 기록을 함께 제공한다. Rollback은 <strong>기록된 대상 슬롯</strong>만 되돌리며 작업 이후 다른 사람이 변경한 참조를 덮어쓰지 않도록 현재 참조 일치 여부를 검사한다. 중간 실패 시 작업 단위로 원복하고 성공/실패를 분리해서 남긴다. TerrainData와 원본 텍스처는 어떤 경우에도 자동 삭제하지 않는다.</p>
+<h2 id="s13">13. Shader Variant·빌드·Addressables</h2>
+<p>색, 명암 경계, 바람 세기처럼 값만 다른 항목을 모두 키워드로 만들지 않는다. 반대로 Lite에서 필요 없는 Normal 샘플링/추가 광원 루프가 매 픽셀 런타임 분기 뒤에 남지 않도록 큰 기능은 승인된 정적 조합으로 구분한다.</p>
+<h3>13.1 키워드 정책</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>종류</th>
+<th>정책</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>WorldToon 자체 기능</td>
+<td>충돌 방지 접두사와 local keyword 사용을 우선. 용도에 맞는 shader stage 확인</td>
+</tr>
+<tr>
+<td>URP 플랫폼·조명 키워드</td>
+<td>설치된 URP의 계약을 따름. 임의로 이름을 바꾸거나 제거하지 않음</td>
+</tr>
+<tr>
+<td>Alpha Clip</td>
+<td>필요한 재질/패스에만. 모든 관련 패스의 동일 실루엣 유지</td>
+</tr>
+<tr>
+<td>Additional Lights/Normal</td>
+<td>프리셋 Manifest에서 허용한 조합만</td>
+</tr>
+<tr>
+<td>Debug 기능</td>
+<td>Development 전용. Release 변형과 분리</td>
+</tr>
+<tr>
+<td>런타임 품질 변경</td>
+<td>미리 생성·참조된 재질 프리셋으로 전환. 보존되지 않은 키워드 조합 생성 금지</td>
+</tr>
+</tbody>
+</table></div>
+<p>초기 목표는 <strong>Mesh 계열의 프로젝트 자체 승인 조합 8개 안팎, Foliage 4개 안팎, Terrain4 2개 안팎</strong>이다. 이는 URP 조명·플랫폼·패스·GI 키워드까지 포함한 총 compiled variant 수가 아니다. 기능 요구 때문에 늘어나면 이유와 실제 증가량을 <code>Decisions.md</code>에 기록한다.</p>
+<p>URP의 스트리핑은 빌드에 포함된 여러 URP Asset/품질 설정에 영향을 받는다. ‘현재 씬에서 안 쓴다’만으로 기능 변형을 삭제하지 않는다.<a class="cite" href="#ref-S15" title="공식 근거 S15">S15</a> Addressables로 나중에 로드되는 재질, 낮은 품질의 Far 재질, Terrain BaseMap 의존 셰이더, 인스턴싱·Holes·모션벡터 변형을 별도로 확인한다.</p>
+<p><strong>Always Included Shaders 전체 등록으로 핑크 문제를 덮지 않는다.</strong> 필요한 재질/프리셋 참조와 ShaderVariantCollection 등 보존 경로를 실제 빌드 구조에 맞춰 제한적으로 사용한다. SVC 하나가 모든 Addressables/커스텀 스트리퍼 문제를 자동 해결한다고 가정하지 않는다. 필요한 조합은 실제 Player에서 렌더링한다.<a class="cite" href="#ref-S16" title="공식 근거 S16">S16</a><a class="cite" href="#ref-S19" title="공식 근거 S19">S19</a></p>
+<p>v1의 커스텀 스트리퍼는 먼저 <strong>보고 전용</strong>으로 구현한다. URP 기본 스트리핑이 정상 동작하고 테스트 범위가 확보된 뒤, 승인된 WorldToon 조합에만 제거 규칙을 적용한다. 다른 에셋/lilToon/URP 셰이더의 키워드를 전역으로 삭제하지 않는다.</p>
+<h2 id="s14">14. 에디터 사용성과 오류 코드</h2>
+<p><code>Tools/WorldToon/Audit &amp; Convert</code> 창에서 스코프, 프로파일, 상태별 개수, 개별 경고, 생성 경로를 보여준다. 적어도 Analyze / Create Copies / Preview / Validate / Apply / Rollback / Export Report를 제공한다. 고급 기능을 한꺼번에 만들기 어렵다면 G1~G3에서는 단순 메뉴 도구로 시작하고 파이프라인 계약부터 고정한다.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>코드</th>
+<th>의미</th>
+<th>처리</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>WT-PROTECT-001</code></td>
+<td>보호된 플레이어/주요 캐릭터</td>
+<td>변환·적용 차단</td>
+</tr>
+<tr>
+<td><code>WT-MAT-001</code></td>
+<td>Transparent/특수 기능 미지원</td>
+<td>원본 유지</td>
+</tr>
+<tr>
+<td><code>WT-MAT-002</code></td>
+<td>재질 프로퍼티 애니메이션/코드 의존</td>
+<td>어댑터 검증 전 적용 차단</td>
+</tr>
+<tr>
+<td><code>WT-TERRAIN-001</code></td>
+<td>Terrain Layer &gt; 4</td>
+<td>Terrain4 적용 차단</td>
+</tr>
+<tr>
+<td><code>WT-TERRAIN-002</code></td>
+<td>Basemap/Holes/Layer 의미 불일치</td>
+<td>적용 차단</td>
+</tr>
+<tr>
+<td><code>WT-FOLIAGE-001</code></td>
+<td>바람 마스크/노멀/bounds 부적합</td>
+<td>해당 프리셋 적용 차단 또는 바람 없는 원본 유지</td>
+</tr>
+<tr>
+<td><code>WT-GI-001</code></td>
+<td>실제 GI 경로 미지원</td>
+<td>대상 이관 차단</td>
+</tr>
+<tr>
+<td><code>WT-BATCH-001</code></td>
+<td>기대한 배칭 경로 불일치</td>
+<td>측정 경고, 관련 최적화 주장 금지</td>
+</tr>
+<tr>
+<td><code>WT-BUILD-001</code></td>
+<td>필요한 variant/hidden shader 누락</td>
+<td>릴리스 적용 차단</td>
+</tr>
+<tr>
+<td><code>WT-PASS-001</code></td>
+<td>필수 패스 실루엣/데이터 불일치</td>
+<td>릴리스 적용 차단</td>
+</tr>
+<tr>
+<td><code>WT-CONFLICT-001</code></td>
+<td>원본/생성본/대상 참조가 변경됨</td>
+<td>자동 덮어쓰기·Rollback 차단</td>
+</tr>
+<tr>
+<td><code>WT-ENV-001</code></td>
+<td>실행/컴파일/GPU 측정 환경 없음</td>
+<td><code>NOT_RUN</code>, 성공으로 표시 금지</td>
+</tr>
+</tbody>
+</table></div>
+<p>Build Validator는 <strong>WorldToon 적용 범위와 활성화된 기능</strong>에 한정해서 검사한다. 이번 작업과 무관한 프로젝트 문제를 갑자기 전부 빌드 차단 대상으로 만들지 않는다. 승인 예외에는 대상·이유·기능 영향·검증 상태를 함께 기록한다.</p>
+<h2 id="s15">15. 구현 단계와 종료 조건</h2>
+<p>각 단계의 산출물을 확인한 후 다음 단계로 진행한다. ‘설계만 하고 멈추기’가 아니라 구현 에이전트가 이 순서대로 실행하는 계획이다. 다만 실제 성능/외형이 실패한 대상의 강제 적용은 금지한다.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>단계</th>
+<th>구현/작업</th>
+<th>완료 조건</th>
+<th>실패 시</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>G0 조사</strong></td>
+<td>프로젝트·원본 재질·렌더러 조사, 기준 씬 확보</td>
+<td>버전/경로/필수 기능/보호 목록 기록</td>
+<td>미확인 부분을 명시하고 안전한 최소 작업만</td>
+</tr>
+<tr>
+<td><strong>G1 Mesh 최소본</strong></td>
+<td>BaseMap·툰 명암·주광 그림자·GI·Fog, 필요한 Depth 패스</td>
+<td>바위/단순 소품의 실제 프로젝트 렌더링 정상</td>
+<td>라이팅·패스부터 수정, 부가 기능 추가 금지</td>
+</tr>
+<tr>
+<td><strong>G2 최소 A/B</strong></td>
+<td>원본/최적화 원본/WorldToon 비교</td>
+<td>측정 가능하거나 측정 불가 사유와 재현 절차 기록</td>
+<td>개선 없으면 범위 축소·원본 유지 후보</td>
+</tr>
+<tr>
+<td><strong>G3 Foliage</strong></td>
+<td>Cutout·바람·양면·배치 연결·필요 MotionVectors</td>
+<td>패스 정합·bounds·인스턴싱 확인</td>
+<td>기존 식생 유지, 신규 렌더러 재작성으로 확장 금지</td>
+</tr>
+<tr>
+<td><strong>G4 NPC</strong></td>
+<td>스키닝 재질 연결·슬롯별 변환·Standard 추가 광원</td>
+<td>애니메이션·대화 근접·낮밤·게임 연출 회귀 통과</td>
+<td>중요 슬롯/해당 NPC 원본 유지</td>
+</tr>
+<tr>
+<td><strong>G5 Terrain4</strong></td>
+<td>Terrain/베이스맵 경로, layer validator</td>
+<td>1~4 레이어·타일 경계·원거리·holes 정상</td>
+<td>원본 Terrain Lit 유지</td>
+</tr>
+<tr>
+<td><strong>G6 도구·빌드</strong></td>
+<td>변환/복구·Variant Manifest·Addressables 검증</td>
+<td>재현 가능한 Player 빌드·품질/LOD/원거리 통과</td>
+<td>적용 차단 및 구체적 오류 보고</td>
+</tr>
+<tr>
+<td><strong>G7 도입 판정</strong></td>
+<td>성능·외형 보고서, 적용 대상 목록</td>
+<td>통과 대상만 승인, 나머지는 보류/원복</td>
+<td>전체 일괄 교체하지 않음</td>
+</tr>
+</tbody>
+</table></div>
+<p>G0~G2가 가장 먼저다. BaseMap/변환 UI를 전부 만든 뒤 처음으로 성능을 재는 순서는 피한다. Terrain은 Mesh/Foliage보다 네이티브 통합의 검증 범위가 넓으므로 뒤에서 진행한다. 사용자가 지형 외형을 우선하면 G5 순서를 당길 수 있지만 테스트를 생략하지 않는다.</p>
+<h3>15.1 Claude와 Codex의 협업 규칙</h3>
+<p>한 번에 한 에이전트만 작업 트리의 구현을 소유한다. 다른 에이전트는 diff와 테스트 로그를 검토한다. 모델 이름에 따라 영구적인 역할을 고정할 필요는 없다.</p>
+<p>각 단계에서 <code>구현 변경 / 실행한 명령 / 실제 결과 / 미실행 항목 / 다음 단계 / 변경한 설계 결정</code>을 남긴다. 동일 셰이더 include와 Manifest를 두 에이전트가 동시에 수정하지 않는다. 관련 없는 파일·기존 사용자 수정은 되돌리지 않는다.</p>
+<h2 id="s16">16. 검증 씬과 테스트 명세</h2>
+<p>테스트는 <code>PASS / FAIL / NOT_RUN / NOT_APPLICABLE</code> 네 상태를 사용한다. <code>NOT_APPLICABLE</code>에는 G0의 근거가 필요하다. 셰이더가 에디터에서 보인다는 사실만으로 Player/GPU/Addressables 검증까지 PASS 처리하지 않는다.</p>
+<h3>16.1 테스트 씬</h3>
+<p>별도 <code>WorldToonValidation</code> 씬에 고정 시드와 고정 카메라 지점을 둔다. 게임 씬을 대량 수정해 검증하지 않는다. 원본과 변환본을 같은 위치에 동시에 그려 성능을 비교하지 않고, 동일한 객체 집합의 활성 재질 세트만 전환한다.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>구역</th>
+<th>내용</th>
+<th>주로 확인할 것</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A. 재질 비교</td>
+<td>구·박스·바위·기존 NPC 한 명</td>
+<td>기본 명암, 색, 그림자, 법선</td>
+</tr>
+<tr>
+<td>B. 마을</td>
+<td>낮/밤, 실내, 횃불 Point/Spot Light</td>
+<td>NPC·건물 추가 광원 및 GI</td>
+</tr>
+<tr>
+<td>C. 식생</td>
+<td>풀/덤불/나무, 카메라 낮은 각도</td>
+<td>alpha 겹침, 바람, 그림자, bounds</td>
+</tr>
+<tr>
+<td>D. Terrain</td>
+<td>1/2/4 레이어 및 인접 타일, 동굴 hole</td>
+<td>splat·basemap·holes·seam</td>
+</tr>
+<tr>
+<td>E. 실패 입력</td>
+<td>5 레이어, Transparent, 보호 캐릭터</td>
+<td>자동 차단·보고·원본 유지</td>
+</tr>
+<tr>
+<td>F. 스트리밍</td>
+<td>Addressables/Additive 로드·언로드</td>
+<td>재질/variant 누락, 전역 소유권</td>
+</tr>
+</tbody>
+</table></div>
+<h3>16.2 기능 테스트</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>시험</th>
+<th>통과 기준</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T01</td>
+<td>보호 대상 스캔·변환</td>
+<td>플레이어/보호 재질의 파일·참조 hash 불변</td>
+</tr>
+<tr>
+<td>T02</td>
+<td>Opaque/Cutout</td>
+<td>올바른 queue·ZWrite·culling 및 alpha silhouette</td>
+</tr>
+<tr>
+<td>T03</td>
+<td>주광 On/Off·낮밤</td>
+<td>의도하지 않은 자체 발광 없음, 주광 방향 반영</td>
+</tr>
+<tr>
+<td>T04</td>
+<td>Main Shadow·Cascade</td>
+<td>그림자 위치·경계·distance fade 정상</td>
+</tr>
+<tr>
+<td>T05</td>
+<td>Point/Spot 및 실제 Forward 경로</td>
+<td>Standard에서 광원 반응 정상, Lite의 제외는 명시</td>
+</tr>
+<tr>
+<td>T06</td>
+<td>실제 Forward+ 경로</td>
+<td>clustered light·비주광 방향광 누락 없음</td>
+</tr>
+<tr>
+<td>T07</td>
+<td>실제 GI</td>
+<td>기존 프로브/APV/Lightmap 요구 충족, 중복 조명 없음</td>
+</tr>
+<tr>
+<td>T08</td>
+<td>Fog·물 깊이/카메라 Depth</td>
+<td>지형·NPC·식생이 정상적으로 깊이/안개에 반영</td>
+</tr>
+<tr>
+<td>T09</td>
+<td>SSAO/DepthNormals</td>
+<td>바람·알파 형상과 노멀 일치, 요구 시 AO 수신 정상</td>
+</tr>
+<tr>
+<td>T10</td>
+<td>TAA/STP/Motion Blur</td>
+<td>skinned·wind history 정상, 잔상·엉뚱한 모션 없음</td>
+</tr>
+<tr>
+<td>T11</td>
+<td>NPC 애니메이션</td>
+<td>Animancer/Animator, BlendShape, 피격/소멸 재질 제어 회귀 없음</td>
+</tr>
+<tr>
+<td>T12</td>
+<td>양면 식생</td>
+<td>앞뒤 조명·알파 정상, 뒤집힌 검은 면/스펙 오류 없음</td>
+</tr>
+<tr>
+<td>T13</td>
+<td>바람 패스 정합</td>
+<td>컬러·깊이·그림자·모션 위치 일치</td>
+</tr>
+<tr>
+<td>T14</td>
+<td>바람 bounds</td>
+<td>카메라/그림자 frustum 경계에서 조기 사라짐 없음</td>
+</tr>
+<tr>
+<td>T15</td>
+<td>인스턴싱/배칭</td>
+<td>실제 Frame Debugger 캡처로 의도 경로 확인</td>
+</tr>
+<tr>
+<td>T16</td>
+<td>Terrain 1/2/4 layer</td>
+<td>UV/가중치/기본색 정상</td>
+</tr>
+<tr>
+<td>T17</td>
+<td>Terrain 5 layer</td>
+<td>자동 파괴 없이 적용 차단</td>
+</tr>
+<tr>
+<td>T18</td>
+<td>Terrain BaseMap</td>
+<td>원거리 밝기/색 급변 없음, 갱신 정상</td>
+</tr>
+<tr>
+<td>T19</td>
+<td>Terrain Holes·타일 경계</td>
+<td>모든 필요한 패스에서 구멍/경계 정상</td>
+</tr>
+<tr>
+<td>T20</td>
+<td>Terrain Instancing</td>
+<td>활성/비활성 경로의 형상·노멀·Holes 정상</td>
+</tr>
+<tr>
+<td>T21</td>
+<td>LOD/CrossFade·Far</td>
+<td>허용된 프리셋, 깜빡임/그림자 중복/핑크 없음</td>
+</tr>
+<tr>
+<td>T22</td>
+<td>Decal/스킬 인디케이터</td>
+<td>실제 필수 표시가 대상 표면에서 보임</td>
+</tr>
+<tr>
+<td>T23</td>
+<td>Analyze와 반복 변환</td>
+<td>원본 불변, 반복 실행 시 중복 자산 생성 없음</td>
+</tr>
+<tr>
+<td>T24</td>
+<td>Apply/Rollback·충돌</td>
+<td>슬롯별 정확한 복구, 사후 변경 덮어쓰기 차단</td>
+</tr>
+<tr>
+<td>T25</td>
+<td>Domain Reload·Additive Scene</td>
+<td>전역 상태 누수/복수 소유자 문제 없음</td>
+</tr>
+<tr>
+<td>T26</td>
+<td>Player 품질 전환</td>
+<td>모든 사용 재질·패스·Hidden Shader가 정상</td>
+</tr>
+<tr>
+<td>T27</td>
+<td>Addressables·원거리 로드</td>
+<td>에디터에는 없던 재질까지 Player에서 정상</td>
+</tr>
+<tr>
+<td>T28</td>
+<td>Release/Development</td>
+<td>필요한 기능은 유지, debug 전용 기능은 의도대로 분리</td>
+</tr>
+</tbody>
+</table></div>
+<p>EditMode는 프로파일 범위, 키워드 매핑, 보호 규칙, 변환 idempotence, 4-layer 제한, GUID 매핑, 참조 손상 검사를 담당한다. PlayMode/그래픽 테스트는 렌더링·시간·카메라·스트리밍을 담당한다. headless <code>-nographics</code>에서 C# 테스트가 성공해도 시각적 렌더링 검증 성공으로 간주하지 않는다.</p>
+<h2 id="s17">17. 성능 측정과 도입/중단 기준</h2>
+<h3>17.1 비교군</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>대상</th>
+<th>기준선</th>
+<th>후보</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NPC·현재 lilToon 소품</td>
+<td>현재 빌드 / 최적화된 lilToon / 외형 허용 시 lilToonLite</td>
+<td>Mesh Lite/Standard</td>
+</tr>
+<tr>
+<td>기존 URP 소품</td>
+<td>현재 사용 셰이더</td>
+<td>Mesh Lite/Standard</td>
+</tr>
+<tr>
+<td>식생</td>
+<td>현재 실제 식생 재질·렌더링 경로</td>
+<td>같은 경로의 Foliage</td>
+</tr>
+<tr>
+<td>Terrain</td>
+<td>현재 Terrain Lit 또는 실제 기존 Terrain 셰이더</td>
+<td>같은 타일·레이어·거리의 Terrain4</td>
+</tr>
+</tbody>
+</table></div>
+<p>Terrain에 lilToon을 억지로 적용한 비정상 장면을 기준선으로 만들지 않는다. 원본이 Outline/MatCap을 사용하면 ‘기능을 뺀 원본’과도 비교해 <strong>기능 제거 효과와 셰이더 구현 효과를 구분</strong>한다.</p>
+<h3>17.2 비교 조건</h3>
+<p>1차 A/B는 동일 해상도·Render Scale·AA·카메라·조명·그림자·메시·밀도·애니메이션·LOD 상태를 고정한다. 기준 해상도는 프로젝트의 실제 목표를 사용하며 별도 확인이 없으면 QHD 2560×1440을 테스트 시작안으로 둔다. 목표 하드웨어를 확정하기 전 ‘몇 FPS 보장’은 하지 않는다.</p>
+<p>측정 제안은 준비 300프레임, 측정 1,000프레임, 각 조건 3회 이상이다. 고정 시드와 재생 가능한 카메라 경로를 사용한다. VSync/프레임 제한/동적 해상도는 측정 목적에 맞춰 동일하게 고정하거나 비활성화하고 설정을 기록한다. shader warmup과 cold-load hitch는 steady-state 측정과 분리한다.</p>
+<p>기능 축소, 그림자 생성 감소, LOD/밀도 변경을 포함하는 실제 저품질 프리셋 비교는 <strong>2차 실사용 비교</strong>로 별도 기록한다. 1차 A/B에서만 밀도를 낮추고 그 결과를 셰이더 성능 개선으로 보고하지 않는다.</p>
+<h3>17.3 지표와 도구</h3>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>지표</th>
+<th>용도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GPU Frame ms, 대상 패스 ms</td>
+<td>GPU 병목과 실제 개선 확인</td>
+</tr>
+<tr>
+<td>Main/Render Thread ms</td>
+<td>배칭·제출 비용의 변화</td>
+</tr>
+<tr>
+<td>Draw/Batches/SetPass, triangle/vertex</td>
+<td>패스/배치 구조 변화 확인</td>
+</tr>
+<tr>
+<td>Shadow/Depth/MotionVectors 비용</td>
+<td>컬러 패스 외 비용 확인</td>
+</tr>
+<tr>
+<td>메모리·로드/컴파일 시간·variant 수</td>
+<td>유지보수/빌드 측면 비교</td>
+</tr>
+<tr>
+<td>median·p95, 반복 측정 편차</td>
+<td>평균 FPS만으로 숨겨지는 지연과 노이즈</td>
+</tr>
+<tr>
+<td>이 모듈의 GC Alloc</td>
+<td>정상 상태의 관리 메모리 할당 검증</td>
+</tr>
+</tbody>
+</table></div>
+<p>Frame Debugger는 실제 패스·재질·인스턴싱·배칭을 확인하는 도구로 사용한다. 정밀한 GPU 타이밍은 지원되는 Unity GPU Profiler 또는 해당 타깃의 GPU 프로파일러를 이용한다. 지원하지 않는 API/장치에서 0ms나 누락값을 성공으로 처리하지 않는다.<a class="cite" href="#ref-S17" title="공식 근거 S17">S17</a><a class="cite" href="#ref-S18" title="공식 근거 S18">S18</a></p>
+<p>NPC는 1/10/30/100명 같은 단계, 식생은 고정 구역의 밀도 단계, Terrain은 동일 카메라 경로에서 비교한다. 이 수치는 벤치마크 입력 예시이지 실제 플레이 권장 수량이나 처리 성능 보장이 아니다. CPU-bound와 GPU-bound 결과를 분리한다.</p>
+<h3>17.4 도입 판정</h3>
+<p><strong>필수 조건:</strong> T01~T28 중 적용되는 항목이 통과하고, 보호 자산 불변, 빌드 정상, 필수 외형/게임 기능 손실 없음.</p>
+<p><strong>성능 목적의 도입:</strong> 대상 GPU/CPU 병목이 반복 측정 오차보다 확실히 줄고, 전체 프레임의 p95나 메모리가 의미 있게 악화되지 않아야 한다. 초기 참고 목표는 대상 렌더링 비용 10% 이상 감소로 둘 수 있으나, 이는 관측 결과도 보편적인 합격 기준도 아니다. 최소 개선 ms·허용 회귀·노이즈 판정법은 기준선 하드웨어에서 G2 때 고정하고 결과를 본 뒤 유리하게 바꾸지 않는다.</p>
+<p><strong>외형/유지보수 목적의 도입:</strong> 비용 개선이 작더라도 스타일 일관성이나 작업 편의 때문에 도입할 수 있다. 이 경우 ‘경량화 성공’이 아니라 목적을 따로 기록하고 선택 적용한다.</p>
+<p>다음 상황에서는 해당 대상의 교체를 멈춘다: 최적화된 원본과 차이가 측정 오차 이내, 원본의 얼굴/조명/데칼 기능을 재현하는 데 범위가 급증, Terrain native 기능 손상, 식생의 주요 병목이 기하/오버드로인데 셰이더 변화가 효과 없음, Player에서 필요한 변형 누락. 하나의 계열이 실패해도 통과한 다른 계열까지 되돌릴 필요는 없다.</p>
+<h2 id="s18">18. 에이전트 산출물과 완료 보고</h2>
+<p>구현 완료 보고에는 ‘구현했습니다’ 한 문장 대신 아래 자료를 포함한다.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>산출물</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>코드/셰이더</td>
+<td>실제 사용 중인 계열 및 공통 include, Editor 도구, 테스트</td>
+</tr>
+<tr>
+<td>조사 기록</td>
+<td>실제 Unity/URP 버전, 렌더 경로, 타깃, 필수 기능, 보호 목록</td>
+</tr>
+<tr>
+<td>변환 기록</td>
+<td>원본→생성본→적용 슬롯, 미지원·보류·복구 정보</td>
+</tr>
+<tr>
+<td>검증 결과</td>
+<td>T01~T28의 상태, 실행 명령·로그·스크린샷, 미실행 사유</td>
+</tr>
+<tr>
+<td>성능 결과</td>
+<td>기준선·후보·설정·장치·median/p95·패스 및 프레임 비용</td>
+</tr>
+<tr>
+<td>빌드 결과</td>
+<td>실제 성공/실패/미실행, Addressables·품질·LOD·Basemap 확인</td>
+</tr>
+<tr>
+<td>도입 목록</td>
+<td>적용 / 보류 / 원본 유지와 각각의 이유</td>
+</tr>
+<tr>
+<td>유지보수</td>
+<td>설치 URP 의존 파일·버전, 출처 고지, 업데이트 시 재검증 지점</td>
+</tr>
+</tbody>
+</table></div>
+<p>성능 보고서의 빈 값은 <code>NOT_MEASURED</code>로 둔다. 가상의 30% 개선, 임의의 60FPS, 실행하지 않은 빌드 성공을 기록하지 않는다. 문서의 의사 코드를 실제 실행 코드인 것처럼 전달하지 않는다.</p>
+<h2 id="s19">19. v1 이후 확장 조건</h2>
+<p>기본 셰이더가 검증된 뒤 필요성이 확인된 기능만 추가한다. 후보는 제한된 Emission/피격색, 특수 장비용 Normal/하이라이트, 월드 반응 마스크, APV 기반 식생 GI, 더 세밀한 원거리 정책이다.</p>
+<p>새 기능을 추가할 때마다 <strong>사용 대상, 최소 품질에서 제외 가능 여부, 추가 텍스처/패스/배리언트, 기존 재질 영향, 성능 A/B, 빌드 보존</strong>을 함께 명시한다. 모든 기능을 NPC·Terrain·Foliage 전부에 자동 전파하지 않는다. 파생 셰이더가 다시 lilToon 수준의 범용 기능 집합이 되지 않게 한다.</p>
+<p><strong>최종 방향:</strong> 주변 NPC·오브젝트는 같은 경량 Mesh Toon을 쓰고, 지형·식생은 전용 경로로 분리한다. 성능에 유리한 대상을 먼저 이관하며, 원본을 유지하는 결정도 정상적인 완료 결과로 인정한다.</p>
+<h2 id="s20">20. 확인한 공식 자료와 적용 범위</h2>
+<p>확인일: <strong>2026-11-16</strong>. 공식 자료의 기술 사실과 이 문서의 프로젝트 설계 결정은 구분한다. 아래 URL의 Unity 문서는 리다이렉트될 수 있으며 구현의 최종 기준은 프로젝트에 설치된 패키지다. 공개 소스를 참조/복제하는 경우 포함된 라이선스·고지문을 보존하고 실제 사용 범위를 <code>ThirdPartyNotices.md</code>에 기록한다.</p>
+<div class="table-wrap"><table>
+<thead>
+<tr>
+<th>ID</th>
+<th>공식 자료</th>
+<th>이 문서에서 사용하는 근거</th>
+</tr>
+</thead>
+<tbody>
+<tr id="ref-S01">
+<td>S01</td>
+<td><a href="https://lilxyzw.github.io/lilToon/ja_JP/other/optimization.html" rel="noopener noreferrer" target="_blank">lilToon 최적화</a></td>
+<td>베이크, Lite 변환, 원본 최적화 비교</td>
+</tr>
+<tr id="ref-S02">
+<td>S02</td>
+<td><a href="https://lilxyzw.github.io/lilToon/ja_JP/other/settings.html" rel="noopener noreferrer" target="_blank">lilToon Shader Settings</a></td>
+<td>빌드 최적화와 Editor 비교 주의</td>
+</tr>
+<tr id="ref-S03">
+<td>S03</td>
+<td><a href="https://docs.unity3d.com/6000.0/Documentation/Manual/SRPBatcher-Materials.html" rel="noopener noreferrer" target="_blank">URP SRP Batcher 호환성</a></td>
+<td>UnityPerMaterial·MPB 제약</td>
+</tr>
+<tr id="ref-S04">
+<td>S04</td>
+<td><a href="https://docs.unity.com/en-us/engine/6000.0/manual/analysis/graphics-performance-profiling/in-urp/reduce-draw-calls-urp/srpbatcher/srpbatcher" rel="noopener noreferrer" target="_blank">URP SRP Batcher</a></td>
+<td>CPU 렌더 상태 설정 최적화의 의미</td>
+</tr>
+<tr id="ref-S05">
+<td>S05</td>
+<td><a href="https://docs.unity3d.com/kr/6000.0/Manual/gpu-instancing-enable.html" rel="noopener noreferrer" target="_blank">GPU Instancing 활성화</a></td>
+<td>SkinnedMeshRenderer 제약, 명시적 instancing API와 구분</td>
+</tr>
+<tr id="ref-S06">
+<td>S06</td>
+<td><a href="https://docs.unity3d.com/6000.0/Documentation/Manual/terrain-Grass.html" rel="noopener noreferrer" target="_blank">Terrain Grass and other details</a></td>
+<td>Detail Mesh 재질 사용, 프로브/라이트맵 제약</td>
+</tr>
+<tr id="ref-S07">
+<td>S07</td>
+<td><a href="https://docs.unity3d.com/cn/6000.0/Manual/urp/use-built-in-shader-methods-additional-lights-fplus.html" rel="noopener noreferrer" target="_blank">Forward/Forward+ 추가 광원</a></td>
+<td>광원 루프·InputData·방향광 경로</td>
+</tr>
+<tr id="ref-S08">
+<td>S08</td>
+<td><a href="https://docs.unity3d.com/6000.0/Documentation/Manual/urp/use-built-in-shader-methods-shadows.html" rel="noopener noreferrer" target="_blank">Custom URP Shader의 Shadows</a></td>
+<td>주광 그림자 처리</td>
+</tr>
+<tr id="ref-S09">
+<td>S09</td>
+<td><a href="https://docs.unity3d.com/kr/6000.0/Manual/urp/urp-shaders/urp-shaderlab-pass-tags.html" rel="noopener noreferrer" target="_blank">URP ShaderLab Pass Tags</a></td>
+<td>ForwardOnly·DepthNormals·Meta 등</td>
+</tr>
+<tr id="ref-S10">
+<td>S10</td>
+<td><a href="https://docs.unity.com/en-us/engine/6000.0/manual/creating-environments/script-terrain/class-terrain-layer" rel="noopener noreferrer" target="_blank">Terrain Layers</a></td>
+<td>레이어와 패스 비용의 관계</td>
+</tr>
+<tr id="ref-S11">
+<td>S11</td>
+<td><a href="https://github.com/Unity-Technologies/Graphics/blob/master/Packages/com.unity.render-pipelines.universal/Shaders/Terrain/TerrainLit.shader" rel="noopener noreferrer" target="_blank">Unity Graphics — TerrainLit.shader</a></td>
+<td>Terrain 셰이더 의존 구조. master를 버전 고정 소스로 쓰지 않음</td>
+</tr>
+<tr id="ref-S12">
+<td>S12</td>
+<td><a href="https://github.com/Unity-Technologies/Graphics/blob/master/Packages/com.unity.render-pipelines.universal/Shaders/Terrain/TerrainLitPasses.hlsl" rel="noopener noreferrer" target="_blank">Unity Graphics — TerrainLitPasses.hlsl</a></td>
+<td>Terrain 처리 구조. 실제 구현은 설치 버전 기준</td>
+</tr>
+<tr id="ref-S13">
+<td>S13</td>
+<td><a href="https://docs.unity3d.com/6000.0/Documentation/Manual/urp/features/motion-vectors-custom-shader.html" rel="noopener noreferrer" target="_blank">Custom Shader Motion Vectors</a></td>
+<td>custom deformation·alpha·LOD 및 fallback 제한</td>
+</tr>
+<tr id="ref-S14">
+<td>S14</td>
+<td><a href="https://docs.unity3d.com/6000.0/Documentation/Manual/urp/use-built-in-shader-methods-indirect-lighting.html" rel="noopener noreferrer" target="_blank">Custom URP Shader의 간접광</a></td>
+<td>APV 등 실제 GI 경로 확인</td>
+</tr>
+<tr id="ref-S15">
+<td>S15</td>
+<td><a href="https://docs.unity3d.com/kr/6000.0/Manual/urp/shader-stripping.html" rel="noopener noreferrer" target="_blank">URP Shader Stripping</a></td>
+<td>여러 URP Asset과 기능별 variant 관리</td>
+</tr>
+<tr id="ref-S16">
+<td>S16</td>
+<td><a href="https://docs.unity3d.com/6000.0/Documentation/Manual/class-GraphicsSettings.html" rel="noopener noreferrer" target="_blank">Graphics Settings</a></td>
+<td>Always Included·Instancing variant·preload 설정</td>
+</tr>
+<tr id="ref-S17">
+<td>S17</td>
+<td><a href="https://docs.unity3d.com/kr/6000.0/Manual/ProfilerGPU.html" rel="noopener noreferrer" target="_blank">GPU Usage Profiler</a></td>
+<td>GPU 측정과 플랫폼/API 지원 제약</td>
+</tr>
+<tr id="ref-S18">
+<td>S18</td>
+<td><a href="https://docs.unity3d.com/6000.0/Documentation/Manual/FrameDebugger.html" rel="noopener noreferrer" target="_blank">Frame Debugger</a></td>
+<td>실제 draw event·패스 검증</td>
+</tr>
+<tr id="ref-S19">
+<td>S19</td>
+<td><a href="https://docs.unity3d.com/6000.0/Documentation/Manual/shader-variant-stripping.html" rel="noopener noreferrer" target="_blank">Shader Variant Stripping</a></td>
+<td>필요한 variant 보존 및 stripping 주의</td>
+</tr>
+</tbody>
+</table></div>
+<hr/>
+<p><strong>전달 순서:</strong> <code>START_HERE.md</code> → 이 설계서 → <code>IMPLEMENTATION_REQUEST.md</code>. 첫 구현 목표는 <strong>G0 조사와 G1의 작은 Mesh Toon</strong>, 전체 월드 교체가 아니다.</p>
+</article><footer class="doc-footer"><span>WorldToon · Design v1.0 · 2026-11-16</span><span>Implementation → Validation → Adoption</span></footer></main><a class="back-top" href="#top" aria-label="문서 처음으로">↑ 처음으로</a><script>
+const headings=[...document.querySelectorAll('.article h2')];
+const links=[...document.querySelectorAll('.nav-links a')];
+const observer=new IntersectionObserver(entries=>{entries.forEach(entry=>{if(entry.isIntersecting){links.forEach(a=>a.classList.toggle('active',a.hash==='#'+entry.target.id));}});},{rootMargin:'-5% 0px -75% 0px',threshold:0});
+headings.forEach(h=>observer.observe(h));
+</script></body></html>

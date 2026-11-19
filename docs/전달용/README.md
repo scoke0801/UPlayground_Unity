@@ -20,4 +20,14 @@
 
 원문에 포함된 구현 요청문·병렬 분담·자동 빌드/게이트는 이번 요청의 실행 지시가 아니다. 프로젝트 하네스와 테스트 운영을 우선하며 별도 사용자 지시 없는 Player·Addressables 빌드는 실행하지 않는다. 도구 런처는 반복 사용 도구만 등록한다.
 
+## WorldToon 전달 패키지
+
+2026-11-18 연결. 위 3종과 별도로 월드 툰 셰이더군 설계가 추가되었다. 기존 lilToon·반응형 환경·식생 셰이더·WorldBuilder 지형과의 충돌 해소와 산출물 위치는 통합 계약에 있다. 원문은 범용 설계이며 구현 완료 증거가 아니다.
+
+| 설계 | 기준 원문 | 통합 계약 | 작업 상태 |
+|---|---|---|---|
+| 경량 월드 툰 셰이더(Mesh·Foliage·Terrain4) | [WorldToon 설계서](WorldToon_Handoff/WorldToon_Design.md) · [시작 안내](WorldToon_Handoff/START_HERE.md) | [기존 시스템 통합](../../Assets/docs/design/world-art/environment/WORLDTOON_EXISTING_INTEGRATION.md) | [WorldToon 상태](../work-status/worldtoon.md) |
+
+원문의 구현 요청문(G0~G7 일괄 진행)·Player 빌드 항목은 이번 요청의 실행 지시가 아니다. 사용자 지시 범위에서 단계별로 진행하고 빌드는 별도 지시 전까지 실행하지 않는다.
+
 [월드와 아트 위키](../wiki/world-art.md) · [공통 하네스](../../Tools/Harness/README.md)

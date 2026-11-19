@@ -61,6 +61,7 @@
 | [생명의 호수 구역별 건물과 오브젝트 배치 명세](../../Assets/docs/design/content/scenario-gameplay/02_WORLD_AND_PLACEMENT.md) · `design/content/scenario-gameplay/02_WORLD_AND_PLACEMENT.md` | 월드·아트 | 추가 |
 | [시나리오 오브젝트와 이미지 연출 제작 명세](../../Assets/docs/design/content/scenario-gameplay/05_ART_PRODUCTION.md) · `design/content/scenario-gameplay/05_ART_PRODUCTION.md` | 월드·아트 | 추가 |
 | [툰 워터 월드 — 기존 시스템과 렌더링 통합 계약](../../Assets/docs/design/world-art/environment/TOON_WATER_EXISTING_INTEGRATION.md) · `design/world-art/environment/TOON_WATER_EXISTING_INTEGRATION.md` | 월드·아트 | 기존 |
+| [WorldToon — 기존 시스템과 프로젝트 규칙 통합 계약](../../Assets/docs/design/world-art/environment/WORLDTOON_EXISTING_INTEGRATION.md) · `design/world-art/environment/WORLDTOON_EXISTING_INTEGRATION.md` | 월드·아트 | 추가 |
 | [실제 맵 기반 세계관과 생명의 호수 지도](../../Assets/docs/design/content/world-setting/WORLD_ATLAS_CONCEPT_DRAFT.md) · `design/content/world-setting/WORLD_ATLAS_CONCEPT_DRAFT.md` | 월드·아트 | 추가 |
 | [생명의 호수에서 이어지는 월드 확장 콘셉트](../../Assets/docs/design/content/world-setting/WORLD_EXPANSION_CONCEPT.md) · `design/content/world-setting/WORLD_EXPANSION_CONCEPT.md` | 월드·아트 | 추가 |
 | [월드 테마 지형 제작·통합 설계](../../Assets/docs/design/world-art/terrain-theme/WORLD_THEME_TERRAIN_PRODUCTION_DESIGN.html) · `design/world-art/terrain-theme/WORLD_THEME_TERRAIN_PRODUCTION_DESIGN.html` | 월드·아트 | 추가 |

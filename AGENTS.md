@@ -41,6 +41,7 @@
 | 컨텐츠(퀘스트·대화·아이템·제작·트리거·FlowGraph) | [컨텐츠 시스템](Assets/docs/guide/CONTENT_SYSTEM_AUTHORING_GUIDE.md) | 기존 ID·GUID 보존. 예상 밖 진행 순서와 저장/로드에서 진행 불능 방지 |
 | 오픈월드 맵·POI·지형 | [오픈월드 맵](Assets/docs/guide/OPENWORLD_MAP_AUTHORING_GUIDE.md), [배치 도구](Assets/docs/guide/MAP_PLACEMENT_TOOL_GUIDE.md), [지형·물 교훈](Assets/docs/guide/TERRAIN_WATER_ART_LESSONS.md) | 블록아웃 검증 후 아트 패스. 문서 수치는 예시이므로 이 프로젝트에서 직접 측정 |
 | 건물·성벽·다리·키트 배치, 월드 재생성 | [카메라 가림](Assets/docs/guide/CAMERA_OCCLUSION_FADE_GUIDE.md) "신규 건물·구조물 배치 체크리스트" | 지정 원본은 `Assets/10.Datas/Camera/CameraOccluderNameRules.asset`. 프리팹·씬에 `CameraOccluder`를 심지 않음 |
+| 월드 툰 셰이더(WorldToon: Mesh·Foliage·Terrain4) | [통합 계약](Assets/docs/design/world-art/environment/WORLDTOON_EXISTING_INTEGRATION.md), [작업 상태](docs/work-status/worldtoon.md), [전달 원문](docs/전달용/WorldToon_Handoff/START_HERE.md) | 통합 계약이 원문보다 우선. 기존 lilToon·반응형 환경 재질 되돌림/덮어쓰기 금지, 원본 재질은 복제본에만 적용, Player 빌드는 별도 지시 전 `사용자 지시 대기` |
 | 카메라 모듈 | [카메라 이식 경계](Assets/docs/guide/CAMERA_MODULE_PORTABILITY_GUIDE.md) | Camera 내부에서 `Svc`·`IWorldActor` 직접 사용 금지, 어댑터 경유 |
 | NPC 일상 애니메이션 | [NPC 일상 애니메이션](Assets/docs/guide/NPC_DAILY_ANIMATION_AUTHORING_GUIDE.md) | 기존 클립 재사용 우선. Unity 화면 근거 없이 완료 보고 금지 |
 | 월드 이벤트·NPC 생활·대사 Bake | [월드 이벤트 설계](docs/world_event_npc_system_design.html), [Bake 하네스 설계](docs/NPC_Dialogue_Bake_Harness_Design.html), [계약](docs/dialogue-bake/CONTRACT.md), [절차](docs/dialogue-bake/PIPELINE.md) | Phase 단위 구현. 원본·잠금·수동 편집 보존. 사용자 검수 전 배포 금지. 설계 예시를 정식 설정으로 간주하지 않음 |

@@ -1,6 +1,8 @@
 ﻿# 월드와 아트
 
-2026-11-18 **WorldBuilder P04 구현·최종 검증 중**: Region/POI·부지·Spline 도로·필수 교량 연결, 계획 SO/지형/씬 Undo와 실패 복원을 구현했다. 전체2km 규격을 유지한 별도512m 검증 구역에서 실제 연결 화면을 확인했고, 현재 관련91건을 재실행 중이다. [현재 상태·검사·남은 확인](../work-status/open-world/WORLDBUILDER.md#p04-planning), [P04 저작·사용자 테스트](../../Assets/docs/guide/WORLDBUILDER_PLANNING_AUTHORING_GUIDE.md). P05 수계 생성은 아직 진행하지 않았다.
+2026-11-18 **WorldToon 전달 설계 연결(설계만, 구현 착수 전)**: 경량 월드 툰 셰이더군(Mesh·Foliage·Terrain4) 전달 패키지를 프로젝트 문서에 연결했다. 기존 비인간형 lilToon 전환·반응형 환경·식생 셰이더·WorldBuilder 지형과의 충돌 해소, 산출물 경로, 빌드 금지 규칙과의 조정은 [통합 계약](../../Assets/docs/design/world-art/environment/WORLDTOON_EXISTING_INTEGRATION.md)에, G0~G7·T01~T28 진행은 [작업 상태](../work-status/worldtoon.md)에 있다. 원문은 [전달 패키지](../전달용/WorldToon_Handoff/START_HERE.md). 코드·셰이더·재질 변경과 Unity 검증은 수행하지 않았으며 전 단계 `NOT_RUN`이다.
+
+2026-11-18 **WorldBuilder P04 구현·자동 게이트 통과**: Region/POI·부지·Spline 도로·필수 교량 연결, 계획 SO/지형/씬 Undo와 실패 복원을 구현했다. 전체2km 규격을 유지한 별도512m 검증 구역에서 실제 연결 화면을 확인했고, 현재 변경본 관련 **91/91 통과(실패0·건너뜀0)**, 실제128m/512m Agent 교량 횡단·계획 이동/삭제/첫 적용 Undo/Redo·실패 복원·GUID 보존을 확인했다. 독립 QA가 최종 원문과 코드56/원본210/검증 자산98개 지문을 대조했다. [현재 상태·검사·남은 확인](../work-status/open-world/WORLDBUILDER.md#p04-planning), [P04 저작·사용자 테스트](../../Assets/docs/guide/WORLDBUILDER_PLANNING_AUTHORING_GUIDE.md). P05 수계 생성은 아직 진행하지 않았다.
 
 2026-11-17 **WorldBuilder P03 구현·자동 검사 통과**: 전역 후보·안정 ID/sourceIdentity·회전 footprint 공간 해시·실제 필터·수동 Override와 P02 Dirty 연결. 최종 관련 **EditMode60/60**, Delete/변환 각20회 Undo/Redo·Dirty/Full·저장/재로드·결합 실패 복원 확인. 독립 QA 지적을 수정·재검증했다. [코드·데이터·검증·남은 항목](../work-status/open-world/WORLDBUILDER.md#p03--공통-배치-기반-2026-11-17), [배치 저작/테스트 지침](../../Assets/docs/guide/WORLDBUILDER_PLACEMENT_AUTHORING_GUIDE.md).
 
@@ -75,3 +77,5 @@ LakeVillageWorld 대기 프레임 저하(2026-11-14~15): [조사·최종 근거]
 ## Unity FX 제작 스킬
 
 2026-11-14: [uplayground-vfx 정본](../../.claude/skills/uplayground-vfx/SKILL.md)을 작성하고 Codex 사용자 스킬 폴더에 설치했다. 기존 Unity MCP·Shuriken·MotionEvent·무기 궤적·풀을 활용하며 VFX Graph 노드 편집 제한을 명시했다. 정본/설치본 구조 검사와 3개 파일 해시 대조 통과. 실제 FX 제작·Unity 실행·미술 검증은 미수행이다. [설치·검증·사용법](../work-status/uplayground-vfx-skill.md).
+
+2026-11-18 **WorldBuilder P05 구현·검증 진행 중**: 수계 Core/SO·URP 수면·Volume·기존 수영 어댑터·폭포·원자적 저작 경로를 추가하고 독립 QA 결함을 수정 중이다. 이전 P04의91/91은 P05 변경본 검증으로 승계하지 않는다. [진행·실패·남은 확인](../work-status/open-world/WORLDBUILDER.md#p05-착수--2026-11-18). P06은 진행하지 않는다.

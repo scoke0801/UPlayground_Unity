@@ -197,7 +197,7 @@ namespace UPlayGround.WorldBuilder.Core
         {
             foreach (var r in reservations)
             {
-                if (r.boundary != null) { if (PlanningGeometry.Overlaps(PlanningGeometry.Footprint(p), r.boundary)) return true; }
+                if (r.boundary != null && r.boundary.Length > 0) { if (PlanningGeometry.Overlaps(PlanningGeometry.Footprint(p), r.boundary)) return true; }
                 else if (PlacementSpatialHash.Overlaps(p, PlacementSpatialHash.Rectangle(r.minX, r.minZ, r.maxX, r.maxZ), 0, 0)) return true;
             }
             foreach (var r in edits) if (r.kind == PlacementOverrideKind.ExcludeRegion && (string.IsNullOrEmpty(r.ruleTag) || r.ruleTag == rule.Tag)
@@ -281,7 +281,7 @@ namespace UPlayGround.WorldBuilder.Core
         private static void ValidateReservations(IReadOnlyList<PlacementReservation> reservations, WorldGrid grid)
         {
             var ids = new HashSet<string>(StringComparer.Ordinal);
-            foreach (var r in reservations) { PlacementIdentity.ValidateGuid(r.guid); if (!ids.Add(r.guid)) throw new ArgumentException("예약 ID 중복입니다."); ValidateRect(r.minX, r.minZ, r.maxX, r.maxZ); if (r.boundary != null) PlanningGeometry.ValidatePolygon(r.boundary, grid); }
+            foreach (var r in reservations) { PlacementIdentity.ValidateGuid(r.guid); if (!ids.Add(r.guid)) throw new ArgumentException("예약 ID 중복입니다."); ValidateRect(r.minX, r.minZ, r.maxX, r.maxZ); if (r.boundary != null && r.boundary.Length > 0) PlanningGeometry.ValidatePolygon(r.boundary, grid); }
         }
         private static void ValidateRect(double x0, double z0, double x1, double z1)
         { PlacementIdentity.RequireFinite(x0, z0, x1, z1); if (x1 <= x0 || z1 <= z0) throw new ArgumentException("영역 크기는 양수여야 합니다."); }

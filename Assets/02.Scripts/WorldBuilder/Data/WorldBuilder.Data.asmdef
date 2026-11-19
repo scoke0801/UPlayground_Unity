@@ -2,7 +2,8 @@
   "name": "WorldBuilder.Data",
   "rootNamespace": "UPlayGround.WorldBuilder.Data",
   "references": [
-    "WorldBuilder.Core"
+    "WorldBuilder.Core",
+    "UPlayGround.Data"
   ],
   "includePlatforms": [],
   "noEngineReferences": false,

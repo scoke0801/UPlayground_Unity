@@ -2,7 +2,7 @@
 
 - 종류: 설계 · 분야: 월드·아트
 - 출처: [전달 폴더](../../../../../docs/전달용/OpenWorld_HeightMap_Design_Regional_v1_1_Handoff/README_FIRST.md) (2026-11-16 작성 외부 인계본). 상세 계약 원문은 [IMPLEMENTATION_SPEC.md](../../../../../docs/전달용/OpenWorld_HeightMap_Design_Regional_v1_1_Handoff/IMPLEMENTATION_SPEC.md) 29장, 이 문서는 요약과 이 저장소 기준의 판단이다.
-- 작업 상태: [P00 조사·P01~P04 구현과 검증](../../../../../docs/work-status/open-world/WORLDBUILDER.md). P04는 최종 자동 검증 중이며 P05 이후는 미구현이다. [P04 계획 저작 지침](../../../guide/WORLDBUILDER_PLANNING_AUTHORING_GUIDE.md). [P03 배치 저작 지침](../../../guide/WORLDBUILDER_PLACEMENT_AUTHORING_GUIDE.md). [P02 지형 저작 지침](../../../guide/WORLDBUILDER_TERRAIN_AUTHORING_GUIDE.md). 전달본의 검증([DOCUMENT_VALIDATION_v1_1.json](../../../../../docs/전달용/OpenWorld_HeightMap_Design_Regional_v1_1_Handoff/DOCUMENT_VALIDATION_v1_1.json))은 문서·RAW·이미지 파일 수준에 한정되며 현재 Unity 구현 검증과 구분한다.
+- 작업 상태: [P00 조사·P01~P04 구현과 검증](../../../../../docs/work-status/open-world/WORLDBUILDER.md). P04 핵심 저작·T13 Agent와 관련 회귀91/91을 자동 검증했으며 P05 이후는 미구현이다. 실제 조작·KCC·미술 인수와 기존 미검증 항목은 상태 문서를 따른다. [P04 계획 저작 지침](../../../guide/WORLDBUILDER_PLANNING_AUTHORING_GUIDE.md). [P03 배치 저작 지침](../../../guide/WORLDBUILDER_PLACEMENT_AUTHORING_GUIDE.md). [P02 지형 저작 지침](../../../guide/WORLDBUILDER_TERRAIN_AUTHORING_GUIDE.md). 전달본의 검증([DOCUMENT_VALIDATION_v1_1.json](../../../../../docs/전달용/OpenWorld_HeightMap_Design_Regional_v1_1_Handoff/DOCUMENT_VALIDATION_v1_1.json))은 문서·RAW·이미지 파일 수준에 한정되며 현재 Unity 구현 검증과 구분한다.
 - 기존 [연속 월드 통합](OPEN_WORLD_INTEGRATION_PLAN.md)·[정규 월드 제작 설계안](REGULAR_WORLD_PRODUCTION_DESIGN.html)과의 관계는 아래 「기존 문서와의 관계」를 본다.
 
 ## 0. 사용자 결정 (2026-11-16)

@@ -311,6 +311,7 @@ namespace UPlayGround.WorldBuilder.Editor
             foreach (var record in records) operations.Add(record.ToCore(_definition.SourceRevision));
             int n = _definition.Profile.SampleCount;
             var result = TerrainOperationEvaluator.Rebuild(source, _definition.Profile.CreateGrid(), operations, _logical, dirty);
+            WorldWaterAuthoring.ValidateTerrainChange(_definition, result, records);
             dirty = dirty.Expand(DirtyDependencyGraph.GetHeightHalo(operations), n, n);
             var before = _terrain.CaptureTiles();
             var oldLogical = _logical;

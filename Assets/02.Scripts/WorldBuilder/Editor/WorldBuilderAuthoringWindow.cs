@@ -45,6 +45,7 @@ namespace UPlayGround.WorldBuilder.Editor
             });
             CreatePlacementUI(scroll);
             CreatePlanningUI(scroll);
+            CreateWaterUI(scroll);
             var bounds = new RectIntField("표본 영역 X/Z/너비/높이") { value = _bounds };
             bounds.RegisterValueChangedCallback(change => _bounds = change.newValue);
             scroll.Add(bounds);

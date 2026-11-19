@@ -5,6 +5,10 @@
     "WorldBuilder.Core",
     "WorldBuilder.Data",
     "WorldBuilder.Runtime",
+    "UPlayGround.Actor",
+    "UPlayGround.Data",
+    "UPlayGround.Contracts",
+    "Unity.RenderPipelines.Universal.Runtime",
     "UPlayGround.EditorTools",
     "Unity.Splines",
     "Unity.Mathematics"

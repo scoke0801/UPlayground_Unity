@@ -35,12 +35,35 @@ namespace UPlayGround.WorldBuilder.Data
         [SerializeField] private int _appliedPlacementSeed, _appliedGenerationEpoch;
         [SerializeField] private WorldPlan _planning;
         public WorldPlan Planning => _planning;
+        [SerializeField] private WaterSystemDefinition _waterSystem;
+        public WaterSystemDefinition WaterSystem => _waterSystem;
+        /// <summary>수계 원본 교체로 소유 연산을 잃지 않도록 한 월드의 원본을 유지한다.</summary>
+        public void SetWaterSystem(WaterSystemDefinition source)
+        {
+            source.ValidateIdentity(_worldGuid);
+            if (_planning != null && source.systemGuid == _planning.planGuid) throw new InvalidOperationException("WaterIdentityConflict: 계획과 수계의 연산 소유자 GUID가 충돌합니다.");
+            if (_waterSystem != null && _waterSystem != source) throw new InvalidOperationException("WaterIdentityConflict: 연결된 수계 원본을 자동 교체하지 않습니다.");
+            _waterSystem = source;
+            var reservations = new List<PlacementReservation>();
+            foreach (var reservation in _placementReservations) if (reservation.ownerPlanGuid != source.systemGuid) reservations.Add(reservation.Clone());
+            var bodies = new List<WaterSystemDefinition.BodyRecord>(source.bodies); bodies.Sort((a, b) => string.CompareOrdinal(a.waterGuid, b.waterGuid));
+            foreach (var record in bodies)
+            {
+                var body = record.ToCore(); var polygon = body.kind == WaterBodyKind.River ? WaterGeometry.RiverBanks(body, body.width / 2) : body.boundary;
+                double minX = double.PositiveInfinity, minZ = double.PositiveInfinity, maxX = double.NegativeInfinity, maxZ = double.NegativeInfinity;
+                foreach (var p in polygon) { minX = Math.Min(minX, p.x); minZ = Math.Min(minZ, p.z); maxX = Math.Max(maxX, p.x); maxZ = Math.Max(maxZ, p.z); }
+                reservations.Add(new PlacementReservation { guid = PlanningIdentity.Derive(_worldGuid, source.systemGuid, body.guid, "water-placement"), ownerPlanGuid = source.systemGuid,
+                    minX = minX, minZ = minZ, maxX = maxX, maxZ = maxZ, boundary = (PlanPoint[])polygon.Clone() });
+            }
+            _placementReservations = reservations;
+        }
 
         /// <summary>계획 소유 예약만 교체하고 사용자가 저작한 기존 예약을 보존한다.</summary>
         public void SetPlanning(WorldPlan planning, IReadOnlyList<PlacementReservation> reservations)
         {
             if (planning == null) throw new ArgumentNullException(nameof(planning));
             PlacementIdentity.ValidateGuid(planning.planGuid);
+            if (_waterSystem != null && planning.planGuid == _waterSystem.systemGuid) throw new InvalidOperationException("PlanningIdentityConflict: 수계와 계획의 연산 소유자 GUID가 충돌합니다.");
             if (_planning != null && _planning != planning) throw new InvalidOperationException("이미 연결된 계획 자산은 명시적 이관 없이 교체할 수 없습니다.");
             var copy = new List<PlacementReservation>();
             foreach (var reservation in _placementReservations) if (reservation.ownerPlanGuid != planning.planGuid) copy.Add(reservation.Clone());

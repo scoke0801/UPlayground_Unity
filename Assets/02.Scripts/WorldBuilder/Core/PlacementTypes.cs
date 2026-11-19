@@ -61,7 +61,8 @@ namespace UPlayGround.WorldBuilder.Core
         public string ownerPlanGuid;
         public double minX, minZ, maxX, maxZ;
         public PlanPoint[] boundary;
-        public PlacementReservation Clone() { var copy = (PlacementReservation)MemberwiseClone(); copy.boundary = boundary == null ? null : (PlanPoint[])boundary.Clone(); return copy; }
+        // Unity Undo/직렬화는 사각 예약의 null 배열을 빈 배열로 복원할 수 있다.
+        public PlacementReservation Clone() { var copy = (PlacementReservation)MemberwiseClone(); copy.boundary = boundary == null || boundary.Length == 0 ? null : (PlanPoint[])boundary.Clone(); return copy; }
     }
 
     public sealed class PlacementDiagnostic

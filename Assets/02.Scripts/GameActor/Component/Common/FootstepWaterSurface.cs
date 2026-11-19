@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.World;
+using UPlayGround.Contracts;
 
 namespace UPlayGround.Components
 {
@@ -28,6 +29,8 @@ namespace UPlayGround.Components
         public WaterDynamicsProfileSO dynamics;
         [Tooltip("컴포넌트 로컬 좌표의 흐름 속도(m/s). 폭포 낙구는 기존 WaterfallCurrent가 우선한다.")]
         public Vector3 currentVelocity;
+        [Tooltip("선택적 물리 수계 어댑터. 지정하면 시각 파도/메시 대신 이 쿼리만 사용한다.")]
+        public MonoBehaviour waterQuerySource;
         private Vector3[] _vertices;
         private int[] _triangles;
         private Bounds _bounds;
@@ -37,6 +40,8 @@ namespace UPlayGround.Components
         public static float WaterTime => Application.isPlaying ? Time.time : Time.realtimeSinceStartup;
         public int TriangleCount => _triangles != null ? _triangles.Length / 3 : 0;
         public Vector3 CurrentVelocity => transform.TransformDirection(currentVelocity);
+        /// <summary>지역별 흐름이 있는 수계는 조회 위치의 물리 흐름을 사용한다.</summary>
+        public Vector3 GetCurrentVelocity(Vector3 position) => waterQuerySource is IWaterQuery query && query.TrySample(position, out var sample) ? sample.Flow : CurrentVelocity;
         public int MeshRevision { get; private set; }
 
         /// <summary>시각 파도 적용 전의 실제 메시 삼각형을 수역 렌더링에 제공한다.</summary>
@@ -109,15 +114,20 @@ namespace UPlayGround.Components
                 FootstepWaterSurface surface = Surfaces[i];
                 if (surface == null || !surface.isActiveAndEnabled
                     || !surface.TrySampleHeight(worldPosition, out Vector3 point)) continue;
-                if (selected != null && (surface.priority < selected.priority
-                    || (surface.priority == selected.priority && point.y <= waterPoint.y))) continue;
+                if (selected != null)
+                {
+                    if (surface.waterQuerySource is IWaterQuery candidateQuery && selected.waterQuerySource is IWaterQuery selectedQuery
+                        && candidateQuery.TrySample(worldPosition, out var candidate) && selectedQuery.TrySample(worldPosition, out var previous))
+                    { if (!WaterSample.Precedes(candidate, previous)) continue; }
+                    else if (surface.priority < selected.priority || (surface.priority == selected.priority && point.y <= waterPoint.y)) continue;
+                }
                 selected = surface;
                 waterPoint = point;
             }
             return selected != null;
         }
 
-        /// <summary>발소리 우선순위 대신 수직 구간의 가장 높은 실제 수면을 선택한다.</summary>
+        /// <summary>기존 수면은 가장 높은 표면을, 물리 어댑터 수역은 공용 선택 규약을 사용한다.</summary>
         public static bool TryRaycastDown(Vector3 origin, float distance, out FootstepWaterSurface selected, out Vector3 waterPoint)
         {
             selected = null;
@@ -127,6 +137,18 @@ namespace UPlayGround.Components
             for (int i = 0; i < Surfaces.Count; i++)
             {
                 var surface = Surfaces[i];
+                if (surface != null && surface.isActiveAndEnabled && surface.waterQuerySource != null)
+                {
+                    if (!surface.waterQuerySource.isActiveAndEnabled || !(surface.waterQuerySource is IWaterQuery query)) continue;
+                    if (!query.TryRaycastDown(origin, distance, out var sample)) continue;
+                    if (selected != null)
+                    {
+                        if (selected.waterQuerySource is IWaterQuery previousQuery && previousQuery.TryRaycastDown(origin, distance, out var previous))
+                        { if (!WaterSample.Precedes(sample, previous)) continue; }
+                        else if (sample.SurfaceY <= waterPoint.y) continue;
+                    }
+                    selected = surface; waterPoint = new Vector3(origin.x, sample.SurfaceY, origin.z); continue;
+                }
                 if (surface == null || !surface.isActiveAndEnabled
                     || !surface.TrySampleMeshHeight(origin, out var point)
                     || point.y > origin.y || origin.y - point.y > distance
@@ -150,6 +172,11 @@ namespace UPlayGround.Components
         public bool TrySampleHeight(Vector3 worldPosition, out Vector3 waterPoint)
         {
             waterPoint = default;
+            if (waterQuerySource != null)
+            {
+                if (!waterQuerySource.isActiveAndEnabled || !(waterQuerySource is IWaterQuery query) || !query.TrySample(worldPosition, out var sample)) return false;
+                waterPoint = new Vector3(worldPosition.x, sample.SurfaceY, worldPosition.z); return true;
+            }
             return ContainsVolume(worldPosition) && TrySampleMeshHeight(worldPosition, out waterPoint);
         }
 

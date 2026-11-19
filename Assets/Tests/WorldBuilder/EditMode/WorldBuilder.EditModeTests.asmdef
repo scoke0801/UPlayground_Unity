@@ -6,6 +6,8 @@
     "WorldBuilder.Data",
     "WorldBuilder.Editor",
     "WorldBuilder.Runtime",
+    "UPlayGround.Contracts",
+    "UPlayGround.Actor",
     "Unity.Splines",
     "Unity.Mathematics"
   ],

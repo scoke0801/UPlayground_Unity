@@ -1,7 +1,7 @@
 ﻿# WorldBuilder 작업 상태
 
 - 정본: [지역형 HeightMap 설계](../../../Assets/docs/design/world-art/open-world/WORLDBUILDER_REGIONAL_HEIGHTMAP_DESIGN.md), [요청](../../../Assets/docs/requests/WORLDBUILDER_REGIONAL_IMPLEMENTATION_PROMPTS.md)
-- 범위: P00 → P03 구현·자동 검사 통과. 신규 월드만 생성하며 기존 월드·Addressables·서비스는 변경하지 않는다. 사용자 확인 항목은 단계별로 별도 유지한다.
+- 범위: P00 → P04 핵심 저작 구현·자동 게이트 통과. 신규 월드만 생성하며 기존 월드·Addressables·서비스는 변경하지 않는다. 사용자 확인 항목은 단계별로 별도 유지한다.
 
 ## P00 · INTEGRATION_AUDIT (2026-11-16)
 
@@ -233,7 +233,7 @@ T10의 높이·Hole 각20회는 P02 범위다. 건물 이동/삭제·물 경로 
 - 최종 P03 관련 로컬 링크·앵커 **44개/실패0**, `git diff --check` 통과, 마지막 Console 오류0을 확인했다. 결과는 `output/WorldBuilder/P03/link-check.json`에 있다. 검증 자산 두 폴더 내부55파일/18,599,785바이트(상위 폴더 meta 별도)와 작은 실행 근거 약330KB를 보존했다.
 
 <a id="p04-planning"></a>
-## P04 · 계획·구조물 (2026-11-17~18, 최종 검증 중)
+## P04 · 계획·구조물 (2026-11-17~18, 구현·자동 게이트 통과)
 
 사용자 `다음 진행`에 따라 P04만 진행한다. P05 수계 생성과 P10 지역 완성은 이번 단계에 포함하지 않는다. P03의 과거60/60을 현재 변경본으로 승계하지 않고 관련 회귀를 다시 실행했다.
 
@@ -259,20 +259,67 @@ T10의 높이·Hole 각20회는 P02 범위다. 건물 이동/삭제·물 경로 
 ### 실제 실행과 최종 판정
 
 - 같은 `UPlayground@fddd0702` Editor에서 새 타입/직렬화/Editor 변경을 정상 컴파일했다. Splines2.9.0은 Editor PackageInfo에서 간접 Registry 의존으로 확인했으며 패키지를 설치/업그레이드하지 않았다.
-- 최종91건 재실행 중: 기존 P01/P02 38 + P03 22 + P04 Core13/Editor7/메타데이터1/실제 Play 진입 Agent2 + Camera 이름 규칙8. job `09925d968cf9463a84a292db17ef24ea`. 현재 코드/asmdef56파일과 씬 자산 지문을 먼저 기록했다. 최종 원문과 지문 대조 후 자동 게이트를 판정한다.
+- **최종 관련 EditMode91/91 통과, 실패0·건너뜀0, 430.946초**. 기존 P01/P02 38 + P03 22 + P04 Core13/Editor7/메타데이터1/실제 Play 진입 Agent2 + Camera 이름 규칙8. job `09925d968cf9463a84a292db17ef24ea`. [개별91건 원문](../../../output/WorldBuilder/P04/editmode-final.json), [실제 Agent 횡단2건](../../../output/WorldBuilder/P04/traversal-final.json), [입력·원본 최종 지문](../../../output/WorldBuilder/P04/final-preservation.json). 현재 코드/asmdef56·기존 원본210·검증 자산98·카메라 입력6개 모두 변경/누락0이다.
 - [앞선77/77](../../../output/WorldBuilder/P04/regression-77.json), [면적·cutfill·하위 단계 실패 복원15/15](../../../output/WorldBuilder/P04/strip-cutfill-rollback-pass.json), [필수 교량 Core13/13](../../../output/WorldBuilder/P04/required-bridge-core-pass.json), [교량 메타데이터·Agent2/2](../../../output/WorldBuilder/P04/preset-traversal-pass.json)를 실제 실행했다. 이전 단계의 통과를 이번 수정본으로 승계하지 않는다.
 - [실패80건 실행](../../../output/WorldBuilder/P04/regression-80-first.json)은79/80이었다. Play 진입 후 검증 교량 누락을 확인해 실행 씬을 일시 명시하고 EnterPlayMode의 도메인 리로드 기대값을 현재 Editor 설정과 맞췄다. 실행 씬 설정과 다른 열린 Build Manager 창은 teardown에서 복원한다. 첫 Play의 외부 Localization 오류를 포함해 [실패/QA 기록](../../../output/WorldBuilder/P04/qa-review.md)을 보존하며 전체 오류 로그를 무시하지 않았다. 실제 활성 Sculpt 세션의 도메인 리로드 복원은 별도 미검증이다.
 - [카메라 이름 규칙 보존](../../../output/WorldBuilder/P04/camera-rules-preservation.json): 기존72개 값/순서를 보존하고 검증용 House Auto/Interior·Bridge Solid·Road Solid 세 prefix만 추가했다. 기존 원본 GUID를 유지했다.
-- 독립 QA는 파일 수정·Unity 슬롯 없이 구현/계약/실행 원문을 대조했다. 창 없는 Undo·최초 적용 Undo·첫 Redo·고정 footprint·좁은 Pin/Hole·교대 Hole·접근 경사·교량 메타데이터·필수 교량 우회 지적을 수정했다. 마지막 연속 상판 검사도 재검토했으며 추가 확정 차단 결함은 없었다. 최종91건·보존 지문 확인은 대기 중이다.
+- 독립 QA는 파일 수정·Unity 슬롯 없이 구현/계약/실행 원문을 대조했다. 창 없는 Undo·최초 적용 Undo·첫 Redo·고정 footprint·좁은 Pin/Hole·교대 Hole·접근 경사·교량 메타데이터·필수 교량 우회 지적을 수정했다. 마지막 연속 상판 검사도 재검토했으며 추가 확정 차단 결함은 없었다. 최종91건·보존 지문을 QA가 직접 재대조해 추가 확정 차단 결함 없음, 독립 자동 게이트 통과로 판정했다. QA가 Unity를 직접 재실행한 것으로 보고하지 않는다.
 
 ### 남은 확인과 정리
 
 - WB-P04-01~05의 실제 창/Scene 조작성·시각 인수, 실제 KCC/TPS 캐릭터 조작과 카메라 가림은 **사용자 테스트 대기**다. Agent 자동 통과와 사람 인수를 구분한다.
 - 기존 P02 실제 브러시/외부 RAW UX·활성 세션 실제 도메인 리로드 복원·중간 디스크 실패, 동적 LOD·미술 인수는 그대로 미수행/사용자 테스트 대기다. 실제 게임 로더·P08 스트리밍/Nav Bake·Player/Addressables 빌드·커밋·push는 수행하지 않았다.
 - 검증 NavMesh는 기준 씬용이다. 임의 POI/도로 편집 뒤에도 자동 갱신된다고 가정하지 않는다. 도로/교량 위 비 Terrain surface anchor, 교량의 다른 축/pivot·경사 상판/도로 banking은 현재 지원 범위 밖이다. 기존 C의 가파른 실제 지역 주동선은 이번 합성 씬 통과로 완료 처리하지 않는다.
-- 테스트 UUID 월드/데이터는 각 TearDown에서 제거한다. 파생 불변 자산과 Library/WorldBuilder 적용 스냅샷은 Undo 근거로 보존하며 Library/Temp를 지우지 않는다. 시작 미커밋 NPC/아트/P03 변경을 보존한다. 최종 용량·210개 원본 보존 대조·문서 링크·준비표 검사는 실행 후 아래에 기록한다.
-- 다음 P05는 수계 계획 데이터·물 표면/흐름/수변 마스크와 관련 게이트다. P04의 계획 수위/교량 연결·Sculpt/Override/GUID를 보존하며 실제 수계 생성은 다음 요청에서 진행한다.
+- 테스트 UUID 월드/데이터는 각 TearDown에서 제거한다. 파생 불변 자산과 Library/WorldBuilder 적용 스냅샷은 Undo 근거로 보존하며 Library/Temp를 지우지 않는다. 시작 미커밋 NPC/아트/P03 변경을 보존한다. [용량 실측](../../../output/WorldBuilder/P04/footprint.json)과 [210개 원본 포함 최종 지문](../../../output/WorldBuilder/P04/final-preservation.json)을 남겼다. 문서 링크·최종 준비표는 아래 인계 기록을 따른다.
+- 다음 P05는 수계 계획 데이터·URP 수면·WaterVolume·폭포와 흐름/수변 마스크, T15/T16 게이트다. P04의 계획 수위/교량 연결·Sculpt/Override/GUID를 보존하며 실제 수계 생성은 다음 요청에서 진행한다.
 
 - 11월18일 재개 시 이전90건 job은 `Unknown job_id`, Editor 실행 중 검사도 없었다. [중단 기록](../../../output/WorldBuilder/P04/interrupted-final-job.json)을 남기고 완료 통과로 승계하지 않는다. [재개 지문](../../../output/WorldBuilder/P04/resume-preservation.json)에서 코드56/기존 원본210, [별도 검증 자산98개](../../../output/WorldBuilder/P04/scene-preservation-resume.json) 모두 변경0을 확인했다.
 - 마지막 SaveMesh 가드는 GUID→path→Mesh 타입/내용을 확인하며 다른 SO/미식별 기존 파일을 덮어쓰지 않는다. [다른 타입 자산의 객체·GUID·파일 SHA 보존1/1](../../../output/WorldBuilder/P04/asset-type-preservation-pass.json)을 실행했다. 현재 source56개 지문을 다시 기록해 최종91건을 시작했다.
 - 중단된 테스트 UUID `38c3d5874e2044eba520980be59946ee`는 정의의 WorldGuid·128m 규격·미사용 여부·절대 경로를 확인하고 전용 Asset API로만 정리했다(61파일/382,841바이트, [정리 원문](../../../output/WorldBuilder/P04/interrupted-fixture-cleanup.json)). 기존 B/C/P03/P04 검증 씬은 정리 대상이 아니다.
+
+### P04 종료 인계
+
+- 최종 씬: [저장 상태·수치·해시](../../../output/WorldBuilder/P04/scene-validation.json). Plan GUID `88cf8c25d9ef4be9839b5c4d0374f686`, Full/Applied 계획 해시 `44def448ad063091dfec52b904b41bd1c20952f4a62c25e2b41ad42883745e57`. 실제/기록 Terrain 해시 일치, Scene dirty=false, smoothness0. WorldBuilder 창에 P04 Definition을 연결했다. 계획 편집기 실행 씬 설정도 이전 값으로 복원됐고 현재 Editor의 DisableDomainReload 옵션을 변경하지 않았다.
+- T13: 저장된512m 구역과128m 합성 fixture 모두 실제 NavMeshAgent가 두 건물 출입구 사이에서 교량을 횡단했다. 상판 Collider raycast 지지와 준비 신호/게이트 닫힘을 검사했다. 도착오차0.430m·0.369m로0.5m 기준 안이었다. 실제 KCC 검증을 대신하지 않는다.
+- 단계 종료 후 월드 폴더는 기존 B/C/P03 + 별도 P04만, 저작 데이터는 P03/P04 검증 폴더만 남았다. 최종 테스트 UUID 자료는 TearDown에서 정리했고, 중단 fixture도 별도 기록과 함께 정리했다. 기존/출처가 불명확한 다른 작업 자료·구매 원본·Library/Temp는 삭제하지 않았다.
+- 하네스 자체 검사43개 통과(열린 Unity 실행/빌드 없음), 변경 범위 `git diff --check` 통과. 문서 링크·최종 준비표 인계는 마지막 기록으로 연결한다.
+
+- [P04 최종 준비표·검증/정리 인계](../../../output/harness/20261118-210915-ed233200/review.md). 지정 입력에는 코드·데이터·저작 지침·설계를 포함했고 위키/상태는 별도 링크 검사로 확인한다.
+
+- 마지막 P04 관련 로컬 링크/앵커63개 검사 실패0 (`output/WorldBuilder/P04/link-check.json`), 최종 준비표219입력 누락0·지문 변경0을 확인했다. 이후 이 문장만 상태에 추가했으며 코드/데이터/저작 지침·설계 입력은 바꾸지 않았다.
+
+## P05 착수 · 2026-11-18
+
+P05 수계만 구현한다. P06 이후는 진행하지 않는다. 시작 Editor는 저장된 P04Validation 한 씬, Edit Mode, DisableDomainReload다. 이전 91/91과 중단된 90건을 이번 검증으로 승계하지 않는다.
+
+- 시작 변경·보존 지문: output/WorldBuilder/P05/baseline-status.txt, baseline-hashes.json. 기존 문서·설정 수정, 미추적 InitTestScene·Blender·scratchpad를 보존한다.
+- 조사: 기존 FootstepWaterSurface가 수영·발소리·수중 효과의 공용 경로다. 기존 물은 유지하고 P05 물리 쿼리를 선택적으로 연결한다. 기존 WaterfallLink·WaterfallCurrent, URP17.3.0을 확인했다.
+- 계획: 순수 수계 기하·유한 탐색/수위/검증 → SO·소유 패치·원자적 씬 적용/Undo → URP 수면·Volume·폭포 및 별도2km 검증 씬 → 관련 회귀·Play 확인·독립 QA.
+- 수계 파생 연산은 사용자 조형보다 먼저 평가한다. 수동 조형이 요구 깊이/강둑을 깨면 오류로 남기며 자동으로 지우지 않는다. Base·좌표·Profile의 sourceRevision 의미를 변경하지 않는다.
+- 실제 KCC/저작 UX/미술, 활성 Sculpt 실제 도메인 리로드, 중간 디스크 실패 등 기존 미검증 항목은 유지한다.
+
+### P05 수치/저작 구현 단계 · 검증 진행 중
+
+Core 수계 타입·유한 비용장 제안·선형 수위/동일 삼각형 물리 함수·경계 절단 Mesh·바닥/강둑 파생 패치, SO 원본·Volume·기존 수영 어댑터, 원자적 적용/Undo·P04 계약 재검사를 반영했다. 새 직렬화 타입과 어셈블리 참조 변경으로 정상 컴파일하며, 컴파일 오류0을 확인했다. 독립 QA 지적에 따라 미캡처 계층 삭제 차단, 굽이 수면/조회 일치, 강 cap 깊이, 좁은 강 수심, POI 지역 수위, 후보 스택 검사와 VFX bounds를 보완 중이다. 아직 P05 게이트 통과 판정이 아니다.
+
+초기 수치 검사11/12, 다음12/13에서 호수 외측 낮은 출구 검사를 보완했다. 저작 결합 검사 첫 실행은 제목 없는 Test Runner 씬에서 Additive 생성이 거절되어 fixture 초기화 실패9건이며 제품 성공으로 처리하지 않는다. 테스트 fixture의 Single 모드로 수정 후 다시 검사한다. 원본 job ID는 실행 기록에 보존한다.
+
+### P05 결합 검증 보완
+
+- 실패 주입 AfterAssets/AfterTerrain/AfterScene **3/3 통과**, 원문: [attempt4](../../../output/WorldBuilder/P05/EditMode-attempt4.json). 물리 지형·SO·Definition·계층 보존을 검사했다. 실제 디스크 I/O 실패와 구분한다.
+- 수치13건·저작11건 결합은20/24 통과·4실패·skip0([attempt5](../../../output/WorldBuilder/P05/EditMode-attempt5-recovered.json)). 응답 지연 뒤 같은 job의 완료 결과를 복구했다. 재실행으로 중복 처리하지 않았다.
+- 좁은 정상 강과 신규 P04 구조물 보완 후 **14/16 통과·2실패**([attempt6](../../../output/WorldBuilder/P05/EditMode-attempt6-final.json)). 남은 Undo 메타데이터 기록을 추가해 수위 변경은 통과했고, 파티클 Transform 후기 할당·부모 소켓 위치를 추가 수정했다.
+- 이동→Undo/Redo→삭제에서 Unity가 기존 사각 예약의 null boundary를 빈 배열로 복원하는 경로를 확인했다([attempt9](../../../output/WorldBuilder/P05/EditMode-attempt9-final.json)). 사각 예약의 null/empty 의미를 기존 소비자 두 곳과 Clone에서 일치시켰다. 다각형1~2점 입력 거절은 유지한다.
+- sourceRevision, P04 계획 원본, 기존 배치 Override를 초기화하지 않는다. 수계 소유 polygon 예약은 P03에 전달하고 다른 예약을 보존한다. 파생 material은 GUID뿐 아니라 완성 재질 내용을 키/무결성 검사에 사용한다. VFX bounds는 직렬화된 emitter 데이터에서 OnEnable에 다시 적용한다.
+- 현재 **전체 관련 회귀 실행 중**. 단계 완료 판정과 Play/미술 인수를 아직 부여하지 않는다. [P05 저작 지침](../../../Assets/docs/guide/WORLDBUILDER_WATER_AUTHORING_GUIDE.md).
+
+### 보존 중간 대조
+
+시작 지문3,473개 재대조에서 의도한 위키·상태 문서2개만 변경됐고, 다른 원본/기존 월드·SO·프리팹·패키지/ProjectSettings의 지문 차이는0이었다([원문](../../../output/WorldBuilder/P05/preservation-in-progress.json)). 구매·기존 재사용 물 리소스의 tracked diff도0이다. 하네스 자체 검사43개 통과, Unity 실행 없음([요약](../../../output/WorldBuilder/P05/harness-check.txt)). 이 대조는 P05 기능 게이트를 대신하지 않는다.
+
+### 전체 회귀와 기존 물 기능 회귀
+
+- WorldBuilder 전체 **107/107 통과·실패0·skip0**, 837.669초. P01~P04기존83건과 당시 P05 24건이며 실제128m/512m Agent 횡단2건을 포함한다. [개별 원문](../../../output/WorldBuilder/P05/EditMode-full-107.json). 이전91건을 승계한 결과가 아니다.
+- 이후 P05 변경 영향과 기존 물·수영·수중·발소리·GPU·Camera 이름 규칙을 새로 실행해 **158/158 통과·실패0·skip0**, 275.368초. [개별 원문](../../../output/WorldBuilder/P05/EditMode-water-regression-first.json). Source/Definition 메타데이터·VFX Transform·예약 Undo와 실제 리소스 경로를 포함한다.
+- 이158건 뒤 독립 QA가 수계 A의 사각 범위 안에 있으나 실제로 떨어진 수계 B의 변화를 A의 절토/성토로 오판하는 경우를 확인했다. 각 수계만 제거한 counterfactual 결과와 final의 차이를 평가하도록 보완하고 대각선 강+멀리 떨어진 호수 회귀를 추가했다. 최종 스택의 manual/Height 보호를 보존한다. 전체 Bounds+Smooth halo를 검사하되 다른 수계의 변화는 귀속하지 않는다.
+- P04 planGuid와 수계 systemGuid의 소유자 충돌을 Data/API 양쪽에서 거절한다. 이와 마지막 실제 리소스 GUID→path→타입 가드는 별도 최신 P05 재검증 대상으로 남긴다. 위107/158건을 이 후속 변경의 실행 통과로 승계하지 않는다.

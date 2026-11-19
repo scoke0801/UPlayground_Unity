@@ -88,7 +88,7 @@ namespace UPlayGround.MovementController
                 if (Motor == null) return Vector3.zero;
                 if (WaterfallCurrent.TryResolve(Motor.TransientPosition, out _, out Vector3 velocity, out _)) return velocity;
                 return FootstepWaterSurface.TryResolveSurface(Motor.TransientPosition, out var surface, out _)
-                    ? surface.CurrentVelocity : Vector3.zero;
+                    ? surface.GetCurrentVelocity(Motor.TransientPosition) : Vector3.zero;
             }
         }
 

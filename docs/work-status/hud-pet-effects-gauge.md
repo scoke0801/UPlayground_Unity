@@ -1,6 +1,6 @@
 # HUD 펫·상태 효과 배치와 게이지 갱신
 
-- 기준: 2026-11-15. 구현 반영, 정상 컴파일·신규 회귀 검사 통과. 기존 HUD 참조 검사 3건 실패. 실제 화면·훈련장 플레이는 사용자 테스트 대기.
+- 기준: 2026-11-15. 구현 반영, 정상 컴파일·신규 회귀 검사 통과. 기존 HUD 참조 검사 3건은 11월 20일 연결 복구 후 통과. 실제 화면·훈련장 플레이는 사용자 테스트 대기.
 - 지침 정본: [UI 저작](../../Assets/docs/guide/UI_UX_AUTHORING_GUIDE.md), [검증](../../Assets/docs/guide/TEST_VALIDATION_GUIDE.md). [분야 위키](../wiki/player-ui.md).
 
 ## 반영
@@ -32,6 +32,10 @@
 | HUD04 | 훈련장 퇴장·재진입 후 HUD03 반복 | 게이지가 멈추거나 중복 증가하는 표시가 없다. Console 오류가 없다. |
 
 회신: `ID / 통과·실패·미수행 / 실제 결과 / 입력 장치·캐릭터·필요 시 화면 또는 Console`.
+
+## 필살기 입력 안내 후속
+
+2026-11-20. UI_HUD_PlayerInfo의 레일에 기존 KeyPrompt를 연결했다. KeyPrompt 자식의 SkillUltimate 장치별 글리프 설정을 그대로 사용한다. 레일·스태미나·펫 지원·입력 안내 관련 EditMode 42/42 통과. 게이지 준비 시 안내가 켜지고 자원 소비 또는 잠금 시 꺼지는 동작을 검증했다. HUD06은 필살기 준비 후 키보드에서 패드로 전환해 글리프가 바뀌는지 확인하고, 발동 직후 안내가 사라지는지 본다. 실제 화면은 사용자 테스트 대기다. [검사 결과](../../output/WorldBuilder/P09/closure/HudPromptEditMode.json) · [P09 인수 기록](open-world/WORLDBUILDER_P09.md).
 
 ## 훈련장 스태미나 후속
 

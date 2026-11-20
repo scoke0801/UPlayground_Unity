@@ -85,7 +85,7 @@
 | --- | --- | --- | --- | --- |
 | `Navigate` | PassThrough (Vector2) | W / A / S / D | — | 2DVector 컴포짓 |
 | `Submit` | Button | Enter | — | |
-| `Cancel` | Button | Esc | — | |
+| `Cancel` | Button | Esc | B / ○, Start | 플레이 중 B / ○는 대시, Start는 일시정지 메뉴 |
 | `Point` | PassThrough (Vector2) | 마우스 위치 | — | |
 | `CursorClick` | Button | — | A (`buttonSouth`) | 가상 커서 클릭 |
 | `CursorMove` | Value (Vector2) | — | 좌스틱 | 가상 커서 이동 |
@@ -94,7 +94,7 @@
 | `DialogueNext` | Button | Space | A / ✕ | 선택지 확인은 Submit이 담당하며 진행 버튼과 같은 프레임의 중복 발화를 막는다. |
 | `Map` | Button | M | — | |
 | `Party` | Button | P | — | |
-| `MenuPanel` | Button | ` (backquote) | Start | |
+| `MenuPanel` | Button | ` (backquote) | Select / View | 메인 메뉴 |
 | `CheatPanel` | Button | F11 | — | 치트 패널 |
 | `ToggleFrameRate` | Button | F12 | — | 전역 FPS 표시 토글. `UIManager`가 `InputLayer.Level_Top`으로 받아 메뉴·팝업·로딩 중에도 동작한다. 키 설정에서 변경 가능(Steam 오버레이 기본 스크린샷 키와 같다) |
 | `DialogueSkip` | Button | Ctrl | RT (`rightTrigger`) | 대화 스킵(선택지·End까지 빨리감기) |

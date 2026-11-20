@@ -77,8 +77,8 @@
 | --- | --- | --- | --- |
 | `Navigate` | WASD + 방향키 | leftStick + dpad | 런타임 보강으로 게임패드 추가 |
 | `Submit` | Enter, Space | buttonSouth | 런타임 보강으로 게임패드 추가 |
-| `Cancel` | Escape | buttonEast | 런타임 보강으로 게임패드 추가 |
-| `MenuPanel` | backquote | start | 양쪽 |
+| `Cancel` | Escape | buttonEast, start | 열린 UI의 뒤로 가기와 Start 일시정지 |
+| `MenuPanel` | backquote | select | 메인 메뉴 |
 | **`MainTabPrevious`** | **없음** | leftTrigger | **게임패드 전용** |
 | **`MainTabNext`** | **없음** | rightTrigger | **게임패드 전용** |
 | **`SubTabPrevious`** | **없음** | leftShoulder | **게임패드 전용** |

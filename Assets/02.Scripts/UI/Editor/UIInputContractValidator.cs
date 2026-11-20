@@ -78,6 +78,7 @@ namespace UPlayGround.UI.EditorTools
                 (UIAction.Navigate, true, true),
                 (UIAction.Submit, true, true),
                 (UIAction.Cancel, true, true),
+                (UIAction.MenuPanel, true, true),
                 (UIAction.DialogueNext, true, true),
                 (UIAction.MainTabPrevious, false, true),
                 (UIAction.MainTabNext, false, true),
@@ -209,9 +210,12 @@ namespace UPlayGround.UI.EditorTools
                     StringComparer.OrdinalIgnoreCase);
                 foreach (InputAction action in map.actions)
                 {
-                    foreach (InputBinding binding in action.bindings)
+                    for (int i = 0; i < action.bindings.Count; i++)
                     {
+                        InputBinding binding = action.bindings[i];
                         if (binding.isComposite || string.IsNullOrWhiteSpace(binding.path))
+                            continue;
+                        if (IsSuperJumpChordTrigger(map, action, i))
                             continue;
 
                         string path = binding.path.Trim();
@@ -243,6 +247,20 @@ namespace UPlayGround.UI.EditorTools
                         string.Join(", ", actions.OrderBy(value => value)));
                 }
             }
+        }
+
+        private static bool IsSuperJumpChordTrigger(InputActionMap map, InputAction action, int index)
+        {
+            if (map.name != InputMapNames.PlayerAction || action.name != PlayerAction.SuperJump || index < 2)
+                return false;
+
+            // 조합 중재기는 왼쪽 스틱 클릭과 A가 함께 눌릴 때 단독 Jump를 억제한다.
+            InputBinding trigger = action.bindings[index];
+            InputBinding modifier = action.bindings[index - 1];
+            InputBinding composite = action.bindings[index - 2];
+            return composite.isComposite && composite.path == "OneModifier"
+                && modifier.isPartOfComposite && modifier.name == "Modifier" && modifier.path == "<Gamepad>/leftStickPress"
+                && trigger.isPartOfComposite && trigger.name == "Binding" && trigger.path == "<Gamepad>/buttonSouth";
         }
 
         private static void ValidateGlyphData(UIInputContractReport report)

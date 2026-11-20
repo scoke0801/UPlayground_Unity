@@ -16,6 +16,7 @@ using UPlayGround.Data;
 using UPlayGround.Data.Ability;
 using UPlayGround.Data.Actor;
 using UPlayGround.Data.Actor.Animation;
+using UPlayGround.Data.Combat;
 using UPlayGround.Data.Enemy;
 using UPlayGround.Data.EnumType;
 using UPlayGround.Data.Event;
@@ -42,6 +43,9 @@ namespace UPlayGround.Tool.Editor.Map
                 throw new InvalidOperationException("이미 전투 늑대입니다. 기존 데이터는 각 에디터에서 수정하세요.");
             if (Directory.Exists(Root) && Directory.EnumerateFiles(Root, "*", SearchOption.AllDirectories).Any())
                 throw new InvalidOperationException("늑대 전투 데이터가 이미 있습니다. 기존 에셋을 덮어쓰지 않습니다.");
+            var reactionPolicy = Resources.Load<CombatReactionPolicySO>(CombatPolicyResolver.DefaultPolicyResourceKey);
+            if (reactionPolicy == null || reactionPolicy.GetRule(MonsterActorGrade.Normal) == null)
+                throw new InvalidOperationException("기본 피격 정책의 일반 등급 규칙이 없습니다.");
             Directory.CreateDirectory(Root);
             AssetDatabase.Refresh();
             var root = PrefabUtility.LoadPrefabContents(PrefabPath);
@@ -96,6 +100,7 @@ namespace UPlayGround.Tool.Editor.Map
                 definition.targetLayerMask = LayerMask.GetMask("Player");
                 var profile = CreateAsset<MonsterActorProfileSO>("Wolf_Profile");
                 profile.abilitySet = set;
+                profile.combatReactionPolicy = reactionPolicy;
                 profile.behaviorData = behavior;
                 definition.monsterProfile = profile;
                 ConfigurePrefab(root, definition, behavior, set, motionSet);

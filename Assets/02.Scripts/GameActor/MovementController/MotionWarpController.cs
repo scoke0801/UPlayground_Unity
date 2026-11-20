@@ -1061,6 +1061,46 @@ namespace UPlayGround.MovementController
             return false;
         }
 
+        /// <summary>첫 판정 전 기본 대상에 적용되는 첫 전신 회전 워프의 각도 상한을 찾는다.</summary>
+        internal static float GetOpeningAimLimit(MotionSet set)
+        {
+            if (set == null || set.baseLayerIndex != 0) return 180f;
+
+            float firstImpact = float.PositiveInfinity;
+            float firstWarp = float.PositiveInfinity;
+            float limit = 180f;
+            Inspect(set.globalEvents, 0f);
+            float offset = 0f;
+            if (set.motions != null)
+                foreach (var motion in set.motions)
+                {
+                    if (motion == null) continue;
+                    Inspect(motion.events, offset);
+                    offset += motion.Duration;
+                }
+            return firstWarp < firstImpact ? limit : 180f;
+
+            void Inspect(List<MotionEventBase> events, float startOffset)
+            {
+                if (events == null) return;
+                foreach (var evt in events)
+                {
+                    if (evt == null) continue;
+                    float start = startOffset + evt.startTime;
+                    if (evt is BeginCollisionEvent or SpawnProjectileEvent)
+                        firstImpact = Mathf.Min(firstImpact, start);
+                    if (start >= firstWarp || evt is not MotionEvent_MotionWarp warp ||
+                        warp.endTime <= warp.startTime ||
+                        (!string.IsNullOrEmpty(warp.targetKey) && warp.targetKey != DefaultTargetKey))
+                        continue;
+                    var settings = warp.ResolveSettings();
+                    if (settings.rotationWeight <= 0f) continue;
+                    firstWarp = start;
+                    limit = Mathf.Clamp(settings.maxWarpAngle, 0f, 180f);
+                }
+            }
+        }
+
         private static bool HasRotationWindow(List<MotionEventBase> events)
         {
             if (events == null) return false;

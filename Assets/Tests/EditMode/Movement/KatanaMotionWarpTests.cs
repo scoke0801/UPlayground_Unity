@@ -15,6 +15,13 @@ namespace UPlayGround.Movement.Tests
     {
         private const string Root = "Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/";
 
+        private static ActorAnimationMotionSet LoadRaonKatanaMotionOwner()
+        {
+            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Raon.prefab");
+            return prefab.GetComponentInChildren<PlayerActorAnimator>(true).PlayerMotionSet
+                .GetActorAnimationMotionSet(UPlayGround.Data.EnumType.WeaponType.Katana);
+        }
+
         [Test]
         public void 공격에서_선택한_대상없음도_이벤트_재탐색을_막고_다음_타격에서_풀린다()
         {
@@ -206,23 +213,29 @@ namespace UPlayGround.Movement.Tests
         }
 
         /// <summary>
-        /// 대상 선정은 입력 방향 원뿔 안의 적을 고른다. 조준 보정 상한이 원뿔보다 작으면 고른 적을 끝까지 바라보지 못하고
-        /// 이동 보정도 각도 초과로 거절돼 허공을 벤다. 수동 입력 방향 전환은 이 상한과 별개로 제한 없이 반영된다.
+        /// 기본 공격의 방향 입력은 해당 모션이 조준할 수 있는 범위에서만 대상을 선정한다.
         /// </summary>
         [TestCase("Katana.Light.00")]
         [TestCase("Katana.Light.01")]
         [TestCase("Katana.Light.02")]
         public void 기본타_조준_보정_상한은_대상_선정_원뿔을_덮되_넘지_않는다(string key)
         {
-            var owner = AssetDatabase.LoadAssetAtPath<ActorAnimationMotionSet>(Root + "Bokusei_KatanaAnimationSet.asset");
-            var warp = owner.GetAbilityMotionAsset(new MotionKey(key)).motionSet.motions.Single().events.OfType<MotionEvent_MotionWarp>().Single();
+            var owner = LoadRaonKatanaMotionOwner();
+            var motion = owner.GetAbilityMotionAsset(new MotionKey(key)).motionSet;
+            var warp = motion.motions.Single().events.OfType<MotionEvent_MotionWarp>().Single();
             var player = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/03.Prefabs/Actor/Player/Player.prefab");
-            var combat = new SerializedObject(player.GetComponentInChildren<UPlayGround.Components.PlayerCombat>(true));
-            float searchAngle = Mathf.Min(combat.FindProperty("_attackAssistSearchAngle").floatValue,
-                combat.FindProperty("_freeAttackFacingSearchAngle").floatValue);
+            var combat = player.GetComponentInChildren<UPlayGround.Components.PlayerCombat>(true);
+            var serialized = new SerializedObject(combat);
+            float inputCone = serialized.FindProperty("_attackAssistSearchAngle").floatValue;
+            float freeCone = serialized.FindProperty("_freeAttackFacingSearchAngle").floatValue;
             MotionWarpWindowSettings settings = warp.ResolveSettings();
             Assert.That(settings.translationWeight, Is.GreaterThan(0f));
-            Assert.That(settings.maxWarpAngle, Is.InRange(searchAngle, searchAngle + 10f));
+            var resolve = typeof(UPlayGround.Components.PlayerCombat).GetMethod("ResolveAttackFacingSearchAngle",
+                System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            Assert.That((float)resolve.Invoke(combat, new object[] { inputCone, Vector3.forward, motion }),
+                Is.EqualTo(Mathf.Min(inputCone, freeCone, settings.maxWarpAngle)));
+            Assert.That((float)resolve.Invoke(combat, new object[] { inputCone, Vector3.zero, motion }),
+                Is.EqualTo(freeCone));
         }
 
         [Test]
@@ -246,39 +259,29 @@ namespace UPlayGround.Movement.Tests
         }
 
         [Test]
-        public void Bokusei_전용_매핑은_다른_플레이어와_공유하지_않고_회피반격_별칭을_유지한다()
+        public void 라온_카타나_바인딩은_전용_공격과_회피교대_모션을_사용한다()
         {
-            var prefab = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Raon.prefab");
-            var owner = prefab.GetComponentInChildren<PlayerActorAnimator>(true).PlayerMotionSet
-                .GetActorAnimationMotionSet(UPlayGround.Data.EnumType.WeaponType.Katana);
-            Assert.That(AssetDatabase.GetAssetPath(owner), Is.EqualTo(Root + "Bokusei_KatanaAnimationSet.asset"));
+            var owner = LoadRaonKatanaMotionOwner();
+            Assert.That(AssetDatabase.GetAssetPath(owner), Is.EqualTo(Root + "UltimateRedesign/Bindings/Raon_WeaponMotions.asset"));
+            Assert.That(AssetDatabase.GetAssetPath(owner.fallbackMotionSet),
+                Is.EqualTo("Assets/10.Datas/Actor/Footsteps/Motions/Set_Katana.asset"));
             var shared = AssetDatabase.LoadAssetAtPath<ActorAnimationMotionSet>(Root + "Humanoid_Player_KatanaAnimationSet.asset");
-            foreach (string key in new[] { "Katana.Light.00", "Katana.Light.01", "Katana.Heavy.00", "Katana.Dash.00" })
+            foreach (string attack in new[] { "Light.00", "Light.01", "Light.02", "Heavy.00", "SwapEvade" })
             {
-                var motion = owner.GetAbilityMotionAsset(new MotionKey(key));
-                var sharedMotion = shared.GetAbilityMotionAsset(new MotionKey(key));
-                Assert.That(motion, Is.Not.EqualTo(sharedMotion));
-                // 강공격만 전진 내려베기로 바뀌었으므로 해당 클립의 기존 타격·연출 계약과 비교한다.
-                var source = key == "Katana.Heavy.00"
-                    ? AssetDatabase.LoadAssetAtPath<MotionSetAsset>(Root + "Katana/Katana_Heavy_Attack_2.asset")
-                    : sharedMotion;
-                // 라온 전용 무기 커브를 이식한 파생 클립은 허용한다. 몸·루트 커브를 보존했는지는 길이와 루트 평균 속도로 확인한다.
-                AnimationClip clip = motion.motionSet.motions.Single().motionClip;
-                AnimationClip sourceClip = source.motionSet.motions.Single().motionClip;
-                if (clip != sourceClip)
-                {
-                    Assert.That(clip.length, Is.EqualTo(sourceClip.length).Within(0.0001f), key);
-                    Assert.That((clip.averageSpeed - sourceClip.averageSpeed).magnitude, Is.LessThan(0.0001f),
-                        $"{key}: 파생 클립이 원본 루트 이동을 바꿨다.");
-                }
-                Assert.That(motion.motionSet.TotalDuration, Is.EqualTo(source.motionSet.TotalDuration));
-                Assert.That(motion.motionSet.motions.Single().events.Where(e => e is not MotionEvent_MotionWarp).Select(e => JsonUtility.ToJson(e)),
-                    Is.EqualTo(source.motionSet.motions.Single().events.Where(e => e is not MotionEvent_MotionWarp).Select(e => JsonUtility.ToJson(e))));
+                var key = new MotionKey($"Katana.{attack}");
+                var motion = owner.GetAbilityMotionAsset(key);
+                string path = $"Assets/10.Datas/Ability/Player/Raon/Motion_Raon_{attack.Replace('.', '_')}_Flow.asset";
+                Assert.That(AssetDatabase.GetAssetPath(motion), Is.EqualTo(path));
+                Assert.That(motion, Is.Not.SameAs(shared.GetAbilityMotionAsset(key)));
+                Assert.That(motion.motionSet.motions.SelectMany(value => value.events).OfType<BeginCollisionEvent>(),
+                    Is.Not.Empty, key.ToString());
             }
-            Assert.That(owner.GetAbilityMotionAsset(new MotionKey("Katana.SwapEvade")),
-                Is.EqualTo(owner.GetAbilityMotionAsset(new MotionKey("Katana.Light.00"))));
-            Assert.That(owner.GetAbilityMotionAsset(new MotionKey("Katana.Dash.00")).motionSet.motions.Single()
-                .events.OfType<MotionEvent_MotionWarp>().Single().bakedProfiles, Is.Not.Empty);
+            var dashKey = new MotionKey("Katana.Dash.00");
+            var dash = owner.GetAbilityMotionAsset(dashKey);
+            Assert.That(dash, Is.Not.Null);
+            Assert.That(dash, Is.Not.SameAs(shared.GetAbilityMotionAsset(dashKey)));
+            Assert.That(dash.motionSet.motions.Single().events.OfType<MotionEvent_MotionWarp>().Single().bakedProfiles,
+                Is.Not.Empty);
         }
 
         [TestCase("Player/MonsterRaon_KatanaAnimationSet.asset", "Monster.Bokusei.Attack.1.01")]

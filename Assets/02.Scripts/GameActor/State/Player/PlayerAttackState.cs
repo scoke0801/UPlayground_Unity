@@ -1036,7 +1036,7 @@ namespace UPlayGround.State
             _motionWarp.EndMotionWarpForStateExit();
             _motionWarp.BeginTargetLock(CameraManager.Instance.GetLockOnTarget() != null
                 ? Vector3.zero : playerController.MoveInputVector, alignSelectedTarget: true);
-            Transform selectedAttackTarget = FindHomingTarget();
+            Transform selectedAttackTarget = FindHomingTarget(motionAsset);
             _homingTarget = _combat.GetAttackWarpTarget(selectedAttackTarget, _combat.AttackAssistSearchRange);
             _motionWarp.SetTarget(_homingTarget);
             // 상체·투사체 조준 사거리는 지상 발 위치 보정의 접근 반경과 다르다.
@@ -1065,7 +1065,7 @@ namespace UPlayGround.State
             return _attackTimer - _lastActiveHitEndTime >= delay;
         }
 
-        private Transform FindHomingTarget()
+        private Transform FindHomingTarget(MotionSetAsset motionAsset)
         {
             if (_currentAttack == null) return null;
 
@@ -1083,7 +1083,8 @@ namespace UPlayGround.State
             if ((_isEntryAttack || _isSwapSpecialAttack) && preferredTarget != null)
                 return preferredTarget;
 
-            return _combat.FindNormalAttackFacingTarget();
+            return _combat.FindNormalAttackFacingTarget(
+                _currentAttack.attackKind == AttackKind.NormalAttack ? motionAsset?.motionSet : null);
         }
 
         #region Movement & Rotation

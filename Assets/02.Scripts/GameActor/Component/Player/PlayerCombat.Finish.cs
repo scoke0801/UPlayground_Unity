@@ -185,8 +185,8 @@ namespace UPlayGround.Components
         #region Homing Target Search
 
         /// <summary>이동 가능 여부와 독립적으로 일반 공격의 회전 대상을 유지한다.</summary>
-        public Transform FindNormalAttackFacingTarget()
-            => FindAttackFacingTarget(AttackAssistSearchRange, _attackAssistSearchAngle);
+        public Transform FindNormalAttackFacingTarget(MotionSet motion = null)
+            => FindAttackFacingTarget(AttackAssistSearchRange, _attackAssistSearchAngle, motion);
 
         /// <summary>접근 공격의 입력 방향에 맞는 대상을 선택한다.</summary>
         public Transform FindDashAttackFacingTarget()
@@ -200,17 +200,24 @@ namespace UPlayGround.Components
                 searchRange, _attackAssistMaxHeightDifference, _attackAssistObstacleLayers) ? target : null;
         }
 
-        private Transform FindAttackFacingTarget(float searchRange, float searchAngle)
+        private Transform FindAttackFacingTarget(float searchRange, float searchAngle, MotionSet motion = null)
         {
             Vector3 direction = _playerActor?.PlayerController != null
                 ? _playerActor.PlayerController.MoveInputVector
                 : Vector3.zero;
             // 가까운 적의 존재는 이동 생략 조건이지 회전 대상 취소 조건이 아니다.
             return _targetingController?.FindAttackTarget(searchRange,
-                direction.sqrMagnitude > 0.0001f
-                    ? Mathf.Min(searchAngle, _freeAttackFacingSearchAngle)
-                    : _freeAttackFacingSearchAngle, direction,
+                ResolveAttackFacingSearchAngle(searchAngle, direction, motion), direction,
                 _targetLayerMask, _attackAssistObstacleLayers, _attackAssistMaxHeightDifference);
+        }
+
+        private float ResolveAttackFacingSearchAngle(float searchAngle, Vector3 direction, MotionSet motion)
+        {
+            if (direction.sqrMagnitude <= 0.0001f)
+                return _freeAttackFacingSearchAngle;
+
+            float limit = Mathf.Min(searchAngle, _freeAttackFacingSearchAngle);
+            return Mathf.Min(limit, MotionWarpController.GetOpeningAimLimit(motion));
         }
         #endregion
     }

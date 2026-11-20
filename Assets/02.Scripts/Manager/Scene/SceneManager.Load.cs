@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -114,23 +114,26 @@ namespace UPlayGround.Manager
             StartLoad(new SceneLoadRequest(sceneName, useTransitionScene: true), arrivalPosition: arrivalPosition);
         }
 
+        public bool HandlesInMapTeleport(Vector3 position, Quaternion rotation)
+        {
+            var chunked = World.WorldBuilderRuntimeBridge.Active;
+            if (chunked == null || !chunked.IsPrepared) return false;
+            var request = new SceneLoadRequest(chunked.gameObject.scene.name, useTransitionScene: true);
+            StartWorldTravel(request, true, (scene, id, target, token) => chunked.TravelAsync(scene, id, target, token, rotation),
+                null, position);
+            return true;
+        }
+
         private bool StartLoad(SceneLoadRequest request, string arrivalId = null, Vector3? arrivalPosition = null)
         {
             var world = World.ContinuousWorldController.Active;
-            if (world != null && world.ContainsDestination(request.SceneName)
-                && (!string.IsNullOrEmpty(arrivalId) || arrivalPosition.HasValue))
+            var chunked = World.WorldBuilderRuntimeBridge.Active;
+            if (!string.IsNullOrEmpty(arrivalId) || arrivalPosition.HasValue)
             {
-                if (_isLoading || !world.IsInitialized
-                    || (Services.TryGet<IDialogueService>(out var activeDialogue) && activeDialogue.IsDialogueActive))
-                    return false;
-                _isLoading = _isWorldTravel = true;
-                _activeLoadSceneName = request.SceneName;
-                CurrentRequest = request;
-                LastLoadFailure = null;
-                LoadState = SceneLoadState.WaitingForSceneContext;
-                ReplaceLoadCancellation();
-                TravelWithinWorldAsync(world, request.SceneName, arrivalId, arrivalPosition, _loadCancellation.Token).Forget();
-                return true;
+                if (world != null && world.ContainsDestination(request.SceneName))
+                    return StartWorldTravel(request, world.IsInitialized, world.TravelAsync, arrivalId, arrivalPosition);
+                if (chunked != null && chunked.ContainsDestination(request.SceneName))
+                    return StartWorldTravel(request, chunked.IsPrepared, chunked.TravelAsync, arrivalId, arrivalPosition);
             }
 
             // 수락된 요청만 도착 정보를 소유한다. 잘못된 중복 요청도 기존 값을 지우면 안 된다.
@@ -253,14 +256,29 @@ namespace UPlayGround.Manager
             catch (OperationCanceledException) { }
         }
 
-        private async UniTask TravelWithinWorldAsync(World.ContinuousWorldController world, string destination,
+        private bool StartWorldTravel(SceneLoadRequest request, bool prepared,
+            Func<string, string, Vector3?, CancellationToken, UniTask<string>> travel, string arrivalId, Vector3? position)
+        {
+            if (_isLoading || !prepared ||
+                (Services.TryGet<IDialogueService>(out var dialogue) && dialogue.IsDialogueActive)) return false;
+            _isLoading = _isWorldTravel = true;
+            _activeLoadSceneName = request.SceneName;
+            CurrentRequest = request;
+            LastLoadFailure = null;
+            LoadState = SceneLoadState.WaitingForSceneContext;
+            ReplaceLoadCancellation();
+            TravelWithinWorldAsync(travel, request.SceneName, arrivalId, position, _loadCancellation.Token).Forget();
+            return true;
+        }
+
+        private async UniTask TravelWithinWorldAsync(Func<string, string, Vector3?, CancellationToken, UniTask<string>> travel, string destination,
             string arrivalId, Vector3? position, CancellationToken token)
         {
             try
             {
                 OnLoadStarted?.Invoke(destination);
                 _loadCancellation.CancelAfterSlim(TimeSpan.FromSeconds(_loadTimeoutSeconds));
-                string activationId = await world.TravelAsync(destination, arrivalId, position, token);
+                string activationId = await travel(destination, arrivalId, position, token);
                 if (!string.IsNullOrEmpty(activationId)) PortalActivationState.Activate(activationId);
                 _isWorldTravel = false;
                 CompleteCurrentLoad();
@@ -275,6 +293,9 @@ namespace UPlayGround.Manager
                 CurrentRequest = null;
                 ReleaseLoadCancellation();
                 OnLoadFailed?.Invoke(destination, LastLoadFailure);
+                if (World.WorldBuilderRuntimeBridge.Active != null && exception is not OperationCanceledException)
+                    UPlayGround.UI.HUD.Notification.UI_Scene_Notification.ShowSystemMessage(
+                        "이동할 수 없습니다", "잠시 뒤 같은 목적지를 선택해 다시 시도해 주세요.");
             }
         }
 
@@ -458,8 +479,10 @@ namespace UPlayGround.Manager
             _activeLoadSceneName = null;
             CurrentRequest = null;
             ReleaseLoadCancellation();
-            bool canRecover = !_isRecovering && _returnPosition.HasValue
-                && Application.CanStreamedLevelBeLoaded(_returnScene);
+            var chunked = World.WorldBuilderRuntimeBridge.Active;
+            bool chunkedEntry = chunked != null && chunked.gameObject.scene.name == sceneName;
+            bool canRecover = !_isRecovering && (_returnPosition.HasValue || chunkedEntry)
+                && !string.IsNullOrEmpty(_returnScene) && Application.CanStreamedLevelBeLoaded(_returnScene);
             if (!canRecover) ReleaseTransitionInput();
             // 실패 이벤트에서 새 요청이 끼어들기 전에 복구가 전환을 소유한다.
             if (canRecover) { _isRecovering = true; _isLoading = true; }

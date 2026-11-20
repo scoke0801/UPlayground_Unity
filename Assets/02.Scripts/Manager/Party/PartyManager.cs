@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -1137,7 +1137,14 @@ namespace UPlayGround.Manager
             // Idle 전환 + 카메라 스냅을 처리한다. ASC 스냅샷은 아래에서 마지막으로 복원한다.
             if (party.hasLocation && _player != null)
             {
-                _player.Respawn(party.playerPos.ToVector3(), party.playerRot.ToQuaternion(), 1f);
+                Vector3 restored = party.playerPos.ToVector3();
+                var chunked = World.WorldBuilderRuntimeBridge.Active;
+                if (chunked != null && chunked.IsPrepared)
+                {
+                    if (!chunked.TryResolveSupport(restored, out restored)) restored = _player.transform.position;
+                    chunked.TrackPlayer(_player, restored, party.playerRot.ToQuaternion());
+                }
+                _player.Respawn(restored, party.playerRot.ToQuaternion(), 1f);
                 World.ContinuousWorldController.Active?.RestoreLocation(party.mapId, _player);
             }
 

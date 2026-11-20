@@ -104,6 +104,7 @@ namespace UPlayGround.Manager
                 float scale = _motorScales[motor];
                 float scaledDt = baseDt * scale;
                 motor.UpdatePhase2(scaledDt);
+                World.WorldBuilderRuntimeBridge.Active?.ConstrainMotor(motor);
                 motor.Transform.SetPositionAndRotation(
                     motor.TransientPosition,
                     motor.TransientRotation);

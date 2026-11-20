@@ -229,6 +229,8 @@ namespace UPlayGround
         private void ActivateInMapTeleport(GameActor actor)
         {
             if (_destinationPoint == null) return;
+            if (actor is PlayerActor && ActorSvc.SceneTransition?.HandlesInMapTeleport(_destinationPoint.position, _destinationPoint.rotation) == true)
+                return;
 
             _isActivating = true;
 
@@ -288,6 +290,11 @@ namespace UPlayGround
 
             Vector3    targetPos = _mapArrivalPoint != null ? _mapArrivalPoint.position : transform.position;
             Quaternion targetRot = _mapArrivalPoint != null ? _mapArrivalPoint.rotation : transform.rotation;
+            if (actor is PlayerActor && ActorSvc.SceneTransition?.HandlesInMapTeleport(targetPos, targetRot) == true)
+            {
+                _isActivating = false;
+                return;
+            }
 
             var motor = actor.ActorController?.Motor;
             if (motor != null)

@@ -31,6 +31,7 @@ namespace UPlayGround.Manager
         // mapId → 소모된 채집/파괴형 인터랙션 오브젝트 SceneEntityId GUID 집합
         private readonly Dictionary<string, HashSet<string>> _consumedInteractables = new();
         private readonly Dictionary<string, Dictionary<string, float>> _interactionConsumedMinutes = new();
+        internal uint StateEpoch { get; private set; }
 
         // 씬 스캔 시 재사용해 GC 할당 방지
         private static readonly List<MonsterActor> _sceneMonsterBuffer = new();
@@ -270,6 +271,7 @@ namespace UPlayGround.Manager
             var world = saveData?.world;
             // 환경 호환 검증 실패가 기존 처치·채집·재생 기록까지 지우지 않도록 먼저 검사한다.
             ImportEnvironment(world);
+            StateEpoch++;
             _interactionConsumedMinutes.Clear();
             _permanentKilled.Clear();
             _respawnStates.Clear();
@@ -316,6 +318,7 @@ namespace UPlayGround.Manager
 
         public void ResetForNewGame()
         {
+            StateEpoch++;
             ImportEnvironment(null);
             _interactionConsumedMinutes.Clear();
             // 처치/재스폰 기록을 모두 비운다. 이후 씬 전환 시 제거할 대상이 없으므로

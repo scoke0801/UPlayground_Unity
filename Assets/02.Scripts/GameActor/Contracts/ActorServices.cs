@@ -176,6 +176,8 @@ namespace UPlayGround.Manager
         void LoadScene(string sceneName, string arrivalId);
         /// <summary>전환 요청의 수락 여부이며, 실제 도착은 완료 이벤트로 알린다.</summary>
         bool TryLoadScene(string sceneName, string arrivalId);
+        /// <summary>현재 월드가 포털 이동의 준비·커밋을 소유하면 요청 결과와 무관하게 true를 반환한다.</summary>
+        bool HandlesInMapTeleport(Vector3 position, Quaternion rotation) => false;
         bool IsLoading { get; }
         event System.Action<string> OnLoadComplete;
         event System.Action<string, string> OnLoadFailed;

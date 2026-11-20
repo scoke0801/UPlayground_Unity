@@ -72,6 +72,20 @@ namespace UPlayGround
                 yield return world.PrepareEntry(entryPosition, restoredMapId);
             }
 
+            var chunked = GetComponent<Manager.World.WorldBuilderRuntimeBridge>();
+            if (chunked != null)
+            {
+                yield return chunked.PrepareEntry(this);
+                if (!chunked.IsPrepared)
+                {
+                    var sceneManager = SceneManager.Instance;
+                    if (sceneManager.IsLoading) sceneManager.CancelCurrentLoad(chunked.EntryFailure);
+                    else sceneManager.LoadSceneDirect(Data.EnumType.SceneName.Title);
+                    Debug.LogWarning(chunked.EntryFailure, this);
+                    yield break;
+                }
+            }
+
             if (!SceneManager.Instance.NotifySceneContextReady(this))
                 yield break;
 

@@ -213,8 +213,27 @@ namespace UPlayGround.Manager
             if (player == null || (!hasId && !hasPos))
                 return;
 
-            Vector3    pos;
+            Vector3    pos = default;
             Quaternion rot = Quaternion.identity;
+
+            var chunked = World.WorldBuilderRuntimeBridge.Active;
+            if (chunked != null && chunked.gameObject.scene == scene)
+            {
+                if (hasId && !chunked.TryResolveAnchor(PendingArrivalId, out pos))
+                    throw new System.InvalidOperationException("도착 지점을 찾을 수 없습니다.");
+                if (!hasId) pos = PendingArrivalPosition.Value;
+                else pos = player.transform.position;
+                if (!chunked.TryResolveSupport(pos, out pos))
+                    throw new System.InvalidOperationException("도착 위치의 지면을 확인할 수 없습니다.");
+                if (player.ActorController?.Motor == null) return;
+                player.TeleportTo(pos, _arrivalRotation ?? Quaternion.identity);
+                chunked.TrackPlayer(player, pos, player.transform.rotation);
+                _appliedArrivalPosition = pos;
+                PendingArrivalId = null;
+                PendingArrivalPosition = null;
+                _arrivalRotation = null;
+                return;
+            }
 
             if (hasId)
             {

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -115,6 +115,7 @@ namespace UPlayGround.Manager
             }
 
             _isSaving = true;
+            World.WorldBuilderRuntimeBridge.Active?.CaptureReadyState();
             var data = new GameSaveData
             {
                 saveVersion = CURRENT_SAVE_VERSION,
@@ -231,6 +232,7 @@ namespace UPlayGround.Manager
         /// <returns>세이브 파일이 존재하고 로드에 성공하면 true</returns>
         public bool LoadGame(int slot = 0)
         {
+            if (World.WorldBuilderRuntimeBridge.Active != null) return LoadGameToScene(slot);
             bool succeeded = LoadGameInternal(slot, out _, out SaveOperationResult result);
             LastOperationResult = result;
             return succeeded;

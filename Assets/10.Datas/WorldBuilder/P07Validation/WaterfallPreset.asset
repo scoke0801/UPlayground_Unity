@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d6261ff1371b494b8b093f300764192, type: 3}
+  m_Name: WaterfallPreset
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.WaterfallPreset
+  minimumDrop: 6
+  poolMargin: 1
+  socketTolerance: 0.05
+  curtainMaterial: {fileID: 2100000, guid: a7b5b77783cd105438086dc1f2d78ea0, type: 2}
+  foamMaterial: {fileID: 2100000, guid: cc91734d140b8bd41be77bbdbe7fdca2, type: 2}
+  particleMaterial: {fileID: 2100000, guid: 6d4d8211100addb4c88cc6aff5282de7, type: 2}
+  audioClip: {fileID: 8300000, guid: 95d02f840e928ec4d82968ab45d49e15, type: 3}
+  nearDistance: 12
+  farDistance: 100
+  soundClusterRadius: 24
+  soundVolume: 0.5
+  maxNearbySounds: 1
+  mistRate: 18
+  sprayRate: 35
+  particleLifetime: 2
+  particleSpeed: 3
+  mistSize: 3
+  spraySize: 0.15
+  vfxBoundsPadding: {x: 12, y: 8, z: 12}

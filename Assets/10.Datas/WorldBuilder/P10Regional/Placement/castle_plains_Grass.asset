@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f6f3157de0685449beb7545b2c47abe, type: 3}
+  m_Name: castle_plains_Grass
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.VegetationPreset
+  prototypeId: d3d513666ceaaa8d640bca8a39715ea4
+  biome: {fileID: 11400000, guid: 09f87cdce23bdc5419f4c9748b2984d0, type: 2}
+  path: 1
+  prefab: {fileID: 250592263930072560, guid: a3660b5bb89bf14449bbced81d56cb94, type: 3}
+  placementRule: {fileID: 0}
+  density: 0.7
+  spacing: 3.2
+  footprintRadius: 0.35
+  scale: {x: 0.8, y: 1.2}

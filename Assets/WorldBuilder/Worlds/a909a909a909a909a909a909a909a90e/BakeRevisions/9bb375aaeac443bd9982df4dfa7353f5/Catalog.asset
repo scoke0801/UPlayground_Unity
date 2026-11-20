@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd00d9764f74d7a4b848bd216319e74b, type: 3}
+  m_Name: Catalog
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.WorldBakeCatalog
+  worldGuid: a909a909a909a909a909a909a909a90e
+  buildId: 9bb375aaeac443bd9982df4dfa7353f5
+  scenePath: Assets/WorldBuilder/Worlds/a909a909a909a909a909a909a909a90e/BakeRevisions/9bb375aaeac443bd9982df4dfa7353f5/World.unity
+  sceneGuid: 79cbda0f54ffde143b75337800786e90
+  geometryHash: ebefb78a15c61bf4a32ac4fff9bfb71c95cae6f69ffddb64e186af094772de9a
+  agentTypeId: 0
+  agentRadius: 0.5
+  agentHeight: 2
+  agentStep: 0.75
+  agentSlope: 45
+  playerRadius: 0.35
+  playerHeight: 1.52
+  playerStep: 0.5
+  playerSlope: 60
+  surfaces:
+  - id: tile_0_0
+    geometryHash: e68f96c56f5059bbcdb63cc6b6ad0784b563b7a7bf2536ddcbdf5d19bc5248d7
+    bounds:
+      m_Center: {x: 32, y: 16, z: 32}
+      m_Extent: {x: 32, y: 26, z: 32}
+    data: {fileID: 23800000, guid: b3d8f21732aadd240a6e6f58f94188d9, type: 2}
+  crossings: []
+  routes:
+  - id: 8836243a8e80448383481a93963d4dd2
+    fromSurface: tile_0_0
+    toSurface: tile_0_0
+    requiredCrossingId: 
+    from: {x: 8, y: 8.083721, z: 8}
+    to: {x: 16, y: 8.083721, z: 8}
+  anchors: []
+  placementIds: []
+  trees: []

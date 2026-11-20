@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d570f875e75726c4e80c1723962c062e, type: 3}
+  m_Name: arid_badlands
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.BiomePreset
+  biomeId: 49902dbb9b133c4ca7548c70063c1d38
+  layer: {fileID: 8574412962073106934, guid: 251a11970fa42584ab0a67dc48237e3d, type: 2}
+  priority: 0
+  mask:
+  - {x: 1460, y: 0}
+  - {x: 2048, y: 0}
+  - {x: 2048, y: 1520}
+  - {x: 1730, y: 1530}
+  - {x: 1550, y: 1430}
+  - {x: 1440, y: 1020}
+  - {x: 1530, y: 670}
+  - {x: 1510, y: 425}
+  height: {x: -1000, y: 1000}
+  slope: {x: 0, y: 90}
+  shoreDistance: {x: 0, y: 10000}
+  humidity: {x: 0, y: 1}

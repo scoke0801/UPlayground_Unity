@@ -1,0 +1,765 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44fb5c1cdce3c7d4f82e2f50b5612e63, type: 3}
+  m_Name: Chunks
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.WorldChunkCatalog
+  bake: {fileID: 11400000, guid: d7b5f9d4dbd6ca24487d1aba6fc3dcb7, type: 2}
+  sourceRevision: d33d0b37ba3fc3c1e7c074c65ad9ce6338ef4600ccfe62f6fee71ea80cdc28f6
+  bakeCatalogGuid: d7b5f9d4dbd6ca24487d1aba6fc3dcb7
+  pois:
+  - id: 0bf0c0d6e61f589f3287c0c8925293da
+    regionId: ddebba2c5d6268fbf490d01ac4df3e1c
+    waterId: 
+    position: {x: 1069, y: 97, z: 1017}
+    locked: 1
+  - id: 315439197d4d3c3e3f2652148ad49947
+    regionId: ddebba2c5d6268fbf490d01ac4df3e1c
+    waterId: 7deb92eb3a0b48099f70c60ca143b7ce
+    position: {x: 833, y: 172.5, z: 1171}
+    locked: 1
+  - id: b181b83cbd0fb44153395a691fd2fa1d
+    regionId: ddebba2c5d6268fbf490d01ac4df3e1c
+    waterId: 227bd4b94e3f4d5aa7ec40fed895b938
+    position: {x: 1505, y: 28.7, z: 450}
+    locked: 1
+  boundaryCrossings:
+  - id: tile_0_0_tile_1_0
+    fromSurface: tile_0_0
+    toSurface: tile_1_0
+    portalId: 
+    bridgeId: 
+    from: {x: 510.75, y: 115.20256, z: 64}
+    to: {x: 513.25, y: 113.68541, z: 64}
+    width: 1
+  - id: tile_0_0_tile_0_1
+    fromSurface: tile_0_0
+    toSurface: tile_0_1
+    portalId: 
+    bridgeId: 
+    from: {x: 64, y: 192.79228, z: 510.75}
+    to: {x: 64, y: 191.70087, z: 513.25}
+    width: 1
+  - id: tile_1_0_tile_2_0
+    fromSurface: tile_1_0
+    toSurface: tile_2_0
+    portalId: 
+    bridgeId: 
+    from: {x: 1022.75, y: 46.798904, z: 64}
+    to: {x: 1025.25, y: 47.9652, z: 64}
+    width: 1
+  - id: tile_1_0_tile_1_1
+    fromSurface: tile_1_0
+    toSurface: tile_1_1
+    portalId: 
+    bridgeId: 
+    from: {x: 576, y: 31.212233, z: 510.75}
+    to: {x: 576, y: 30.205969, z: 513.25}
+    width: 1
+  - id: tile_2_0_tile_3_0
+    fromSurface: tile_2_0
+    toSurface: tile_3_0
+    portalId: 
+    bridgeId: 
+    from: {x: 1534.75, y: 67.82041, z: 64}
+    to: {x: 1537.25, y: 65.95158, z: 64}
+    width: 1
+  - id: tile_3_0_tile_3_1
+    fromSurface: tile_3_0
+    toSurface: tile_3_1
+    portalId: 
+    bridgeId: 
+    from: {x: 1600, y: 27.989567, z: 510.75}
+    to: {x: 1600, y: 28.02341, z: 513.25}
+    width: 1
+  - id: tile_0_1_tile_1_1
+    fromSurface: tile_0_1
+    toSurface: tile_1_1
+    portalId: 
+    bridgeId: 
+    from: {x: 510.75, y: 22.123215, z: 576}
+    to: {x: 513.25, y: 21.532751, z: 576}
+    width: 1
+  - id: tile_0_1_tile_0_2
+    fromSurface: tile_0_1
+    toSurface: tile_0_2
+    portalId: 
+    bridgeId: 
+    from: {x: 64, y: 129.38606, z: 1022.75}
+    to: {x: 64, y: 128.97101, z: 1025.25}
+    width: 1
+  - id: tile_1_1_tile_2_1
+    fromSurface: tile_1_1
+    toSurface: tile_2_1
+    portalId: 
+    bridgeId: 
+    from: {x: 1022.75, y: 84.25629, z: 576}
+    to: {x: 1025.25, y: 84.79468, z: 576}
+    width: 1
+  - id: tile_1_1_tile_1_2
+    fromSurface: tile_1_1
+    toSurface: tile_1_2
+    portalId: 
+    bridgeId: 
+    from: {x: 576, y: 65.95965, z: 1022.75}
+    to: {x: 576, y: 67.143875, z: 1025.25}
+    width: 1
+  - id: tile_2_1_tile_3_1
+    fromSurface: tile_2_1
+    toSurface: tile_3_1
+    portalId: 
+    bridgeId: 
+    from: {x: 1534.75, y: 31.449821, z: 576}
+    to: {x: 1537.25, y: 31.409662, z: 576}
+    width: 1
+  - id: tile_3_1_tile_3_2
+    fromSurface: tile_3_1
+    toSurface: tile_3_2
+    portalId: 
+    bridgeId: 
+    from: {x: 1600, y: 173.98915, z: 1022.75}
+    to: {x: 1600, y: 173.22142, z: 1025.25}
+    width: 1
+  - id: tile_0_2_tile_1_2
+    fromSurface: tile_0_2
+    toSurface: tile_1_2
+    portalId: 
+    bridgeId: 
+    from: {x: 510.75, y: 98.89637, z: 1088}
+    to: {x: 513.25, y: 99.1784, z: 1088}
+    width: 1
+  - id: tile_0_2_tile_0_3
+    fromSurface: tile_0_2
+    toSurface: tile_0_3
+    portalId: 
+    bridgeId: 
+    from: {x: 64, y: 92.06476, z: 1534.75}
+    to: {x: 64, y: 91.11461, z: 1537.25}
+    width: 1
+  - id: tile_1_2_tile_1_3
+    fromSurface: tile_1_2
+    toSurface: tile_1_3
+    portalId: 
+    bridgeId: 
+    from: {x: 576, y: 319.53516, z: 1534.75}
+    to: {x: 576, y: 319.8037, z: 1537.25}
+    width: 1
+  - id: tile_2_2_tile_3_2
+    fromSurface: tile_2_2
+    toSurface: tile_3_2
+    portalId: 
+    bridgeId: 
+    from: {x: 1534.75, y: 158.45576, z: 1088}
+    to: {x: 1537.25, y: 158.83423, z: 1088}
+    width: 1
+  - id: tile_2_2_tile_2_3
+    fromSurface: tile_2_2
+    toSurface: tile_2_3
+    portalId: 
+    bridgeId: 
+    from: {x: 1216, y: 292.67694, z: 1534.75}
+    to: {x: 1216, y: 294.42157, z: 1537.25}
+    width: 1
+  - id: tile_3_2_tile_3_3
+    fromSurface: tile_3_2
+    toSurface: tile_3_3
+    portalId: 
+    bridgeId: 
+    from: {x: 1664, y: 375.88254, z: 1534.75}
+    to: {x: 1664, y: 375.89258, z: 1537.25}
+    width: 1
+  - id: tile_0_3_tile_1_3
+    fromSurface: tile_0_3
+    toSurface: tile_1_3
+    portalId: 
+    bridgeId: 
+    from: {x: 510.75, y: 310.1815, z: 1664}
+    to: {x: 513.25, y: 309.56116, z: 1664}
+    width: 1
+  - id: tile_2_3_tile_3_3
+    fromSurface: tile_2_3
+    toSurface: tile_3_3
+    portalId: 
+    bridgeId: 
+    from: {x: 1534.75, y: 393.18112, z: 1984}
+    to: {x: 1537.25, y: 391.98108, z: 1984}
+    width: 1
+  worldBounds:
+    m_Center: {x: 1024, y: 350, z: 1024}
+    m_Extent: {x: 1024, y: 350, z: 1024}
+  tileSize: 512
+  chunks:
+  - id: tile_0_0
+    sceneKey: WorldBuilder/35c2ca802bd64575961ac7cda330ac91/8f2e7eec43b74997b36fe1906c1a654a/tile_0_0
+    tile: {x: 0, y: 0}
+    bounds:
+      m_Center: {x: 256, y: 350, z: 256}
+      m_Extent: {x: 256, y: 350, z: 256}
+    dependencies: 
+    surfaces:
+    - tile_0_0
+    instanceIds:
+    - 098edab37241bfa00d3ce9590c10ea2c
+    - 0ef28694e8b55bfcc819f4acef812d58
+    - 1e686f3990f3d629c0853744851b6ce1
+    - 27f21c2d861500bf1be031cf50a0eaba
+    - 40186d3642015bda09757214eb736c03
+    - 4ad8e10d662bf6800ba9375e7c933e73
+    - 4b52f2870f921f5a06fb91ee3de4e6b7
+    - 64c6e41a8754bc9a5fe74cf905fa6731
+    - 6ca0ea42343a39bc88629d20560136f0
+    - 6fd2523767a6fc6952c765d2d0ccb486
+    - 7b063d84d0e7d9339e6090adcd64d0a5
+    - 82f02e908c13b472edba189a7a16913f
+    - 9a20f1997e896c8c2a8d774b555c426b
+    - bf3ad3be0e56021d6e0cf5d6dc1c1cb1
+    - d00a172999c25b90cbe56df6dbcbadce
+    - d23ad16e9bfdd927d9178d9635384fb5
+    - d31d4ea7cac7b023a5350c5f5ad564d2
+    - d66b87ae5319adf1a4a8aaa2f582e140
+    - dd66c2ad4564a41c499ff4f1cfc5f54d
+    - ece91621534265b58539bc2c19d4416c
+    proxy: {fileID: 4300000, guid: c9e5a035d6394dd4789c215c05a17ebd, type: 2}
+  - id: tile_1_0
+    sceneKey: WorldBuilder/35c2ca802bd64575961ac7cda330ac91/8f2e7eec43b74997b36fe1906c1a654a/tile_1_0
+    tile: {x: 1, y: 0}
+    bounds:
+      m_Center: {x: 768, y: 350, z: 256}
+      m_Extent: {x: 256, y: 350, z: 256}
+    dependencies: 00000000
+    surfaces:
+    - tile_1_0
+    instanceIds:
+    - 084f70d7d90f31517a8ea4697dfabd5a
+    - 246943082c49fe261a717eee39fd8114
+    - 2e9f526e0e50976844a73ecfd0c587b2
+    - 3aa227e2bdaa6e469d07539429585525
+    - 4287e66fda2a2adb93c050c25e52e1df
+    - 480204ad3578ee22759d13435f8721d9
+    - 480d02e5784febc7c51880f76c3e109c
+    - 4dc403cdff4b1aa94991bad366ae1354
+    - 516769c1de72e974211db513e2343a23
+    - 557aa518e08673f1591dcff0c6a46df6
+    - 57e4f2455dae27409061d7b33976abc7
+    - 58a8a5051179f80e0274a1fd4faec908
+    - 5fc6ea91bf82db76ab5054e899c87ef1
+    - 5fc7b1cf6d33ef17d1fdc1cbd634b85b
+    - 69719ba347839e72217a527a2819a043
+    - 768e98fffed6b114a1f53a6ded42b2e5
+    - 7d044edec5bbd405849daa686d9a2cf3
+    - 98af89742a8d453548ca8056a010e26c
+    - 9b5e8714ea529a5b9545e1386da12180
+    - 9d79ffc6d35c1bddebc561c47d5ad688
+    - a4cf362e6eb0f37b48cbec5cafe22bdf
+    - a61cb14e26a36a14525850dbb8e78ca3
+    - b81816f9b8767edd99cc41bf3769575a
+    - bee3e91cc731bb4af7ec802f7168484a
+    - ca15e872ccf46a90fd7ca307e98693bb
+    - ca26a17676da6897d0f2be879cb1722c
+    - d3020de6f3f75e09d43ec363f8eb6603
+    - d92c83d26d82825b3a14ef3d52944443
+    - e714357331a35c6d59ab3234e69acdc8
+    - eb142153fc6e2e933d400107914d2480
+    - fa57c5cd821250cd6b4d60271c7dcfc3
+    proxy: {fileID: 4300000, guid: 8459d9988ed91e34da9628fe9e1989f9, type: 2}
+  - id: tile_2_0
+    sceneKey: WorldBuilder/35c2ca802bd64575961ac7cda330ac91/8f2e7eec43b74997b36fe1906c1a654a/tile_2_0
+    tile: {x: 2, y: 0}
+    bounds:
+      m_Center: {x: 1280, y: 350, z: 256}
+      m_Extent: {x: 256, y: 350, z: 256}
+    dependencies: 00000000
+    surfaces:
+    - tile_2_0
+    instanceIds:
+    - 27730e3f74ddb06f7d272a1013a6e6f6
+    - 006c3e902a7bd664ead4c7d902e396de
+    - 0222ea93c2a72f9368f90f7f17fa00dd
+    - 02bd0ea9ff92bcea6073cdf8560714a5
+    - 06f3649488c938ef87cdaed2429fb56e
+    - 06fe3cbd93f1f22488dbf3f2b0d0b5d8
+    - 0782e9970e7073f9bdd8ea480700e8e2
+    - 0d46675c3491e5527c4413b7140fa5c9
+    - 12afae14a0a7ac9c60b9e1ecd99e0445
+    - 13192e487123e97d8e864f351b63035e
+    - 1965ef3fd06e44bfb6e97ed2f39d36fc
+    - 1a162e59a551971aee8d0bc636e44ed8
+    - 1b4f76a6007649ae82b51dd3a8ab18c8
+    - 1f94a4aeeaf33b8fddad6bc3806308b4
+    - 21bb0dfd3eda4ef190c6568edecdcdff
+    - 329fa0d70978df84ddb3480368ea23dd
+    - 3836ce0e299dee51108dc0dd7883f011
+    - 39e7fef5d029b6d728e0e4b8fcb38260
+    - 476985d6556e15a55014dd323ed3d964
+    - 4c9841a8186021e5786cf85de6b7c24a
+    - 51cd8212749066f72cd42a2c37b277a5
+    - 529d0e4c981aeb54c17002e36da52f97
+    - 5454392183bf57ee906e2ebff4754d4e
+    - 570ab3e1561a4d383d2d08a2d2ba8e6f
+    - 57ffc902cd8ba4d46393d85dab25dd77
+    - 5c852347acf4de01ba2160acac42d216
+    - 6a13d319b2e527c5d78ecd0964e24d89
+    - 6d1ab614158d1e7c13e3cdfca868b93d
+    - 7d8da101685dae84a32be5bd5d8424ea
+    - 7e3002d90f50a66f5da420113efda0c3
+    - 7fa5ecbf4a5afdddb47ac70c81f52db3
+    - 8154680ddb1f1d51307d3effa8821e67
+    - 895e2e84a8d831058ff744cf3cc883b8
+    - 899fba3b22d72f2fc182f44262bdec15
+    - 8c9b91c75be232bb52e2da29c06f4842
+    - 8f62032ffb4425b288a2ac734fe4291f
+    - 9935eb19d4b5c8d080725a17ca1d6cb5
+    - a0772f9c8e2df7f24ceb2dc35deb0431
+    - a16d6dcd50db24c186d022f7ca3cc1e2
+    - ac4475afabffe4ae71923c314ad18e1f
+    - ad08a05702a189580915e115a6e51c28
+    - b41a3392b3605572fc03fbee659dde18
+    - b86fd009b576d5bd819a155c26649122
+    - c3571ca25c000dce2f5f602b0abf01a5
+    - c72e95ee096dc6a09176e389a1fd27f0
+    - ca731a19abd90aa9e3ff5319378ad768
+    - d02611c136dd73cc116b37c94f227ba5
+    - d3756488270a9d94453a1540e40f7c0f
+    - d7b58b150f1736f18dd37f1001d0047b
+    - d7f3c7a63484f7d277cd931805e54c76
+    - d812d10fd36c846c92357b8c472de935
+    - dce4a9c2946fe2fa923612295336b5ed
+    - ddd6b21cdaeb31d599f9cdf873fdf0a8
+    - ee62eaef9c03e3f1dc2a91a9b51be15e
+    - f4eda9a0a42b796f5068df9d760bf400
+    - f5c13d4cde04019eab03d2716edcef70
+    - f5e703b9175e54b929dbea6545b863b0
+    - fa7f7cffacccb880dd2cf91b4a059ec8
+    - fb864bb274b939b269d8f97c9b975e39
+    proxy: {fileID: 4300000, guid: f3e0b46104ed5ff49816276b1cf3e77a, type: 2}
+  - id: tile_3_0
+    sceneKey: WorldBuilder/35c2ca802bd64575961ac7cda330ac91/8f2e7eec43b74997b36fe1906c1a654a/tile_3_0
+    tile: {x: 3, y: 0}
+    bounds:
+      m_Center: {x: 1792, y: 350, z: 256}
+      m_Extent: {x: 256, y: 350, z: 256}
+    dependencies: 02000000
+    surfaces:
+    - tile_3_0
+    instanceIds:
+    - 016150e509301605331621c2ef0d8b1c
+    - 04ea1a96bd55a771860b67c8b45c4645
+    - 0556ce33f8d0fcb8e7da21a7c56806b5
+    - 0e94b0849dcc6807b4ac6328fd9e7d41
+    - 107aec12d5e96ea71ebf1c0d05fc266c
+    - 13ff38f317da7ad9924df883047f81c7
+    - 150da09f29ca20f195009ecb14598507
+    - 178d7f4df2e4d907fdd47f25960dfb57
+    - 17f6d14f8570de72845c3be9713a6c48
+    - 190f6cc19fc8c787d657c825ccdee99f
+    - 2e09b367f6b93f9717d835a0149e8311
+    - 2ec807d3859b15b5c92530f125273d60
+    - 2f505da4446ca532bea13e0d09c4d17f
+    - 33cfe537482c81796b02f97fa166b473
+    - 38c2358d5ea431d6b1b6cb5e348eeedb
+    - 39739529a1bfe8e150cc891e44aa3d5f
+    - 413e9ef6b9a1b66b1dbfa9868a8acb94
+    - 420358586e755c80f8e8749aa41dc92b
+    - 44f39f113bc95a3b9438fc1459ba5c15
+    - 4bf96a87b7674086aa6b78327b7d77ea
+    - 4d2dd0a8b1b6c51062fd5fcd84ea3a8f
+    - 4d36d1fd0a2d7a53a8bea08f4ed2f66e
+    - 52f3ff81b877cb637f76b7cf911f55df
+    - 5dbd61b40cfd43562afad17635cb1d6b
+    - 5e9ca8086de18bae17e4748fdfc9818c
+    - 5fac536a8ee3ed1982cb17ffa7a4c162
+    - 65b170d78e153a38d9d33b6d359756ad
+    - 6682ca69dcf12cddd7cb70349d0ad2f1
+    - 676c9460ad4036bb3bdfec2241f5a1b7
+    - 69e57a71f236e5322709e0897ff4d59b
+    - 7ad5e2bd7a5309ff17010cafecc7b13d
+    - 8d3b5faf5c28c5de08bce8d21bfda813
+    - 8d495b7c2cf6121bf37348fbea226c08
+    - 8e304afea22e37322bfdf0690d2f4e2d
+    - 90e35801d9c13644d70be5a78ffe37d7
+    - 9b084e27e565b2ee9ec7493da35919ed
+    - a167f75d33833f97003da5e98112f442
+    - a1fade9d9c8e68e49f72502b9d7da28d
+    - a6d6a3e1a07d89ce5e3521dcd7bdef48
+    - a8bf4ca6ee405b33c13c0898df5a145a
+    - ac7e767f5ec19506ac3cc008b9940a43
+    - ae96964081119d856e47a21080c81c2a
+    - bea88f4b26edacc613611aace947caab
+    - cd0114a509b824ac0ef218fd5ed6a896
+    - cdaafe94dd875cb113a6c3f53a156677
+    - d86729f3d6b6c49ade2b34a662779f08
+    - e4938fdbf839348f57a37d3eed422505
+    - e6c0a4810ee01611e78115f8041497e4
+    - eb11609de3371c196f06739bfbb5b457
+    - ecaef12aecdc4c9ed1df069923ca9146
+    - eee22ed4d724e236f4b05ce75e84284a
+    - f00ed23e88ff7e48f2b5b622698d0b35
+    - f5f6807aaa324e7ff67b400a74f5d710
+    - fa6f40d78d7dcd0f97a12c604055d4b3
+    - fbe48a6d71ccc7c32113fd03602d291d
+    - fd46baee2af32c5a9ffcf34d3074affb
+    - fd9bcf2f2a40d38f7fc1c0ea4dea2176
+    - ff1f00913417ffe6b9402311d4774767
+    proxy: {fileID: 4300000, guid: 3fd130edd580b6b438e271a37f4324dc, type: 2}
+  - id: tile_0_1
+    sceneKey: WorldBuilder/35c2ca802bd64575961ac7cda330ac91/8f2e7eec43b74997b36fe1906c1a654a/tile_0_1
+    tile: {x: 0, y: 1}
+    bounds:
+      m_Center: {x: 256, y: 350, z: 768}
+      m_Extent: {x: 256, y: 350, z: 256}
+    dependencies: 00000000
+    surfaces:
+    - tile_0_1
+    instanceIds:
+    - 037acda3b539ab5d23c8f3bb5538563f
+    - 09111333d0c571acb467e292034c96c1
+    - 22c907e77626e3758a2b668df47576ef
+    - 2d1060739a84aa04110f9bb3719ffca6
+    - 2dbeea6cdd94f79cfd2091b1384aed35
+    - 305927736ede0860fb5f31ed7141c358
+    - 3523a45aa0f32c7529ae682c429a6e14
+    - 3560c76d40e51009d28eb01a2bf664b6
+    - 3e6e61ad5051c9e6dbf964a6215f8a81
+    - 54b1ffaf8a046bbe0fa35fee60a8f151
+    - 6f349727c6b21d57a5ad8b0ca971500f
+    - 7a67c87f206700c15515deeff2651907
+    - a20e72e12f52454052ba1f7a33bd48e7
+    - ac14a929c8abcf1b7396d2a761a3cf69
+    - b520cc98d0e969351f10c2434a7b0a9f
+    - b5edb9a1996d39b7c048786d7a22d0e0
+    - b706d1d30171077d57ed463edfd079e3
+    - c1007dc1e2fc1bd70ed192573bfd5d24
+    - c5dadb4f1f45da1290a69377f39c3393
+    - d068bfdb64b05ad5a70ba137ebfc1b2e
+    - d5a3cd5b20e41d0451715d42131a4093
+    - e371e5b5e0edd5e427e0a35ae8081bc6
+    - e8a89fd9a6554da5eed0c2688cd26e58
+    - fd5106c6d1aac7a14025da174f8e89d0
+    proxy: {fileID: 4300000, guid: 806e39999c2cacd49b0411ba575c82bd, type: 2}
+  - id: tile_1_1
+    sceneKey: WorldBuilder/35c2ca802bd64575961ac7cda330ac91/8f2e7eec43b74997b36fe1906c1a654a/tile_1_1
+    tile: {x: 1, y: 1}
+    bounds:
+      m_Center: {x: 768, y: 350, z: 768}
+      m_Extent: {x: 256, y: 350, z: 256}
+    dependencies: 00000000040000000a000000
+    surfaces:
+    - tile_1_1
+    instanceIds:
+    - 08bee9063246790c8709f881fc573150
+    - 09a70e7780453d59a9cc1500b50abbbf
+    - 0dae152c3f7db05a58318a3dd3222ac6
+    - 0dfa37d6c92efe41d8462be1551edcf6
+    - 0e388dd1f476412985cba2bd42570a95
+    - 171b7eb462574f56e03a7b83e5a9406b
+    - 1acfe14b4bae0da2468e276c83a623ea
+    - 22b196549433222ab7a14e00acbae968
+    - 27acf789ac3909623fb3a6ca2fe430f2
+    - 28ee2b9b8bc39431c8406380be6dffdb
+    - 3153782823409f2b3e662165c5b95765
+    - 3490781ef8821dcfe40edce08f53fd9a
+    - 3dcc8b0a83a09c5cd6f190a374ca2ff9
+    - 4146178ccd7d463d6a79b0017d1fc41e
+    - 47d12c824e127c347ccd16358de04f92
+    - 4a7eb7446e0d77df713d4ca255afc372
+    - 4c0887b27059ae920cafa29734e3b7c7
+    - 4e0d83e8884f1b9a973abdd007671094
+    - 5055a1a72cc24a225059621a8c1e4c07
+    - 50f6438bfe5a79e4c6fc03328ca00141
+    - 6f1a42e98098eeeb7a544c72662bb4d7
+    - 707f954d842da710ea82a9ff3cd749d5
+    - 72d73fb6dc0828bd27ae5851113b1668
+    - 79997ed7eb839adece64ab4a8edb6508
+    - 90b01bcb997d5b5ae25fe7520dc9e146
+    - 91953dd43a8c2adb8b5281c12210a142
+    - 97f7f2a984d735754165ad778f59715d
+    - 98fefaf18ccdb35ebff063a1cbdce8c3
+    - a1393c9b393a05b782a7131654c1d585
+    - a79e7dc967f1a6dba33266d36797c8a6
+    - af3bba8dc4f6dcf73a7496782d16174b
+    - b1087f4aa2edb7bc4f530031ab05cde6
+    - b47ffc65e547d269585a3775b1b27647
+    - ba1384fff3765c3f1edcc986f9c87912
+    - be7713cd3be9d41528a2a095b5568e43
+    - c3de1de9c087f485c804cf476c693ad7
+    - cbe72e9da4d4db4d046dc76c59dc28a7
+    - cc93694911cfabf8b351965f8b4eaac2
+    - dee61a3207f1c45451408d7763bc250e
+    - df09255a7031bcce600decd44ca0434d
+    - ec0290c612dcf1ea273a2c681ee40dc0
+    - f5087c2a36a22e376a2a2b78286653ae
+    - f66a4f9fac389e53afe28d3e869389de
+    - f7a7bddc083abd9d9d066da9631bf61d
+    - f9ed2501d51e79a6f0a8f4ab88f77717
+    - ff3580e0a67a1640f699418cbd6d991a
+    proxy: {fileID: 4300000, guid: bdd1bde80b4693341b96d9ff28cc5455, type: 2}
+  - id: tile_2_1
+    sceneKey: WorldBuilder/35c2ca802bd64575961ac7cda330ac91/8f2e7eec43b74997b36fe1906c1a654a/tile_2_1
+    tile: {x: 2, y: 1}
+    bounds:
+      m_Center: {x: 1280, y: 350, z: 768}
+      m_Extent: {x: 256, y: 350, z: 256}
+    dependencies: 000000000a000000
+    surfaces:
+    - tile_2_1
+    instanceIds:
+    - 1b28c9c98a962103b0404b559abd9858
+    - 0099dac6cf9e364be55432d1323cb738
+    - 00bc247d6170206d8fa355e0f5be386b
+    - 029c2f3279a231bdeabc790e7b2f2adc
+    - 0f473e586831edea4b52484d96ab7fe7
+    - 17d3abe2875c02189d4da6701e3f9f19
+    - 185fdf3bc7977ba0c14ab0f5b85938f1
+    - 1b11c7bcb685b8d74f1d64a73dc70dda
+    - 1c9a1a968d8e3d1249d962fadcb06cb6
+    - 237e2de1e35db10a8e59767cf8a17a90
+    - 238c288bc587e8290fcca24bf7aa9f46
+    - 280b7a676cefc960fd1108575850e377
+    - 2945b0675a178d8c308d8cf67db634f1
+    - 2f82bbbb07c8551c67a4677b495469ab
+    - 306a0d1f95fa9e3995f77e8190da8db1
+    - 309fe3f6367d897ac4528b6d3617f2e0
+    - 344b6556bebd9511d004d57ae43d5176
+    - 3776c729a34ed970838ee9a3caf60f73
+    - 3966e843b5f7a4195a5e13ec82218180
+    - 3c1a3eaa9d92a4d0d405c5d171dc0a4e
+    - 3cc3e929b2c4b49ff3f932b8ebb9c5ee
+    - 3dd734ae7e26e8115afa5b360f2a675c
+    - 3f71e7777a3d091a09346215e94001d4
+    - 3ff0101f222e2a97963c85226c1ad7a0
+    - 491acc68184803be6a08e9c3bd73e94c
+    - 4c2dadbe1f3c79afeaf2bbce1fb62b6f
+    - 4fcc99ad0be36f2c2d15db1e20946e82
+    - 5687c94d71bb4f34992e1954fc98a499
+    - 57877a6b049c9329401390a54a1b0ada
+    - 5d4c11d1c135e95470b4c59848046fae
+    - 6b632360d42b69b5aaa6c8ba02b0facb
+    - 704e1c573123453f7e99a9e744c0eab0
+    - 709edfd3a163765cbca744b672b67506
+    - 7203d0deb153e7f32747b46b434e366d
+    - 745f61a5894bca50f5d1362f2399bdf4
+    - 7b4d2adfaf2d0197a7ff6c0780fc69d4
+    - 7df78722cbfa2dbd19f4f061e1bb2d1c
+    - 8f8db61f63d938e4de13b3a641e5041e
+    - 9cd630995872003754c8938505749f87
+    - 9dcd844f33ee1ccead03f09f712bab4f
+    - aac4396e4da1c81b241ad47d1fd7ab97
+    - b4bd99b314e428ea82c1abf46dfea029
+    - d61f2225be49dfdc92866d9f4e8c0e31
+    - d78bd268291cda2a925c8fbea5f148ee
+    - dae64b98ff051575a29cc4714c89f23e
+    - e86f08c058b6e2ec4e471bedd963d400
+    - f77840c8bf531b6b783b4ac726828794
+    - fb775aa6f3c7d45eb59fccdb557d8fbe
+    - fc13d1ab3ffadf0d404749873ee5d37b
+    proxy: {fileID: 4300000, guid: a3e3b9c85ff01c840b431de706e91783, type: 2}
+  - id: tile_3_1
+    sceneKey: WorldBuilder/35c2ca802bd64575961ac7cda330ac91/8f2e7eec43b74997b36fe1906c1a654a/tile_3_1
+    tile: {x: 3, y: 1}
+    bounds:
+      m_Center: {x: 1792, y: 350, z: 768}
+      m_Extent: {x: 256, y: 350, z: 256}
+    dependencies: 03000000
+    surfaces:
+    - tile_3_1
+    instanceIds:
+    - 00ed9f609427617e1798da7551b463ff
+    - 0585bf2d4ccfb0668956ed39b8583652
+    - 0e121cf073f1b71ef918ec9917228047
+    - 0f844d68bc6a1fbea270af9b78276940
+    - 2804db740ddc8d3db9aa7256308baa1f
+    - 3455536394c5f434c9451816b2df4ff1
+    - 3958c12c671dc7392692e4808d4bc8c1
+    - 4732c317a7086c392e29a3dd506b21ef
+    - 4effc8747d36e2787ade56ebe6ca7274
+    - 63436e6afb871f5c2ed5631cc18effe5
+    - 67c8d1dfa4bf9d6dfd50c23d713426fa
+    - 75f5bffdb2f5d0eb99092bb962a80100
+    - 7cf1dc6e1523a9d0b293450294bb0c7b
+    - 7f4871d570b2c5198b85a7f60ce024e2
+    - 918643911f2149285de57e02e6152568
+    - af26c8f39c8b7c44cd60249b0bc1b1f3
+    - b3ac597a5f1bdee324405d79b4631ed5
+    - c369b50b2874e88f79fce401b5eb777c
+    - d0376cbb24c9cd361520061fd191ca0b
+    - d4272aaa5d005eb94da2677e9060eeb9
+    - d81401a9b953bfb5c22959aae006b399
+    - e3b9864e3bac264e4e8aa72c169be8f0
+    - e43a8961b464ced1e3f047816dcd2291
+    proxy: {fileID: 4300000, guid: 90cad842bbe917444a79fb8147dcbfce, type: 2}
+  - id: tile_0_2
+    sceneKey: WorldBuilder/35c2ca802bd64575961ac7cda330ac91/8f2e7eec43b74997b36fe1906c1a654a/tile_0_2
+    tile: {x: 0, y: 2}
+    bounds:
+      m_Center: {x: 256, y: 350, z: 1280}
+      m_Extent: {x: 256, y: 350, z: 256}
+    dependencies: 00000000
+    surfaces:
+    - tile_0_2
+    instanceIds:
+    - 5fcd5cc152807aa05fa434303105a02c
+    - 843ca6dbbab4ebfdab48dde3feac99c8
+    - 8dc0d3f9432eb93002130a93feb673ff
+    - c2fbb50a3c5d2a36590b71fe7f1c40f1
+    - c3e9483c723a15da79cddfb52268ceb8
+    - d4b7cae8958f07e0ea1c194d593a63a0
+    - e63446a6fa672f903917e2995281cc95
+    - e8d437f9b0f00eb57992b9e20aa0918d
+    - f2af81f476ef70a767baedf339a28b95
+    - fa3f839361a92641212f0cf29dcc7365
+    proxy: {fileID: 4300000, guid: feee8e2297331ca4fb87fff122e710e8, type: 2}
+  - id: tile_1_2
+    sceneKey: WorldBuilder/35c2ca802bd64575961ac7cda330ac91/8f2e7eec43b74997b36fe1906c1a654a/tile_1_2
+    tile: {x: 1, y: 2}
+    bounds:
+      m_Center: {x: 768, y: 350, z: 1280}
+      m_Extent: {x: 256, y: 350, z: 256}
+    dependencies: 000000000a000000
+    surfaces:
+    - tile_1_2
+    instanceIds:
+    - 2167a5c1ad4a77fa8e7103cfa6c9980d
+    - d0240eca52763a2f8e8739d7d1c99963
+    - 1b4263c4fbe257e966cdaeff0dd2fa03
+    - 2ad0cd1e2429834523aad92cfe8789c4
+    - 2bd2a87cb26ce6afa8c5d1d3b86d6abb
+    - 381a7991859a8842d14e66a1d708bfaa
+    - 3a20700e3c80e683099b8ba1e59483fc
+    - 77b95da0aab5db193d332a58c90b5b1d
+    - 7e7b7777f49aeeebad34292f070947e7
+    - 817f54140e31262e8aa711bcd66a44eb
+    - 81df175c6ad83c9bfaa9db95e3642bf9
+    - 84ad36f48dd6766c238ad0ebda400156
+    - 9e785584fed29f622761063be5297441
+    - a0e5fdcd0099e318f67962a168fd93f0
+    - a80c643fe6a0eb9d2f0a1b5fae09096c
+    - c3f6295924599b2aca23ffe4883f9b4a
+    - cf3ee0cd028b9d993660697b0e26266d
+    - d3ff27f6ac39cece3b09ecc5b834318c
+    proxy: {fileID: 4300000, guid: c296a5fffaa57f84d9de54954f0af9c2, type: 2}
+  - id: tile_2_2
+    sceneKey: WorldBuilder/35c2ca802bd64575961ac7cda330ac91/8f2e7eec43b74997b36fe1906c1a654a/tile_2_2
+    tile: {x: 2, y: 2}
+    bounds:
+      m_Center: {x: 1280, y: 350, z: 1280}
+      m_Extent: {x: 256, y: 350, z: 256}
+    dependencies: 00000000
+    surfaces:
+    - tile_2_2
+    instanceIds:
+    - 03c4bfe2337d1581f24dae46286a225c
+    - 2c577e1e146c5643125232d946e3e245
+    - 31778787095dec9506ddbf48723ab113
+    - 44d51fea89dcd5e417a286f330d536b6
+    - 7634c0ccfc9d4a5b18282c0477d3534b
+    - 7b4ec4b2e6e3f5ecd3186896ece60253
+    - a0782db1e59e9d3092c21a2fec44252f
+    - a15b04efc8abb7197c8d1e7a41767b5e
+    - aac1e530d87ed4ccbb6a1d526a5dbd3d
+    - b342f28d391746fe8b3e4def9b385c25
+    - be3ad20f8782e1095c439ef7378518b7
+    - c1e9885fb3107ef726e83bfda63b74e4
+    - cbf09c1b7afb16f7f83a647f7d6f0c92
+    - dd86415164c7304292b8a57711ad3710
+    - f68164bdf4462dd0d86475282ac9ca75
+    proxy: {fileID: 4300000, guid: dd954d4727e54284f8559dbc8a36cade, type: 2}
+  - id: tile_3_2
+    sceneKey: WorldBuilder/35c2ca802bd64575961ac7cda330ac91/8f2e7eec43b74997b36fe1906c1a654a/tile_3_2
+    tile: {x: 3, y: 2}
+    bounds:
+      m_Center: {x: 1792, y: 350, z: 1280}
+      m_Extent: {x: 256, y: 350, z: 256}
+    dependencies: 07000000
+    surfaces:
+    - tile_3_2
+    instanceIds:
+    - 18c035e0b0ec9bf94fcd63d7e504e15b
+    - 2e7256e1c642f7b991cb85e9641ae3a4
+    - 3bf8b501436565e6ca7f52daf8a0c9e6
+    - 82e543238176677b9506ad6944f091ab
+    - 858018b2bb1bac405e44da2d49026f38
+    - 9af6886d839605b825583e4ca249df9d
+    - a0a70cda056030f4e7be6ab0daa3147d
+    - bbafdff88215d2a0e29fdd3d75f098b9
+    - ccd1b1f74f0b3ab659ceba2fd373e937
+    - cd659f5921b1d460ed2f59ca922f6501
+    proxy: {fileID: 4300000, guid: f6e62827693ee6a4786fa3f6ea5201ba, type: 2}
+  - id: tile_0_3
+    sceneKey: WorldBuilder/35c2ca802bd64575961ac7cda330ac91/8f2e7eec43b74997b36fe1906c1a654a/tile_0_3
+    tile: {x: 0, y: 3}
+    bounds:
+      m_Center: {x: 256, y: 350, z: 1792}
+      m_Extent: {x: 256, y: 350, z: 256}
+    dependencies: 
+    surfaces:
+    - tile_0_3
+    instanceIds:
+    - 2ef29b3d5890641656470f83790ec0b2
+    - 42eab08c2e75ce323beb35cd42321b53
+    - 43eea13cf02e579ff7821c55936b507e
+    - 7e8c5a164d9b8e12b61838e390740d5a
+    - 9f1f2068bfa0accca008d0cb22bcd13a
+    - a5b3082f5fd7f3b62f416a9473a4ba2f
+    - fd7f39f972631e301771dc7e17ca4761
+    proxy: {fileID: 4300000, guid: 59e744dbceca94942baef3a9080ccd08, type: 2}
+  - id: tile_1_3
+    sceneKey: WorldBuilder/35c2ca802bd64575961ac7cda330ac91/8f2e7eec43b74997b36fe1906c1a654a/tile_1_3
+    tile: {x: 1, y: 3}
+    bounds:
+      m_Center: {x: 768, y: 350, z: 1792}
+      m_Extent: {x: 256, y: 350, z: 256}
+    dependencies: 0a000000
+    surfaces:
+    - tile_1_3
+    instanceIds:
+    - cefbd2bd2b5a47cc9035cf90e868086d
+    proxy: {fileID: 4300000, guid: 9c254ec79fe72d74cbba7ab563be6182, type: 2}
+  - id: tile_2_3
+    sceneKey: WorldBuilder/35c2ca802bd64575961ac7cda330ac91/8f2e7eec43b74997b36fe1906c1a654a/tile_2_3
+    tile: {x: 2, y: 3}
+    bounds:
+      m_Center: {x: 1280, y: 350, z: 1792}
+      m_Extent: {x: 256, y: 350, z: 256}
+    dependencies: 0a000000
+    surfaces:
+    - tile_2_3
+    instanceIds:
+    - 5ccb32d4c3d7b678e7c510673269483b
+    - 615e9fa7e149422d464e70e68273bf95
+    - 74b1ab517a55981e3e84da273e8405f5
+    - 98ba9fd155d0e1558afaba10b32ab2dc
+    - a2f6c19f2dd108e75a61f43c5dcee768
+    - eb8095edda6c056d7314561088ffa350
+    - 8e5d8c35675dc43993e0166f596cfc89
+    - c6543d7227346b69f4f1341de02e8cd2
+    proxy: {fileID: 4300000, guid: 08d1ce2d410bd534bb98b4941cae9c32, type: 2}
+  - id: tile_3_3
+    sceneKey: WorldBuilder/35c2ca802bd64575961ac7cda330ac91/8f2e7eec43b74997b36fe1906c1a654a/tile_3_3
+    tile: {x: 3, y: 3}
+    bounds:
+      m_Center: {x: 1792, y: 350, z: 1792}
+      m_Extent: {x: 256, y: 350, z: 256}
+    dependencies: 
+    surfaces:
+    - tile_3_3
+    instanceIds:
+    - 8af92c179954458cd999b127048410cf
+    - d1577eac3ee039842661a067a8c00100
+    proxy: {fileID: 4300000, guid: 91dc411cfe6d37344916760114a37b08, type: 2}
+  settings:
+    readyRing: 1
+    preloadRing: 2
+    hysteresis: 64
+    minimumResidency: 5
+    lookAheadMargin: 24
+    parallelLoads: 2
+    parallelUnloads: 1
+    travelTimeout: 30

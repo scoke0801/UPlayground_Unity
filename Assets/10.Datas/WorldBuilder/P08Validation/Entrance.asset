@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14b698d60d33b0e4cba0759c14221436, type: 3}
+  m_Name: Entrance
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.CaveModulePreset
+  catalogId: 00000000000000000000000000000621
+  kind: 0
+  prefab: {fileID: 3227698051887637253, guid: 8becff0a72dae754b8904b6fc14c8606, type: 3}
+  collarPrefab: {fileID: 1604416565272802267, guid: befe20187aef14447814a614f5e61a19, type: 3}
+  sockets:
+  - id: 00000000000000000000000000000631
+    profile: stone-4x2.7
+    floor: {x: 0, y: 9, z: -10}
+    yaw: 180
+    width: 4
+    height: 2.7
+    exterior: 1
+  - id: 00000000000000000000000000000632
+    profile: stone-4x2.7
+    floor: {x: 0, y: 0, z: 10}
+    yaw: 0
+    width: 4
+    height: 2.7
+    exterior: 0
+  allowedYaw:
+  - 0
+  - 90
+  - 180
+  - 270
+  positionTolerance: 0.05
+  angleTolerance: 2
+  cover: 0.3
+  footprintCenter: {x: 0, y: 0}
+  footprintSize: {x: 6, y: 20}
+  floorAtMinZ: 9
+  floorAtMaxZ: 0
+  clearHeight: 2.7
+  clearWidth: 4

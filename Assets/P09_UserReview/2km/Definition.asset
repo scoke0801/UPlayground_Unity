@@ -1,0 +1,91 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9fde6389ae73f2b4985a26c9d60e840d, type: 3}
+  m_Name: Definition
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.WorldDefinition
+  _worldGuid: 82592a92926141c2981fae28539135b6
+  _profile: {fileID: 11400000, guid: b8387893dc4a36e4fa86155a87e7628f, type: 2}
+  _baseHeight: {fileID: 4900000, guid: af6271ea08e0e3a47bdc6b31653114f2, type: 3}
+  _baseSha256: 0feacc455dad516f9b8d522feef81383b44c05ce490565ffa2580dabbb7325b5
+  _sourceRevision: 9c33ac86fdca5aa4365708fb3f923403a297d356819955b6328fa12431db4c3e
+  _previewSceneGuid: dadc8940f46e9a847bfc213e8285c54c
+  _operations:
+  - operationGuid: 4a5c35dd446841f0897e6e7220c84130
+    ownerPlanGuid: 
+    ownerElementGuid: 
+    kind: 0
+    x: 240
+    z: 240
+    width: 32
+    height: 32
+    value: 0.5
+    stage: 40
+    priority: 0
+    sequence: 0
+    enabled: 1
+    automatic: 0
+    radius: 1
+    iterations: 1
+    protection: 1
+    patch: {fileID: 0}
+    patchSha256: 
+    sourceRevision: 
+  - operationGuid: a2b37d1db91543ddb8ee8647daa21628
+    ownerPlanGuid: 
+    ownerElementGuid: 
+    kind: 4
+    x: 511
+    z: 0
+    width: 2
+    height: 2048
+    value: 1
+    stage: 40
+    priority: 0
+    sequence: 0
+    enabled: 1
+    automatic: 0
+    radius: 1
+    iterations: 1
+    protection: 1
+    patch: {fileID: 0}
+    patchSha256: 
+    sourceRevision: 
+  _activeSession:
+    rid: -2
+  _appliedTerrainHash: 2235328d60b29cd4352bcd34a33cc3d1e1c9a113d470c771a55e33e0b8155d2e
+  _appliedStackHash: d629cd84162a674d200566b1a4c2a83e20aa607d5ba45f828b862105b3e1a5cb
+  _dirtyLayers: 255
+  _dirtyX: 0
+  _dirtyZ: 0
+  _dirtyWidth: 2049
+  _dirtyHeight: 2049
+  _placementSeed: 0
+  _generationEpoch: 0
+  _placementCatalog: {fileID: 0}
+  _placementRules: []
+  _placementOverrides: []
+  _placementReservations: []
+  _placements: []
+  _placementHash: 
+  _appliedPlacementSeed: 0
+  _appliedGenerationEpoch: 0
+  _planning: {fileID: 0}
+  _ecology: {fileID: 0}
+  _ecologyOwner: 
+  _ecologyDryVolumes: []
+  _ecologyLayers: []
+  _waterSystem: {fileID: 0}
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }

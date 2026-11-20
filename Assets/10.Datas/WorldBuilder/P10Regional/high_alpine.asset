@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d570f875e75726c4e80c1723962c062e, type: 3}
+  m_Name: high_alpine
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.BiomePreset
+  biomeId: 69c6d8970809e7c932453ebe6ccf74b7
+  layer: {fileID: 8574412962073106934, guid: d0d9c548011d2bf469bbbda366522d30, type: 2}
+  priority: 0
+  mask:
+  - {x: 1050, y: 1500}
+  - {x: 1330, y: 1440}
+  - {x: 1550, y: 1430}
+  - {x: 1730, y: 1530}
+  - {x: 2048, y: 1520}
+  - {x: 2048, y: 2048}
+  - {x: 950, y: 2048}
+  - {x: 940, y: 1800}
+  height: {x: 350, y: 700}
+  slope: {x: 0, y: 90}
+  shoreDistance: {x: 0, y: 10000}
+  humidity: {x: 0, y: 1}

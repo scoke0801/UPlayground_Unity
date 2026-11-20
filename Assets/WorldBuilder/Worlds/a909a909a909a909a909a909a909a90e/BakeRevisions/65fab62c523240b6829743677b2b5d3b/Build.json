@@ -1,0 +1,102 @@
+{
+    "worldGuid": "a909a909a909a909a909a909a909a90e",
+    "buildId": "65fab62c523240b6829743677b2b5d3b",
+    "sourceRevision": "a30499811406ade16ac4359dc78f156b1449600b69ae5c85cc31d025d2fd1f86",
+    "inputHash": "ff85874fc4be80c3911119cd0b7cb13bb38099c10a7069b581570c52a78efd54",
+    "layoutGuid": "fa11ceb1658d81644bc8e410229cee3c",
+    "catalogGuid": "c7d52744b61f94841aa3a74f58e16c2f",
+    "lastStep": "revision 지문",
+    "failure": "",
+    "bakeFormat": 1,
+    "chunked": false,
+    "state": 1,
+    "report": {
+        "issues": [
+            {
+                "severity": 0,
+                "code": "WB503",
+                "message": "저장 씬에서 필수 AI 경로 1개와 런타임 참조를 확인했습니다.",
+                "sourceGuid": "a909a909a909a909a909a909a909a90e",
+                "elementId": "",
+                "fixHint": "KCC 횡단 결과는 별도 플레이 검사에서 확인합니다.",
+                "worldBounds": {
+                    "m_Center": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "m_Extent": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    }
+                },
+                "hasLocation": false
+            }
+        ],
+        "warningApprover": "",
+        "warningReason": ""
+    },
+    "files": [
+        {
+            "path": "Catalog.asset",
+            "sha256": "4fbecc581115d4e4f746f90381ae521a87116169afb91a02c53bfc8298beec4d"
+        },
+        {
+            "path": "Catalog.asset.meta",
+            "sha256": "2c2ec433af254c8d44a01cbf9b3a3bceed900cc1ca9c3e5e33fe103590aad1cd"
+        },
+        {
+            "path": "Nav_tile_0_0.asset",
+            "sha256": "3c734aed9f897d050adfb7731966b5563c826d570400471f866c7566756d4104"
+        },
+        {
+            "path": "Nav_tile_0_0.asset.meta",
+            "sha256": "5838f8d6c190406a553a45ae6eb97aad1b938f6e234a429f54f0bdb8f45609ed"
+        },
+        {
+            "path": "RevisionAssets.meta",
+            "sha256": "b8f730a676fde2b2c5a2bd7a4e9b4b80e350b67a71943b974dc843cde7d69a7d"
+        },
+        {
+            "path": "RevisionAssets/2a73b58d89b1ab948b4b670f22ef9d4c.terrainlayer",
+            "sha256": "3aad2d855454ca6fc7d45093f5ba28b5377c036124cd3c8299334b68e945bbcc"
+        },
+        {
+            "path": "RevisionAssets/2a73b58d89b1ab948b4b670f22ef9d4c.terrainlayer.meta",
+            "sha256": "454a7bdf3ec916dd5fe0eae87ed9dc2476be0810e04015300085e82733e0ccc3"
+        },
+        {
+            "path": "RevisionAssets/3a520ac97331f2d419a930a6562d6619.mat",
+            "sha256": "9b76506ed6b2a422d77d98c21cb797d719d8b5158b3b7dd969295cf98d3cb405"
+        },
+        {
+            "path": "RevisionAssets/3a520ac97331f2d419a930a6562d6619.mat.meta",
+            "sha256": "f16118e959c6774b7145b9e4690c8a905b329375481f84107e28b3b2c8475f4b"
+        },
+        {
+            "path": "RevisionAssets/5bcab81fd1a2429428a61f577d8a5aea.asset",
+            "sha256": "34bf81f8a567b4787d32ed80345014394b3a2084952637f4f8b5123b91c61133"
+        },
+        {
+            "path": "RevisionAssets/5bcab81fd1a2429428a61f577d8a5aea.asset.meta",
+            "sha256": "ac23b46a5c4a8f25a52e58c944b7680926a08bc00523b6bb9cf0f4dfdbdb9296"
+        },
+        {
+            "path": "RevisionAssets/6c362c63584ea0b4daee3dbaffac83b0.asset",
+            "sha256": "bde2d8aa72e89e9efe6dda5156c363e96d3f9dae218206eb636715969b427820"
+        },
+        {
+            "path": "RevisionAssets/6c362c63584ea0b4daee3dbaffac83b0.asset.meta",
+            "sha256": "e8e8107193695b7e3ac6298a28d11191ed6868c521e5737ef721e85808060314"
+        },
+        {
+            "path": "World.unity",
+            "sha256": "bf859f02e7c3b0726d0688eec70b3b51b9e28e7be2b125c651002057ddabb664"
+        },
+        {
+            "path": "World.unity.meta",
+            "sha256": "bf3ce1844ac5cf1bbb0ef78d6bba9fd6a6c11a6fe2fbac30065071355f869db6"
+        }
+    ]
+}

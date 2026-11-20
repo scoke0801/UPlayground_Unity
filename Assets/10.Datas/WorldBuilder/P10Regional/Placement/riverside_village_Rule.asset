@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93fcbd8483441e2418b43249f5623c43, type: 3}
+  m_Name: riverside_village_Rule
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.PlacementRuleAsset
+  layerGuid: c31c4330f224defca163769099b6c174
+  ruleGuid: 1df9c11581b6735ca5a47bb60b1e0bde
+  prefabGuid: 9e4c7163e7ddb5a42b74a1ec05eddc05
+  ruleTag: riverside_village
+  isEnabled: 1
+  mandatory: 0
+  seedSalt: 106
+  slots: 1
+  minimumCount: 0
+  cellSize: 11
+  jitter: 1
+  density: 0.49
+  region:
+    serializedVersion: 2
+    x: 780
+    y: 1118
+    width: 106
+    height: 106
+  minHeight: 154
+  maxHeight: 10000
+  maxSlope: 24
+  spacing: 3
+  minScale: 0.9
+  maxScale: 1.1
+  maxSupportDelta: 1.8
+  surfaceId: terrain

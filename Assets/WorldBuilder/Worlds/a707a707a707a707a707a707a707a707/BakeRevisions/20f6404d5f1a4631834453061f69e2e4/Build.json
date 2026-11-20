@@ -1,0 +1,60 @@
+{
+    "worldGuid": "a707a707a707a707a707a707a707a707",
+    "buildId": "20f6404d5f1a4631834453061f69e2e4",
+    "sourceRevision": "0194218a6b5fa64767687aa52d7777d60d018f072775d63820b98289a690d7ae",
+    "inputHash": "90c6b803ccc711ecaf8be297dfe426206fa06646016f49f1409aea13bbadc74c",
+    "layoutGuid": "a0aa8043177ade943ae5712902886416",
+    "catalogGuid": "",
+    "lastStep": "Terrain · Terrain_1_0",
+    "failure": "cancel staged terrain",
+    "state": 2,
+    "report": {
+        "issues": [
+            {
+                "severity": 0,
+                "code": "WB501",
+                "message": "미검사 · 저장한 Navigation의 필수 경로와 링크는 Bake 후 검사합니다.",
+                "sourceGuid": "a707a707a707a707a707a707a707a707",
+                "elementId": "",
+                "fixHint": "Bake 보고서의 경로 검사 결과를 확인합니다.",
+                "worldBounds": {
+                    "m_Center": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "m_Extent": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    }
+                },
+                "hasLocation": false
+            },
+            {
+                "severity": 2,
+                "code": "WB700",
+                "message": "cancel staged terrain",
+                "sourceGuid": "a707a707a707a707a707a707a707a707",
+                "elementId": "",
+                "fixHint": "저장 단계와 입력을 확인한 뒤 새 revision으로 재시도합니다.",
+                "worldBounds": {
+                    "m_Center": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "m_Extent": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    }
+                },
+                "hasLocation": false
+            }
+        ],
+        "warningApprover": "",
+        "warningReason": ""
+    },
+    "files": []
+}

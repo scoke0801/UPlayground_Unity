@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9398fda30bed8443a901b68e9ceac01, type: 3}
+  m_Name: NavigationLayout
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.WorldNavigationLayout
+  worldGuid: a909a909a909a909a909a909a909a90e
+  playerPrefab: {fileID: 441837685671933312, guid: 866caeb41bd1cfa45b23a00d9f309ebb, type: 3}
+  agentTypeId: 0
+  endpointTolerance: 2
+  sourceHalo: 3
+  crossings: []
+  routes:
+  - id: 8836243a8e80448383481a93963d4dd2
+    fromSurface: tile_0_0
+    toSurface: tile_0_0
+    requiredCrossingId: 
+    from: {x: 8, y: 8, z: 8}
+    to: {x: 16, y: 8, z: 8}

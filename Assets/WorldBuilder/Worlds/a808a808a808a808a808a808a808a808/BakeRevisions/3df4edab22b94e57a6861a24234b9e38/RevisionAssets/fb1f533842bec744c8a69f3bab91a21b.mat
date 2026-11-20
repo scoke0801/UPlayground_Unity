@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: fb1f533842bec744c8a69f3bab91a21b
+  m_Shader: {fileID: 4800000, guid: a0128cd2bea1c9b4ca606c9fda1879ab, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs: []
+    m_Ints: []
+    m_Floats:
+    - _BandFrequency: 1.8
+    - _Cutoff: 0.18
+    - _FlowSpeed: 3.5
+    - _Wobble: 0.06
+    m_Colors:
+    - _FoamColor: {r: 0.72, g: 0.88, b: 0.87, a: 1}
+    - _WaterColor: {r: 0.079999976, g: 0.37999994, b: 0.42999998, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

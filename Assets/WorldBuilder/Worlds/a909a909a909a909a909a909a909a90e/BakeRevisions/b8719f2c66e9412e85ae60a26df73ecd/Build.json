@@ -1,0 +1,62 @@
+{
+    "worldGuid": "a909a909a909a909a909a909a909a90e",
+    "buildId": "b8719f2c66e9412e85ae60a26df73ecd",
+    "sourceRevision": "a30499811406ade16ac4359dc78f156b1449600b69ae5c85cc31d025d2fd1f86",
+    "inputHash": "ff85874fc4be80c3911119cd0b7cb13bb38099c10a7069b581570c52a78efd54",
+    "layoutGuid": "fa11ceb1658d81644bc8e410229cee3c",
+    "catalogGuid": "",
+    "lastStep": "입력 고정",
+    "failure": "P09 취소",
+    "bakeFormat": 1,
+    "chunked": false,
+    "state": 2,
+    "report": {
+        "issues": [
+            {
+                "severity": 0,
+                "code": "WB501",
+                "message": "미검사 · 저장한 Navigation의 필수 경로와 링크는 Bake 후 검사합니다.",
+                "sourceGuid": "a909a909a909a909a909a909a909a90e",
+                "elementId": "",
+                "fixHint": "Bake 보고서의 경로 검사 결과를 확인합니다.",
+                "worldBounds": {
+                    "m_Center": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "m_Extent": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    }
+                },
+                "hasLocation": false
+            },
+            {
+                "severity": 2,
+                "code": "WB700",
+                "message": "P09 취소",
+                "sourceGuid": "a909a909a909a909a909a909a909a90e",
+                "elementId": "",
+                "fixHint": "저장 단계와 입력을 확인한 뒤 새 revision으로 재시도합니다.",
+                "worldBounds": {
+                    "m_Center": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    },
+                    "m_Extent": {
+                        "x": 0.0,
+                        "y": 0.0,
+                        "z": 0.0
+                    }
+                },
+                "hasLocation": false
+            }
+        ],
+        "warningApprover": "",
+        "warningReason": ""
+    },
+    "files": []
+}

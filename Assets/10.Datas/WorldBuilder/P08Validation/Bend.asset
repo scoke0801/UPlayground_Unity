@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14b698d60d33b0e4cba0759c14221436, type: 3}
+  m_Name: Bend
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.CaveModulePreset
+  catalogId: 00000000000000000000000000000623
+  kind: 2
+  prefab: {fileID: 363425181408698699, guid: 6c2ccbda5d3b93048b60a14c84f5680f, type: 3}
+  collarPrefab: {fileID: 0}
+  sockets:
+  - id: 00000000000000000000000000000631
+    profile: stone-4x2.7
+    floor: {x: 0, y: 0, z: -4}
+    yaw: 180
+    width: 4
+    height: 2.7
+    exterior: 0
+  - id: 00000000000000000000000000000633
+    profile: stone-4x2.7
+    floor: {x: 4, y: 0, z: 0}
+    yaw: 90
+    width: 4
+    height: 2.7
+    exterior: 0
+  allowedYaw:
+  - 0
+  - 90
+  - 180
+  - 270
+  positionTolerance: 0.05
+  angleTolerance: 2
+  cover: 0.3
+  footprintCenter: {x: 0, y: 0}
+  footprintSize: {x: 8, y: 8}
+  floorAtMinZ: 0
+  floorAtMaxZ: 0
+  clearHeight: 2.7
+  clearWidth: 4

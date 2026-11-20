@@ -1,0 +1,393 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44fb5c1cdce3c7d4f82e2f50b5612e63, type: 3}
+  m_Name: Chunks
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.WorldChunkCatalog
+  bake: {fileID: 11400000, guid: ae953dff003a70b46bac6b008a373fa6, type: 2}
+  sourceRevision: a9d64829410489810264c3464d31d2e4f1c39344ba356bdd012da36af3d3d7e8
+  bakeCatalogGuid: ae953dff003a70b46bac6b008a373fa6
+  pois: []
+  boundaryCrossings:
+  - id: tile_0_0_tile_0_1
+    fromSurface: tile_0_0
+    toSurface: tile_0_1
+    portalId: 
+    bridgeId: 
+    from: {x: 64, y: 10.089984, z: 510.75}
+    to: {x: 64, y: 10.088826, z: 513.25}
+    width: 1
+  - id: tile_1_0_tile_2_0
+    fromSurface: tile_1_0
+    toSurface: tile_2_0
+    portalId: 
+    bridgeId: 
+    from: {x: 1022.75, y: 10.089984, z: 64}
+    to: {x: 1025.25, y: 10.088826, z: 64}
+    width: 1
+  - id: tile_1_0_tile_1_1
+    fromSurface: tile_1_0
+    toSurface: tile_1_1
+    portalId: 
+    bridgeId: 
+    from: {x: 576, y: 10.089984, z: 510.75}
+    to: {x: 576, y: 10.088826, z: 513.25}
+    width: 1
+  - id: tile_2_0_tile_3_0
+    fromSurface: tile_2_0
+    toSurface: tile_3_0
+    portalId: 
+    bridgeId: 
+    from: {x: 1534.75, y: 10.089984, z: 64}
+    to: {x: 1537.25, y: 10.088826, z: 64}
+    width: 1
+  - id: tile_2_0_tile_2_1
+    fromSurface: tile_2_0
+    toSurface: tile_2_1
+    portalId: 
+    bridgeId: 
+    from: {x: 1088, y: 10.089984, z: 510.75}
+    to: {x: 1088, y: 10.088826, z: 513.25}
+    width: 1
+  - id: tile_3_0_tile_3_1
+    fromSurface: tile_3_0
+    toSurface: tile_3_1
+    portalId: 
+    bridgeId: 
+    from: {x: 1600, y: 10.089984, z: 510.75}
+    to: {x: 1600, y: 10.088826, z: 513.25}
+    width: 1
+  - id: tile_0_1_tile_1_1
+    fromSurface: tile_0_1
+    toSurface: tile_1_1
+    portalId: 
+    bridgeId: 
+    from: {x: 510.33334, y: 10.088826, z: 576}
+    to: {x: 513.6667, y: 10.088826, z: 576}
+    width: 1
+  - id: tile_0_1_tile_0_2
+    fromSurface: tile_0_1
+    toSurface: tile_0_2
+    portalId: 
+    bridgeId: 
+    from: {x: 64, y: 10.089984, z: 1022.75}
+    to: {x: 64, y: 10.088826, z: 1025.25}
+    width: 1
+  - id: tile_1_1_tile_2_1
+    fromSurface: tile_1_1
+    toSurface: tile_2_1
+    portalId: 
+    bridgeId: 
+    from: {x: 1022.75, y: 10.089984, z: 576}
+    to: {x: 1025.25, y: 10.088826, z: 576}
+    width: 1
+  - id: tile_1_1_tile_1_2
+    fromSurface: tile_1_1
+    toSurface: tile_1_2
+    portalId: 
+    bridgeId: 
+    from: {x: 576, y: 10.089984, z: 1022.75}
+    to: {x: 576, y: 10.088826, z: 1025.25}
+    width: 1
+  - id: tile_2_1_tile_3_1
+    fromSurface: tile_2_1
+    toSurface: tile_3_1
+    portalId: 
+    bridgeId: 
+    from: {x: 1534.75, y: 10.089984, z: 576}
+    to: {x: 1537.25, y: 10.088826, z: 576}
+    width: 1
+  - id: tile_2_1_tile_2_2
+    fromSurface: tile_2_1
+    toSurface: tile_2_2
+    portalId: 
+    bridgeId: 
+    from: {x: 1088, y: 10.089984, z: 1022.75}
+    to: {x: 1088, y: 10.088826, z: 1025.25}
+    width: 1
+  - id: tile_3_1_tile_3_2
+    fromSurface: tile_3_1
+    toSurface: tile_3_2
+    portalId: 
+    bridgeId: 
+    from: {x: 1600, y: 10.089984, z: 1022.75}
+    to: {x: 1600, y: 10.088826, z: 1025.25}
+    width: 1
+  - id: tile_0_2_tile_1_2
+    fromSurface: tile_0_2
+    toSurface: tile_1_2
+    portalId: 
+    bridgeId: 
+    from: {x: 510.33334, y: 10.088826, z: 1088}
+    to: {x: 513.6667, y: 10.088826, z: 1088}
+    width: 1
+  - id: tile_0_2_tile_0_3
+    fromSurface: tile_0_2
+    toSurface: tile_0_3
+    portalId: 
+    bridgeId: 
+    from: {x: 64, y: 10.089984, z: 1534.75}
+    to: {x: 64, y: 10.088826, z: 1537.25}
+    width: 1
+  - id: tile_1_2_tile_2_2
+    fromSurface: tile_1_2
+    toSurface: tile_2_2
+    portalId: 
+    bridgeId: 
+    from: {x: 1022.75, y: 10.089984, z: 1088}
+    to: {x: 1025.25, y: 10.088826, z: 1088}
+    width: 1
+  - id: tile_1_2_tile_1_3
+    fromSurface: tile_1_2
+    toSurface: tile_1_3
+    portalId: 
+    bridgeId: 
+    from: {x: 576, y: 10.089984, z: 1534.75}
+    to: {x: 576, y: 10.088826, z: 1537.25}
+    width: 1
+  - id: tile_2_2_tile_3_2
+    fromSurface: tile_2_2
+    toSurface: tile_3_2
+    portalId: 
+    bridgeId: 
+    from: {x: 1534.75, y: 10.089984, z: 1088}
+    to: {x: 1537.25, y: 10.088826, z: 1088}
+    width: 1
+  - id: tile_2_2_tile_2_3
+    fromSurface: tile_2_2
+    toSurface: tile_2_3
+    portalId: 
+    bridgeId: 
+    from: {x: 1088, y: 10.089984, z: 1534.75}
+    to: {x: 1088, y: 10.088826, z: 1537.25}
+    width: 1
+  - id: tile_3_2_tile_3_3
+    fromSurface: tile_3_2
+    toSurface: tile_3_3
+    portalId: 
+    bridgeId: 
+    from: {x: 1600, y: 10.089984, z: 1534.75}
+    to: {x: 1600, y: 10.088826, z: 1537.25}
+    width: 1
+  - id: tile_0_3_tile_1_3
+    fromSurface: tile_0_3
+    toSurface: tile_1_3
+    portalId: 
+    bridgeId: 
+    from: {x: 510.33334, y: 10.088826, z: 1600}
+    to: {x: 513.6667, y: 10.088826, z: 1600}
+    width: 1
+  - id: tile_1_3_tile_2_3
+    fromSurface: tile_1_3
+    toSurface: tile_2_3
+    portalId: 
+    bridgeId: 
+    from: {x: 1022.75, y: 10.089984, z: 1600}
+    to: {x: 1025.25, y: 10.088826, z: 1600}
+    width: 1
+  - id: tile_2_3_tile_3_3
+    fromSurface: tile_2_3
+    toSurface: tile_3_3
+    portalId: 
+    bridgeId: 
+    from: {x: 1534.75, y: 10.089984, z: 1600}
+    to: {x: 1537.25, y: 10.088826, z: 1600}
+    width: 1
+  worldBounds:
+    m_Center: {x: 1024, y: 160, z: 1024}
+    m_Extent: {x: 1024, y: 240, z: 1024}
+  tileSize: 512
+  chunks:
+  - id: tile_0_0
+    sceneKey: WorldBuilder/a909a909a909a909a909a909a909a904/b1a5803b636c4530b8771fb9a985ccb8/tile_0_0
+    tile: {x: 0, y: 0}
+    bounds:
+      m_Center: {x: 256, y: 160, z: 256}
+      m_Extent: {x: 256, y: 240, z: 256}
+    dependencies: 
+    surfaces:
+    - tile_0_0
+    instanceIds: []
+    proxy: {fileID: 4300000, guid: b3539a12967471b47a58e8987e2d756a, type: 2}
+  - id: tile_1_0
+    sceneKey: WorldBuilder/a909a909a909a909a909a909a909a904/b1a5803b636c4530b8771fb9a985ccb8/tile_1_0
+    tile: {x: 1, y: 0}
+    bounds:
+      m_Center: {x: 768, y: 160, z: 256}
+      m_Extent: {x: 256, y: 240, z: 256}
+    dependencies: 
+    surfaces:
+    - tile_1_0
+    instanceIds: []
+    proxy: {fileID: 4300000, guid: bd898157c3bcc1a4787ce07fb6369914, type: 2}
+  - id: tile_2_0
+    sceneKey: WorldBuilder/a909a909a909a909a909a909a909a904/b1a5803b636c4530b8771fb9a985ccb8/tile_2_0
+    tile: {x: 2, y: 0}
+    bounds:
+      m_Center: {x: 1280, y: 160, z: 256}
+      m_Extent: {x: 256, y: 240, z: 256}
+    dependencies: 
+    surfaces:
+    - tile_2_0
+    instanceIds: []
+    proxy: {fileID: 4300000, guid: f5e2a28082acf444c98306e449514d8e, type: 2}
+  - id: tile_3_0
+    sceneKey: WorldBuilder/a909a909a909a909a909a909a909a904/b1a5803b636c4530b8771fb9a985ccb8/tile_3_0
+    tile: {x: 3, y: 0}
+    bounds:
+      m_Center: {x: 1792, y: 160, z: 256}
+      m_Extent: {x: 256, y: 240, z: 256}
+    dependencies: 
+    surfaces:
+    - tile_3_0
+    instanceIds: []
+    proxy: {fileID: 4300000, guid: 4edde27dc28bfaf43a6fffe23e00ddd2, type: 2}
+  - id: tile_0_1
+    sceneKey: WorldBuilder/a909a909a909a909a909a909a909a904/b1a5803b636c4530b8771fb9a985ccb8/tile_0_1
+    tile: {x: 0, y: 1}
+    bounds:
+      m_Center: {x: 256, y: 160, z: 768}
+      m_Extent: {x: 256, y: 240, z: 256}
+    dependencies: 
+    surfaces:
+    - tile_0_1
+    instanceIds: []
+    proxy: {fileID: 4300000, guid: 331f0568f05f6834aa3de54ed98d1621, type: 2}
+  - id: tile_1_1
+    sceneKey: WorldBuilder/a909a909a909a909a909a909a909a904/b1a5803b636c4530b8771fb9a985ccb8/tile_1_1
+    tile: {x: 1, y: 1}
+    bounds:
+      m_Center: {x: 768, y: 160, z: 768}
+      m_Extent: {x: 256, y: 240, z: 256}
+    dependencies: 
+    surfaces:
+    - tile_1_1
+    instanceIds: []
+    proxy: {fileID: 4300000, guid: b098504f4c226ba4381b7c0ecd7d1302, type: 2}
+  - id: tile_2_1
+    sceneKey: WorldBuilder/a909a909a909a909a909a909a909a904/b1a5803b636c4530b8771fb9a985ccb8/tile_2_1
+    tile: {x: 2, y: 1}
+    bounds:
+      m_Center: {x: 1280, y: 160, z: 768}
+      m_Extent: {x: 256, y: 240, z: 256}
+    dependencies: 
+    surfaces:
+    - tile_2_1
+    instanceIds: []
+    proxy: {fileID: 4300000, guid: 9779eaa4a68a4354386b8489bbfb6bca, type: 2}
+  - id: tile_3_1
+    sceneKey: WorldBuilder/a909a909a909a909a909a909a909a904/b1a5803b636c4530b8771fb9a985ccb8/tile_3_1
+    tile: {x: 3, y: 1}
+    bounds:
+      m_Center: {x: 1792, y: 160, z: 768}
+      m_Extent: {x: 256, y: 240, z: 256}
+    dependencies: 
+    surfaces:
+    - tile_3_1
+    instanceIds: []
+    proxy: {fileID: 4300000, guid: a2716245d643e764b9863439eee899c6, type: 2}
+  - id: tile_0_2
+    sceneKey: WorldBuilder/a909a909a909a909a909a909a909a904/b1a5803b636c4530b8771fb9a985ccb8/tile_0_2
+    tile: {x: 0, y: 2}
+    bounds:
+      m_Center: {x: 256, y: 160, z: 1280}
+      m_Extent: {x: 256, y: 240, z: 256}
+    dependencies: 
+    surfaces:
+    - tile_0_2
+    instanceIds: []
+    proxy: {fileID: 4300000, guid: 299ed643ff0f4694183d783502189492, type: 2}
+  - id: tile_1_2
+    sceneKey: WorldBuilder/a909a909a909a909a909a909a909a904/b1a5803b636c4530b8771fb9a985ccb8/tile_1_2
+    tile: {x: 1, y: 2}
+    bounds:
+      m_Center: {x: 768, y: 160, z: 1280}
+      m_Extent: {x: 256, y: 240, z: 256}
+    dependencies: 
+    surfaces:
+    - tile_1_2
+    instanceIds: []
+    proxy: {fileID: 4300000, guid: 063615d2e7c2f8d44a014109c90b84c7, type: 2}
+  - id: tile_2_2
+    sceneKey: WorldBuilder/a909a909a909a909a909a909a909a904/b1a5803b636c4530b8771fb9a985ccb8/tile_2_2
+    tile: {x: 2, y: 2}
+    bounds:
+      m_Center: {x: 1280, y: 160, z: 1280}
+      m_Extent: {x: 256, y: 240, z: 256}
+    dependencies: 
+    surfaces:
+    - tile_2_2
+    instanceIds: []
+    proxy: {fileID: 4300000, guid: 0765c406b997df3438cb4ca168ffaa5e, type: 2}
+  - id: tile_3_2
+    sceneKey: WorldBuilder/a909a909a909a909a909a909a909a904/b1a5803b636c4530b8771fb9a985ccb8/tile_3_2
+    tile: {x: 3, y: 2}
+    bounds:
+      m_Center: {x: 1792, y: 160, z: 1280}
+      m_Extent: {x: 256, y: 240, z: 256}
+    dependencies: 
+    surfaces:
+    - tile_3_2
+    instanceIds: []
+    proxy: {fileID: 4300000, guid: db737e28198f5f144a38a4aca9a57fc8, type: 2}
+  - id: tile_0_3
+    sceneKey: WorldBuilder/a909a909a909a909a909a909a909a904/b1a5803b636c4530b8771fb9a985ccb8/tile_0_3
+    tile: {x: 0, y: 3}
+    bounds:
+      m_Center: {x: 256, y: 160, z: 1792}
+      m_Extent: {x: 256, y: 240, z: 256}
+    dependencies: 
+    surfaces:
+    - tile_0_3
+    instanceIds: []
+    proxy: {fileID: 4300000, guid: 51e4fe3b382328c479b185148572fa38, type: 2}
+  - id: tile_1_3
+    sceneKey: WorldBuilder/a909a909a909a909a909a909a909a904/b1a5803b636c4530b8771fb9a985ccb8/tile_1_3
+    tile: {x: 1, y: 3}
+    bounds:
+      m_Center: {x: 768, y: 160, z: 1792}
+      m_Extent: {x: 256, y: 240, z: 256}
+    dependencies: 
+    surfaces:
+    - tile_1_3
+    instanceIds: []
+    proxy: {fileID: 4300000, guid: c441a96f1f371f14e933f1e3bd27ddcd, type: 2}
+  - id: tile_2_3
+    sceneKey: WorldBuilder/a909a909a909a909a909a909a909a904/b1a5803b636c4530b8771fb9a985ccb8/tile_2_3
+    tile: {x: 2, y: 3}
+    bounds:
+      m_Center: {x: 1280, y: 160, z: 1792}
+      m_Extent: {x: 256, y: 240, z: 256}
+    dependencies: 
+    surfaces:
+    - tile_2_3
+    instanceIds: []
+    proxy: {fileID: 4300000, guid: 615f02a9e07290749b6ef04934dafa71, type: 2}
+  - id: tile_3_3
+    sceneKey: WorldBuilder/a909a909a909a909a909a909a909a904/b1a5803b636c4530b8771fb9a985ccb8/tile_3_3
+    tile: {x: 3, y: 3}
+    bounds:
+      m_Center: {x: 1792, y: 160, z: 1792}
+      m_Extent: {x: 256, y: 240, z: 256}
+    dependencies: 
+    surfaces:
+    - tile_3_3
+    instanceIds: []
+    proxy: {fileID: 4300000, guid: f100cfcc22182ad46a72920da278e7e7, type: 2}
+  settings:
+    readyRing: 1
+    preloadRing: 2
+    hysteresis: 64
+    minimumResidency: 5
+    lookAheadMargin: 24
+    parallelLoads: 2
+    parallelUnloads: 1
+    travelTimeout: 30

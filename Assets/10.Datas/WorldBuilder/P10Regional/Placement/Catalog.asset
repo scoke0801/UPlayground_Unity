@@ -1,0 +1,50 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9dbb17a354f13f84c8291886ceedacfc, type: 3}
+  m_Name: Catalog
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.PlacementCatalog
+  _entries:
+  - prefabGuid: 83160e5e090cc2a408c93d2f2e939a96
+    prefab: {fileID: 6854893123496875177, guid: 83160e5e090cc2a408c93d2f2e939a96, type: 3}
+    halfExtents: {x: 2.5268905, y: 2.4765625}
+    pivotHeight: 0.49355364
+    supportsNonUniformScale: 0
+  - prefabGuid: c7d7c6fa660c4814e84a515f5ec6f526
+    prefab: {fileID: 1273771686263363384, guid: c7d7c6fa660c4814e84a515f5ec6f526, type: 3}
+    halfExtents: {x: 0.99381286, y: 4.7396507}
+    pivotHeight: 1.1835847
+    supportsNonUniformScale: 0
+  - prefabGuid: 4a9b5220033cdbd4c8641be81a35ca1d
+    prefab: {fileID: 8446426369801193456, guid: 4a9b5220033cdbd4c8641be81a35ca1d, type: 3}
+    halfExtents: {x: 2.9212213, y: 2.1115167}
+    pivotHeight: 0
+    supportsNonUniformScale: 0
+  - prefabGuid: 462c22826f79605488bc39ec28462d08
+    prefab: {fileID: 7642016372675450656, guid: 462c22826f79605488bc39ec28462d08, type: 3}
+    halfExtents: {x: 0.5160456, y: 0.5160456}
+    pivotHeight: 0
+    supportsNonUniformScale: 0
+  - prefabGuid: 2c1901119073e064991c50514c8ebfe5
+    prefab: {fileID: 1897706912366667838, guid: 2c1901119073e064991c50514c8ebfe5, type: 3}
+    halfExtents: {x: 2.3544712, y: 1.4164054}
+    pivotHeight: 0
+    supportsNonUniformScale: 0
+  - prefabGuid: 9e4c7163e7ddb5a42b74a1ec05eddc05
+    prefab: {fileID: 4620087554442509143, guid: 9e4c7163e7ddb5a42b74a1ec05eddc05, type: 3}
+    halfExtents: {x: 1.7999997, y: 0.3094803}
+    pivotHeight: 0.056924522
+    supportsNonUniformScale: 0
+  - prefabGuid: 12a8dbfb9fba9794cb90eabc82178b9c
+    prefab: {fileID: 1629246772250802714, guid: 12a8dbfb9fba9794cb90eabc82178b9c, type: 3}
+    halfExtents: {x: 0.75, y: 0.70000005}
+    pivotHeight: 0.014999986
+    supportsNonUniformScale: 0

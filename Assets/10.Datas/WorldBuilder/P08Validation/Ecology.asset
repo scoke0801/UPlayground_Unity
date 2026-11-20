@@ -1,0 +1,69 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dad34991af15cf548b123467637184e6, type: 3}
+  m_Name: Ecology
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.WorldEcology
+  worldGuid: a808a808a808a808a808a808a808a808
+  ecologyGuid: 00000000000000000000000000000610
+  playerPrefab: {fileID: 441837685671933312, guid: 866caeb41bd1cfa45b23a00d9f309ebb, type: 3}
+  caveCatalog:
+  - {fileID: 11400000, guid: 1f83bc8ea5ffd034ea07b2eff2d977ec, type: 2}
+  - {fileID: 11400000, guid: 6c95b8fd939d3bf4dbcb64699c9287ba, type: 2}
+  - {fileID: 11400000, guid: 14fb22668558c8d4689e6f5ab660c421, type: 2}
+  - {fileID: 11400000, guid: 86ea67ed915c2a94ca3058b2ff33b477, type: 2}
+  - {fileID: 11400000, guid: ae8462b673e365349a712e8c7d552e1c, type: 2}
+  - {fileID: 11400000, guid: 7e37684fd6120f5489ba7107310971fc, type: 2}
+  caves:
+  - caveGuid: 00000000000000000000000000000600
+    modules:
+    - moduleId: 00000000000000000000000000000601
+      surfaceId: 00000000000000000000000000000604
+      preset: {fileID: 11400000, guid: 1f83bc8ea5ffd034ea07b2eff2d977ec, type: 2}
+      position: {x: 486, y: 1, z: 303}
+      yaw: 90
+    - moduleId: 00000000000000000000000000000602
+      surfaceId: 00000000000000000000000000000605
+      preset: {fileID: 11400000, guid: 6c95b8fd939d3bf4dbcb64699c9287ba, type: 2}
+      position: {x: 512, y: 1, z: 303}
+      yaw: 90
+    - moduleId: 00000000000000000000000000000603
+      surfaceId: 00000000000000000000000000000606
+      preset: {fileID: 11400000, guid: 1f83bc8ea5ffd034ea07b2eff2d977ec, type: 2}
+      position: {x: 538, y: 1, z: 303}
+      yaw: 270
+    connections:
+    - moduleA: 00000000000000000000000000000601
+      socketA: 00000000000000000000000000000632
+      moduleB: 00000000000000000000000000000602
+      socketB: 00000000000000000000000000000631
+    - moduleA: 00000000000000000000000000000602
+      socketA: 00000000000000000000000000000632
+      moduleB: 00000000000000000000000000000603
+      socketB: 00000000000000000000000000000632
+    props: []
+  defaultLayer: {fileID: 8574412962073106934, guid: 31a4c6756e0e6dd43a2d030b24982b2d, type: 2}
+  biomes:
+  - {fileID: 11400000, guid: eca21d34347f1534d85dcc6cc96e9f32, type: 2}
+  - {fileID: 11400000, guid: 8898fcc876b26024896dabbe526216b2, type: 2}
+  - {fileID: 11400000, guid: 9911eaaeb15b57a40bffd8670da162e4, type: 2}
+  vegetation:
+  - {fileID: 11400000, guid: a0d70128b9df00845bdd80bce901b360, type: 2}
+  - {fileID: 11400000, guid: eecb1ca341de2a14cb77296287d26fc2, type: 2}
+  - {fileID: 11400000, guid: 8313425584a617845a7289bf4e3e72e4, type: 2}
+  - {fileID: 11400000, guid: 1ea9230f83afbe64db89ad8b41fe1f7c, type: 2}
+  - {fileID: 11400000, guid: 6f95ff6878b429944b7565ee5534d559, type: 2}
+  humidity: 0.5
+  seed: 606
+  alphaResolution: 64
+  detailResolution: 64
+  treeDistance: 300
+  detailDistance: 100

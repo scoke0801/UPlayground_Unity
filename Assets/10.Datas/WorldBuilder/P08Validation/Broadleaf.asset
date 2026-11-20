@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f6f3157de0685449beb7545b2c47abe, type: 3}
+  m_Name: Broadleaf
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.VegetationPreset
+  prototypeId: 00000000000000000000000000000614
+  biome: {fileID: 11400000, guid: eca21d34347f1534d85dcc6cc96e9f32, type: 2}
+  path: 0
+  prefab: {fileID: 4314097512950914008, guid: 5d6ff116fb5dd6343a053c078b5cdc2b, type: 3}
+  placementRule: {fileID: 0}
+  density: 0.6
+  spacing: 14
+  footprintRadius: 2
+  scale: {x: 0.8, y: 1.2}

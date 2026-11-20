@@ -1,0 +1,119 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1ab7295658a24b4598a3f9defd6b890, type: 3}
+  m_Name: WaterSystem
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.WaterSystemDefinition
+  systemGuid: 943a4add6b914228b81821b89f6eda7a
+  worldGuid: a707a707a707a707a707a707a707a707
+  bodies:
+  - waterGuid: 00000000000000000000000000000009
+    kind: 0
+    isRouteLocked: 1
+    route:
+    - x: 512
+      y: 8
+      z: 180
+    - x: 512
+      y: 8
+      z: 320
+    boundary: []
+    level: 0
+    waterPriority: 0
+    preset: {fileID: 11400000, guid: 402c127cd9be38c4c80058dc9b32eb64, type: 2}
+  - waterGuid: 00000000000000000000000000000065
+    kind: 0
+    isRouteLocked: 1
+    route:
+    - x: 560
+      y: 20
+      z: 400
+    - x: 560
+      y: 20
+      z: 440
+    boundary: []
+    level: 0
+    waterPriority: 0
+    preset: {fileID: 11400000, guid: 776b18b100662254ca17de7a337a1ff1, type: 2}
+  - waterGuid: 00000000000000000000000000000066
+    kind: 1
+    isRouteLocked: 0
+    route: []
+    boundary:
+    - x: 540
+      y: 0
+      z: 448
+    - x: 580
+      y: 0
+      z: 448
+    - x: 580
+      y: 0
+      z: 480
+    - x: 540
+      y: 0
+      z: 480
+    level: 8
+    waterPriority: 0
+    preset: {fileID: 11400000, guid: 402c127cd9be38c4c80058dc9b32eb64, type: 2}
+  - waterGuid: 00000000000000000000000000000067
+    kind: 2
+    isRouteLocked: 0
+    route: []
+    boundary:
+    - x: 0
+      y: 0
+      z: 700
+    - x: 80
+      y: 0
+      z: 700
+    - x: 80
+      y: 0
+      z: 900
+    - x: 0
+      y: 0
+      z: 900
+    level: 8
+    waterPriority: 0
+    preset: {fileID: 11400000, guid: 402c127cd9be38c4c80058dc9b32eb64, type: 2}
+  exclusions:
+  - guid: 00000000000000000000000000000069
+    boundary:
+    - x: 508
+      y: 0
+      z: 200
+    - x: 516
+      y: 0
+      z: 200
+    - x: 516
+      y: 0
+      z: 208
+    - x: 508
+      y: 0
+      z: 208
+    minY: 0
+    maxY: 6.5
+  waterfalls:
+  - guid: 00000000000000000000000000000068
+    upstreamGuid: 00000000000000000000000000000065
+    downstreamGuid: 00000000000000000000000000000066
+    upperLip:
+      x: 560
+      y: 20
+      z: 440
+    lowerLanding:
+      x: 560
+      y: 8
+      z: 454
+    width: 8
+  waterfallPreset: {fileID: 11400000, guid: 75baed19242ad2f41b84c8c23728f38b, type: 2}
+  _appliedHash: 8e290baddaa374a56d4baaaa86a8ec6d9c2dbf1642a27a0cf70cf03d7fd21c0c
+  _appliedSourceHash: d94a96765d7f0ac14a9c4134a23f43bb130dead143bab8189296de7735ebfed9
+  _appliedSystemGuid: 943a4add6b914228b81821b89f6eda7a

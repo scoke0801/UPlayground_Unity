@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d570f875e75726c4e80c1723962c062e, type: 3}
+  m_Name: ForestBiome
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.BiomePreset
+  biomeId: 00000000000000000000000000000613
+  layer: {fileID: 8574412962073106934, guid: 30bf9295b3a62cd448e34a2657da205c, type: 2}
+  priority: 2
+  mask:
+  - {x: 536, y: 212}
+  - {x: 632, y: 212}
+  - {x: 632, y: 316}
+  - {x: 536, y: 316}
+  height: {x: -1000, y: 1000}
+  slope: {x: 0, y: 25}
+  shoreDistance: {x: 0, y: 10000}
+  humidity: {x: 0, y: 1}

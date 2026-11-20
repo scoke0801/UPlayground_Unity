@@ -1,0 +1,144 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd00d9764f74d7a4b848bd216319e74b, type: 3}
+  m_Name: Catalog
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.WorldBakeCatalog
+  worldGuid: a909a909a909a909a909a909a909a904
+  buildId: b1a5803b636c4530b8771fb9a985ccb8
+  scenePath: Assets/WorldBuilder/Worlds/a909a909a909a909a909a909a909a904/BakeRevisions/b1a5803b636c4530b8771fb9a985ccb8/World.unity
+  sceneGuid: 938496428e67b5e4bab0d97e931f4473
+  geometryHash: a8bc504c9cd8350bb48170eeec1eb1ed2f2674824dc3d5eb54164ebcbeabe5ea
+  agentTypeId: 0
+  agentRadius: 0.5
+  agentHeight: 2
+  agentStep: 0.75
+  agentSlope: 45
+  playerRadius: 0.35
+  playerHeight: 1.52
+  playerStep: 0.5
+  playerSlope: 60
+  surfaces:
+  - id: tile_0_0
+    geometryHash: e228fe21df3b23ae47d6c8ab97027ab909578f2758cee6688675b25acea768b4
+    bounds:
+      m_Center: {x: 256, y: 160, z: 256}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 6e65d3036367d8641be232315fd8ddb1, type: 2}
+  - id: tile_1_0
+    geometryHash: 81a3b2ec09d4e3c64237a5587f4991442aef1ec43820e030b4732bbba4161e9b
+    bounds:
+      m_Center: {x: 768, y: 160, z: 256}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 38a3ef187e4702b40ac86334f4121451, type: 2}
+  - id: tile_2_0
+    geometryHash: e49d8ac6e4ced526a146292b3166bff06f2113724da2c0a9a26d2ed3251b00a6
+    bounds:
+      m_Center: {x: 1280, y: 160, z: 256}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 800511f4c8308784ca02db63bd0f0038, type: 2}
+  - id: tile_3_0
+    geometryHash: 4030f334feb5c0393fa084bf76305c0a4e7f457a36dd6583a19fcdfdc9d68de9
+    bounds:
+      m_Center: {x: 1792, y: 160, z: 256}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: fb8da44400fb261478d7ba3c9ad4fd5b, type: 2}
+  - id: tile_0_1
+    geometryHash: 6d8408c3d5051ed85fe41b654272fade50d0490a1692547499993826e861316f
+    bounds:
+      m_Center: {x: 256, y: 160, z: 768}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: b43732134122de5408581ce9ed254116, type: 2}
+  - id: tile_1_1
+    geometryHash: 84896d583db8b40d0dadb15e3cb19ef7ecc4055f53ae18387301cdfc0652c7ca
+    bounds:
+      m_Center: {x: 768, y: 160, z: 768}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 7bd761c02a217b2428516650bb635567, type: 2}
+  - id: tile_2_1
+    geometryHash: 0be9338de12f8481d5b977c196ffc6512d74a080d97f3e3ccfc25f0eafcf1300
+    bounds:
+      m_Center: {x: 1280, y: 160, z: 768}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 2322bab556079364cbd1ea456c54fb4b, type: 2}
+  - id: tile_3_1
+    geometryHash: 539c093bd56b152e5a770bb8bb5abeb08e8c9701e7fc95a33af7e2d45600978e
+    bounds:
+      m_Center: {x: 1792, y: 160, z: 768}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 984438b326a367a438cc6452abeb0faa, type: 2}
+  - id: tile_0_2
+    geometryHash: 0ae9786a527818c23e08cffd4e49e1df6d6069b282696df35ed5c5fb5db83725
+    bounds:
+      m_Center: {x: 256, y: 160, z: 1280}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 1565e10cb9d0e804bbda52f298a42462, type: 2}
+  - id: tile_1_2
+    geometryHash: 92c3f5bba2aab67e8284b16f97f35ab4dd69964c6478df624b8c2179b1c8f4ef
+    bounds:
+      m_Center: {x: 768, y: 160, z: 1280}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: eba6d8575fc022241bae08cce09c4b31, type: 2}
+  - id: tile_2_2
+    geometryHash: f00dc85394a38e1d0b4427849e9a7c652292281c032345233c56ad94a82dc652
+    bounds:
+      m_Center: {x: 1280, y: 160, z: 1280}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: be856bbf1f24b3043802d9f13a4b11f7, type: 2}
+  - id: tile_3_2
+    geometryHash: 30acbdb94f52ffeb7b0763851814cd42aee80063931d0602eb1c4f3ce5e60de2
+    bounds:
+      m_Center: {x: 1792, y: 160, z: 1280}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 7d78b32214cc3ce4e99dabb97628ac19, type: 2}
+  - id: tile_0_3
+    geometryHash: cd399bc04075a8c8b3922655b31d2ae6f2056a0085bf48296b79dbe4b4b410f0
+    bounds:
+      m_Center: {x: 256, y: 160, z: 1792}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: e9df006147ec15f4d91fdcec2d9c3321, type: 2}
+  - id: tile_1_3
+    geometryHash: a7f9c50501e65f2c1abe2f3726633ccf3e4e90e719cb28aee1df82c7eca357f4
+    bounds:
+      m_Center: {x: 768, y: 160, z: 1792}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 8625ebbfb7c33d740a31e1f4de6edb62, type: 2}
+  - id: tile_2_3
+    geometryHash: 401d05d6d0733caa0cbdd000c4a80dfc0526d21982db9619d682049d2f6a76f5
+    bounds:
+      m_Center: {x: 1280, y: 160, z: 1792}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: fbba7ac456ff1c844be2d1356982b9bb, type: 2}
+  - id: tile_3_3
+    geometryHash: 9ae922fe00c22005ac24ae1b5c558082b2261577bf3ae45360226e45f460cfd0
+    bounds:
+      m_Center: {x: 1792, y: 160, z: 1792}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 9c19b2d364a7b714e8b78b0b13e39989, type: 2}
+  crossings:
+  - id: aa5bb621b50b47abbe4d31783acd7f23
+    fromSurface: tile_0_0
+    toSurface: tile_1_0
+    portalId: 
+    bridgeId: 
+    from: {x: 510, y: 10.17216, z: 256}
+    to: {x: 514, y: 10.17216, z: 256}
+    width: 2
+  routes:
+  - id: a4156583eece419f8fe0fe32ec4caf88
+    fromSurface: tile_0_0
+    toSurface: tile_1_0
+    requiredCrossingId: aa5bb621b50b47abbe4d31783acd7f23
+    from: {x: 500, y: 10.17216, z: 256}
+    to: {x: 524, y: 10.17216, z: 256}
+  anchors: []
+  placementIds: []
+  trees: []

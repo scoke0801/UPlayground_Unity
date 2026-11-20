@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9dbb17a354f13f84c8291886ceedacfc, type: 3}
+  m_Name: Catalog
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.PlacementCatalog
+  _entries:
+  - prefabGuid: c07497b8082d7f942afc919190851b9a
+    prefab: {fileID: 3154176313043157611, guid: c07497b8082d7f942afc919190851b9a, type: 3}
+    halfExtents: {x: 4, y: 4}
+    pivotHeight: 0
+    supportsNonUniformScale: 0
+  - prefabGuid: 6d34692e3e804cf4abd5931ff4915a67
+    prefab: {fileID: 1382851869905553463, guid: 6d34692e3e804cf4abd5931ff4915a67, type: 3}
+    halfExtents: {x: 3, y: 16}
+    pivotHeight: 0
+    supportsNonUniformScale: 0
+  - prefabGuid: 8b7da13cdbcad9e4d983dd2f9e63497d
+    prefab: {fileID: 4639907453464354887, guid: 8b7da13cdbcad9e4d983dd2f9e63497d, type: 3}
+    halfExtents: {x: 0.5, y: 0.5}
+    pivotHeight: 0
+    supportsNonUniformScale: 0
+  - prefabGuid: 9af567e72a97f044297c5f8063f6a5f3
+    prefab: {fileID: 744807394742405594, guid: 9af567e72a97f044297c5f8063f6a5f3, type: 3}
+    halfExtents: {x: 0.8, y: 0.8}
+    pivotHeight: 0
+    supportsNonUniformScale: 0

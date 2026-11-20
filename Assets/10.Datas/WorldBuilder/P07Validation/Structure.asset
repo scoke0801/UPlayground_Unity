@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 25c340dcda8803a4c96ce54180dde5b9, type: 3}
+  m_Name: Structure
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.StructurePlanningPreset
+  catalog: {fileID: 11400000, guid: 7224dd4256ec88743a1fffca83c7c69b, type: 2}
+  prefabGuid: c07497b8082d7f942afc919190851b9a
+  supportPoints:
+  - {x: -3, y: 0, z: -3}
+  - {x: 3, y: 0, z: -3}
+  - {x: -3, y: 0, z: 3}
+  - {x: 3, y: 0, z: 3}
+  - {x: 0, y: 0, z: 0}
+  entranceSockets:
+  - {x: 0, y: 0, z: 8}
+  plotMargin: 4
+  falloff: 8
+  maxAverageSlope: 8
+  maxSlope: 12
+  maxCutFill: 3
+  supportTolerance: 0.05
+  requiresAccess: 1

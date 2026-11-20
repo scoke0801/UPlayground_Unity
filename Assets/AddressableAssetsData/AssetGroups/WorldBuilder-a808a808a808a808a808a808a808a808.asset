@@ -1,0 +1,192 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: WorldBuilder-a808a808a808a808a808a808a808a808
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: WorldBuilder-a808a808a808a808a808a808a808a808
+  m_GUID: 09f3b1af8c2f725409f87a0781dc5679
+  m_SerializeEntries:
+  - m_GUID: 022283e9b99552140a1a23cbc5d69425
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/3df4edab22b94e57a6861a24234b9e38/tile_1_0
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 16f69e4165c15f0499520b6fa31ef34e
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/223da555c4374e728120b0c0cb7f920b/tile_0_0
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 25e8589175e518e4daa5ba4fb1e7e2ca
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/3df4edab22b94e57a6861a24234b9e38/Catalog
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 40c309ec1b4d202409c1a46b527776c9
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/3df4edab22b94e57a6861a24234b9e38/tile_2_3
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4156df1bf0c6aef44bd4cc8a811854a1
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/223da555c4374e728120b0c0cb7f920b/tile_3_1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 41d72964ebc0fb547b626cddc66d0de7
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/223da555c4374e728120b0c0cb7f920b/tile_0_3
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4498a6bcfb465fd41acc5a17c72009b1
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/3df4edab22b94e57a6861a24234b9e38/tile_1_3
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 465b5aeb8d4130b4dae305254ecc60e5
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/223da555c4374e728120b0c0cb7f920b/tile_3_2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 57bdb11e670f2be419199ff9fbc59a02
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/3df4edab22b94e57a6861a24234b9e38/tile_2_0
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 59ca3587490d51a45abe921b14e31caa
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/3df4edab22b94e57a6861a24234b9e38/tile_0_3
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5ff42ef8039579e49ab9e71f7ae439f0
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/223da555c4374e728120b0c0cb7f920b/tile_0_2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6add7a8cb0459c14f98254f74e369207
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/223da555c4374e728120b0c0cb7f920b/tile_1_2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 73498add0648936458f38b090824abdc
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/3df4edab22b94e57a6861a24234b9e38/tile_2_1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 7f4b418121f69bb4ca465c0f57786f35
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/3df4edab22b94e57a6861a24234b9e38/tile_1_2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 800f4f458a93526438cad4dd5a8b72c2
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/223da555c4374e728120b0c0cb7f920b/tile_1_3
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 837b4dfd2a029e041be6047192030956
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/3df4edab22b94e57a6861a24234b9e38/tile_1_1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 840937126da85244b80a2235bbde55c3
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/223da555c4374e728120b0c0cb7f920b/tile_0_1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 87fea2707cddbeb42814c79306373312
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/3df4edab22b94e57a6861a24234b9e38/tile_3_2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 92a91ba5242db184bb5800e6c2626316
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/223da555c4374e728120b0c0cb7f920b/tile_2_0
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 98ac5e9430b07ed4faa11b19b79142ae
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/3df4edab22b94e57a6861a24234b9e38/tile_0_1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a7c2d4f4204ffe24482f6666f1dcb823
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/3df4edab22b94e57a6861a24234b9e38/tile_3_3
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ac846d13097421a4f9a71f7011d95b11
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/223da555c4374e728120b0c0cb7f920b/tile_1_1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ae0bcb4e9850e2e49ae17d1fa526617d
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/3df4edab22b94e57a6861a24234b9e38/tile_3_1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: ba25debc4e2effa499fd8b3118b10346
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/3df4edab22b94e57a6861a24234b9e38/tile_3_0
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: bef0f6883898bca45a76802e26af5f64
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/223da555c4374e728120b0c0cb7f920b/tile_2_1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c39210d090ff31f47b5f8f7090142e7f
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/223da555c4374e728120b0c0cb7f920b/tile_2_2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c77fa41019ceeae4fbbd9b360454c219
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/3df4edab22b94e57a6861a24234b9e38/tile_0_0
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: cd675fa8f6450824e8c44598150b95bb
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/223da555c4374e728120b0c0cb7f920b/Catalog
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d000b8c5ea898e5438bb72d511e77824
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/223da555c4374e728120b0c0cb7f920b/tile_1_0
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e7d34f3dea839ba44a9189bec2b2cb8f
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/3df4edab22b94e57a6861a24234b9e38/tile_0_2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f1d6a913e37978b48b2800b53dd52385
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/3df4edab22b94e57a6861a24234b9e38/tile_2_2
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f3278bfba0c2d7948a7438cd25af7877
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/223da555c4374e728120b0c0cb7f920b/tile_3_0
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f4df47d89e25f334397b5eda17b66283
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/223da555c4374e728120b0c0cb7f920b/tile_3_3
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f8c859f2fd32bd945ae82bb16f0c4e16
+    m_Address: WorldBuilder/a808a808a808a808a808a808a808a808/223da555c4374e728120b0c0cb7f920b/tile_2_3
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 12555e14218dc364695cc81d97ae719f, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 091d224b7986c644dab4f756e6b3d39c, type: 2}

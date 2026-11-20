@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d570f875e75726c4e80c1723962c062e, type: 3}
+  m_Name: dense_forest
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.BiomePreset
+  biomeId: ce164422a45e73715a24f3e4cf8d27b7
+  layer: {fileID: 8574412962073106934, guid: 19069a689a03bf04093fc77cf35b900e, type: 2}
+  priority: 0
+  mask:
+  - {x: 0, y: 0}
+  - {x: 650, y: 0}
+  - {x: 765, y: 445}
+  - {x: 720, y: 815}
+  - {x: 690, y: 1180}
+  - {x: 455, y: 1370}
+  - {x: 0, y: 1320}
+  height: {x: -1000, y: 1000}
+  slope: {x: 0, y: 90}
+  shoreDistance: {x: 0, y: 10000}
+  humidity: {x: 0, y: 1}

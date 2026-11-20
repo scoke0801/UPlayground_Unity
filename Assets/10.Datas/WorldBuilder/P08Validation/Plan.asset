@@ -1,0 +1,186 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa94a30776c9b83428023c8211294d44, type: 3}
+  m_Name: Plan
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.WorldPlan
+  worldGuid: a808a808a808a808a808a808a808a808
+  planGuid: 5ef112bc1ece4454a0ebcc6dcd91c4cf
+  regions:
+  - regionGuid: 00000000000000000000000000000001
+    label: "\uC11C\uCABD \uC811\uADFC \uAD6C\uC5ED"
+    boundary:
+    - {x: 256, y: 0}
+    - {x: 512, y: 0}
+    - {x: 512, y: 512}
+    - {x: 256, y: 512}
+  - regionGuid: 00000000000000000000000000000002
+    label: "\uB3D9\uCABD \uC811\uADFC \uAD6C\uC5ED"
+    boundary:
+    - {x: 512, y: 0}
+    - {x: 768, y: 0}
+    - {x: 768, y: 512}
+    - {x: 512, y: 512}
+  pois:
+  - guid: 00000000000000000000000000000003
+    regionGuid: 00000000000000000000000000000001
+    anchor:
+      x: 400
+      y: 11
+      z: 220
+    isLocked: 1
+    hasConfirmedElevation: 1
+    waterPlanGuid: 
+    requiresWaterPlan: 0
+    hasConfirmedWaterPlan: 0
+    plannedFloodLevel: 0
+    floodFreeboard: 0
+  - guid: 00000000000000000000000000000004
+    regionGuid: 00000000000000000000000000000002
+    anchor:
+      x: 640
+      y: 11
+      z: 280
+    isLocked: 1
+    hasConfirmedElevation: 1
+    waterPlanGuid: 
+    requiresWaterPlan: 0
+    hasConfirmedWaterPlan: 0
+    plannedFloodLevel: 0
+    floodFreeboard: 0
+  reservations: []
+  structures:
+  - structureGuid: 00000000000000000000000000000005
+    poiGuid: 00000000000000000000000000000003
+    preset: {fileID: 11400000, guid: 44d2373f130c4764c974825c9d05827e, type: 2}
+    localOffset: {x: 0, y: 0, z: 0}
+    yaw: 0
+  - structureGuid: 00000000000000000000000000000006
+    poiGuid: 00000000000000000000000000000004
+    preset: {fileID: 11400000, guid: 44d2373f130c4764c974825c9d05827e, type: 2}
+    localOffset: {x: 0, y: 0, z: 0}
+    yaw: 180
+  roads:
+  - roadGuid: 00000000000000000000000000000008
+    startStructureGuid: 00000000000000000000000000000005
+    endStructureGuid: 00000000000000000000000000000006
+    requiredBridgeGuid: 00000000000000000000000000000007
+    startSocket: 0
+    endSocket: 0
+    preset: {fileID: 11400000, guid: c7e7c3224d769504a8989eba856e973c, type: 2}
+    isLocked: 0
+    knots: []
+  bridges:
+  - bridgeGuid: 00000000000000000000000000000007
+    waterPlanGuid: 00000000000000000000000000000009
+    preset: {fileID: 11400000, guid: ad74c25d313f5764da9ae950af37090d, type: 2}
+    startSocket: {x: 496, y: 12, z: 250}
+    endSocket: {x: 528, y: 12, z: 250}
+    hasConfirmedWaterLevel: 1
+    plannedWaterLevel: 8
+    waterZone:
+      guid: 0000000000000000000000000000000a
+      boundary:
+      - x: 500
+        y: 0
+        z: 180
+      - x: 524
+        y: 0
+        z: 180
+      - x: 524
+        y: 0
+        z: 320
+      - x: 500
+        y: 0
+        z: 320
+      blocksRoad: 1
+      blocksTerrain: 1
+      blocksPlacement: 1
+  _appliedHash: 624f66cc6040f5c9eaafa246ad1d79962560328928ad33887da87770e5df5904
+  _appliedStructures:
+  - id: 00000000000000000000000000000005
+    sourceIdentity: manual:a808a808a808a808a808a808a808a808:00000000000000000000000000000005
+    layerGuid: 
+    ruleGuid: 
+    prefabGuid: bc5cb36fc07e88b46b0ce45c87022f33
+    surfaceId: terrain
+    lineage: 
+    epoch: 0
+    seed: 0
+    ownerX: 0
+    ownerZ: 0
+    x: 400
+    y: 11
+    z: 220
+    yaw: 0
+    scaleX: 1
+    scaleY: 1
+    scaleZ: 1
+    heightOffset: 0
+    halfX: 4
+    halfZ: 4
+    spacing: 0
+    maxSupportDelta: 0.05000000074505806
+    anchor: 1
+    isFixed: 1
+  - id: 00000000000000000000000000000006
+    sourceIdentity: manual:a808a808a808a808a808a808a808a808:00000000000000000000000000000006
+    layerGuid: 
+    ruleGuid: 
+    prefabGuid: bc5cb36fc07e88b46b0ce45c87022f33
+    surfaceId: terrain
+    lineage: 
+    epoch: 0
+    seed: 0
+    ownerX: 0
+    ownerZ: 0
+    x: 640
+    y: 11
+    z: 280
+    yaw: 180
+    scaleX: 1
+    scaleY: 1
+    scaleZ: 1
+    heightOffset: 0
+    halfX: 4
+    halfZ: 4
+    spacing: 0
+    maxSupportDelta: 0.05000000074505806
+    anchor: 1
+    isFixed: 1
+  - id: 00000000000000000000000000000007
+    sourceIdentity: manual:a808a808a808a808a808a808a808a808:00000000000000000000000000000007
+    layerGuid: 
+    ruleGuid: 
+    prefabGuid: 7ed428a367902684693968ed3427a982
+    surfaceId: terrain
+    lineage: 
+    epoch: 0
+    seed: 0
+    ownerX: 0
+    ownerZ: 0
+    x: 512
+    y: 12
+    z: 250
+    yaw: 90
+    scaleX: 1
+    scaleY: 1
+    scaleZ: 1
+    heightOffset: 0
+    halfX: 3
+    halfZ: 16
+    spacing: 0
+    maxSupportDelta: 0
+    anchor: 1
+    isFixed: 1
+  _appliedRoadGuids:
+  - 00000000000000000000000000000008
+  _appliedPlanGuid: 5ef112bc1ece4454a0ebcc6dcd91c4cf

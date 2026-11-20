@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f6f3157de0685449beb7545b2c47abe, type: 3}
+  m_Name: Shrub
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.VegetationPreset
+  prototypeId: 00000000000000000000000000000618
+  biome: {fileID: 11400000, guid: 2a9d5a26dc7df8d4dba357fa33b90169, type: 2}
+  path: 2
+  prefab: {fileID: 744807394742405594, guid: 9af567e72a97f044297c5f8063f6a5f3, type: 3}
+  placementRule: {fileID: 11400000, guid: f25e580a1018cb74480fd41063503e00, type: 2}
+  density: 0.65
+  spacing: 6
+  footprintRadius: 1
+  scale: {x: 0.8, y: 1.2}

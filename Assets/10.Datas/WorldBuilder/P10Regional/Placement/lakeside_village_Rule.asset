@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 93fcbd8483441e2418b43249f5623c43, type: 3}
+  m_Name: lakeside_village_Rule
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.PlacementRuleAsset
+  layerGuid: c31c4330f224defca163769099b6c174
+  ruleGuid: 189a08b9d4e6c5d35823abd61d1d3117
+  prefabGuid: 12a8dbfb9fba9794cb90eabc82178b9c
+  ruleTag: lakeside_village
+  isEnabled: 1
+  mandatory: 0
+  seedSalt: 107
+  slots: 1
+  minimumCount: 0
+  cellSize: 11
+  jitter: 1
+  density: 0.47
+  region:
+    serializedVersion: 2
+    x: 1452
+    y: 397
+    width: 106
+    height: 106
+  minHeight: 15
+  maxHeight: 10000
+  maxSlope: 18
+  spacing: 3
+  minScale: 0.9
+  maxScale: 1.1
+  maxSupportDelta: 1.3
+  surfaceId: terrain

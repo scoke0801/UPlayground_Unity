@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f6f3157de0685449beb7545b2c47abe, type: 3}
+  m_Name: dense_forest_Canopy
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.VegetationPreset
+  prototypeId: 38529d2a460ecc9f9b83594c0c8713f3
+  biome: {fileID: 11400000, guid: 885747871f37caf45a044ff75df1271d, type: 2}
+  path: 0
+  prefab: {fileID: 2306027322494003661, guid: 425d4fc434befeb4ea1b4ee64f7594d7, type: 3}
+  placementRule: {fileID: 0}
+  density: 0.6
+  spacing: 18
+  footprintRadius: 1.8
+  scale: {x: 0.8, y: 1.2}

@@ -1,0 +1,867 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9398fda30bed8443a901b68e9ceac01, type: 3}
+  m_Name: NavigationLayout
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.WorldNavigationLayout
+  worldGuid: 35c2ca802bd64575961ac7cda330ac91
+  playerPrefab: {fileID: 441837685671933312, guid: 866caeb41bd1cfa45b23a00d9f309ebb, type: 3}
+  agentTypeId: 0
+  endpointTolerance: 4.1
+  sourceHalo: 3
+  crossings:
+  - id: f10701228b8696354a87c46d45c745da
+    portalId: 
+    bridgeId: d0240eca52763a2f8e8739d7d1c99963
+    fromSurface: tile_1_2
+    toSurface: tile_1_2
+    from: {x: 992.5829, y: 155.24007, z: 1253.8529}
+    to: {x: 1019.43536, y: 155.24007, z: 1234.1593}
+    width: 2
+  - id: 8d591d7bdcda4262adc38448a8150088
+    portalId: 
+    bridgeId: 
+    fromSurface: tile_2_2
+    toSurface: tile_1_2
+    from: {x: 1025.3235, y: 155.275, z: 1229.6115}
+    to: {x: 1022.1998, y: 155.29416, z: 1232.1318}
+    width: 1
+  - id: 128cec05ab16357189cc76a8fb9b03b7
+    portalId: 
+    bridgeId: 
+    fromSurface: tile_2_2
+    toSurface: tile_2_1
+    from: {x: 1278.7212, y: 103.93591, z: 1025.2788}
+    to: {x: 1281.6238, y: 104.11987, z: 1022.3763}
+    width: 1
+  - id: f64075dc0f7ecc47e08ac319ddca3f79
+    portalId: 
+    bridgeId: 
+    fromSurface: tile_2_1
+    toSurface: tile_2_0
+    from: {x: 1471.5815, y: 28.10069, z: 513.66925}
+    to: {x: 1473.2249, y: 28.102085, z: 510.21356}
+    width: 1
+  - id: c7cc25455dda739e4c76f961f8bccaff
+    portalId: 
+    bridgeId: 
+    fromSurface: tile_2_0
+    toSurface: tile_2_1
+    from: {x: 1504, y: 28.36032, z: 509.74963}
+    to: {x: 1504, y: 28.097878, z: 513.76807}
+    width: 1
+  - id: e3bb703a47f21127b9e20b3febd8993b
+    portalId: 
+    bridgeId: 
+    fromSurface: tile_2_1
+    toSurface: tile_2_2
+    from: {x: 1129.6238, y: 90.71162, z: 1022.3763}
+    to: {x: 1126.8195, y: 91.468636, z: 1025.28}
+    width: 1
+  routes:
+  - id: 9dd8e0bb4b734e2e024b2267f34914a0
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1069, y: 97, z: 1025}
+    to: {x: 1071.767, y: 97, z: 1047.1785}
+  - id: d86c0a31ed8fe1682152520b78cc6a0c
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1071.767, y: 97, z: 1047.1785}
+    to: {x: 1076.4622, y: 97, z: 1068.8977}
+  - id: e986f6770a177675b24094c14546890e
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1076.4622, y: 97, z: 1068.8977}
+    to: {x: 1092.7153, y: 96.41059, z: 1084.7153}
+  - id: f9f3b47d589195303e2e2f7ae987beae
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1092.7153, y: 96.41059, z: 1084.7153}
+    to: {x: 1108.7153, y: 97.17882, z: 1100.7153}
+  - id: 417baeb259144a7fb85f1af960c7b2b7
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1108.7153, y: 97.17882, z: 1100.7153}
+    to: {x: 1124.7153, y: 101.17882, z: 1116.7153}
+  - id: 2489a5402d13530741545223533d3f7c
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1124.7153, y: 101.17882, z: 1116.7153}
+    to: {x: 1136.3003, y: 104.9073, z: 1135.2584}
+  - id: 3f01194b749f2d73c0b717d4c2ea4766
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1136.3003, y: 104.9073, z: 1135.2584}
+    to: {x: 1120.5903, y: 108.85243, z: 1151.4097}
+  - id: 8c667439ca51d3a6bf2c526d92d44736
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1120.5903, y: 108.85243, z: 1151.4097}
+    to: {x: 1104.933, y: 112.704544, z: 1166.5693}
+  - id: b65ea48efc5c10fbecf9e96c642f6a09
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1104.933, y: 112.704544, z: 1166.5693}
+    to: {x: 1104, y: 115.55967, z: 1188.4774}
+  - id: b5655c1374ac65534192d2590dc4b148
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1104, y: 115.55967, z: 1188.4774}
+    to: {x: 1112.5903, y: 119.17339, z: 1208.5903}
+  - id: 85fc47d7dbc02ea9a46cc6d8ea522bd4
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1112.5903, y: 119.17339, z: 1208.5903}
+    to: {x: 1128, y: 123.6, z: 1224}
+  - id: 20f5c2cd49b36de9bd6f7cc2200c507c
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1128, y: 123.6, z: 1224}
+    to: {x: 1143.4097, y: 127.170876, z: 1239.4097}
+  - id: 3ee4b24510879e0b0b5f26ebd813126f
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1143.4097, y: 127.170876, z: 1239.4097}
+    to: {x: 1159.5847, y: 129, z: 1255.2836}
+  - id: d893d53cb986d098a5c9c207520b329a
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1159.5847, y: 129, z: 1255.2836}
+    to: {x: 1160, y: 131.51666, z: 1277.4222}
+  - id: 93876419ca1355bbfc3e16ff64bd0b34
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1160, y: 131.51666, z: 1277.4222}
+    to: {x: 1149.4753, y: 133.31558, z: 1296.6758}
+  - id: bbbabb47fd1e74c86972a89019a69245
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1149.4753, y: 133.31558, z: 1296.6758}
+    to: {x: 1131.2847, y: 137.17882, z: 1283.2847}
+  - id: 225d9100d4c4614f9a49aa06010c1ec5
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1131.2847, y: 137.17882, z: 1283.2847}
+    to: {x: 1115.6876, y: 141.01091, z: 1268.2252}
+  - id: a87e2b2dc62ccff9ebf774a0a5bdeb08
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1115.6876, y: 141.01091, z: 1268.2252}
+    to: {x: 1105.28, y: 144.69243, z: 1249.1805}
+  - id: c0cee9ea89441935bf2168cd7a6a80ea
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1105.28, y: 144.69243, z: 1249.1805}
+    to: {x: 1089.8875, y: 148.52812, z: 1233.8875}
+  - id: c3b5774e590595cd1b15bc3171f1f44a
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1089.8875, y: 148.52812, z: 1233.8875}
+    to: {x: 1070.3374, y: 151.20782, z: 1224}
+  - id: 904b97be569518ec7353d706e355aa9e
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1070.3374, y: 151.20782, z: 1224}
+    to: {x: 1049.2849, y: 153, z: 1231.1027}
+  - id: 41f970a41bedae5623ffa961e97279e8
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1049.2849, y: 153, z: 1231.1027}
+    to: {x: 1027.191, y: 155.24007, z: 1227.8267}
+  - id: 79cf50ddaf728d7f8b7ed245caa053dc
+    fromSurface: tile_2_2
+    toSurface: tile_1_2
+    requiredCrossingId: 
+    from: {x: 1027.191, y: 155.24007, z: 1227.8267}
+    to: {x: 1019.662, y: 155.24007, z: 1233.993}
+  - id: fb9b92844610a1c86ed72e476ec058a4
+    fromSurface: tile_1_2
+    toSurface: tile_1_2
+    requiredCrossingId: f10701228b8696354a87c46d45c745da
+    from: {x: 1019.662, y: 155.24007, z: 1233.993}
+    to: {x: 992.36865, y: 155.24007, z: 1254.0596}
+  - id: d65430281f96587dbb6965f563281cad
+    fromSurface: tile_1_2
+    toSurface: tile_1_2
+    requiredCrossingId: 
+    from: {x: 992.36865, y: 155.24007, z: 1254.0596}
+    to: {x: 970.4475, y: 157.34947, z: 1250.7567}
+  - id: d39739746005ffedade194a842e27c0c
+    fromSurface: tile_1_2
+    toSurface: tile_1_2
+    requiredCrossingId: 
+    from: {x: 970.4475, y: 157.34947, z: 1250.7567}
+    to: {x: 951.19543, y: 161.10057, z: 1240.0333}
+  - id: 43aff7aa9eba86a1190478401aeebc48
+    fromSurface: tile_1_2
+    toSurface: tile_1_2
+    requiredCrossingId: 
+    from: {x: 951.19543, y: 161.10057, z: 1240.0333}
+    to: {x: 932, y: 165, z: 1228}
+  - id: cf5262818a143eacf4f14b6ffe84cbd1
+    fromSurface: tile_1_2
+    toSurface: tile_1_2
+    requiredCrossingId: 
+    from: {x: 932, y: 165, z: 1228}
+    to: {x: 916, y: 169, z: 1212}
+  - id: 704e3b7458b0d801ef7691a6fe2e5a77
+    fromSurface: tile_1_2
+    toSurface: tile_1_2
+    requiredCrossingId: 
+    from: {x: 916, y: 169, z: 1212}
+    to: {x: 897.6901, y: 172.78873, z: 1199.8832}
+  - id: e6e9b5149e4a0a2410814fd221c315ec
+    fromSurface: tile_1_2
+    toSurface: tile_1_2
+    requiredCrossingId: 
+    from: {x: 897.6901, y: 172.78873, z: 1199.8832}
+    to: {x: 877.42224, y: 172.67778, z: 1189.4222}
+  - id: dc5c4abfa97a5cc127145e97fa77d31d
+    fromSurface: tile_1_2
+    toSurface: tile_1_2
+    requiredCrossingId: 
+    from: {x: 877.42224, y: 172.67778, z: 1189.4222}
+    to: {x: 861.55566, y: 170.65091, z: 1173.237}
+  - id: 7e775973069b8b3f4c9866892af4ceb5
+    fromSurface: tile_1_2
+    toSurface: tile_1_2
+    requiredCrossingId: 
+    from: {x: 861.55566, y: 170.65091, z: 1173.237}
+    to: {x: 841.8688, y: 172.76233, z: 1161.9341}
+  - id: ba83784dc784158313689c50391011c2
+    fromSurface: tile_1_2
+    toSurface: tile_1_2
+    requiredCrossingId: 
+    from: {x: 841.8688, y: 172.76233, z: 1161.9341}
+    to: {x: 833, y: 172.5, z: 1163}
+  - id: 7772c2adcaaaebac0cad062e4b054b09
+    fromSurface: tile_1_2
+    toSurface: tile_1_2
+    requiredCrossingId: 
+    from: {x: 833, y: 172.5, z: 1163}
+    to: {x: 855.2584, y: 172, z: 1167.7664}
+  - id: af96b663d68af1007a657058af75e6c8
+    fromSurface: tile_1_2
+    toSurface: tile_1_2
+    requiredCrossingId: 
+    from: {x: 855.2584, y: 172, z: 1167.7664}
+    to: {x: 871.4097, y: 171.85243, z: 1183.4097}
+  - id: 7e4d0d2f196299e840ef55f7b6715d41
+    fromSurface: tile_1_2
+    toSurface: tile_1_2
+    requiredCrossingId: 
+    from: {x: 871.4097, y: 171.85243, z: 1183.4097}
+    to: {x: 887.28357, y: 173, z: 1199.5847}
+  - id: 8d0689c0950055dc5cb8c0ca8559b831
+    fromSurface: tile_1_2
+    toSurface: tile_1_2
+    requiredCrossingId: 
+    from: {x: 887.28357, y: 173, z: 1199.5847}
+    to: {x: 908.8977, y: 170.83002, z: 1204.4622}
+  - id: abfc4fcc97b521aa3c4d071b2481ddd3
+    fromSurface: tile_1_2
+    toSurface: tile_1_2
+    requiredCrossingId: 
+    from: {x: 908.8977, y: 170.83002, z: 1204.4622}
+    to: {x: 924, y: 167, z: 1220}
+  - id: ca2491dbc582d21b9e82dd08b9c90b47
+    fromSurface: tile_1_2
+    toSurface: tile_1_2
+    requiredCrossingId: 
+    from: {x: 924, y: 167, z: 1220}
+    to: {x: 939.1023, y: 163.16998, z: 1235.5378}
+  - id: 9f12db0c6bed24a2c1e320464f17c72a
+    fromSurface: tile_1_2
+    toSurface: tile_1_2
+    requiredCrossingId: 
+    from: {x: 939.1023, y: 163.16998, z: 1235.5378}
+    to: {x: 960.71643, y: 159.85854, z: 1240.4153}
+  - id: 9e757b7cac9ba8454130ed96eec1d662
+    fromSurface: tile_1_2
+    toSurface: tile_1_2
+    requiredCrossingId: 
+    from: {x: 960.71643, y: 159.85854, z: 1240.4153}
+    to: {x: 976, y: 156, z: 1256}
+  - id: 58c98aeba4678f9512cbabc8c4027979
+    fromSurface: tile_1_2
+    toSurface: tile_1_2
+    requiredCrossingId: 
+    from: {x: 976, y: 156, z: 1256}
+    to: {x: 992.36865, y: 155.24007, z: 1254.0596}
+  - id: 1ce109e09353061c98a44180a70f21a2
+    fromSurface: tile_1_2
+    toSurface: tile_1_2
+    requiredCrossingId: f10701228b8696354a87c46d45c745da
+    from: {x: 992.36865, y: 155.24007, z: 1254.0596}
+    to: {x: 1019.662, y: 155.24007, z: 1233.993}
+  - id: 4e1353ab59a270150503bb442faf6100
+    fromSurface: tile_1_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1019.662, y: 155.24007, z: 1233.993}
+    to: {x: 1041.659, y: 153, z: 1232.3533}
+  - id: 0e85f1d74999ac1b94274af693f015f1
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1041.659, y: 153, z: 1232.3533}
+    to: {x: 1062.3098, y: 152.21127, z: 1223.8832}
+  - id: 7ae4d9d23fd566d9518052492274e048
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1062.3098, y: 152.21127, z: 1223.8832}
+    to: {x: 1084.2252, y: 149.50545, z: 1227.6876}
+  - id: 061393e4aa8c5f308020a86ea516c931
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1084.2252, y: 149.50545, z: 1227.6876}
+    to: {x: 1100, y: 146, z: 1244}
+  - id: 23d977b8f4dc2bd073925b5b4036ea50
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1100, y: 146, z: 1244}
+    to: {x: 1111.708, y: 142.17699, z: 1262.5841}
+  - id: 768d9bd1c4bbc9c4f7d6445c83baf25d
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1111.708, y: 142.17699, z: 1262.5841}
+    to: {x: 1126.7778, y: 138.30556, z: 1278.7778}
+  - id: 6807fdd79000aba789ba4f0c44b7b19e
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1126.7778, y: 138.30556, z: 1278.7778}
+    to: {x: 1141.8591, y: 134.45961, z: 1294.464}
+  - id: 40585c7719520b92037e7b12c7c82426
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1141.8591, y: 134.45961, z: 1294.464}
+    to: {x: 1160.1168, y: 132.21127, z: 1281.6902}
+  - id: 62366f66a1e60ca018f16843e97e777e
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1160.1168, y: 132.21127, z: 1281.6902}
+    to: {x: 1160, y: 129, z: 1259.5226}
+  - id: 76c6dd047239e2b540ce35fd70189e15
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1160, y: 129, z: 1259.5226}
+    to: {x: 1160, y: 127.01667, z: 1237.4222}
+  - id: 8787272b1c4d10e793c4535b613b71fe
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1160, y: 127.01667, z: 1237.4222}
+    to: {x: 1160.4153, y: 126, z: 1215.2836}
+  - id: 83cc5230c567b261ceda68ee6b328c71
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1160.4153, y: 126, z: 1215.2836}
+    to: {x: 1176.5903, y: 125.85243, z: 1199.4097}
+  - id: 1c022c2ee2b67ddc4e6031d1a5f31032
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1176.5903, y: 125.85243, z: 1199.4097}
+    to: {x: 1192, y: 122, z: 1184}
+  - id: 4b1b16aefe15e417738da4b5e926305c
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1192, y: 122, z: 1184}
+    to: {x: 1207.4097, y: 118.14757, z: 1168.5903}
+  - id: 8391c3d0f8b5148e35e8c9372f5fff97
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1207.4097, y: 118.14757, z: 1168.5903}
+    to: {x: 1222.7778, y: 114.30556, z: 1153.2222}
+  - id: 6f659fffcd4ed5ebb16a11ce98e99d26
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1222.7778, y: 114.30556, z: 1153.2222}
+    to: {x: 1238.7778, y: 114, z: 1137.2222}
+  - id: 553d3dd6231fb8af6bd9b12f337b7284
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1238.7778, y: 114, z: 1137.2222}
+    to: {x: 1248, y: 112.55967, z: 1116.4774}
+  - id: 549fa702e58822b48d66a84a8f916197
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1248, y: 112.55967, z: 1116.4774}
+    to: {x: 1256, y: 109, z: 1096}
+  - id: 111221e086764abb09fc66047c1a6efe
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1256, y: 109, z: 1096}
+    to: {x: 1256, y: 106.20782, z: 1073.6626}
+  - id: 46297e6622f26e185bfa30e0cb9a2f9f
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1256, y: 106.20782, z: 1073.6626}
+    to: {x: 1255.5829, y: 103.42802, z: 1051.4242}
+  - id: 0baa186baec9e2efe7c2f3766c2b1501
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1255.5829, y: 103.42802, z: 1051.4242}
+    to: {x: 1270.1125, y: 102.76406, z: 1033.8875}
+  - id: ffb9dc56b59e4a30135c52e09888ebd5
+    fromSurface: tile_2_2
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1270.1125, y: 102.76406, z: 1033.8875}
+    to: {x: 1286.1125, y: 104, z: 1017.8875}
+  - id: 00b70b186beec71107d3e12622514c1c
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1286.1125, y: 104, z: 1017.8875}
+    to: {x: 1302.1125, y: 100.47188, z: 1001.8875}
+  - id: a3fd392939035fcccbd99a6cba3c2bc5
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1302.1125, y: 100.47188, z: 1001.8875}
+    to: {x: 1318.1125, y: 100, z: 985.8875}
+  - id: 008b50531ce4652e85b949eabd01c3bd
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1318.1125, y: 100, z: 985.8875}
+    to: {x: 1334.1125, y: 100.23594, z: 969.8875}
+  - id: 9703780953aca8f47aec89c3f3a7d186
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1334.1125, y: 100.23594, z: 969.8875}
+    to: {x: 1350.1125, y: 96.47188, z: 953.8875}
+  - id: 898041c73770e283102c1bd9ee3ffde9
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1350.1125, y: 96.47188, z: 953.8875}
+    to: {x: 1360, y: 92.79218, z: 934.33746}
+  - id: ded594ba2c5643338aa94fa5d11ea2fe
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1360, y: 92.79218, z: 934.33746}
+    to: {x: 1360, y: 90, z: 912}
+  - id: f481d68c6726a97f1b67fbdeb84be752
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1360, y: 90, z: 912}
+    to: {x: 1360, y: 87.20782, z: 889.66254}
+  - id: 4db1755a36d3237ff79b62a1f9365632
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1360, y: 87.20782, z: 889.66254}
+    to: {x: 1360, y: 86.44033, z: 867.52264}
+  - id: aa793946662ef463cb6245823d9961e8
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1360, y: 86.44033, z: 867.52264}
+    to: {x: 1368.5903, y: 83.85243, z: 847.4097}
+  - id: 620f68bd69aaa21c66f4333cc501315e
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1368.5903, y: 83.85243, z: 847.4097}
+    to: {x: 1384, y: 80, z: 832}
+  - id: 8708f31b9e8a4a7a79b3196f8d9acd23
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1384, y: 80, z: 832}
+    to: {x: 1399.5847, y: 76.141464, z: 816.71643}
+  - id: 81e83eb52bcdb34bcb53d8cc98938472
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1399.5847, y: 76.141464, z: 816.71643}
+    to: {x: 1404.4622, y: 72.83002, z: 795.1023}
+  - id: 65004791a154a6c0b95908638ae2f6f6
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1404.4622, y: 72.83002, z: 795.1023}
+    to: {x: 1420, y: 69, z: 780}
+  - id: 9051d775c909595368763957852b74be
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1420, y: 69, z: 780}
+    to: {x: 1432.5256, y: 65.1992, z: 761.5936}
+  - id: b802d381d7df11a76bfc174a50135229
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1432.5256, y: 65.1992, z: 761.5936}
+    to: {x: 1426.9304, y: 61.19119, z: 740.4599}
+  - id: d5a929a6f45336b5e8393782d08b6b4f
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1426.9304, y: 61.19119, z: 740.4599}
+    to: {x: 1442.763, y: 57.349094, z: 725.55566}
+  - id: 9a29b2220f61739ebe1ad08768fb38a2
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1442.763, y: 57.349094, z: 725.55566}
+    to: {x: 1448, y: 54, z: 704}
+  - id: ba05528e36a67274e55741b348aaf178
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1448, y: 54, z: 704}
+    to: {x: 1436.7153, y: 50.385113, z: 684.7153}
+  - id: 5293ebfa7f9cfed15d4a130169a52854
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1436.7153, y: 50.385113, z: 684.7153}
+    to: {x: 1423.2491, y: 46.437866, z: 667.5029}
+  - id: 17e8bf786be9500161f8c693cf2889ca
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1423.2491, y: 46.437866, z: 667.5029}
+    to: {x: 1437.4222, y: 42.644444, z: 650.57776}
+  - id: 35910ebb2d655ae0bd6e8ecf218c2d27
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1437.4222, y: 42.644444, z: 650.57776}
+    to: {x: 1453.4222, y: 38.644444, z: 634.57776}
+  - id: 472cb2927da0a3cb7c399fccd3699c5c
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1453.4222, y: 38.644444, z: 634.57776}
+    to: {x: 1469.7925, y: 35.31576, z: 618.84467}
+  - id: 167435edd026a7aea3bea65c3f19414b
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1469.7925, y: 35.31576, z: 618.84467}
+    to: {x: 1472, y: 34, z: 596.47736}
+  - id: 46de7a5a807791d03bb1a4e6832f8ae2
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1472, y: 34, z: 596.47736}
+    to: {x: 1472, y: 31.792181, z: 574.33746}
+  - id: d19944d9e21c9b47ba5756d3415ba4a2
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1472, y: 31.792181, z: 574.33746}
+    to: {x: 1472, y: 29, z: 552}
+  - id: 22393703217d3a6a3256adde66760e49
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1472, y: 29, z: 552}
+    to: {x: 1472, y: 28, z: 529.66254}
+  - id: 70c013e6abe59fc6cf7c1cf150ef4615
+    fromSurface: tile_2_1
+    toSurface: tile_2_0
+    requiredCrossingId: 
+    from: {x: 1472, y: 28, z: 529.66254}
+    to: {x: 1475.6876, y: 28, z: 507.7748}
+  - id: 699ba7eb7750a49ebd9f82cd468da4bd
+    fromSurface: tile_2_0
+    toSurface: tile_2_0
+    requiredCrossingId: 
+    from: {x: 1475.6876, y: 28, z: 507.7748}
+    to: {x: 1492, y: 28.9, z: 492}
+  - id: f9e365339447f597c9641b8083feba07
+    fromSurface: tile_2_0
+    toSurface: tile_2_0
+    requiredCrossingId: 
+    from: {x: 1492, y: 28.9, z: 492}
+    to: {x: 1503.9908, y: 29, z: 472.80307}
+  - id: 7384eb7003fad92ebd5594ad646559f8
+    fromSurface: tile_2_0
+    toSurface: tile_2_0
+    requiredCrossingId: 
+    from: {x: 1503.9908, y: 29, z: 472.80307}
+    to: {x: 1505, y: 28.7, z: 458}
+  - id: 5fc757762ed0e0ab170ecc22895f8370
+    fromSurface: tile_2_0
+    toSurface: tile_2_0
+    requiredCrossingId: 
+    from: {x: 1505, y: 28.7, z: 458}
+    to: {x: 1504, y: 29, z: 480}
+  - id: d5bcedd6fa1361ffd87e783d26ffdfab
+    fromSurface: tile_2_0
+    toSurface: tile_2_0
+    requiredCrossingId: 
+    from: {x: 1504, y: 29, z: 480}
+    to: {x: 1504, y: 29, z: 502.33746}
+  - id: 4ca08b23616632f9f7fd3cc97c4ac85b
+    fromSurface: tile_2_0
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1504, y: 29, z: 502.33746}
+    to: {x: 1504, y: 28, z: 524.47736}
+  - id: 2e086f20304b31436bdbd41c48fa9434
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1504, y: 28, z: 524.47736}
+    to: {x: 1504, y: 28.322222, z: 546.57776}
+  - id: 390c750a90a7735b169f2512a7c4e5c1
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1504, y: 28.322222, z: 546.57776}
+    to: {x: 1504, y: 30.099588, z: 568.7967}
+  - id: ef99c769b6727726b3da3449e20638b5
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1504, y: 30.099588, z: 568.7967}
+    to: {x: 1504.267, y: 32.90829, z: 591.2663}
+  - id: 9bbb089f02c9f7a878cea9b7d815ab76
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1504.267, y: 32.90829, z: 591.2663}
+    to: {x: 1488.5903, y: 33.926216, z: 607.4097}
+  - id: 408a669364b539202ba13dfa970b4834
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1488.5903, y: 33.926216, z: 607.4097}
+    to: {x: 1472.5903, y: 35.926216, z: 623.4097}
+  - id: 44001ce57b511cacd2072e49c7b99542
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1472.5903, y: 35.926216, z: 623.4097}
+    to: {x: 1457.2222, y: 39.694443, z: 638.7778}
+  - id: cbc7dd0867dd9d98255794ab2f8d613f
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1457.2222, y: 39.694443, z: 638.7778}
+    to: {x: 1441.8875, y: 43.528126, z: 654.1125}
+  - id: 698ac4939029dea8bcfc3d9cea110366
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1441.8875, y: 43.528126, z: 654.1125}
+    to: {x: 1433.536, y: 47.959606, z: 674.1408}
+  - id: 5518ffaf7ce7466024337224b228a366
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1433.536, y: 47.959606, z: 674.1408}
+    to: {x: 1448.4506, y: 51.85973, z: 690.47144}
+  - id: e4dbde4e14c3c934905f06b683d03ffe
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1448.4506, y: 51.85973, z: 690.47144}
+    to: {x: 1448.0333, y: 55.100574, z: 712.80457}
+  - id: 0e7b055e7b53f8dec769ff962ed1dc3f
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1448.0333, y: 55.100574, z: 712.80457}
+    to: {x: 1436, y: 59, z: 732}
+  - id: 060a0508313fa12876e53230423afc96
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1436, y: 59, z: 732}
+    to: {x: 1423.4744, y: 62.800797, z: 750.4064}
+  - id: 28779d32e4098c132968b4a1d44f7106
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1423.4744, y: 62.800797, z: 750.4064}
+    to: {x: 1429.0696, y: 66.808815, z: 771.5401}
+  - id: 11910b8e49c861ede16679608209c07b
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1429.0696, y: 66.808815, z: 771.5401}
+    to: {x: 1413.4222, y: 70.64445, z: 786.57776}
+  - id: e520735fdd8d4bcc7bdc8082f9e25058
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1413.4222, y: 70.64445, z: 786.57776}
+    to: {x: 1399.5829, y: 74.42802, z: 803.42413}
+  - id: 1f4473637e2b13b3b0702f61489d562d
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1399.5829, y: 74.42802, z: 803.42413}
+    to: {x: 1392, y: 78, z: 824}
+  - id: 6fe8eb28f6af59cd975e7fa5b9f70362
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1392, y: 78, z: 824}
+    to: {x: 1376.5903, y: 81.85243, z: 839.4097}
+  - id: 29615e0cfe854eb958df605e6bc6f997
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1376.5903, y: 81.85243, z: 839.4097}
+    to: {x: 1361.2222, y: 85.69444, z: 854.7778}
+  - id: b8a95e05797d1105ebc3a84f87fa8618
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1361.2222, y: 85.69444, z: 854.7778}
+    to: {x: 1345.2222, y: 86.84722, z: 870.7778}
+  - id: 93a2f8882e11baf1c2b6fcb77b77f142
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1345.2222, y: 86.84722, z: 870.7778}
+    to: {x: 1329.2222, y: 86.15278, z: 886.7778}
+  - id: 9035baa49ea243af408c64d088b25182
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1329.2222, y: 86.15278, z: 886.7778}
+    to: {x: 1313.2222, y: 86, z: 902.7778}
+  - id: 0faeed670db5f4f55e97164be881eb41
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1313.2222, y: 86, z: 902.7778}
+    to: {x: 1297.2222, y: 87, z: 918.7778}
+  - id: 548a89bdd86cb1fa38f73ec4c1fc0608
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1297.2222, y: 87, z: 918.7778}
+    to: {x: 1281.2222, y: 89.84722, z: 934.7778}
+  - id: 20a0941dffe9b7f9d015c936f24bc527
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1281.2222, y: 89.84722, z: 934.7778}
+    to: {x: 1265.2222, y: 88.30556, z: 950.7778}
+  - id: a1e16495784291d83100e52c8399f2de
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1265.2222, y: 88.30556, z: 950.7778}
+    to: {x: 1249.2222, y: 87, z: 966.7778}
+  - id: 59c46d505223da2cd3cf5096263ee5fb
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1249.2222, y: 87, z: 966.7778}
+    to: {x: 1233.2222, y: 85.15278, z: 982.7778}
+  - id: 0dcf8cdc2dd6fc567b70d95edddd97bb
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1233.2222, y: 85.15278, z: 982.7778}
+    to: {x: 1217.2222, y: 84, z: 998.7778}
+  - id: 93bcffb714df4ded190eb5e9cedf45f5
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1217.2222, y: 84, z: 998.7778}
+    to: {x: 1196.4774, y: 84, z: 1008}
+  - id: e85ab29537e4e26f800b06cddbe82c23
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1196.4774, y: 84, z: 1008}
+    to: {x: 1174.3374, y: 85, z: 1008}
+  - id: e62f21e14c166d428e2328d81d5d7f82
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1174.3374, y: 85, z: 1008}
+    to: {x: 1152, y: 86, z: 1008}
+  - id: 816b760ccacdcb3b478a9363a5ca5e18
+    fromSurface: tile_2_1
+    toSurface: tile_2_1
+    requiredCrossingId: 
+    from: {x: 1152, y: 86, z: 1008}
+    to: {x: 1132.7153, y: 89.82118, z: 1019.2847}
+  - id: c7e116e5fcb8e94714d147a8a3ac6f18
+    fromSurface: tile_2_1
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1132.7153, y: 89.82118, z: 1019.2847}
+    to: {x: 1114.631, y: 93, z: 1032.2252}
+  - id: 502ff2a75b240278b2956745cd0e565b
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1114.631, y: 93, z: 1032.2252}
+    to: {x: 1092.4774, y: 95, z: 1032}
+  - id: 5fb8cdaceb2b992dbc46eb87121e7c5a
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1092.4774, y: 95, z: 1032}
+    to: {x: 1071.3125, y: 97, z: 1026.1101}
+  - id: c4a0dbba508e7052830ff4ae0ddad875
+    fromSurface: tile_2_2
+    toSurface: tile_2_2
+    requiredCrossingId: 
+    from: {x: 1071.3125, y: 97, z: 1026.1101}
+    to: {x: 1069, y: 97, z: 1025}

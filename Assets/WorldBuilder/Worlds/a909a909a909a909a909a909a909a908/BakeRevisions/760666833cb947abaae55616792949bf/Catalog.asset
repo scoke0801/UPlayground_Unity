@@ -1,0 +1,432 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dd00d9764f74d7a4b848bd216319e74b, type: 3}
+  m_Name: Catalog
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.WorldBakeCatalog
+  worldGuid: a909a909a909a909a909a909a909a908
+  buildId: 760666833cb947abaae55616792949bf
+  scenePath: Assets/WorldBuilder/Worlds/a909a909a909a909a909a909a909a908/BakeRevisions/760666833cb947abaae55616792949bf/World.unity
+  sceneGuid: f1a09704cb3ba714fb8c55822b9ba1ed
+  geometryHash: 2bc72163c455b99510f0f0bb818a7a7122e228a1e4435bd293809d0115237703
+  agentTypeId: 0
+  agentRadius: 0.5
+  agentHeight: 2
+  agentStep: 0.75
+  agentSlope: 45
+  playerRadius: 0.35
+  playerHeight: 1.52
+  playerStep: 0.5
+  playerSlope: 60
+  surfaces:
+  - id: tile_0_0
+    geometryHash: 774a928460c0d7c62487d3648cea22f8586c03dde9b74e89a4f875ef781f42fd
+    bounds:
+      m_Center: {x: 256, y: 160, z: 256}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 9868e56fb76a5b64cbef27e729cff835, type: 2}
+  - id: tile_1_0
+    geometryHash: 84c13819927915560342a4967eaf86dc84d14b04ce9fc3e71624d714dd75d003
+    bounds:
+      m_Center: {x: 768, y: 160, z: 256}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: d8e110376ab55ef4494d42c0f26b6987, type: 2}
+  - id: tile_2_0
+    geometryHash: fe9fbc0da08dfd2f5a56b3173cb53f768535b38ca233a80745acb28906349aff
+    bounds:
+      m_Center: {x: 1280, y: 160, z: 256}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 14dcd2fe7376d7549875e4bdb386f14e, type: 2}
+  - id: tile_3_0
+    geometryHash: 30a525ce1a9292390f6952680ecf0b94ddf1fdfe5cab291a48646efb94c613c6
+    bounds:
+      m_Center: {x: 1792, y: 160, z: 256}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 7a018185306083e4aaa8245bde5b9a2b, type: 2}
+  - id: tile_4_0
+    geometryHash: 18aef5b0f076f8add7dacbb68c2fb0b6d17675cfc172602a2edf48881c8f2e01
+    bounds:
+      m_Center: {x: 2304, y: 160, z: 256}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 77298178c3d711846b234f73eb06e74b, type: 2}
+  - id: tile_5_0
+    geometryHash: 7afdde48d83728f3e57d9e9a815421f7c486d0494cd5c797f2519ebd7b869e80
+    bounds:
+      m_Center: {x: 2816, y: 160, z: 256}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: a9b9a8ab924f2554a93c081f4e2eb502, type: 2}
+  - id: tile_6_0
+    geometryHash: 6bf34f058b0411053181e05f593fc403d5b644cee7ec9ab6e36664b00b61bca2
+    bounds:
+      m_Center: {x: 3328, y: 160, z: 256}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 030d55965080a56448288daf7d910301, type: 2}
+  - id: tile_7_0
+    geometryHash: 0eec7b3941282256451c142897028957f611fe65bce5da5e0187a99697a29492
+    bounds:
+      m_Center: {x: 3840, y: 160, z: 256}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: a99264dcc5674bc4d8089c28b4a090d4, type: 2}
+  - id: tile_0_1
+    geometryHash: 9887f419d4580ed6c955ac2c2f3b4e8b1969c71c87166ff10f56eef403a3a89b
+    bounds:
+      m_Center: {x: 256, y: 160, z: 768}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 1ad7bb3b396078d4ba9cc7e57990eaed, type: 2}
+  - id: tile_1_1
+    geometryHash: eb3934c92ff2c943d7b8ebaf54b4607d1f67c4e5b7b85ff442b03e231d08c841
+    bounds:
+      m_Center: {x: 768, y: 160, z: 768}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 2082b8eba88ede94bb716d60e3edb534, type: 2}
+  - id: tile_2_1
+    geometryHash: e2e22be2f53887855f30c3f5a19738689aeb79b5646102b6f0f5f74bbe6658bd
+    bounds:
+      m_Center: {x: 1280, y: 160, z: 768}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 1329c2117a7299848a8cd88c829ae525, type: 2}
+  - id: tile_3_1
+    geometryHash: 24c7bb505f97d0aa4c5a378a36ac27bb4bc951ea5df1fe2688d94d3f1be93563
+    bounds:
+      m_Center: {x: 1792, y: 160, z: 768}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 5fdd701f7219d324c89bd0e61a81d51e, type: 2}
+  - id: tile_4_1
+    geometryHash: f4ef7e784206c2cdfd5bc6668c032275347c99f7165ee492ffc3bdf16a119683
+    bounds:
+      m_Center: {x: 2304, y: 160, z: 768}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 6a7b0cc47d7bf574695e661f0ebc5af0, type: 2}
+  - id: tile_5_1
+    geometryHash: d9c4ae98f2165815bc552f2f3d050fc714a83276e59641b45691068733b192ac
+    bounds:
+      m_Center: {x: 2816, y: 160, z: 768}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 4bf76a927a947514a8004cac6ef855bf, type: 2}
+  - id: tile_6_1
+    geometryHash: da662ff4b0da567d19f43750cf6254eb537ca92a382fdfd4c091dd17b238c0cd
+    bounds:
+      m_Center: {x: 3328, y: 160, z: 768}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 32b4dccdcef208043b00ad639b788a89, type: 2}
+  - id: tile_7_1
+    geometryHash: 3bde8a2454d1987795e370df93ed9b79f72e4ba18138cc849802a30ab69db68c
+    bounds:
+      m_Center: {x: 3840, y: 160, z: 768}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 64238c9e8c10ed14287d90c72cd20fb4, type: 2}
+  - id: tile_0_2
+    geometryHash: 71cc33db1cf9f10b58e97119dc90437cb713d38691c1b8f3c34fcd242313f90b
+    bounds:
+      m_Center: {x: 256, y: 160, z: 1280}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: ece990bb2b6176a48a1e6903a74185f3, type: 2}
+  - id: tile_1_2
+    geometryHash: dc716ff2bfb574bbe5a68dbe5dee0a6dbe7af2cbe083395a071bac6a3e31b776
+    bounds:
+      m_Center: {x: 768, y: 160, z: 1280}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 2c06946d27be14344a221e224efb5600, type: 2}
+  - id: tile_2_2
+    geometryHash: baaf8a5a0ed7e0b9ef0fe284a946125546c7f5a0b4d12ced043d1e5e57d9676c
+    bounds:
+      m_Center: {x: 1280, y: 160, z: 1280}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: aaeeacd517dcb2844b6d706134136263, type: 2}
+  - id: tile_3_2
+    geometryHash: 9bcbf6535945bc76a0f020326d1a170aa0af5061e4e29ea5dbce143b8e2ec631
+    bounds:
+      m_Center: {x: 1792, y: 160, z: 1280}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 6f35c91170436274081c6d135dbe08a1, type: 2}
+  - id: tile_4_2
+    geometryHash: 09585a96f80f70f7ff6e19633e1581ea943076fe7f2b7998a6005b6e21280797
+    bounds:
+      m_Center: {x: 2304, y: 160, z: 1280}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: faee90ed26b8ee84093e8ac39eefc5d6, type: 2}
+  - id: tile_5_2
+    geometryHash: 06c1d1952c0fbd2272313372db94d2ecc608c34d58c9a42d4c35205015f0685e
+    bounds:
+      m_Center: {x: 2816, y: 160, z: 1280}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 7f85dce309256084cb4d6a9e6645aa90, type: 2}
+  - id: tile_6_2
+    geometryHash: 351ae71a766f73fe119bd41437e16a320255493b599219b31e72f75ce3cc7052
+    bounds:
+      m_Center: {x: 3328, y: 160, z: 1280}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: a6aa873aacd8cb34dad33bca28ca4be6, type: 2}
+  - id: tile_7_2
+    geometryHash: 51ec04b5c0f1e92f3706bd1d2d6cd30cf030562810d3cfbb4b6b3250d5148eba
+    bounds:
+      m_Center: {x: 3840, y: 160, z: 1280}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: d7d3ab20091b5a9459823ad6cac3a917, type: 2}
+  - id: tile_0_3
+    geometryHash: 656e593790456ec5b30d292697096613b4a7990dabaef5fae94199f819d0934e
+    bounds:
+      m_Center: {x: 256, y: 160, z: 1792}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 7514dde7035d7b441b37634182371514, type: 2}
+  - id: tile_1_3
+    geometryHash: 6952bb78b451e3dcc7298365a82858a52d56148e9a669b5fadab80d755b7c131
+    bounds:
+      m_Center: {x: 768, y: 160, z: 1792}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: fa29e323279e8174cbe9f249d8f3eaf3, type: 2}
+  - id: tile_2_3
+    geometryHash: 21cbc67c735db3a4c1cc06d7cb768e8a6e67429be2c7d057693c2bf595ef9fb9
+    bounds:
+      m_Center: {x: 1280, y: 160, z: 1792}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: bf76e63742a2bee4690173de31c34e9f, type: 2}
+  - id: tile_3_3
+    geometryHash: a363246495ecdbdee6482ead1673b84841c20aa3db84b6f026a481450a4a3e75
+    bounds:
+      m_Center: {x: 1792, y: 160, z: 1792}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: d6b995f452e1e0f4ba45ddcffcde51af, type: 2}
+  - id: tile_4_3
+    geometryHash: 4bbaf6445acc76fd244fadd26dbd5db6cf0d958cbafcf3ba83e0de222c96e805
+    bounds:
+      m_Center: {x: 2304, y: 160, z: 1792}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 84c7471b2ccfe6c4abadcf3827a90cbe, type: 2}
+  - id: tile_5_3
+    geometryHash: 8042f9051c6bff13b07305748481b69de6d1b9918dfb3c8251fd44ee2678cc60
+    bounds:
+      m_Center: {x: 2816, y: 160, z: 1792}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 75ad85a76b5fede40b10e64b1e197ad4, type: 2}
+  - id: tile_6_3
+    geometryHash: 25343ca95a5153b56a1e7ac12698683fe0f6bfb1fb9152cd88fb81e41aebede5
+    bounds:
+      m_Center: {x: 3328, y: 160, z: 1792}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 047800edaab628843807dfcccabbf63d, type: 2}
+  - id: tile_7_3
+    geometryHash: bab9c7f98715421ee0370d211e3f0326f7a29f7a561031f930b35e0a090e9f30
+    bounds:
+      m_Center: {x: 3840, y: 160, z: 1792}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: ba96c280fe99cd841bae9cc70dcff7fc, type: 2}
+  - id: tile_0_4
+    geometryHash: 1ec9f1713fd36703c3f7da339ece279bfdb56cd496fa7ad3f34d1c0b297d699f
+    bounds:
+      m_Center: {x: 256, y: 160, z: 2304}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 3a294b04b31bc05438e6ef0af5a6bae3, type: 2}
+  - id: tile_1_4
+    geometryHash: a8a1a7d3ad4cb10204cf1f889c480b5f771bfcdd8b928b1c7491487c9ea443ca
+    bounds:
+      m_Center: {x: 768, y: 160, z: 2304}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 612ab7bea338e524c9d339518fe0a817, type: 2}
+  - id: tile_2_4
+    geometryHash: 4c104b41e2fcd85e00e8b0fe08d0beefe556126b6faf979a429e2b0220874a19
+    bounds:
+      m_Center: {x: 1280, y: 160, z: 2304}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 5fcdcf162a666724793ac6a847936588, type: 2}
+  - id: tile_3_4
+    geometryHash: 59cd593f3a5b94bc3a60d64109be7a837b44cbd9311894a15876a54ae2bd3410
+    bounds:
+      m_Center: {x: 1792, y: 160, z: 2304}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 481c788d93497c64dbe57a0959d06f05, type: 2}
+  - id: tile_4_4
+    geometryHash: 09e532d96ddcced85d98e964f7882392fe8260466a0cfbac08ce8a47287471fe
+    bounds:
+      m_Center: {x: 2304, y: 160, z: 2304}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 572888d119ccaf14b951ea9a8a64231f, type: 2}
+  - id: tile_5_4
+    geometryHash: 8c50652421279feafdb4253040149f63f545d2b11da87f8d6aedc36ab61c2b8a
+    bounds:
+      m_Center: {x: 2816, y: 160, z: 2304}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: cf029e07c743abd43addc7214d44f437, type: 2}
+  - id: tile_6_4
+    geometryHash: 6efde9596211ec33f5a1825fc3f975cf1c1c13eaf0140cb0672ada4ea665c553
+    bounds:
+      m_Center: {x: 3328, y: 160, z: 2304}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 40d336b0325eab54fb64e62abdb65713, type: 2}
+  - id: tile_7_4
+    geometryHash: 19d6a03cec14c6d7db34b61962a1cc90e20ba665390e4859cd360acbdfe03b36
+    bounds:
+      m_Center: {x: 3840, y: 160, z: 2304}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 69b74f1327a903842b9fdd80fee2cdc7, type: 2}
+  - id: tile_0_5
+    geometryHash: bae599afa1e1f5b92609ffe47efed02fa4d59190e9b3512d8ba746eef42a4bf3
+    bounds:
+      m_Center: {x: 256, y: 160, z: 2816}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: e3612c0f71b390b409022548b678d3e0, type: 2}
+  - id: tile_1_5
+    geometryHash: 7050d83d21a073194f2bfd72f197a89316af546285d25bc0ef9cdef3b4bb51a8
+    bounds:
+      m_Center: {x: 768, y: 160, z: 2816}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 869d14b2bbddd134fa9925fb22f08b91, type: 2}
+  - id: tile_2_5
+    geometryHash: 25ebbc71e7ca4a51904e88850a5e886f9fbef16852437774e0e1a67e7074c0de
+    bounds:
+      m_Center: {x: 1280, y: 160, z: 2816}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 440abc4e4e883984f8058edfdcd48c0a, type: 2}
+  - id: tile_3_5
+    geometryHash: b17d069db884ed2ce0008138a48c971a7e54c2232a32e8758ca247df33bea87d
+    bounds:
+      m_Center: {x: 1792, y: 160, z: 2816}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 3c289960b659aae479ec878cb597f007, type: 2}
+  - id: tile_4_5
+    geometryHash: 884aae37f5e2c419716624f4e8315d733d848cc6e5ce95f4ac100f9cc184f1d8
+    bounds:
+      m_Center: {x: 2304, y: 160, z: 2816}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 28f6fb6c48d96504a963cf701d3e664a, type: 2}
+  - id: tile_5_5
+    geometryHash: 347479e7c34924d5418070983b3f73841be09030227a5b4037086ca7ca38e900
+    bounds:
+      m_Center: {x: 2816, y: 160, z: 2816}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 4632b89eccb8ce144beb39b453a4712a, type: 2}
+  - id: tile_6_5
+    geometryHash: e1152616098381b3600352a4b39e8354573a661a56a3cb396cb34f1acb0ef22f
+    bounds:
+      m_Center: {x: 3328, y: 160, z: 2816}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 67f920728beaad04ea490d5a94e6cc80, type: 2}
+  - id: tile_7_5
+    geometryHash: 99b064c2481b2050431a0edf913bf356a39d1beac4e0a7de534a9f6fb7d0328e
+    bounds:
+      m_Center: {x: 3840, y: 160, z: 2816}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: a7b3ca0c75ec9c14a99d6491cb59681b, type: 2}
+  - id: tile_0_6
+    geometryHash: 62cfa914fee89c04dbf087f5d7b64f47b36c32d5298d8938915cd991e66c087b
+    bounds:
+      m_Center: {x: 256, y: 160, z: 3328}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 3cff1cea273ca3941bd95f0e83679d43, type: 2}
+  - id: tile_1_6
+    geometryHash: 0e653b15c3fa2146d09af76e94f712a8636a74fa7a1b4a4469dc1232085f7928
+    bounds:
+      m_Center: {x: 768, y: 160, z: 3328}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: f5c1dcff5e57cd642b06acb147e7a2d0, type: 2}
+  - id: tile_2_6
+    geometryHash: 19ec1f48555e5e713c50e0771530852ae3da234f124ab690c9d5133ca688c0a7
+    bounds:
+      m_Center: {x: 1280, y: 160, z: 3328}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 097842996d0ae6b46a6c8dbcca628942, type: 2}
+  - id: tile_3_6
+    geometryHash: 3f04b50ac695b14062c890c726d2435eee9639067562c29c06412cc03105b138
+    bounds:
+      m_Center: {x: 1792, y: 160, z: 3328}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: fb96cc86313812240be3ea69a1de4dcd, type: 2}
+  - id: tile_4_6
+    geometryHash: c480218257dc515747a23c3783681537c82591e0c72008f423d428aff710c3cf
+    bounds:
+      m_Center: {x: 2304, y: 160, z: 3328}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: ccbd3e6703267284d98271ba6276db50, type: 2}
+  - id: tile_5_6
+    geometryHash: 9c733e8f6ac544294a7ee4f7364e84705fe1abd01e10e3dcd8e9e7f11ce9e61c
+    bounds:
+      m_Center: {x: 2816, y: 160, z: 3328}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 521c888d0bdaa4d4391bd1f5f6c08251, type: 2}
+  - id: tile_6_6
+    geometryHash: bdf2adf92a9810b1ba072e13c27765242e56ff6a8b5654e4ccb43ceb57cd9b7f
+    bounds:
+      m_Center: {x: 3328, y: 160, z: 3328}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 5c27f7bb441d2ab40b69a506baa22f45, type: 2}
+  - id: tile_7_6
+    geometryHash: 6a7eec887ab83c2c4468cd24ecf661c2d2a8660168366c1c748c48480c15df46
+    bounds:
+      m_Center: {x: 3840, y: 160, z: 3328}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 1333de46088cad748999518daed12d5d, type: 2}
+  - id: tile_0_7
+    geometryHash: 89bd52eecc8900b3783161c83c67b116337917378db0d10807618130a68b50a8
+    bounds:
+      m_Center: {x: 256, y: 160, z: 3840}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: fc785955000ae6e4ea522f05f770cdcf, type: 2}
+  - id: tile_1_7
+    geometryHash: 4c7c3dc6f7a88cfdc8fbfadeb8691abfb663c4fecfd713665ab4ed141c84a890
+    bounds:
+      m_Center: {x: 768, y: 160, z: 3840}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: d90ed20352394624f8ad29612c19c4bd, type: 2}
+  - id: tile_2_7
+    geometryHash: 40ec368531da2b92132ad6d27ffd10de4c9106d74bc2a0d8aad01dcd36d90071
+    bounds:
+      m_Center: {x: 1280, y: 160, z: 3840}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 588faaaaa07fce6469f5a1762ce70e10, type: 2}
+  - id: tile_3_7
+    geometryHash: 3c5e58cc673154f353fc4058baf66e14914d21ecdb7b09dbf6fd9564c93d67e3
+    bounds:
+      m_Center: {x: 1792, y: 160, z: 3840}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: ae38deaf6fc75cd49b7c9d63a36d2283, type: 2}
+  - id: tile_4_7
+    geometryHash: 2a76884899762e5ec474d79c70c94a16e75607f3b81ac2c6e7e7bf6df0ddf03a
+    bounds:
+      m_Center: {x: 2304, y: 160, z: 3840}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 0d28a9be53fc418498c47c880ff10ca8, type: 2}
+  - id: tile_5_7
+    geometryHash: d303e78f3d50fea6ebb8c7a57e230fc1478c3727cd65562937e35e013d064ef9
+    bounds:
+      m_Center: {x: 2816, y: 160, z: 3840}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: 2cf25ac13f7746144995a34e33b0a7d8, type: 2}
+  - id: tile_6_7
+    geometryHash: 9bd5135be48de81f9b346187b49cc124bc7458f441e1f4681ec6c4312a1103f2
+    bounds:
+      m_Center: {x: 3328, y: 160, z: 3840}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: b56c9b1e5895ae543900476a7b153b06, type: 2}
+  - id: tile_7_7
+    geometryHash: f1b0346aa0a874bf776276cd58ae8b45f7a26cf0d223bf4cd72089ab5e557c48
+    bounds:
+      m_Center: {x: 3840, y: 160, z: 3840}
+      m_Extent: {x: 256, y: 250, z: 256}
+    data: {fileID: 23800000, guid: bdeed447b5d4e9f48b5754bc7e7183d3, type: 2}
+  crossings:
+  - id: a35bea43aa0247b1b8174cc7130c6f1e
+    fromSurface: tile_0_0
+    toSurface: tile_1_0
+    portalId: 
+    bridgeId: 
+    from: {x: 510, y: 10.17216, z: 256}
+    to: {x: 514, y: 10.17216, z: 256}
+    width: 2
+  routes:
+  - id: 5363a42f9cff424aa87b3cb109b1b72f
+    fromSurface: tile_0_0
+    toSurface: tile_1_0
+    requiredCrossingId: a35bea43aa0247b1b8174cc7130c6f1e
+    from: {x: 500, y: 10.17216, z: 256}
+    to: {x: 524, y: 10.17216, z: 256}
+  anchors: []
+  placementIds: []
+  trees: []

@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a16baf5a53a607546929ffcfa66ecee4, type: 3}
+  m_Name: Road
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.RoadPlanningPreset
+  material: {fileID: 2100000, guid: 94c50b2a6a3074d488f5ba63a4db526d, type: 2}
+  width: 4
+  exclusionWidth: 8
+  falloff: 6
+  maxSlope: 12
+  maxCutFill: 3
+  sampleStep: 1
+  searchStep: 2
+  slopeCost: 4
+  earthworkCost: 1
+  maxCurvature: 1
+  uvRepeat: 4
+  surfaceOffset: 0.025
+  maxVisited: 250000

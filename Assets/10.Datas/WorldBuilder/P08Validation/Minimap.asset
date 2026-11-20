@@ -1,0 +1,83 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 092777d72f642bc46b5bf7eab365f3b7, type: 3}
+  m_Name: Minimap
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.UI.MinimapIconConfigSO
+  player:
+    sprite: {fileID: 0}
+    color: {r: 0, g: 0, b: 0, a: 0}
+    size: 0
+  enemy:
+    sprite: {fileID: 0}
+    color: {r: 0, g: 0, b: 0, a: 0}
+    size: 0
+  enemyDetected:
+    sprite: {fileID: 0}
+    color: {r: 0, g: 0, b: 0, a: 0}
+    size: 0
+  npc:
+    sprite: {fileID: 0}
+    color: {r: 0, g: 0, b: 0, a: 0}
+    size: 0
+  gathering:
+    sprite: {fileID: 0}
+    color: {r: 0, g: 0, b: 0, a: 0}
+    size: 0
+  questTarget:
+    sprite: {fileID: 0}
+    color: {r: 0, g: 0, b: 0, a: 0}
+    size: 0
+  questNpc:
+    sprite: {fileID: 0}
+    color: {r: 0, g: 0, b: 0, a: 0}
+    size: 0
+  questMarkerIconSet: {fileID: 0}
+  town:
+    sprite: {fileID: 0}
+    color: {r: 0, g: 0, b: 0, a: 0}
+    size: 0
+  portal:
+    sprite: {fileID: 0}
+    color: {r: 0, g: 0, b: 0, a: 0}
+    size: 0
+  staticNpc:
+    sprite: {fileID: 0}
+    color: {r: 0, g: 0, b: 0, a: 0}
+    size: 0
+  customMarker:
+    sprite: {fileID: 0}
+    color: {r: 0.9, g: 0.78, b: 0.43, a: 1}
+    size: 10
+  userMarker:
+    sprite: {fileID: 0}
+    color: {r: 0, g: 0, b: 0, a: 0}
+    size: 0
+  showQuestMarkers: 1
+  showEnemies: 1
+  showOnlyDetectedEnemies: 0
+  showNpcs: 1
+  showGathering: 1
+  showTowns: 1
+  showPortals: 1
+  showStaticNpcs: 1
+  showUserMarkers: 1
+  backgroundSprite: {fileID: 0}
+  captureCenter: {x: 1024, y: 1024}
+  captureWorldSize: 200
+  captureWorldSizeXY: {x: 2048, y: 2048}
+  mapZoom: 1
+  flipX: 0
+  flipY: 0
+  rotationDegrees: 0
+  expandedMapSize: 500
+  expandedMapZoom: 3
+  expandTransitionDuration: 0.2

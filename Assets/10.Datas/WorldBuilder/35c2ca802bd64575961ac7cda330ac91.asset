@@ -17,3 +17,18 @@ MonoBehaviour:
   _originY: 0
   _verticalRange: 700
   _tileCells: 512
+  _regionConcepts:
+  - _regionId: dense_forest
+    _image: {fileID: 2800000, guid: 996518f8733af5148a200ee3221e4de0, type: 3}
+  - _regionId: autumn_forest
+    _image: {fileID: 2800000, guid: 16927e87798e1474b90fe8738dc74674, type: 3}
+  - _regionId: arid_badlands
+    _image: {fileID: 2800000, guid: 9c8e614bd024102448bf445ccfafbe74, type: 3}
+  - _regionId: castle_plains
+    _image: {fileID: 2800000, guid: 48d078dd359ba4a44aa9ed98417ca608, type: 3}
+  - _regionId: high_alpine
+    _image: {fileID: 2800000, guid: 97fee2851e7d0b84bb0cd6588654f5df, type: 3}
+  - _regionId: riverside_village
+    _image: {fileID: 2800000, guid: 31489fd1644f9ce43b5d0f1a499bb679, type: 3}
+  - _regionId: lakeside_village
+    _image: {fileID: 2800000, guid: 9f98b2c273eeb234692b4792a26404cf, type: 3}

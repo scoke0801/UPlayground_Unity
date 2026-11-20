@@ -47,11 +47,19 @@
 
 ## 4. 시작 조건과 첫 범위
 
-1. 이 프로젝트에서 G0 조사로 우선 확정할 기존 문서 기재값: Unity 6000.3.21f1, URP 17.3.0, Direct3D11, PC_RPAsset(Forward+·Depth Priming)([워터 상태 문서](../../../../../docs/work-status/toon-water-world.md)). 이 값을 그대로 쓰지 말고 `ProjectVersion.txt`·manifest·Renderer Data에서 다시 읽는다.
+1. G0에서 파일로 확정한 값(2026-11-19): Unity 6000.3.21f1, URP 17.3.0, Direct3D11·Direct3D12, Linear, PC_RPAsset(Forward+·Depth Priming Auto·SSAO DepthNormals·DBuffer 데칼 레이어·Legacy 프로브). 상세와 미확인 항목은 [ProjectAudit](../../../../../docs/work-status/worldtoon/ProjectAudit.md).
 2. 첫 범위는 원문대로 **G0 조사 + G1 Mesh 최소본**이다. 대상은 지형 장식 바위 같은 단순 정적 메시 한 종류로 시작하며 NPC·식생·Terrain 교체는 하지 않는다.
 3. G0에서 반드시 대조할 프로젝트 고유 항목: ① 위 §1의 기존 셰이더·재질 목록과 보호 목록 ② SSAO·Decal(DBuffer)·카메라 가림 디더(`CameraOccluderDitherMask`) 사용 여부 ③ 반응형 환경 재질 사용처 ④ 빌드 변형 스트리핑 설정(식생 검정 사례의 렌더 설정 지문).
 4. G2 비교 기준은 **현재 실제 사용 재질(최적화된 lilToon·URP/Lit·기존 커스텀)**이다. 개선이 없으면 교체하지 않는 원문의 판정 기준을 유지한다.
 
 ## 5. 제외·보류 사유 기록
 
-적용에서 제외하거나 보류한 대상은 이유와 함께 상태 문서에 남기고 같은 후보를 다음 작업에서 반복 제안하지 않는다. 원문 §19의 v1 이후 확장은 이 문서가 승인하지 않는다.
+적용에서 제외하거나 보류한 대상은 이유와 함께 상태 문서에 남기고 같은 후보를 다음 작업에서 반복 제안하지 않는다. 원문 §19의 v1 이후 확장은 이 문서가 승인하지 않는다. 현재 보류 목록은 [결정 기록](../../../../../docs/work-status/worldtoon/Decisions.md)의 「적용 보류·원본 유지」다.
+
+## 6. 구현 결과로 확정된 계약(2026-11-19)
+
+- **전역 스타일 없음:** `WorldToonStyleProfileSO`(`Assets/10.Datas/Environment/WorldToon/`) 값은 변환 도구가 생성 재질 상수로 기록한다. 원문 `WorldToonGlobals`는 만들지 않는다. 프로파일 변경 후에는 변환 도구를 다시 실행한다.
+- **바람 입력:** Foliage는 `EnvironmentShaderState`의 `_LW_Wind/_LW_PreviousWind`만 읽는다.
+- **저장 범위:** WorldToon 도구는 자기 에셋만 `SaveAssetIfDirty`로 저장한다. 전체 `SaveAssets`는 자동 업그레이드된 RP 에셋 같은 무관한 에셋까지 저장할 수 있어 쓰지 않는다.
+- **보호 강제 범위:** 도구는 lilToon 계열 셰이더(WT-PROTECT-001)와 스키닝·애니메이터 슬롯(WT-MAT-002)을 막는다. 보호 캐릭터 프리팹의 비lilToon 정적 슬롯은 경로로 막지 않으므로 적용 범위를 고를 때 [ProjectAudit §6](../../../../../docs/work-status/worldtoon/ProjectAudit.md)의 목록을 제외한다.
+- 그 밖의 설계 변경은 [결정 기록](../../../../../docs/work-status/worldtoon/Decisions.md)을 따른다.

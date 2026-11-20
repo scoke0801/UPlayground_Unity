@@ -1,5 +1,6 @@
 // WorldToon Terrain4의 원거리(Basemap) 셰이더. 근거리와 같은 툰 명암·그림자·안개 규칙을 쓴다.
-// 스타일 상수는 Terrain이 근거리 재질의 값을 원거리 재질로 복사해 전달한다(같은 프로퍼티 이름).
+// 스타일 상수는 근거리 재질과 같은 프로퍼티 이름을 쓴다. Terrain이 근거리 값을 원거리 재질로 복사하는지는 미검증(T18)이며,
+// 복사되지 않으면 원거리는 아래 기본값으로 그려진다.
 Shader "Hidden/UPlayGround/WorldToon/TerrainBaseMap"
 {
     Properties
@@ -111,7 +112,7 @@ Shader "Hidden/UPlayGround/WorldToon/TerrainBaseMap"
             #include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/RenderingLayers.hlsl"
             #pragma multi_compile_instancing
             #pragma instancing_options assumeuniformscaling nomatrices nolightprobe nolightmap
-            #define TERRAIN_SPLAT_BASEPASS 1
+            // TerrainLitDepthNormalsPass는 base pass 정의 없이 지형 노멀만 출력한다(URP TerrainLitBase와 동일).
             #include "../Includes/WorldToonTerrainInput.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/Shaders/Terrain/TerrainLitDepthNormalsPass.hlsl"
             ENDHLSL

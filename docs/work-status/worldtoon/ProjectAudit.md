@@ -11,7 +11,7 @@
 | URP / Core / Shader Graph | 17.3.0 | 확인됨 | `Packages/manifest.json` |
 | URP 설치 경로 | `Library/PackageCache/com.unity.render-pipelines.universal@8aa8d736cba6` | 확인됨 | 셰이더 include 기준. 패키지 업데이트 시 WorldToon 재검증 지점 |
 | Addressables | 2.9.1 | 확인됨 | manifest |
-| lilToon | git `#master`(버전 비고정) | 확인됨(커밋 해시는 미확인) | manifest. `packages-lock.json`의 커밋 해시는 Editor 재접속 후 기록 |
+| lilToon | git `#master`(버전 비고정), 잠금 커밋 `252fd8cfc46106d4967e95b3f2c788418502f227` | 확인됨 | `Packages/packages-lock.json` |
 
 ## 2. 렌더링 경로와 타깃
 
@@ -22,7 +22,7 @@
 | Quality 단계 | 1개(`PC`) → `Assets/Settings/PC_RPAsset.asset` | 확인됨 |
 | 기본 RP | `PC_RPAsset` | 확인됨 |
 | 런타임 RP 교체 | `SceneEnvironmentRendering`이 활성 월드 씬의 RP로 `QualitySettings.renderPipeline`을 바꿈(예: LakeVillage 계열은 SSAO/Decal off) | 확인됨. **WorldToon은 SSAO·DBuffer on/off 두 변형이 모두 필요**하다. 보존은 [식생 빌드 검정](../vegetation-build-black.md)의 Renderer 목록·`IncludeReferencedInScenes` 수정에 의존 |
-| PC_Renderer 렌더링 모드 | `m_RenderingMode=2` = Forward+ (URP 17 enum: 0 Forward, 1 Deferred, 2 Forward+) | 확인됨. enum 이름 재확인은 Editor 재접속 후 |
+| PC_Renderer 렌더링 모드 | `m_RenderingMode=2` = Forward+ (URP 17 enum: 0 Forward, 1 Deferred, 2 Forward+) | 확인됨(직렬화 값). 검증 캡처에서 이 Renderer로 그린 WorldToon Standard가 점광원에 반응함. 실행 중 활성 키워드는 Frame Debugger로 미확인 |
 | Depth Priming | Auto(1) | 확인됨 → DepthOnly 패스 필수 |
 | MSAA | 4x(PC) | 확인됨 |
 | HDR / Depth·Opaque Texture | on / on / on | 확인됨 |
@@ -42,7 +42,11 @@
 | SpeedRadialBlur, Underwater | 후처리·수중 | 직접 의존 없음. 수면 합성 순서를 건드리지 않음 |
 | AmbientFauna(별도 Renderer) | 환경 생물 | 해당 없음 |
 
-모션 벡터 요구(TAA/STP/Motion Blur): **미확인**. 카메라 AA·Volume Motion Blur 조회가 Editor 무응답으로 끝나지 못했다. 미확인 동안 WorldToon은 URP `ObjectMotionVectors` 패스를 유지한다(제거하지 않음).
+모션 벡터 요구: **확인됨(2026-11-19, 파일 검색).** 인게임 카메라(`LakeOfLife`, `RiverBasinWorld`, `Title`, `Loading` 등)의 `m_Antialiasing: 2` = SMAA로 TAA/STP는 아니다. Motion Blur는 `Assets/Settings/Action_SlowMo_Volume Profile.asset`(강도 0.678, `GameHitStopHandler`가 사용)에서 켜지므로 **히트스톱 슬로모션 중 모션벡터가 실제로 쓰인다.** 기본 볼륨의 Motion Blur 강도는 0이다. WorldToon은 MotionVectors 패스를 유지하며 Foliage는 바람 이전 위치를 계산한다.
+
+카메라 가림 페이드: `OccluderGroup`가 원본 `sharedMaterials`와 PropertyBlock을 프록시에 그대로 복사하고 `CameraOccluderFadeFeature`가 `UniversalForward` 패스를 스텐실로 다시 그린다. 셰이더 종류와 무관한 구조라 WorldToon(Stencil 블록 없음)과 충돌하지 않는다. 화면 확인은 NOT_RUN.
+
+환경 런타임의 재질 속성 쓰기(WT-MAT-002 범위): `Gameplay/World`에서 재질 속성을 쓰는 곳은 반응형 환경(제외 대상), 식생 바람 `EnvironmentVegetationWind`(구매 식생 셰이더 속성), 물·하늘·생물 전용 경로뿐이다. 바위·소품 후보의 재질을 런타임에 바꾸는 코드는 찾지 못했다.
 
 ## 4. 그래픽스 설정·스트리핑
 
@@ -61,7 +65,8 @@ URP/Lit 915, Hidden/lilToonOutline 365, HS_Blend_CG 218, CFX 파티클 163, lilT
 
 | 분류 | 대상 | 근거 | 상태 |
 |---|---|---|---|
-| 보호(WT-PROTECT-001) | lilToon 계열 셰이더(`lilToon`, `Hidden/lilToon*`, `_lil/*`)를 쓰는 모든 재질 — 플레이어·ScenarioResidents NPC·비인간형 몬스터 28+2 포함 | 원문 보호 규칙 + [비인간형 전환](../non-humanoid-toon-migration.md) 사용자 확인 대기 | 셰이더 이름 기준 자동 차단으로 확정. 개별 프리팹 목록은 G4에서 |
+| 보호(WT-PROTECT-001, 도구가 강제) | lilToon 계열 셰이더(`lilToon`, `Hidden/lilToon*`, `_lil/*`)를 쓰는 모든 재질 | 원문 보호 규칙 + [비인간형 전환](../non-humanoid-toon-migration.md) 사용자 확인 대기 | 셰이더 이름 기준 자동 차단 |
+| 보호(문서 기준, 도구 미강제) | 플레이어 프리팹, `Assets/03.Prefabs/Characters/ScenarioResidents/`, `Assets/03.Prefabs/Actor/NPC/`, `Assets/03.Prefabs/Actor/Monster/`의 **모든 슬롯**(비lilToon 포함). ScenarioResidents에는 URP/Lit 50슬롯이 있다 | 통합 계약 §1 | 도구는 셰이더 기준 보호와 스키닝·애니메이터 슬롯의 WT-MAT-002 차단만 한다. 이 경로의 비lilToon 정적 슬롯을 경로로 막는 기능은 없으므로 적용 범위를 고를 때 사람이 제외한다 |
 | 제외(반응형 환경) | `Assets/11.Material/EnvironmentReactive/` 6개(ArenaTree_0, CargoCrate_0, FarmGrass_0, FarmTree_0~2) 및 `UPlayGround/Environment/ToonReactive` 셰이더 | 통합 계약 §1 | 확인됨 |
 | 제외(물·하늘·파티클) | `06.Shaders/Water/*`, LakeWater, ToonWaterfall, DaySky, 파티클 셰이더 | 원문 범위 밖 | 확인됨 |
 | 제외(투명) | Transparent 큐/블렌드 재질 | WT-MAT-001 | 규칙 확정 |
@@ -74,10 +79,9 @@ URP/Lit 915, Hidden/lilToonOutline 365, HS_Blend_CG 218, CFX 파티클 163, lilT
 | 접촉 변위(`_UPG_*` 배우 위치) | `Manager/World/FoliageInteractionManager` | 경쟁 입력 금지. G3에서 재사용 여부 판단 |
 | 반응형 표면 버퍼 | `ReactiveEnvironment/EnvironmentSurfaceStateBuffer` | 해당 재질 제외 |
 
-## 8. 미확인으로 남은 항목
+## 8. 후속 조사 결과와 남은 미확인
 
-1. 카메라 AA(TAA/STP)와 Volume Motion Blur 사용 여부 → MotionVectors 필수성.
-2. lilToon 커밋 해시.
-3. 지형 타일별 TerrainLayer 수·Holes·Basemap 거리 → G5에서 조사.
-4. 식생 실제 배치 경로(Terrain Detail/Tree vs MeshRenderer) → G3에서 조사.
-5. NPC SkinnedMeshRenderer·슬롯·재질 애니메이션 → G4에서 조사.
+- 카메라 AA·Motion Blur, lilToon 커밋: 위 §1·§3에서 확인됨.
+- 지형(G5): 프로젝트 TerrainData 137개 중 4레이어 이하·레이어 노멀/마스크 없음은 80개이며 전부 WorldBuilder 생성 타일. 주요 월드 지형은 7~27레이어. (로그 `logs/g5-terrain-audit.txt`, git 제외)
+- 식생(G3): 확인한 식생 프리팹 메시는 Read/Write가 꺼져 정점 색 바람 마스크를 읽을 수 없음. Terrain Detail/Tree 배치 경로별 분류는 미확인.
+- NPC·몬스터(G4): 슬롯 분포는 [작업 상태](../worldtoon.md) G4 행. 재질 애니메이션 클립 조사는 적용 대상이 없어 하지 않음.

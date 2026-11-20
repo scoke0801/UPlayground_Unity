@@ -1,0 +1,96 @@
+{
+    "toolVersion": "worldtoon-1.0",
+    "generated": [
+        {
+            "sourceMaterialId": "GlobalObjectId_V1-1-1ccc7905ba967324d83b0e7938b760c0-2710713138995046620-0",
+            "sourceDependencyHash": "55ecd6816fa478c8f8c89edc4e3a2389",
+            "sourceShaderName": "Universal Render Pipeline/Lit",
+            "sourceKeywords": [],
+            "presetId": "MeshLite",
+            "targetMaterialGuid": "7e1912bf00e2c734e8ed1755ff1c5513",
+            "targetPath": "Assets/11.Material/WorldToon/MeshLite/Stone_Field__1481a12a.mat",
+            "generatedContentHash": "066b1a175b33bc7d44f7d7cce6af4f78",
+            "status": "Ready",
+            "warnings": [
+                "INFO: BaseMap 없음 → White 텍스처와 Base Color로 변환"
+            ],
+            "toolVersion": "worldtoon-1.0"
+        },
+        {
+            "sourceMaterialId": "GlobalObjectId_V1-1-b6801af199fb8e24685d52aa7668a012-2710713138995046620-0",
+            "sourceDependencyHash": "1dfbee1d3747c80c88dd3ef9dc50e83a",
+            "sourceShaderName": "Universal Render Pipeline/Lit",
+            "sourceKeywords": [],
+            "presetId": "MeshLite",
+            "targetMaterialGuid": "b6304deb99755b5409a084dacba5d9c4",
+            "targetPath": "Assets/11.Material/WorldToon/MeshLite/Stone_Field__9332d820.mat",
+            "generatedContentHash": "066b1a175b33bc7d44f7d7cce6af4f78",
+            "status": "Ready",
+            "warnings": [
+                "INFO: BaseMap 없음 → White 텍스처와 Base Color로 변환"
+            ],
+            "toolVersion": "worldtoon-1.0"
+        },
+        {
+            "sourceMaterialId": "GlobalObjectId_V1-1-56115915d223d7744a2f44dd9897ebc8-2710713138995046620-0",
+            "sourceDependencyHash": "d03cd0696620b4b0a72877a9578406b9",
+            "sourceShaderName": "Universal Render Pipeline/Lit",
+            "sourceKeywords": [],
+            "presetId": "MeshLite",
+            "targetMaterialGuid": "24d8ebe57b1adc8418804b9a19f18a70",
+            "targetPath": "Assets/11.Material/WorldToon/MeshLite/Stone_Field__91c6e63a.mat",
+            "generatedContentHash": "066b1a175b33bc7d44f7d7cce6af4f78",
+            "status": "Ready",
+            "warnings": [
+                "INFO: BaseMap 없음 → White 텍스처와 Base Color로 변환"
+            ],
+            "toolVersion": "worldtoon-1.0"
+        },
+        {
+            "sourceMaterialId": "GlobalObjectId_V1-3-2fefd2bc7d093cb41b0a88ec8c7c2e90-2100000-0",
+            "sourceDependencyHash": "31b289d546fe681ba1bf2d7c8b67c834",
+            "sourceShaderName": "Universal Render Pipeline/Lit",
+            "sourceKeywords": [],
+            "presetId": "MeshLite",
+            "targetMaterialGuid": "d56f7f2d99ece34498a4bef9935e03d4",
+            "targetPath": "Assets/11.Material/WorldToon/MeshLite/WT_Validation_Sphere_Lit__bf284051.mat",
+            "generatedContentHash": "eee7406bfb25a8e337f7bbf1fd452f7c",
+            "status": "Ready",
+            "warnings": [
+                "INFO: BaseMap 없음 → White 텍스처와 Base Color로 변환"
+            ],
+            "toolVersion": "worldtoon-1.0"
+        },
+        {
+            "sourceMaterialId": "GlobalObjectId_V1-3-8c8542009f238404da93891898f5f6d2-2100000-0",
+            "sourceDependencyHash": "5170d73ea47bc10fd9f174758f3e79ad",
+            "sourceShaderName": "Universal Render Pipeline/Lit",
+            "sourceKeywords": [],
+            "presetId": "MeshLite",
+            "targetMaterialGuid": "c56695be763916346bb0efedd9cd2ac9",
+            "targetPath": "Assets/11.Material/WorldToon/MeshLite/WT_Validation_Cube_Lit__9a8c75dd.mat",
+            "generatedContentHash": "c185a31aa76e96987f4cb99a4ff8f75e",
+            "status": "Ready",
+            "warnings": [
+                "INFO: BaseMap 없음 → White 텍스처와 Base Color로 변환"
+            ],
+            "toolVersion": "worldtoon-1.0"
+        },
+        {
+            "sourceMaterialId": "GlobalObjectId_V1-1-1ccc7905ba967324d83b0e7938b760c0-2710713138995046620-0",
+            "sourceDependencyHash": "55ecd6816fa478c8f8c89edc4e3a2389",
+            "sourceShaderName": "Universal Render Pipeline/Lit",
+            "sourceKeywords": [],
+            "presetId": "MeshStandard",
+            "targetMaterialGuid": "5ad282eb8ff30df4cb6216c973a7ffcc",
+            "targetPath": "Assets/11.Material/WorldToon/MeshStandard/Stone_Field__1481a12a.mat",
+            "generatedContentHash": "7a2c4609c657d100728151c2b9052240",
+            "status": "Ready",
+            "warnings": [
+                "INFO: BaseMap 없음 → White 텍스처와 Base Color로 변환"
+            ],
+            "toolVersion": "worldtoon-1.0"
+        }
+    ],
+    "applied": []
+}

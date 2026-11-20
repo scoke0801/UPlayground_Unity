@@ -73,6 +73,20 @@ namespace UPlayGround.Tool.Editor.WorldToon
             return summary + "\n" + report;
         }
 
+        /// <summary>셰이더 하나만 검사한다(MCP 호출 시간 제한 안에서 나눠 실행할 때 사용).</summary>
+        public static string RunOne(string path)
+        {
+            var shader = AssetDatabase.LoadAssetAtPath<Shader>(path);
+            if (shader == null)
+                return "FAIL missing " + path;
+            var report = new StringBuilder();
+            int compiled = 0;
+            int failed = 0;
+            CheckShader(shader, report, ref compiled, ref failed);
+            string summary = failed == 0 ? $"PASS compiled={compiled}" : $"FAIL failed={failed} compiled={compiled}";
+            return summary + "\n" + report;
+        }
+
         private static void CheckShader(Shader shader, StringBuilder report, ref int compiled, ref int failed)
         {
             if (ShaderUtil.ShaderHasError(shader))
@@ -85,9 +99,11 @@ namespace UPlayGround.Tool.Editor.WorldToon
             }
 
             ShaderData data = ShaderUtil.GetShaderData(shader);
-            for (int subIndex = 0; subIndex < data.SubshaderCount; subIndex++)
+            for (int subIndex = 0; subIndex < data.SerializedSubshaderCount; subIndex++)
             {
                 ShaderData.Subshader subshader = data.GetSerializedSubshader(subIndex);
+                if (subshader == null)
+                    continue;
                 for (int passIndex = 0; passIndex < subshader.PassCount; passIndex++)
                     CheckPass(shader, subshader.GetPass(passIndex), report, ref compiled, ref failed);
             }

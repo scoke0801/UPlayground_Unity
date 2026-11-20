@@ -99,9 +99,6 @@ namespace UPlayGround.Tool.Editor.WorldToon
         {
             if (material.shader != shader)
                 material.shader = shader;
-            material.shaderKeywords = new string[0];
-            foreach (string keyword in entry.Keywords)
-                material.EnableKeyword(keyword);
 
             material.SetTexture(BaseMapId, analysis.BaseTexture);
             material.SetTextureScale(BaseMapId, analysis.BaseScale);
@@ -113,12 +110,23 @@ namespace UPlayGround.Tool.Editor.WorldToon
             SetToggle(material, "_ReceiveShadows", !HasKeyword(entry, WorldToonVariantManifest.ReceiveShadowsOffKeyword));
             SetToggle(material, "_WTAdditionalLights", HasKeyword(entry, WorldToonVariantManifest.AdditionalLightsKeyword));
             SetToggle(material, "_WTWind", HasKeyword(entry, WorldToonVariantManifest.WindKeyword));
-            if (analysis.IsCutout)
-                material.EnableKeyword(WorldToonVariantManifest.AlphaTestKeyword);
             material.renderQueue = analysis.IsCutout ? (int)RenderQueue.AlphaTest : (int)RenderQueue.Geometry;
             material.SetOverrideTag("RenderType", analysis.IsCutout ? "TransparentCutout" : "Opaque");
             material.enableInstancing = true;
             ApplyStyle(material, style);
+            ApplyKeywords(material, shader, entry, analysis.IsCutout);
+        }
+
+        // 저장된 재질은 속성 쓰기 중 키워드가 다시 동기화될 수 있어 모든 속성을 쓴 뒤 마지막에 키워드를 확정한다.
+        // 셰이더 키워드 공간의 local 키워드만 다루며 매니페스트 밖 키워드는 끈다.
+        private static void ApplyKeywords(Material material, Shader shader, WorldToonVariantManifest.Entry entry, bool isCutout)
+        {
+            var enabled = new System.Collections.Generic.List<UnityEngine.Rendering.LocalKeyword>();
+            foreach (string keyword in entry.Keywords)
+                enabled.Add(new UnityEngine.Rendering.LocalKeyword(shader, keyword));
+            if (isCutout)
+                enabled.Add(new UnityEngine.Rendering.LocalKeyword(shader, WorldToonVariantManifest.AlphaTestKeyword));
+            material.enabledKeywords = enabled.ToArray();
         }
 
         /// <summary>스타일 프로파일 값을 재질 상수로 기록한다(전역 uniform 없음).</summary>
@@ -134,16 +142,23 @@ namespace UPlayGround.Tool.Editor.WorldToon
             SetFloatIfPresent(material, "_AdditionalLightStrength", style.additionalLightStrength);
         }
 
-        /// <summary>렌더러 슬롯 하나에 생성 재질을 적용하고 기록한다. 보호 슬롯은 차단한다.</summary>
-        public static string ApplyToSlot(Renderer renderer, int slot, Material target, WorldToonConversionRecord record)
+        /// <summary>
+        /// 렌더러 슬롯 하나에 생성 재질을 적용하고 기록한다. 렌더러 문맥(스키닝·애니메이터·Terrain)까지 분석해 Ready만 적용한다.
+        /// NeedsReview(예: WT-MAT-002 재질 속성 의존)는 사람이 어댑터를 확인한 경우에만 allowNeedsReview로 허용한다.
+        /// </summary>
+        public static string ApplyToSlot(Renderer renderer, int slot, Material target, WorldToonConversionRecord record, bool allowNeedsReview = false)
         {
             Material[] materials = renderer.sharedMaterials;
             if (slot < 0 || slot >= materials.Length)
                 return "슬롯 범위 밖";
             Material source = materials[slot];
-            WorldToonMaterialAnalysis analysis = WorldToonMaterialAnalyzer.Analyze(source);
+            WorldToonMaterialAnalysis analysis = WorldToonMaterialAnalyzer.Analyze(source, renderer);
             if (analysis.Status == WorldToonConversionStatus.Protected)
                 return "WT-PROTECT-001: 보호 슬롯 — 적용 차단";
+            if (analysis.Status == WorldToonConversionStatus.Unsupported)
+                return $"적용 차단 — {string.Join(" / ", analysis.Warnings)}";
+            if (analysis.Status == WorldToonConversionStatus.NeedsReview && !allowNeedsReview)
+                return $"검토 필요로 적용 차단 — {string.Join(" / ", analysis.Warnings)}";
 
             string rendererId = GlobalObjectId.GetGlobalObjectIdSlow(renderer).ToString();
             Undo.RecordObject(renderer, "WorldToon 적용");

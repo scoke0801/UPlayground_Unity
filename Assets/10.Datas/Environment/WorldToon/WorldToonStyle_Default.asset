@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 53baf2057bbc17c4b8984ba2b4db77d2, type: 3}
+  m_Name: WorldToonStyle_Default
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Rendering.WorldToonStyleProfileSO
+  litTint: {r: 1, g: 1, b: 1, a: 1}
+  shadeTint: {r: 0.45, g: 0.47, b: 0.6, a: 1}
+  bandThreshold: 0.05
+  bandSoftness: 0.04
+  indirectStrength: 1
+  additionalLightStrength: 1

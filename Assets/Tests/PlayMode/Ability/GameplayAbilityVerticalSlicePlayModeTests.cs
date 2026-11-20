@@ -298,7 +298,14 @@ namespace UPlayGround.Ability.PlayModeTests
             Assert.That(dissolveSource, Is.Not.Null);
             var previousDissolveMaterial = (Material)dissolveSource.GetValue(null);
 
+            var origin = new Vector3(10000f, 0f, 10000f);
+            var ground = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            ground.name = "리안 검사 바닥";
+            ground.layer = LayerMask.NameToLayer("Ground");
+            ground.transform.position = origin + Vector3.down * .5f;
+            ground.transform.localScale = new Vector3(20f, 1f, 20f);
             GameObject targetObject = new("LianAttackTarget");
+            targetObject.transform.position = origin + Vector3.forward * 2f;
             var target = targetObject.AddComponent<AbilityPlayModeTestActor>();
             target.SetActorType(ActorType.Player);
             GameObject monsterObject = null;
@@ -306,7 +313,8 @@ namespace UPlayGround.Ability.PlayModeTests
             try
             {
                 dissolveSource.SetValue(null, dissolveMaterial);
-                monsterObject = Object.Instantiate(prefab);
+                // OnEnable에서 포착하는 전투 구역과 KCC의 시작 위치를 함께 맞춘다.
+                monsterObject = Object.Instantiate(prefab, origin, Quaternion.identity);
                 monsterObject.name = "Boss_Lian_AttackRegression";
                 var monster = monsterObject.GetComponent<MonsterActor>();
                 var combat = monsterObject.GetComponent<
@@ -326,10 +334,6 @@ namespace UPlayGround.Ability.PlayModeTests
                 if (ai != null)
                     ai.enabled = false;
                 monster.SetDefinition(definition);
-                monsterObject.transform.SetPositionAndRotation(
-                    Vector3.zero,
-                    Quaternion.identity);
-                targetObject.transform.position = Vector3.forward * 2f;
                 detection.AcquireTarget(targetObject.transform);
 
                 float maxHealth = monster.AbilitySystem.Attributes.GetCurrent(
@@ -340,13 +344,10 @@ namespace UPlayGround.Ability.PlayModeTests
 
                 yield return null;
 
-                // 프리팹 초기화 첫 프레임의 KCC 중력/겹침 해소가 테스트 배치 거리를 바꿀 수 있다.
-                // Ability 사거리 계약을 검증하기 직전에 배치 위치를 다시 고정한다.
-                monsterObject.transform.SetPositionAndRotation(
-                    Vector3.zero,
-                    Quaternion.identity);
-                targetObject.transform.position = Vector3.forward * 2f;
+                // 사거리 검사 직전에 모터와 Transform을 함께 배치한다.
+                monster.PlaceAtPose(origin, Quaternion.identity);
                 Physics.SyncTransforms();
+                Assert.That(detection.AggroAnchorPosition, Is.EqualTo(origin));
 
                 Assert.That(
                     combat.HasAvailableSkillAtDistance(
@@ -375,12 +376,13 @@ namespace UPlayGround.Ability.PlayModeTests
                 combat.ReserveAttackSelection(
                     AbilityAttackCategory.Heavy,
                     AbilityAIRole.Punish);
+                var stateBeforeAttack = movement.CurrentState?.StateId;
                 monster.Abilities.IssueTriggerEvent(
                     triggerTag,
                     monster,
                     target);
 
-                Assert.That(rejected, Is.Null);
+                Assert.That(rejected, Is.Null, $"공격 요청 전 상태: {stateBeforeAttack}");
                 Assert.That(router, Is.Not.Null);
                 Assert.That(acceptedHandle.IsValid, Is.True);
                 Assert.That(
@@ -401,6 +403,7 @@ namespace UPlayGround.Ability.PlayModeTests
                 if (monsterObject != null)
                     Object.Destroy(monsterObject);
                 Object.Destroy(targetObject);
+                Object.Destroy(ground);
                 dissolveSource.SetValue(null, previousDissolveMaterial);
             }
 

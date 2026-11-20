@@ -196,13 +196,15 @@ namespace UPlayGround.Combat.Tests
             var idle = new NpcIdleState(_root.GetComponent<NpcMovementController>());
             SetField(idle, "npcActor", actor);
             SetField(idle, "_brain", _brain);
+            var motorType = System.Type.GetType("KinematicCharacterController.KinematicCharacterMotor, KinematicCharacterController", throwOnError: true);
+            SetField(idle, "motor", _root.AddComponent(motorType));
             SetField(_brain, "_enableWander", false);
             var motion = ScriptableObject.CreateInstance<MotionSetAsset>();
             try
             {
                 _brain.SetHomePose(Vector3.zero, Quaternion.identity);
                 _brain.SetWorkMotion(motion);
-                Quaternion rotation = Quaternion.identity;
+                Quaternion rotation = Quaternion.Euler(0f, 90f, 0f);
                 idle.UpdateRotation(ref rotation, 1f);
                 Assert.That(Quaternion.Angle(Quaternion.identity, rotation), Is.LessThan(0.01f));
             }

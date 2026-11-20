@@ -58,20 +58,24 @@ namespace UPlayGround.Ability.PlayModeTests
                     yield return new WaitForSeconds(.3f);
                     Physics.SyncTransforms();
 
-                    Assert.That(combat.HasAvailableSkillAtDistance(8, AbilityAttackCategory.Basic), Is.True,
+                    Assert.That(combat.HasAvailableSkillAtDistance(8, AbilityAttackCategory.Basic, AbilityAIRole.Opener), Is.True,
                         definition.actorId + "\n" + combat.BuildAbilitySelectionDiagnosticSummary());
-                    bool elite = definition.EffectiveLevel >= 20;
-                    Assert.That(combat.HasAvailableSkillAtDistance(8, AbilityAttackCategory.Skill), Is.EqualTo(elite),
+                    // Staff BT가 사용하는 역할로 요청한다. Beam 해금은 일반 등급의 15레벨부터다.
+                    bool beamUnlocked = definition.EffectiveLevel >= 15;
+                    Assert.That(combat.HasAvailableSkillAtDistance(8, AbilityAttackCategory.Skill, AbilityAIRole.Punish),
+                        Is.EqualTo(beamUnlocked),
                         definition.actorId + "\n" + combat.BuildAbilitySelectionDiagnosticSummary());
-                    var category = elite ? AbilityAttackCategory.Skill : AbilityAttackCategory.Basic;
+                    var category = beamUnlocked ? AbilityAttackCategory.Skill : AbilityAttackCategory.Basic;
+                    var role = beamUnlocked ? AbilityAIRole.Punish : AbilityAIRole.Opener;
                     Assert.That(EnemyAbilityTriggerTags.TryResolveAttackTrigger(combat.AbilitySet, category,
                         out _, out _, out var tag), Is.True);
                     AbilityExecutionHandle accepted = default;
                     actor.Abilities.AbilityTriggerAccepted += (_, handle) => accepted = handle;
-                    combat.ReserveAttackCategory(category);
+                    combat.ReserveAttackSelection(category, role);
                     actor.Abilities.IssueTriggerEvent(tag, actor, target);
                     Assert.That(accepted.IsValid, Is.True, definition.actorId + "\n" + combat.BuildAbilitySelectionDiagnosticSummary());
-                    Assert.That(combat.CurrentAbility.abilityId, Is.EqualTo(elite ? "Monster.P09Staff.Beam" : "Monster.P09Staff.Bolt"));
+                    Assert.That(combat.CurrentAbility.abilityId,
+                        Is.EqualTo(beamUnlocked ? "Monster.P09Staff.Beam" : "Monster.P09Staff.Bolt"));
                     Assert.That(actor.Abilities.IsExecutionActive(accepted), Is.True);
 
                     // 발사 이벤트를 실제 소유 액터에 전달하여 카메라 락온이 아닌 몬스터의 타깃을 검증한다.

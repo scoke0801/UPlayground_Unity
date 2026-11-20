@@ -19,7 +19,9 @@ namespace UPlayGround.Combat.Tests
             root.SetActive(false);
             try
             {
+                root.AddComponent<CapsuleCollider>();
                 var actor = root.AddComponent<NpcActor>();
+                Assert.That(actor, Is.Not.Null);
                 const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
                 typeof(GameActor).GetField("_characterActorType", flags).SetValue(actor, characterType);
                 typeof(GameActor).GetField("_actorType", flags).SetValue(actor, actorType);

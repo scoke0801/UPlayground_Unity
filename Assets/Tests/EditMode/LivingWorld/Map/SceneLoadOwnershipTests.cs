@@ -81,10 +81,11 @@ namespace UPlayGround.Core.Tests
                 type.GetField("_id", PrivateInstance).SetValue(second, id);
                 registry.GetMethod("Register").Invoke(null, new[] { first });
                 registry.GetMethod("Register").Invoke(null, new[] { second });
+                var tryGet = registry.GetMethod("TryGet", new[] { typeof(string), type.MakeByRefType() });
                 object[] args = { id, null };
-                Assert.IsFalse((bool)registry.GetMethod("TryGet").Invoke(null, args));
+                Assert.IsFalse((bool)tryGet.Invoke(null, args));
                 registry.GetMethod("Unregister").Invoke(null, new[] { first });
-                Assert.IsTrue((bool)registry.GetMethod("TryGet").Invoke(null, args));
+                Assert.IsTrue((bool)tryGet.Invoke(null, args));
                 Assert.AreSame(second, args[1]);
             }
             finally

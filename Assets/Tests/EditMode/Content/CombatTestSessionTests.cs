@@ -97,15 +97,20 @@ namespace UPlayGround.Content.Tests
             var definition = AssetDatabase.LoadAssetAtPath<ActorDefinitionSO>(
                 "Assets/10.Datas/Actor/P09Progression/Generated/Enemy_P09_Armor06_GreatSword/Enemy_P09_Armor06_GreatSword_ActorDef.asset");
             var expected = AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Ability.AbilitySetSO>(
+                "Assets/10.Datas/Ability/Actor/GradeVariation/GreatSword/AbilitySet_GreatSword_Normal.asset");
+            var prefabDefault = AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Ability.AbilitySetSO>(
                 "Assets/10.Datas/Ability/Actor/Humanoid_GreatSwordAttackData/AbilitySet_Humanoid_GreatSwordAttackData.asset");
+            Assert.That(definition, Is.Not.Null);
             Assert.That(expected, Is.Not.Null);
+            Assert.That(prefabDefault, Is.Not.Null);
             Assert.That(definition.abilitySet, Is.SameAs(expected));
             Assert.That(definition.monsterProfile.abilitySet, Is.SameAs(expected));
             Assert.That(definition.EffectiveAbilitySet, Is.SameAs(expected));
             var combatType = Type.GetType("UPlayGround.Components.EnemyCombat, UPlayGround.Actor", true);
             var combat = definition.prefab.GetComponent(combatType);
             Assert.That(combat, Is.Not.Null);
-            Assert.That(new SerializedObject(combat).FindProperty("_abilitySet").objectReferenceValue, Is.SameAs(expected));
+            // 스폰 시 EnemyCombat.Init이 정의의 등급별 Set을 주입하기 전 프리팹 기본값이다.
+            Assert.That(new SerializedObject(combat).FindProperty("_abilitySet").objectReferenceValue, Is.SameAs(prefabDefault));
         }
 
         [TestCase(-1)]

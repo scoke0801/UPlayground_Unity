@@ -28,6 +28,7 @@ namespace UPlayGround.Core.Tests
         private static void Set(object value, string field, object data) => value.GetType().GetField(field).SetValue(value, data);
         private static GameSaveData Source() => new GameSaveData
         {
+            saveVersion = "3.4",
             party = new PartySaveData { mapId = "LakeOfLifeScenario", loadSceneName = "LakeOfLifeScenario", hasLocation = true,
                 storyProtagonistType = "Arin", playerRot = new SerializableQuaternion { w = 1 } }
         };

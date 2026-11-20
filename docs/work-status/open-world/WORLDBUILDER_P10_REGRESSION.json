@@ -1,0 +1,277 @@
+{
+  "finalFocusedRerun": {
+    "job_id": "9ba0e098d5fe4aaea9db8d5f648a8991",
+    "status": "succeeded",
+    "mode": "EditMode",
+    "started_unix_ms": 1795165191064,
+    "finished_unix_ms": 1795165284669,
+    "last_update_unix_ms": 1795165284669,
+    "progress": {
+      "completed": 3,
+      "total": 3,
+      "current_test_full_name": null,
+      "current_test_started_unix_ms": null,
+      "last_finished_test_full_name": "UPlayGround.WorldBuilder.Tests.WorldChunkStreamingTests.T18_PublishedChunksDelayRejectRetryAndKeepBoundariesClosed",
+      "last_finished_unix_ms": 1795165284511,
+      "stuck_suspected": false,
+      "editor_is_focused": false,
+      "run_in_background": true,
+      "focus_nudge_attempts": null,
+      "focus_nudge_limit": null,
+      "focus_nudge_status": null,
+      "blocked_reason": null,
+      "failures_so_far": [],
+      "failures_capped": false
+    },
+    "error": null,
+    "result": {
+      "mode": "EditMode",
+      "summary": {
+        "total": 3,
+        "passed": 3,
+        "failed": 0,
+        "skipped": 0,
+        "durationSeconds": 85.0684601,
+        "resultState": "Passed"
+      },
+      "results": [
+        {
+          "name": "NativeLayersAndVegetationAreDeterministicAndManualEditsAreProtected",
+          "fullName": "UPlayGround.WorldBuilder.Tests.EcologyAuthoringTests.NativeLayersAndVegetationAreDeterministicAndManualEditsAreProtected",
+          "state": "Passed",
+          "durationSeconds": 46.0895695,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "T17_PublishedLinksFollowBothEndpointsAcrossBridgeAndPortals",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WorldBakeTraversalTests.T17_PublishedLinksFollowBothEndpointsAcrossBridgeAndPortals",
+          "state": "Passed",
+          "durationSeconds": 14.5502843,
+          "message": null,
+          "stackTrace": null,
+          "output": "[RenderScale] 에디터 Play Render Scale 적용: 1 (원본 1) — GPU 절약용\r\n[ShadowReducer] 에디터 Play 그림자 축소: 거리 30→30, 캐스케이드 2→2 — GPU 절약용\r\n[P07 T17] 00000000000000000000000000000701 · tile_0_0 → tile_1_0 · 닫힘/열림/닫힘\r\n[P07 T17] 00000000000000000000000000000703 · tile_0_0 → cave_00000000000000000000000000000600 · 닫힘/열림/닫힘\r\n[P07 T17] 00000000000000000000000000000704 · tile_1_0 → cave_00000000000000000000000000000600 · 닫힘/열림/닫힘\r\n[P07 KCC] 저장 revision 교량 서→동 · 도착 (528.83, 12.03, 250.00)\r\n[P07 P05/P06] 같은 XZ의 동굴 내부 제외와 지상 수계 유지\r\n[P07 KCC] 저장 revision 동굴 서→동 · 지지 Collider 5개 · 도착 (549.94, 10.01, 303.00)\r\n"
+        },
+        {
+          "name": "T18_PublishedChunksDelayRejectRetryAndKeepBoundariesClosed",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WorldChunkStreamingTests.T18_PublishedChunksDelayRejectRetryAndKeepBoundariesClosed",
+          "state": "Passed",
+          "durationSeconds": 23.6917592,
+          "message": null,
+          "stackTrace": null,
+          "output": "[RenderScale] 에디터 Play Render Scale 적용: 1 (원본 1) — GPU 절약용\r\n[ShadowReducer] 에디터 Play 그림자 축소: 거리 30→30, 캐스케이드 2→2 — GPU 절약용\r\n[P08 T18] AI 링크와 프로젝트 KCC의 교량·동굴 지지 횡단, 같은 XZ 지상 수계와 동굴 건조 확인\r\n[P08 T18] 지연, 초기화 실패, 재시도, 철회, AI 교량 경로 · 활성 씬 13 · 소유 12\r\n[P08 T19] 10/50 · 씬 10 · 소유 9 · pin 0 · bytes 1515827310\r\n[P08 T19] 20/50 · 씬 10 · 소유 9 · pin 0 · bytes 1516303435\r\n[P08 T19] 30/50 · 씬 10 · 소유 9 · pin 0 · bytes 1516750344\r\n[P08 T19] 40/50 · 씬 10 · 소유 9 · pin 0 · bytes 1651623073\r\n[P08 T19] 50/50 · 씬 10 · 소유 9 · pin 0 · bytes 1652012830\r\n[P08 T19] 미회수 원시값 1652013043 bytes · 회수 후 warm 1492128192 → 1628069177 bytes · managed 1271046144 → 1271148544 bytes · 소유 Terrain/NavMesh/proxy 10682622 → 10682622 bytes · 종료 씬 1 · 소유 0\r\n"
+        }
+      ]
+    }
+  },
+  "afterTpsFileFingerprints": {
+    "bFixtureFilesCompared": 50,
+    "bFixtureDifferences": 0,
+    "p08PublishedFilesCompared": 410,
+    "p08PublishedDifferences": 0,
+    "p09StatusSha256": "CB5F59401BDFF3DA625A4CC7E46EE70DFF40D0E680A76A41DFCB44987B9A423C",
+    "projectSettingsSha256": "560EFB66F6D37E9A6B61FE7442A78E7B2C7F39023E761BD04ACB69462F2A34EF",
+    "editorBuildSettingsSha256": "DDBF936D2A91A181DF5041703B5C297764D70F8B30BAED9FCFB74EF7A44C9FDA",
+    "addressablesSettingsSha256": "75C0DE3AFED129636F304785C5C2FF9A96A542E75D472903077C0533ED9F03F0"
+  },
+  "unityTestRunner": {
+    "job_id": "2ad59a6939db48f0a2e9a843238a473d",
+    "status": "succeeded",
+    "mode": "EditMode",
+    "started_unix_ms": 1795160875748,
+    "finished_unix_ms": 1795161287744,
+    "last_update_unix_ms": 1795161287744,
+    "progress": {
+      "completed": 12,
+      "total": 12,
+      "current_test_full_name": null,
+      "current_test_started_unix_ms": null,
+      "last_finished_test_full_name": "UPlayGround.WorldBuilder.Tests.WorldPlanningPresetTests.BridgeCatalogSpanWidthAndPivotMustMatchIndependentOfSocketTolerance",
+      "last_finished_unix_ms": 1795161287493,
+      "stuck_suspected": false,
+      "editor_is_focused": false,
+      "run_in_background": true,
+      "focus_nudge_attempts": null,
+      "focus_nudge_limit": null,
+      "focus_nudge_status": null,
+      "blocked_reason": null,
+      "failures_so_far": [],
+      "failures_capped": false
+    },
+    "error": null,
+    "result": {
+      "mode": "EditMode",
+      "summary": {
+        "total": 12,
+        "passed": 12,
+        "failed": 0,
+        "skipped": 0,
+        "durationSeconds": 397.8083606,
+        "resultState": "Passed"
+      },
+      "results": [
+        {
+          "name": "CutsAcrossNativeTileBoundaryPreserveOtherCaveAndManualCutOnMoveDeleteUndoAndReopen",
+          "fullName": "UPlayGround.WorldBuilder.Tests.EcologyAuthoringTests.CutsAcrossNativeTileBoundaryPreserveOtherCaveAndManualCutOnMoveDeleteUndoAndReopen",
+          "state": "Passed",
+          "durationSeconds": 45.4136616,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "FloorUsesCaveColliderAndConflictsLeaveOwnedOutputIntact",
+          "fullName": "UPlayGround.WorldBuilder.Tests.EcologyAuthoringTests.FloorUsesCaveColliderAndConflictsLeaveOwnedOutputIntact",
+          "state": "Passed",
+          "durationSeconds": 35.8362536,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "InjectedFailurePreservesAppliedTerrainBiomesTreesDetailsAndScene(\"AfterAssets\")",
+          "fullName": "UPlayGround.WorldBuilder.Tests.EcologyAuthoringTests.InjectedFailurePreservesAppliedTerrainBiomesTreesDetailsAndScene(\"AfterAssets\")",
+          "state": "Passed",
+          "durationSeconds": 38.2133901,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "InjectedFailurePreservesAppliedTerrainBiomesTreesDetailsAndScene(\"AfterTerrain\")",
+          "fullName": "UPlayGround.WorldBuilder.Tests.EcologyAuthoringTests.InjectedFailurePreservesAppliedTerrainBiomesTreesDetailsAndScene(\"AfterTerrain\")",
+          "state": "Passed",
+          "durationSeconds": 42.7752201,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "InjectedFailurePreservesAppliedTerrainBiomesTreesDetailsAndScene(\"AfterScene\")",
+          "fullName": "UPlayGround.WorldBuilder.Tests.EcologyAuthoringTests.InjectedFailurePreservesAppliedTerrainBiomesTreesDetailsAndScene(\"AfterScene\")",
+          "state": "Passed",
+          "durationSeconds": 42.6915481,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "InjectedFailurePreservesAppliedTerrainBiomesTreesDetailsAndScene(\"AfterSceneIo\")",
+          "fullName": "UPlayGround.WorldBuilder.Tests.EcologyAuthoringTests.InjectedFailurePreservesAppliedTerrainBiomesTreesDetailsAndScene(\"AfterSceneIo\")",
+          "state": "Passed",
+          "durationSeconds": 41.7787657,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "InjectedFailurePreservesAppliedTerrainBiomesTreesDetailsAndScene(\"DuringCutWrite\")",
+          "fullName": "UPlayGround.WorldBuilder.Tests.EcologyAuthoringTests.InjectedFailurePreservesAppliedTerrainBiomesTreesDetailsAndScene(\"DuringCutWrite\")",
+          "state": "Passed",
+          "durationSeconds": 42.1555218,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "NativeLayersAndVegetationAreDeterministicAndManualEditsAreProtected",
+          "fullName": "UPlayGround.WorldBuilder.Tests.EcologyAuthoringTests.NativeLayersAndVegetationAreDeterministicAndManualEditsAreProtected",
+          "state": "Passed",
+          "durationSeconds": 36.7598362,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "OneCaveCutWritesBothNativeTilesAndRestoresTheSharedEdge",
+          "fullName": "UPlayGround.WorldBuilder.Tests.EcologyAuthoringTests.OneCaveCutWritesBothNativeTilesAndRestoresTheSharedEdge",
+          "state": "Passed",
+          "durationSeconds": 38.0365543,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "T17_PublishedLinksFollowBothEndpointsAcrossBridgeAndPortals",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WorldBakeTraversalTests.T17_PublishedLinksFollowBothEndpointsAcrossBridgeAndPortals",
+          "state": "Passed",
+          "durationSeconds": 12.7749114,
+          "message": null,
+          "stackTrace": null,
+          "output": "[RenderScale] 에디터 Play Render Scale 적용: 1 (원본 1) — GPU 절약용\r\n[ShadowReducer] 에디터 Play 그림자 축소: 거리 30→30, 캐스케이드 2→2 — GPU 절약용\r\n[P07 T17] 00000000000000000000000000000701 · tile_0_0 → tile_1_0 · 닫힘/열림/닫힘\r\n[P07 T17] 00000000000000000000000000000703 · tile_0_0 → cave_00000000000000000000000000000600 · 닫힘/열림/닫힘\r\n[P07 T17] 00000000000000000000000000000704 · tile_1_0 → cave_00000000000000000000000000000600 · 닫힘/열림/닫힘\r\n[P07 KCC] 저장 revision 교량 서→동 · 도착 (528.83, 12.03, 250.00)\r\n[P07 P05/P06] 같은 XZ의 동굴 내부 제외와 지상 수계 유지\r\n[P07 KCC] 저장 revision 동굴 서→동 · 지지 Collider 5개 · 도착 (549.94, 10.01, 303.00)\r\n"
+        },
+        {
+          "name": "T18_PublishedChunksDelayRejectRetryAndKeepBoundariesClosed",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WorldChunkStreamingTests.T18_PublishedChunksDelayRejectRetryAndKeepBoundariesClosed",
+          "state": "Passed",
+          "durationSeconds": 20.3729497,
+          "message": null,
+          "stackTrace": null,
+          "output": "[RenderScale] 에디터 Play Render Scale 적용: 1 (원본 1) — GPU 절약용\r\n[ShadowReducer] 에디터 Play 그림자 축소: 거리 30→30, 캐스케이드 2→2 — GPU 절약용\r\n[P08 T18] AI 링크와 프로젝트 KCC의 교량·동굴 지지 횡단, 같은 XZ 지상 수계와 동굴 건조 확인\r\n[P08 T18] 지연, 초기화 실패, 재시도, 철회, AI 교량 경로 · 활성 씬 13 · 소유 12\r\n[P08 T19] 10/50 · 씬 10 · 소유 9 · pin 0 · bytes 1530304337\r\n[P08 T19] 20/50 · 씬 10 · 소유 9 · pin 0 · bytes 1530774558\r\n[P08 T19] 30/50 · 씬 10 · 소유 9 · pin 0 · bytes 1531150699\r\n[P08 T19] 40/50 · 씬 10 · 소유 9 · pin 0 · bytes 1531783616\r\n[P08 T19] 50/50 · 씬 10 · 소유 9 · pin 0 · bytes 1532216637\r\n[P08 T19] 미회수 원시값 1532216850 bytes · 회수 후 warm 1506599535 → 1508272320 bytes · managed 1254543360 → 1256501248 bytes · 소유 Terrain/NavMesh/proxy 10682622 → 10682622 bytes · 종료 씬 1 · 소유 0\r\n"
+        },
+        {
+          "name": "BridgeCatalogSpanWidthAndPivotMustMatchIndependentOfSocketTolerance",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WorldPlanningPresetTests.BridgeCatalogSpanWidthAndPivotMustMatchIndependentOfSocketTolerance",
+          "state": "Passed",
+          "durationSeconds": 0.0012761,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        }
+      ]
+    }
+  },
+  "urpCapture": {
+    "capture": "output/WorldBuilder/P10/C-biome-overview.png",
+    "magentaPixels": 0,
+    "renderPipeline": "UniversalRenderPipelineAsset"
+  },
+  "preservation": {
+    "originalSlotsMatch": true,
+    "editor": {
+      "scene": "Assets/WorldBuilder/Worlds/a808a808a808a808a808a808a808a808/P08Authoring.unity",
+      "dirty": false,
+      "sceneCount": 1,
+      "playing": false,
+      "playStartScene": "",
+      "saves": [
+        {
+          "name": "save_slot_0.sav",
+          "bytes": 7392,
+          "utc": "639226563784191371",
+          "sha256": "9D8B7184E3914D0B66B1172B27F729CA91F27345F10A28CAC017C9E75FB3935A"
+        },
+        {
+          "name": "save_slot_0.sav.bak",
+          "bytes": 10512,
+          "utc": "639194447502709922",
+          "sha256": "2F8D22E28ADFA70612B76FFA66A028F0455FC842B6B8627F838C81EE088F9FEE"
+        },
+        {
+          "name": "save_slot_1.sav",
+          "bytes": 8800,
+          "utc": "639275835837507671",
+          "sha256": "9787098A01985E215CF71BB60E427116B1B640D359BCC79C6368D912618D16AD"
+        },
+        {
+          "name": "thumb_slot_0.png",
+          "bytes": 132719,
+          "utc": "639226563784595942",
+          "sha256": "A84EB2FD494BD851C06DE489C30FD9C6EE8C4253129AA2354520018E17FB8995"
+        },
+        {
+          "name": "thumb_slot_1.png",
+          "bytes": 161026,
+          "utc": "639275835838488541",
+          "sha256": "E107198DB0BFC3FEA0DCCF156818C0512B862CC58B776AA3B640766643228A16"
+        }
+      ]
+    },
+    "bFixtureFilesCompared": 50,
+    "bFixtureDifferences": 0,
+    "p08PublishedFilesCompared": 410,
+    "p08PublishedDifferences": 0,
+    "p09StatusSha256Unchanged": true
+  }
+}

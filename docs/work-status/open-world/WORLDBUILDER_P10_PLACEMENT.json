@@ -1,0 +1,111 @@
+{
+  "initialReopen": {
+    "placementHash": "ec50db3a186fb5bb77e1a7260c0b4d1654c175ed79f9152c3c716db1306642db",
+    "nativeEcologyHash": "3aa6031a736cc1dfd822238830f10da239711baf28c5b42d02a74ce54e018eee",
+    "counts": {
+      "dense_forest": 95,
+      "autumn_forest": 1,
+      "arid_badlands": 95,
+      "castle_plains": 127,
+      "high_alpine": 1,
+      "riverside_village": 12,
+      "lakeside_village": 27
+    },
+    "treePrototypeCounts": {
+      "38529d2a460ecc9f9b83594c0c8713f3": 1027,
+      "749da00445a9d9ec760fc7f02c3491cc": 15,
+      "a123c6f2549851491eb8d128acdffdfc": 223
+    },
+    "nativeTrees": 1265,
+    "nativeDetails": 28501,
+    "sceneProps": 358,
+    "profile": "35c2ca802bd64575961ac7cda330ac91",
+    "scene": "Assets/WorldBuilder/Worlds/35c2ca802bd64575961ac7cda330ac91/Preview/WorldPreview.unity"
+  },
+  "rebinding": {
+    "counts": {
+      "dense_forest": 95,
+      "autumn_forest": 12,
+      "arid_badlands": 95,
+      "castle_plains": 127,
+      "high_alpine": 8,
+      "riverside_village": 11,
+      "lakeside_village": 27
+    },
+    "placementHash": "8ced0a3c2404a244fa715c977dfe53d0ca92f36f0ce5f0138cae612f25d4bf27",
+    "resultHash": "8ced0a3c2404a244fa715c977dfe53d0ca92f36f0ce5f0138cae612f25d4bf27",
+    "errors": false
+  },
+  "finalReopen": {
+    "mapEdgeError": 0,
+    "mapSumError": 9.685754776000977e-8,
+    "planHash": "3fb9e05483787b70abe7ed224c3b60b0811842cb1ece914da9ddb4c4f8ff0c18",
+    "lockedPois": 3,
+    "lockedRoads": 3,
+    "namedTrees": {
+      "dense_forest_Canopy": 1027,
+      "autumn_forest_Canopy": 218,
+      "high_alpine_Canopy": 15
+    },
+    "placementHash": "8ced0a3c2404a244fa715c977dfe53d0ca92f36f0ce5f0138cae612f25d4bf27",
+    "nativeEcologyHash": "2989e9732c70c674964995a2c6302553ab76672c7e53c8f26aad1f2ed6468104",
+    "counts": {
+      "dense_forest": 95,
+      "autumn_forest": 12,
+      "arid_badlands": 95,
+      "castle_plains": 127,
+      "high_alpine": 8,
+      "riverside_village": 11,
+      "lakeside_village": 27
+    },
+    "treePrototypeCounts": {
+      "38529d2a460ecc9f9b83594c0c8713f3": 1027,
+      "749da00445a9d9ec760fc7f02c3491cc": 15,
+      "a123c6f2549851491eb8d128acdffdfc": 218
+    },
+    "nativeTrees": 1260,
+    "nativeDetails": 28444,
+    "sceneProps": 375,
+    "profile": "35c2ca802bd64575961ac7cda330ac91",
+    "scene": "Assets/WorldBuilder/Worlds/35c2ca802bd64575961ac7cda330ac91/Preview/WorldPreview.unity"
+  },
+  "initialOverrideProbe": {
+    "basePlacementHash": "8ced0a3c2404a244fa715c977dfe53d0ca92f36f0ce5f0138cae612f25d4bf27",
+    "savedPlacementHash": "8ced0a3c2404a244fa715c977dfe53d0ca92f36f0ce5f0138cae612f25d4bf27",
+    "dirtyTerrain": "9ec307286104b12f8f932aa6f0fc50af41bde1c064ae4ab10dd9f8a8c476ed07",
+    "fullTerrain": "9ec307286104b12f8f932aa6f0fc50af41bde1c064ae4ab10dd9f8a8c476ed07",
+    "dirtyPlacements": "d76cf1089e1af25fdd25c0915d936833d423764dcb155eaeec6590e3187de85c",
+    "fullPlacements": "d76cf1089e1af25fdd25c0915d936833d423764dcb155eaeec6590e3187de85c",
+    "results": {
+      "pins": 7,
+      "deletes": 7,
+      "moves": 6
+    },
+    "errors": [
+      "Move dense_forest 09111333d0c571acb467e292034c96c1",
+      "Unsupported 09111333d0c571acb467e292034c96c1"
+    ],
+    "collision": "ReservedArea",
+    "locksPreserved": true,
+    "persistedOverrideCount": 0,
+    "originalOverrides": 0
+  },
+  "finalOverrideProbe": {
+    "basePlacementHash": "8ced0a3c2404a244fa715c977dfe53d0ca92f36f0ce5f0138cae612f25d4bf27",
+    "savedPlacementHash": "8ced0a3c2404a244fa715c977dfe53d0ca92f36f0ce5f0138cae612f25d4bf27",
+    "dirtyTerrain": "9ec307286104b12f8f932aa6f0fc50af41bde1c064ae4ab10dd9f8a8c476ed07",
+    "fullTerrain": "9ec307286104b12f8f932aa6f0fc50af41bde1c064ae4ab10dd9f8a8c476ed07",
+    "dirtyPlacements": "120652088e949cd4dd159a154f8a2179c1c50dae4c13142f7c4d3103cc75d812",
+    "fullPlacements": "120652088e949cd4dd159a154f8a2179c1c50dae4c13142f7c4d3103cc75d812",
+    "results": {
+      "pins": 7,
+      "deletes": 7,
+      "moves": 7
+    },
+    "errors": [],
+    "collision": "ReservedArea",
+    "locksPreserved": true,
+    "persistedOverrideCount": 0,
+    "originalOverrides": 0
+  }
+}

@@ -1,0 +1,153 @@
+{
+  "editorVersion": "6000.3.21f1",
+  "world": "35c2ca802bd64575961ac7cda330ac91",
+  "playProbe": {
+    "savedScene": "Assets/WorldBuilder/Worlds/35c2ca802bd64575961ac7cda330ac91/Preview/WorldPreview.unity",
+    "entry": "Boot > Title > Editor additive C preview",
+    "character": "Raon",
+    "cameraMode": "InGame",
+    "input": "Input System virtual Gamepad left stick",
+    "cc": "production KCC",
+    "bridgeEndpoints": "Both ready, runtime gate",
+    "passes": 5,
+    "total": 5,
+    "captureCount": 7,
+    "routes": [
+      {
+        "id": "castle",
+        "stableGroundedFrames": 68,
+        "frames": 68,
+        "arrivalErrorM": 0.85,
+        "lowestVerticalDeltaM": 0.03
+      },
+      {
+        "id": "riverside",
+        "stableGroundedFrames": 97,
+        "frames": 97,
+        "arrivalErrorM": 0.82,
+        "lowestVerticalDeltaM": -0.09
+      },
+      {
+        "id": "lakeside",
+        "stableGroundedFrames": 179,
+        "frames": 179,
+        "arrivalErrorM": 0.86,
+        "lowestVerticalDeltaM": -0.09
+      },
+      {
+        "id": "bridge",
+        "stableGroundedFrames": 199,
+        "frames": 204,
+        "arrivalErrorM": 0.86,
+        "lowestVerticalDeltaM": 0.01
+      },
+      {
+        "id": "tile-boundary",
+        "stableGroundedFrames": 81,
+        "frames": 81,
+        "arrivalErrorM": 0.89,
+        "lowestVerticalDeltaM": 0.03
+      }
+    ],
+    "log": "output/WorldBuilder/P10/TPS/probe.log",
+    "priorAttempts": [
+      "output/WorldBuilder/P10/TPS/probe-attempt1.log",
+      "output/WorldBuilder/P10/TPS/probe-attempt2.log"
+    ]
+  },
+  "capture": [
+    {
+      "id": "dense_forest",
+      "width": 1280,
+      "height": 720,
+      "errorMagentaPixels": 0,
+      "sha256": "AC4F577C38378FA41C15F59AD765F814B7690AE0F2DC50059C4895A561E3E1C0"
+    },
+    {
+      "id": "autumn_forest",
+      "width": 1280,
+      "height": 720,
+      "errorMagentaPixels": 0,
+      "sha256": "CE0E18F243E0A122E9529FBFF0EC2621FDFED53EF197CFD91CFAC550DF550650"
+    },
+    {
+      "id": "arid_badlands",
+      "width": 1280,
+      "height": 720,
+      "errorMagentaPixels": 0,
+      "sha256": "F7C25D568C0E5D4596DC003708F7E66623D5ECEC398437A287D0D750D1EA6A02"
+    },
+    {
+      "id": "castle_plains",
+      "width": 1280,
+      "height": 720,
+      "errorMagentaPixels": 0,
+      "sha256": "8D8B523D72A5F7F3EB0FDDE8DA1ADF0206ECF6696F19E21D9193AC1B70D5F56B"
+    },
+    {
+      "id": "high_alpine",
+      "width": 1280,
+      "height": 720,
+      "errorMagentaPixels": 0,
+      "sha256": "19D6AFA41C40FB43989E447CB4AC68EC5F516B60F9B9659309640AE9D981F537"
+    },
+    {
+      "id": "riverside_village",
+      "width": 1280,
+      "height": 720,
+      "errorMagentaPixels": 0,
+      "sha256": "120A754DDB21A371034D43FC55F9F67C441651B0106B4ADFD63E109F9CE51AC5"
+    },
+    {
+      "id": "lakeside_village",
+      "width": 1280,
+      "height": 720,
+      "errorMagentaPixels": 0,
+      "sha256": "8C811411D908D778BD388108A0163672E7F8B35F840D75D1DA47546EB6E7CDD9"
+    }
+  ],
+  "unscheduled": {
+    "sceneryAndHandsOn": "사용자 테스트 대기",
+    "publishedRuntime": "미수행",
+    "standalone": "미수행",
+    "addressablesBuild": "미수행"
+  },
+  "afterPlay": {
+    "playing": false,
+    "scene": "Assets/WorldBuilder/Worlds/a808a808a808a808a808a808a808a808/P08Authoring.unity",
+    "dirty": false,
+    "playStart": null,
+    "saves": [
+      {
+        "name": "save_slot_0.sav",
+        "bytes": 7392,
+        "utc": "639226563784191371",
+        "sha256": "9D8B7184E3914D0B66B1172B27F729CA91F27345F10A28CAC017C9E75FB3935A"
+      },
+      {
+        "name": "save_slot_0.sav.bak",
+        "bytes": 10512,
+        "utc": "639194447502709922",
+        "sha256": "2F8D22E28ADFA70612B76FFA66A028F0455FC842B6B8627F838C81EE088F9FEE"
+      },
+      {
+        "name": "save_slot_1.sav",
+        "bytes": 8800,
+        "utc": "639275835837507671",
+        "sha256": "9787098A01985E215CF71BB60E427116B1B640D359BCC79C6368D912618D16AD"
+      },
+      {
+        "name": "thumb_slot_0.png",
+        "bytes": 132719,
+        "utc": "639226563784595942",
+        "sha256": "A84EB2FD494BD851C06DE489C30FD9C6EE8C4253129AA2354520018E17FB8995"
+      },
+      {
+        "name": "thumb_slot_1.png",
+        "bytes": 161026,
+        "utc": "639275835838488541",
+        "sha256": "E107198DB0BFC3FEA0DCCF156818C0512B862CC58B776AA3B640766643228A16"
+      }
+    ]
+  }
+}

@@ -1,0 +1,388 @@
+{
+  "planProbe": {
+    "structures": 4,
+    "roads": 3,
+    "patches": 8,
+    "issues": [],
+    "waterIssues": [],
+    "elapsed": 44.3786772
+  },
+  "planApplied": {
+    "structures": 4,
+    "roads": 3,
+    "ramps": 8,
+    "elapsed": 94.4967365,
+    "planHash": "3fb9e05483787b70abe7ed224c3b60b0811842cb1ece914da9ddb4c4f8ff0c18",
+    "terrainHash": "b6fd62217aa89ce7f57eab07186080511e6a1cf95a082adb25a5898d988569f9",
+    "roadLengths": {
+      "4080662811a63d277a68a7369896319f": 845.6978180309626,
+      "40e207ea7cb961c3c535c5d8a426be5b": 1434.010731630368,
+      "a5a0efad3aa12ee04545dc52a61c3294": 759.5941967590812
+    },
+    "roadMaxGrade": {
+      "4080662811a63d277a68a7369896319f": 11.64689298253635,
+      "40e207ea7cb961c3c535c5d8a426be5b": 11.734199668956391,
+      "a5a0efad3aa12ee04545dc52a61c3294": 11.73419966895691
+    }
+  },
+  "initialNavigation": {
+    "sources": 44,
+    "agentSlope": 45,
+    "agentRadius": 0.5,
+    "metrics": [
+      {
+        "id": "a5a0efad3aa12ee04545dc52a61c3294",
+        "forward": true,
+        "backward": true,
+        "waypointLegs": 35,
+        "edgeLegs": 1
+      },
+      {
+        "id": "40e207ea7cb961c3c535c5d8a426be5b",
+        "forward": true,
+        "backward": false,
+        "waypointLegs": 65,
+        "edgeLegs": 3
+      },
+      {
+        "id": "4080662811a63d277a68a7369896319f",
+        "forward": true,
+        "backward": true,
+        "waypointLegs": 39,
+        "edgeLegs": 2
+      }
+    ],
+    "waterCrossingSamples": 32,
+    "submerged": 0,
+    "minDeckClearance": 4.486367473769718,
+    "deckLegs": 8,
+    "issues": []
+  },
+  "unityRuleRegression": {
+    "job_id": "a9cefaa37df644d19372ca9441ffc5c2",
+    "status": "succeeded",
+    "mode": "EditMode",
+    "started_unix_ms": 1795163277971,
+    "finished_unix_ms": 1795163291866,
+    "last_update_unix_ms": 1795163291866,
+    "progress": {
+      "completed": 32,
+      "total": 32,
+      "current_test_full_name": null,
+      "current_test_started_unix_ms": null,
+      "last_finished_test_full_name": "UPlayGround.WorldBuilder.Tests.WorldPlanningTests.UserProtectionAndSculptArePreservedInsteadOfSilentlyOverwritten",
+      "last_finished_unix_ms": 1795163291698,
+      "stuck_suspected": false,
+      "editor_is_focused": false,
+      "run_in_background": true,
+      "focus_nudge_attempts": null,
+      "focus_nudge_limit": null,
+      "focus_nudge_status": null,
+      "blocked_reason": null,
+      "failures_so_far": [],
+      "failures_capped": false
+    },
+    "error": null,
+    "result": {
+      "mode": "EditMode",
+      "summary": {
+        "total": 32,
+        "passed": 32,
+        "failed": 0,
+        "skipped": 0,
+        "durationSeconds": 1.8951183,
+        "resultState": "Passed"
+      },
+      "results": [
+        {
+          "name": "BentRiverMeshAndQueryUseIdenticalLinearSurface",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WaterTests.BentRiverMeshAndQueryUseIdenticalLinearSurface",
+          "state": "Passed",
+          "durationSeconds": 0.021097,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "CanonicalBodyOrderAndDirtyFullAreIdentical",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WaterTests.CanonicalBodyOrderAndDirtyFullAreIdentical",
+          "state": "Passed",
+          "durationSeconds": 0.0783304,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "ChunkPositionLevelUvAndFlowMatchAtSharedBoundary",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WaterTests.ChunkPositionLevelUvAndFlowMatchAtSharedBoundary",
+          "state": "Passed",
+          "durationSeconds": 0.0057742,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "DuplicateWaterGuidIsConflict",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WaterTests.DuplicateWaterGuidIsConflict",
+          "state": "Passed",
+          "durationSeconds": 0.0008346,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "ExtrapolatedBankOutsideWorldHeightReturnsConflict",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WaterTests.ExtrapolatedBankOutsideWorldHeightReturnsConflict",
+          "state": "Passed",
+          "durationSeconds": 0.0054136,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "FalloffCutFillAndProtectionAreChecked",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WaterTests.FalloffCutFillAndProtectionAreChecked",
+          "state": "Passed",
+          "durationSeconds": 0.0241583,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "InvalidLakePolygonAndUnboundedSeaAreRejected",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WaterTests.InvalidLakePolygonAndUnboundedSeaAreRejected",
+          "state": "Passed",
+          "durationSeconds": 0.0007599,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "RasterMarginsKeepSlopedBendsAndOpenEndsWithinWaterConstraints",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WaterTests.RasterMarginsKeepSlopedBendsAndOpenEndsWithinWaterConstraints",
+          "state": "Passed",
+          "durationSeconds": 0.0640311,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "RasterMarginsOutsideWorldHeightAreRejectedBeforeGrading",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WaterTests.RasterMarginsOutsideWorldHeightAreRejectedBeforeGrading",
+          "state": "Passed",
+          "durationSeconds": 0.0006256,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "RemoteLakeInsideRiverBoundingRectangleDoesNotSpendRiverCutFillBudget",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WaterTests.RemoteLakeInsideRiverBoundingRectangleDoesNotSpendRiverCutFillBudget",
+          "state": "Passed",
+          "durationSeconds": 0.0336097,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "RiverEndsKeepDepthAndNarrowRiverCannotHideSculptDamage",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WaterTests.RiverEndsKeepDepthAndNarrowRiverCannotHideSculptDamage",
+          "state": "Passed",
+          "durationSeconds": 0.0291877,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "SculptDepthAndOverflowFailuresDoNotOverwriteInput",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WaterTests.SculptDepthAndOverflowFailuresDoNotOverwriteInput",
+          "state": "Passed",
+          "durationSeconds": 0.020334,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "SearchIsBoundedAndLockedRouteIsNotRegenerated",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WaterTests.SearchIsBoundedAndLockedRouteIsNotRegenerated",
+          "state": "Passed",
+          "durationSeconds": 0.010457,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "SearchRespectsMandatoryWaypointsAndBlockedRoutes",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WaterTests.SearchRespectsMandatoryWaypointsAndBlockedRoutes",
+          "state": "Passed",
+          "durationSeconds": 0.0141987,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "T15_RiverDepthBanksAndLakeOutletAreValidated",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WaterTests.T15_RiverDepthBanksAndLakeOutletAreValidated",
+          "state": "Passed",
+          "durationSeconds": 0.0182185,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "T16_WaterfallSocketsDropPoolAndDirectionAreValidated",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WaterTests.T16_WaterfallSocketsDropPoolAndDirectionAreValidated",
+          "state": "Passed",
+          "durationSeconds": 0.0008242,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "UphillAndSelfIntersectionAreRejected",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WaterTests.UphillAndSelfIntersectionAreRejected",
+          "state": "Passed",
+          "durationSeconds": 0.0004863,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "ValidDeepSculptAndProtectedBedAreNotFalseCutFillConflicts",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WaterTests.ValidDeepSculptAndProtectedBedAreNotFalseCutFillConflicts",
+          "state": "Passed",
+          "durationSeconds": 0.0230048,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "BridgeCatalogSpanWidthAndPivotMustMatchIndependentOfSocketTolerance",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WorldPlanningPresetTests.BridgeCatalogSpanWidthAndPivotMustMatchIndependentOfSocketTolerance",
+          "state": "Passed",
+          "durationSeconds": 0.0040309,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "BridgeHoleApproachSlopeAndUnequalSocketHeightAreRejected",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WorldPlanningTests.BridgeHoleApproachSlopeAndUnequalSocketHeightAreRejected",
+          "state": "Passed",
+          "durationSeconds": 0.0366092,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "ChunkCutCopiesGlobalNormalsTangentsAndAccumulatedUv",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WorldPlanningTests.ChunkCutCopiesGlobalNormalsTangentsAndAccumulatedUv",
+          "state": "Passed",
+          "durationSeconds": 0.0041073,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "FixedFootprintCannotBeCrossedByLockedRoad",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WorldPlanningTests.FixedFootprintCannotBeCrossedByLockedRoad",
+          "state": "Passed",
+          "durationSeconds": 0.1025937,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "LockedPathIsNeverReplacedAndInvalidSmoothedCurveIsRejected",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WorldPlanningTests.LockedPathIsNeverReplacedAndInvalidSmoothedCurveIsRejected",
+          "state": "Passed",
+          "durationSeconds": 0.0281385,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "MissingWaterSpanAndClearanceAreExplicitErrors",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WorldPlanningTests.MissingWaterSpanAndClearanceAreExplicitErrors",
+          "state": "Passed",
+          "durationSeconds": 0.0188378,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "NarrowReservationAndHoleBetweenRoadSampleLinesAreRejected",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WorldPlanningTests.NarrowReservationAndHoleBetweenRoadSampleLinesAreRejected",
+          "state": "Passed",
+          "durationSeconds": 0.0042432,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "PlotMarginCutFillAndNonFiniteSupportAreRejected",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WorldPlanningTests.PlotMarginCutFillAndNonFiniteSupportAreRejected",
+          "state": "Passed",
+          "durationSeconds": 0.0045576,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "PlotProposalReadsInteriorAndRejectsExcessiveCutFill",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WorldPlanningTests.PlotProposalReadsInteriorAndRejectsExcessiveCutFill",
+          "state": "Passed",
+          "durationSeconds": 0.0064748,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "RepeatedAndReorderedInputsKeepCanonicalResultAndLockedPoi",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WorldPlanningTests.RepeatedAndReorderedInputsKeepCanonicalResultAndLockedPoi",
+          "state": "Passed",
+          "durationSeconds": 0.2712762,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "RoadMeshEndsExactlyAtBothBridgeCaps",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WorldPlanningTests.RoadMeshEndsExactlyAtBothBridgeCaps",
+          "state": "Passed",
+          "durationSeconds": 0.0006942,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "SelfCrossingRegionAndDuplicateIdsAreRejectedWithoutMutation",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WorldPlanningTests.SelfCrossingRegionAndDuplicateIdsAreRejectedWithoutMutation",
+          "state": "Passed",
+          "durationSeconds": 0.0007974,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "T13_PlansSupportedPlotsRoadAndBridgeWithoutFillingWater",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WorldPlanningTests.T13_PlansSupportedPlotsRoadAndBridgeWithoutFillingWater",
+          "state": "Passed",
+          "durationSeconds": 0.0839472,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "UserProtectionAndSculptArePreservedInsteadOfSilentlyOverwritten",
+          "fullName": "UPlayGround.WorldBuilder.Tests.WorldPlanningTests.UserProtectionAndSculptArePreservedInsteadOfSilentlyOverwritten",
+          "state": "Passed",
+          "durationSeconds": 0.0127881,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        }
+      ]
+    }
+  }
+}

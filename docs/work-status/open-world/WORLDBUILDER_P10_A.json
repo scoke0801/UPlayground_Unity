@@ -1,0 +1,159 @@
+{
+  "heightmapTests": {
+    "job_id": "00451f80d6494c848cc6af457812d922",
+    "status": "succeeded",
+    "mode": "EditMode",
+    "started_unix_ms": 1795160378593,
+    "finished_unix_ms": 1795160411533,
+    "last_update_unix_ms": 1795160411533,
+    "progress": {
+      "completed": 11,
+      "total": 11,
+      "current_test_full_name": null,
+      "current_test_started_unix_ms": null,
+      "last_finished_test_full_name": "UPlayGround.WorldBuilder.Tests.HeightmapTests.T28_RegionalChecksumResolutionAndNorthReferenceFlip",
+      "last_finished_unix_ms": 1795160411381,
+      "stuck_suspected": false,
+      "editor_is_focused": false,
+      "run_in_background": true,
+      "focus_nudge_attempts": null,
+      "focus_nudge_limit": null,
+      "focus_nudge_status": null,
+      "blocked_reason": null,
+      "failures_so_far": [],
+      "failures_capped": false
+    },
+    "error": null,
+    "result": {
+      "mode": "EditMode",
+      "summary": {
+        "total": 11,
+        "passed": 11,
+        "failed": 0,
+        "skipped": 0,
+        "durationSeconds": 23.2954869,
+        "resultState": "Passed"
+      },
+      "results": [
+        {
+          "name": "CoordinatesAndProfileKeepRegionalAndTechnicalRangesSeparate",
+          "fullName": "UPlayGround.WorldBuilder.Tests.HeightmapTests.CoordinatesAndProfileKeepRegionalAndTechnicalRangesSeparate",
+          "state": "Passed",
+          "durationSeconds": 0.01692,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "InvalidNumericInputsAndConflictingSeamsAreRejected",
+          "fullName": "UPlayGround.WorldBuilder.Tests.HeightmapTests.InvalidNumericInputsAndConflictingSeamsAreRejected",
+          "state": "Passed",
+          "durationSeconds": 0.0023916,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "InvalidTerrainInputPreservesActiveSceneAndCreatesNothing",
+          "fullName": "UPlayGround.WorldBuilder.Tests.HeightmapTests.InvalidTerrainInputPreservesActiveSceneAndCreatesNothing",
+          "state": "Passed",
+          "durationSeconds": 0.0041315,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "T01_OrientationFixtureHasCanonicalCorners",
+          "fullName": "UPlayGround.WorldBuilder.Tests.HeightmapTests.T01_OrientationFixtureHasCanonicalCorners",
+          "state": "Passed",
+          "durationSeconds": 0.0069729,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "T02_AllUshortValuesRoundtripExactly(South)",
+          "fullName": "UPlayGround.WorldBuilder.Tests.HeightmapTests.T02_AllUshortValuesRoundtripExactly(South)",
+          "state": "Passed",
+          "durationSeconds": 0.1958116,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "T02_AllUshortValuesRoundtripExactly(North)",
+          "fullName": "UPlayGround.WorldBuilder.Tests.HeightmapTests.T02_AllUshortValuesRoundtripExactly(North)",
+          "state": "Passed",
+          "durationSeconds": 0.2149532,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "T02_TechnicalFixtureChecksumRoundtripAndSplitJoin",
+          "fullName": "UPlayGround.WorldBuilder.Tests.HeightmapTests.T02_TechnicalFixtureChecksumRoundtripAndSplitJoin",
+          "state": "Passed",
+          "durationSeconds": 12.3612512,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "T03_T04_UnityTerrainRoundtripAndNeighbors(False)",
+          "fullName": "UPlayGround.WorldBuilder.Tests.HeightmapTests.T03_T04_UnityTerrainRoundtripAndNeighbors(False)",
+          "state": "Passed",
+          "durationSeconds": 0.802418,
+          "message": null,
+          "stackTrace": null,
+          "output": "B: Unity 오차=0.007334537816081621m, RAW 재출력=0.0073243305104675471m, 경계=0m\r\n"
+        },
+        {
+          "name": "T03_T04_UnityTerrainRoundtripAndNeighbors(True)",
+          "fullName": "UPlayGround.WorldBuilder.Tests.HeightmapTests.T03_T04_UnityTerrainRoundtripAndNeighbors(True)",
+          "state": "Passed",
+          "durationSeconds": 1.3017874,
+          "message": null,
+          "stackTrace": null,
+          "output": "C: Unity 오차=0.010696200981785697m, RAW 재출력=0.010681315327765173m, 경계=0m\r\n"
+        },
+        {
+          "name": "T27_ReferenceImagesAndNorthFirstRawAreRejected",
+          "fullName": "UPlayGround.WorldBuilder.Tests.HeightmapTests.T27_ReferenceImagesAndNorthFirstRawAreRejected",
+          "state": "Passed",
+          "durationSeconds": 0.002438,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        },
+        {
+          "name": "T28_RegionalChecksumResolutionAndNorthReferenceFlip",
+          "fullName": "UPlayGround.WorldBuilder.Tests.HeightmapTests.T28_RegionalChecksumResolutionAndNorthReferenceFlip",
+          "state": "Passed",
+          "durationSeconds": 7.6607439,
+          "message": null,
+          "stackTrace": null,
+          "output": ""
+        }
+      ]
+    }
+  },
+  "savedTerrain": {
+    "tiles": 16,
+    "edges": 24,
+    "maxErrorMeters": 0.010696200981785697,
+    "maxSeamMeters": 0,
+    "wrongNeighbors": 0,
+    "autoConnectApi": true,
+    "images": {
+      "dense_forest": "Assets/WorldBuilder/Worlds/35c2ca802bd64575961ac7cda330ac91/Source/Concepts/02_Dense_Forest.png",
+      "autumn_forest": "Assets/WorldBuilder/Worlds/35c2ca802bd64575961ac7cda330ac91/Source/Concepts/03_Autumn_Forest.png",
+      "arid_badlands": "Assets/WorldBuilder/Worlds/35c2ca802bd64575961ac7cda330ac91/Source/Concepts/04_Arid_Badlands.png",
+      "castle_plains": "Assets/WorldBuilder/Worlds/35c2ca802bd64575961ac7cda330ac91/Source/Concepts/05_Plains_Castle.png",
+      "high_alpine": "Assets/WorldBuilder/Worlds/35c2ca802bd64575961ac7cda330ac91/Source/Concepts/06_High_Alpine.png",
+      "riverside_village": "Assets/WorldBuilder/Worlds/35c2ca802bd64575961ac7cda330ac91/Source/Concepts/07_Riverside_Village.png",
+      "lakeside_village": "Assets/WorldBuilder/Worlds/35c2ca802bd64575961ac7cda330ac91/Source/Concepts/08_Lakeside_Village.png"
+    },
+    "scene": "Assets/WorldBuilder/Worlds/35c2ca802bd64575961ac7cda330ac91/Preview/WorldPreview.unity",
+    "profile": "Assets/10.Datas/WorldBuilder/35c2ca802bd64575961ac7cda330ac91.asset"
+  }
+}

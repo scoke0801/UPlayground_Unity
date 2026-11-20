@@ -1,7 +1,9 @@
-﻿# WorldBuilder 작업 상태
+# WorldBuilder 작업 상태
+
+- [P10 지역형 아틀라스 작업 상태](WORLDBUILDER_P10.md). P10-A~D 자료·계획·배치·Editor TPS 검증 완료. Unity Nav 체크포인트 139구간과 TPS 주행 표본 5개를 확인했다. T35 경관과 실제 조작은 사용자 테스트 대기다.
 
 - 정본: [지역형 HeightMap 설계](../../../Assets/docs/design/world-art/open-world/WORLDBUILDER_REGIONAL_HEIGHTMAP_DESIGN.md), [요청](../../../Assets/docs/requests/WORLDBUILDER_REGIONAL_IMPLEMENTATION_PROMPTS.md)
-- 범위: P00 → P04 핵심 저작 구현·자동 게이트 통과. 신규 월드만 생성하며 기존 월드·Addressables·서비스는 변경하지 않는다. 사용자 확인 항목은 단계별로 별도 유지한다.
+- 범위: P00~P05 저작 구현. P05의 자동 검사·Play Mode 확인과 사용자 인수 상태는 [P05 종료 인계](#p05-종료-인계)를 따른다.
 
 ## P00 · INTEGRATION_AUDIT (2026-11-16)
 
@@ -311,7 +313,7 @@ Core 수계 타입·유한 비용장 제안·선형 수위/동일 삼각형 물�
 - 좁은 정상 강과 신규 P04 구조물 보완 후 **14/16 통과·2실패**([attempt6](../../../output/WorldBuilder/P05/EditMode-attempt6-final.json)). 남은 Undo 메타데이터 기록을 추가해 수위 변경은 통과했고, 파티클 Transform 후기 할당·부모 소켓 위치를 추가 수정했다.
 - 이동→Undo/Redo→삭제에서 Unity가 기존 사각 예약의 null boundary를 빈 배열로 복원하는 경로를 확인했다([attempt9](../../../output/WorldBuilder/P05/EditMode-attempt9-final.json)). 사각 예약의 null/empty 의미를 기존 소비자 두 곳과 Clone에서 일치시켰다. 다각형1~2점 입력 거절은 유지한다.
 - sourceRevision, P04 계획 원본, 기존 배치 Override를 초기화하지 않는다. 수계 소유 polygon 예약은 P03에 전달하고 다른 예약을 보존한다. 파생 material은 GUID뿐 아니라 완성 재질 내용을 키/무결성 검사에 사용한다. VFX bounds는 직렬화된 emitter 데이터에서 OnEnable에 다시 적용한다.
-- 현재 **전체 관련 회귀 실행 중**. 단계 완료 판정과 Play/미술 인수를 아직 부여하지 않는다. [P05 저작 지침](../../../Assets/docs/guide/WORLDBUILDER_WATER_AUTHORING_GUIDE.md).
+- 이 시점에는 전체 관련 회귀를 실행 중이었다. 종료 시점의 검사와 인수 상태는 아래 인계 기록을 따른다.
 
 ### 보존 중간 대조
 
@@ -323,3 +325,113 @@ Core 수계 타입·유한 비용장 제안·선형 수위/동일 삼각형 물�
 - 이후 P05 변경 영향과 기존 물·수영·수중·발소리·GPU·Camera 이름 규칙을 새로 실행해 **158/158 통과·실패0·skip0**, 275.368초. [개별 원문](../../../output/WorldBuilder/P05/EditMode-water-regression-first.json). Source/Definition 메타데이터·VFX Transform·예약 Undo와 실제 리소스 경로를 포함한다.
 - 이158건 뒤 독립 QA가 수계 A의 사각 범위 안에 있으나 실제로 떨어진 수계 B의 변화를 A의 절토/성토로 오판하는 경우를 확인했다. 각 수계만 제거한 counterfactual 결과와 final의 차이를 평가하도록 보완하고 대각선 강+멀리 떨어진 호수 회귀를 추가했다. 최종 스택의 manual/Height 보호를 보존한다. 전체 Bounds+Smooth halo를 검사하되 다른 수계의 변화는 귀속하지 않는다.
 - P04 planGuid와 수계 systemGuid의 소유자 충돌을 Data/API 양쪽에서 거절한다. 이와 마지막 실제 리소스 GUID→path→타입 가드는 별도 최신 P05 재검증 대상으로 남긴다. 위107/158건을 이 후속 변경의 실행 통과로 승계하지 않는다.
+
+### P05 종료 인계
+
+- 최신 P05 EditMode **28/28 통과, 실패0·건너뜀0** (Core 15, 저작 결합 13, 286.085초). T15/T16, 반복/타일 순서, 청크 경계, Dirty/Full, 겹침·제외, SO·씬·native Terrain Undo/Redo, 실패 주입3건, 소유자 충돌과 P04 계약을 검사했다. 이전 107/158 실행과는 별도다. [Test Runner 원본 XML](../../../output/WorldBuilder/P05/EditMode-final-28.xml), [동일 MCP job 완료 기록](../../../output/WorldBuilder/P05/EditMode-final-28.json).
+- [P05Validation 씬](../../../Assets/WorldBuilder/Worlds/e505e505e505e505e505e505e505e505/P05Validation.unity)을 단독으로 열고 Play한다. 2,048m × 2,048m, 2049², originY0, verticalRange700m, 512m 타일16개와 타일당513²를 유지한다. 첫 확인 구역은 X256~768/Z0~512다. 별도 [수계 원본 SO](../../../Assets/10.Datas/WorldBuilder/P05Validation/WaterSystem.asset)와 [저작 지침](../../../Assets/docs/guide/WORLDBUILDER_WATER_AUTHORING_GUIDE.md)을 사용한다. 주강 ID9가 계획 참조와 일치한다. P04의 교량과 두 건물 동선을 이 씬에서 재현했다. 이 씬의 NavMesh는 검증용이다.
+- Play Mode에서 실제 수면·폭포 curtain·포말·물보라를 렌더했다. 물리 query와 probe에서 주강/바다, 제외 체적, 청크 경계, curtain 비포함을 확인했다. 실제 AudioClip 재생 상태, 근거리 중복 제한, 거리별 방출률·음량, 먼 곳에서 입자0 및 frustum 밖 bounds를 확인했다. 입수 효과음을 검증용으로 반복 재생한다. 전용 폭포 환경음은 미확보이며 청감은 사용자 테스트 대기다. [테스트 구역 화면](../../../output/WorldBuilder/P05/sector-overview.png), [최종 폭포 화면](../../../output/WorldBuilder/P05/waterfall-play-near-final.png), [포말 보완 후 Play 근거](../../../output/WorldBuilder/P05/play-foam-final.json), [물리 조회 원문](../../../output/WorldBuilder/P05/play-query.json), [거리·입자·오디오 원문](../../../output/WorldBuilder/P05/play-vfx-distance-audio.json).
+- 독립 QA에서 확인한 폭포 연결 수역의 이동 문제를 수정했다. 선택 수역의 이동과 소켓 이동을 하나의 Undo 작업으로 적용하며, 반대 수역·교량의 기존 계약을 검사한다. 프리셋 원본 재질 조정은 재생성에 반영되고 불변 파생 재질의 수동 편집은 막는다. QA가 최종 XML 28건, 저장 씬과 Play 증거를 읽기 대조했고 추가 확정 결함은 없었다.
+- 저장한 씬을 재개방해 수계 재평가와 SO canonical 해시 일치, 실제/기록 native Terrain 해시 일치, Conflict 0, URP 수면·포말 컴파일 메시지 0, 미리보기 smoothness 0을 확인했다. 포말 재질과 씬의 GUID 및 씬 내부 객체 ID를 유지했다. 재개 당시 Editor 설정인 DisableDomainReload, 시작 씬 지정 없음과 P05 씬 Edit Mode로 돌아왔다. [저장 씬 검사](../../../output/WorldBuilder/P05/scene-final.json), [포말 변경 대조](../../../output/WorldBuilder/P05/refinement-preservation.json).
+- 시작 지문 3,473개 중 갱신한 설계·위키·작업 상태만 달라졌고 누락은 0개다. B/C·전달 원본·P03/P04 씬/SO·NavMesh 및 사용자 파일의 SHA를 보존했다. P05 임시 테스트 월드는 TearDown으로 정리했다. [보존 원문](../../../output/WorldBuilder/P05/preservation-final.json), [검증 준비표](../../../output/harness/20261119-210016-930b2cff/review.md), [하네스 자체 검사 43건](../../../output/WorldBuilder/P05/harness-final.txt).
+- 실제 KCC 수영, 저작 창 UX, 자연 지형에서의 미술·청감 인수는 사용자 테스트 대기다. 활성 Sculpt 세션의 실제 도메인 리로드 복원과 작업 중 디스크 실패는 미수행이다. 정식 Published/Bake, 게임 로더와 스트리밍은 후속 범위다.
+- P06 예정 범위는 모듈 동굴·Terrain Holes·바이옴·식생/제외 규칙과 T14/T24/T26이다. P06은 미착수다.
+
+<a id="p06-ecology"></a>
+## P06 · 동굴·바이옴·식생
+
+초기 반영 기록이다. 최신 판정은 [P06 종료 검증](#p06-close)을 따른다.
+
+- 시작 시 [변경 목록](../../../output/WorldBuilder/P06/baseline-status.txt)과 [원본 파일 2,309개 SHA-256](../../../output/WorldBuilder/P06/baseline-hashes.json)을 기록했다. P05 종료 인계의 28/28과 이전 107/107·158/158은 이번 결과에 합산하지 않는다.
+- [P06 저작 지침](../../../Assets/docs/guide/WORLDBUILDER_ECOLOGY_AUTHORING_GUIDE.md), [동굴 평가](../../../Assets/02.Scripts/WorldBuilder/Editor/WorldCaveEvaluation.cs), [저작 트랜잭션](../../../Assets/02.Scripts/WorldBuilder/Editor/WorldEcologyAuthoring.cs), [식생 평가](../../../Assets/02.Scripts/WorldBuilder/Editor/WorldVegetationEvaluation.cs), [검증 코드](../../../Assets/Tests/WorldBuilder/EditMode/EcologyAuthoringTests.cs)를 추가했다. 새 직렬화 타입을 사용하는 변경으로 열린 Unity Editor에서 정상 컴파일했다.
+- 독립 QA가 P03 기존 고정 배치의 제외 규칙 회귀, KCC가 감지하지 못하는 레이어의 동굴 바닥, 지붕 위 P02 Hole, 입구 밖 collar 장애물, 첫 적용 시 기존 native 지표·식생 편집의 보호 누락을 지적했다. 관련 경로를 보완했으며 실행 결과는 별도 기록한다.
+- 첫 검증 씬 생성은 기존 P04 fixture의 P03 후보 생성과 도로 메시 무결성 검사에서 중단됐다. [도로 메시 오류](../../../output/WorldBuilder/P06/fixture-attempt-4.txt) · [P03 후보 오류](../../../output/WorldBuilder/P06/fixture-attempt-5.txt). 통신 타임아웃과 실제 실행 결과를 구분한다.
+- 단독 EditMode 첫 실행은 빈 Detail 텍스처 참조의 native 지문 계산에서 실패했다. null 참조를 빈 자산 값으로 기록한 뒤 같은 바닥 검사와 실패 복원을 다시 실행했다. [단독 첫 실행](../../../output/WorldBuilder/P06/EditMode-first.json).
+- [P06Validation 씬](../../../Assets/WorldBuilder/Worlds/f606f606f606f606f606f606f6060906/P06Validation.unity)과 [Definition](../../../Assets/10.Datas/WorldBuilder/P06Validation/Definition.asset)·[Ecology](../../../Assets/10.Datas/WorldBuilder/P06Validation/Ecology.asset)를 저장했다. 2,048m × 2,048m, 2049², originY=0, verticalRange=700m, 16개의 512m 타일이다. 서쪽과 동쪽 포털을 연결한 3모듈 통로는 X476~548/Z303이며 P04 교량과 P05 수계를 복제 월드에서 함께 보여 준다.
+- 저장 씬 검사에서 native Hole **84셀**, 동굴 바닥 Collider **144/144**, 같은 XZ의 동굴 내부 물 쿼리 실패 및 지상 쿼리 성공, native 나무 **62개**와 안정 ID 62개, Details 밀도 합 **1,725**, TerrainLayer 4개를 확인했다. 새 Forest 레이어 118셀·연결 나무 19개와 새 일반 건물 `…0652`가 출력됐다. [씬 검사](../../../output/WorldBuilder/P06/scene-audit.json) · [씬 저장](../../../output/WorldBuilder/P06/fixture-apply.txt).
+- T26은 PC URP 카메라의 1440×810 [구역](../../../output/WorldBuilder/P06/t26-sector.png) · [입구](../../../output/WorldBuilder/P06/t26-entrance.png) · [내부](../../../output/WorldBuilder/P06/t26-interior.png) · [Terrain Detail 근접](../../../output/WorldBuilder/P06/t26-detail.png)으로 확인했다. 동일 카메라의 [Detail 거리 0 대조](../../../output/WorldBuilder/P06/t26-detail-control.png)에서 풀 메시가 사라진다. 캡처 뒤 거리와 카메라 값을 복원했다. 입구의 직선 벽과 지표 경계는 검증용 메시의 모양이 드러나며 미술 인수는 사용자 테스트 대기다.
+- 결합 EditMode 첫 실행은 **34/35**, 실패1·건너뜀0이었다. T14의 복수 소유 cut, 한 cut의 네이티브 타일 경계, 이동·삭제·Undo/Redo·재개방, 실패 주입 3건, P04 Core 13건, T15/T16 포함 P05 Core 15건을 통과했다. 작은 fixture의 촘촘한 P03 자동 소품이 나무 시험 후보를 전부 거절한 한 건은 해당 fixture에서 자동 소품만 끄고 기존 Pin과 P04/P05 예약을 유지했다. 재실행 **5/5**, 실패0·건너뜀0으로 타일 순서·native 식생·미캡처 계층과 P04/P05 구조물·물리 쿼리·폭포·Sculpt 회귀 4건을 통과했다. [첫 결합 job](../../../output/WorldBuilder/P06/EditMode-P06-P04-P05.json) · [재실행 job](../../../output/WorldBuilder/P06/EditMode-targeted-rerun.json) · [Test Runner XML](../../../output/WorldBuilder/P06/EditMode-targeted-rerun.xml).
+- [독립 QA 대조](../../../output/WorldBuilder/P06/qa-review.md) 판단으로 최종 Hole의 내부 피복 재검증, P03 갱신의 입구 Collider 검사 및 TerrainData 저장을 추가했다. [하네스 자체 검사](../../../output/WorldBuilder/P06/harness-check.txt)는 43건 통과다.
+- [씬 재개방 검사](../../../output/WorldBuilder/P06/scene-reopened.json)는 최초 씬 검사와 같은 결과였다. 테스트 UUID 자산은 TearDown에서 정리했다. 별도 검증 씬 및 데이터 폴더의 251파일·20,900,237바이트와 [산출물 지문](../../../output/WorldBuilder/P06/deliverables-hashes.json)을 보관한다. [보존 대조](../../../output/WorldBuilder/P06/preservation-final.json)에서 B/C·전달 RAW·P03/P04/P05 자산의 변경은 0건이었다. 별도 WorldToon 테스트 파일과 시작부터 미커밋 상태였던 Mobile RP Asset의 작업 중 지문 차이는 그대로 두었다. Mobile RP Asset은 최종 Git HEAD와 일치하며 P06 캡처는 PC RP를 사용했다. 시작 시 열려 있던 P05 씬과 Edit Mode로 [복원](../../../output/WorldBuilder/P06/editor-restored.json)했고 [마지막 Console](../../../output/WorldBuilder/P06/console-final.json) 오류는 0건이다. [검증 준비표](../../../output/harness/20261119-215647-842eb797/review.md)와 [링크 검사](../../../output/WorldBuilder/P06/link-check.json)를 보관한다.
+- 실제 KCC·저작 UX·미술·청감은 사용자 테스트 대기다. 활성 Sculpt 세션의 실제 도메인 리로드와 중간 디스크 실패는 미수행이다. 다음 P07 인계는 정식 Navigation 어댑터·Bake·Publish/Rollback이다.
+- 동굴 프리팹 6종과 암석 collar, TerrainLayer 복제본, 기존 장식 나무/풀/관목 참조를 확보했다. 완성 미술용 동굴 키트와 실제 플레이어가 초기화된 P06 플레이 씬은 미확보다. 저장 씬의 입구·직선과 EditMode fixture의 끝막이에서 지지·충돌을 검증했다. 곡선·분기·방의 실제 횡단은 미수행이다.
+
+<a id="p06-close"></a>
+### P06 종료 검증 · 기술 검증 완료
+
+- 플레이어 프리팹의 캡슐·모터 설정과 레이어를 복제해 Editor Play Mode에서 프로젝트 KCC를 실행했다. 저장 씬 서→동·동→서 모두 최저 Y1.004m였으며, 임시 연결한 분기·곡선·끝막이·방의 각 바닥에 접지했다. 끝막이 너머를 목표로 구동했을 때 Z191.81에서 벽에 막혔다. 본편 캐릭터 입력·이동 상태·카메라는 사용자 테스트 대기다. [KCC 완료 job](../../../output/WorldBuilder/P06/EditMode-kcc-close.json).
+- 첫 KCC 실행은 세 경로의 도착 로그를 냈으나 Build Manager의 Localization 초기화 오류 때문에 실패했다. 창을 잠시 닫고 다시 열었다. 중간 실행에서 절대 좌표였던 끝막이 정지 기준은 모듈 위치 기준으로 수정해 최신 실행에서 통과했다. [첫 실행](../../../output/WorldBuilder/P06/EditMode-kcc-first.json) · [중간 결과](../../../output/WorldBuilder/P06/EditMode-kcc-stale-assertion.json).
+- 독립 QA가 HoleCut 직접 쓰기에 부분 파일이 남아 재시도가 차단되는 결함을 확인했다. 이제 같은 폴더의 임시 파일을 쓰고 닫은 뒤 최종 경로로 옮긴다. 복구 중 재저장도 실패하면 최초 오류와 복구 오류를 함께 반환한다. 저장된 검증 씬과 데이터 251파일의 SHA는 유지했다. [산출물 보존 대조](../../../output/WorldBuilder/P06/close-deliverables-preservation.json).
+- 수정 후 생태 EditMode **9/9**, 실패·건너뜀 0건. 최종 씬 적용 직전의 파일 생성 충돌과 HoleCut 임시 파일 쓰기 중의 배타 핸들 충돌을 각각 재현했다. 뒤의 경우 기존 파일 목록이 일치했고 같은 이동의 재시도까지 성공했다. 볼륨 고갈이나 Unity 에셋 재저장의 지속적 실패는 미수행이다. [MCP 원문](../../../output/WorldBuilder/P06/EditMode-ecology-close.json) · [Test Runner XML](../../../output/WorldBuilder/P06/EditMode-ecology-close.xml).
+- 활성 Sculpt 세션에 저장된 native 높이 편집 한 점을 남긴 상태에서 같은 Editor의 실제 스크립트 리로드를 실행했다. 리로드 전후 도메인 식별자가 달랐고 세션 ID와 원본 revision은 일치했다. Capture 후 연산은 10→11개, 활성 세션은 해제됐으며 높이·Hole 지문은 편집 시점과 같았다. Test Runner 재개 과정에서 임시 월드 ID가 사라진 두 실행은 실패로 남기고, 리로드 전후를 분리한 검증에서 성공했다. [검증 코드](../../../Assets/Tests/WorldBuilder/EditMode/WorldEcologyReloadValidation.cs) · [리로드 전 상태](../../../output/WorldBuilder/P06/close-sculpt-before.json) · [실행 결과](../../../output/WorldBuilder/P06/close-sculpt-result.txt) · [Test Runner 첫 시도](../../../output/WorldBuilder/P06/EditMode-sculpt-reload-first.json) · [재개 실패](../../../output/WorldBuilder/P06/EditMode-sculpt-reload-resume-failed.json).
+- 원본·기존 프리팹 764파일과 P06 산출물 251파일에 지문 차이가 없었다. 테스트 임시 월드는 정리했고, 시작 상태였던 P06 단독 씬과 Edit Mode로 복원했다. 최종 Console 오류는 0건이다. KCC 검증에서 잠시 닫은 Build Manager는 다시 열었고 이전 도킹 위치는 대조하지 않았다. [원본 보존](../../../output/WorldBuilder/P06/close-originals-preservation.json) · [Editor 상태](../../../output/WorldBuilder/P06/close-editor.json) · [준비표](../../../output/harness/20261119-223433-08020d56/review.md) · [하네스 43건](../../../output/WorldBuilder/P06/close-harness.txt).
+- 본편 캐릭터 입력·카메라, 저작 창 조작, 미술·청감은 **사용자 테스트 대기**다. 검증용 키트와 모터 설정을 사용했으며 완성 미술용 키트와 본편 플레이어가 초기화된 검증 씬은 미확보다. T24와 T26의 저장 씬 증거는 산출물 지문 대조와 함께 유지한다. P07 정식 Navigation 어댑터·Bake·Publish/Rollback은 인계 범위다.
+
+<a id="p07-bake"></a>
+## P07 · Navigation, 검증, Bake와 발행
+
+- P07은 별도 [저작 씬](../../../Assets/WorldBuilder/Worlds/a707a707a707a707a707a707a707a707/P07Validation.unity), [Definition](../../../Assets/10.Datas/WorldBuilder/P07Validation/Definition.asset), [Navigation Layout](../../../Assets/10.Datas/WorldBuilder/P07Validation/NavigationLayout.asset)을 사용한다. 2,048m × 2,048m, 전역 2049², 간격 1m, originY=0, verticalRange=700m, 512m 타일 16개를 유지한다. P06Validation은 합성 기능 검증 씬으로 유지한다.
+- 기존 WorldBuilder 창에서 Validate, Bake/Cancel, Publish, Rollback, 보존 지정과 정리를 수행한다. [저작 지침](../../../Assets/docs/guide/WORLDBUILDER_BAKE_AUTHORING_GUIDE.md) · [검증기](../../../Assets/02.Scripts/WorldBuilder/Editor/WorldBakeValidation.cs) · [발행 파이프라인](../../../Assets/02.Scripts/WorldBuilder/Editor/WorldBakePipeline.cs) · [런타임 Navigation 어댑터](../../../Assets/02.Scripts/WorldBuilder/Runtime/WorldBakedNavigation.cs).
+- 시작 시 [git 상태](../../../output/WorldBuilder/P07/baseline-status.txt)와 [원본 SHA-256 2,680개](../../../output/WorldBuilder/P07/baseline-hashes.json)를 기록했다. [독립 QA](../../../output/WorldBuilder/P07/qa-review.md) 결과와 [보존 대조](../../../output/WorldBuilder/P07/preservation.json)를 함께 보관한다.
+- 검증에서 두 교량 접근부가 NavMesh 상판과 끊긴 결과를 받았다. 링크 기준을 같은 교량의 양쪽 착지점으로 옮기고, AI 링크와 물리 상판 횡단은 개별 검사한다. [실패 단계 로그](../../../output/WorldBuilder/P07/bake-A-5.txt) · [교량 native 경로 조사](../../../output/WorldBuilder/P07/bridge-probe.txt).
+
+본편 캐릭터의 입력·카메라, 저작 UX, 환경 미술과 청감은 사용자 테스트 대기다. P08은 발행 catalog를 소비하는 로더, 스트리밍과 Addressables 및 기존 런타임 어댑터 통합으로 인계한다.
+
+- **T17 통과**. EditMode 테스트 하네스에서 발행 씬을 Editor Play Mode로 열었다. 교량과 양쪽 포털의 준비 신호를 차례로 해제·복구했고 세 링크에서 실제 AI 경로의 실패·성공·실패를 확인했다. 플레이어 Prefab의 KCC 모터는 교량 상판을 지지한 채 서→동으로 건넜고 양쪽 동굴 포털도 통과했다. 동일 XZ의 동굴 내부 물리 조회는 실패하고 지상 수계 조회는 계속 성공했다. [Test Runner 원본 job](../../../output/WorldBuilder/P07/T17-test-job.json) · [재현 테스트](../../../Assets/Tests/WorldBuilder/EditMode/WorldBakeTraversalTests.cs).
+- [첫 revision A의 저장 씬](../../../Assets/WorldBuilder/Worlds/a707a707a707a707a707a707a707a707/BakeRevisions/264a149b22c54623b6bdbde732901853/World.unity), [런타임 catalog](../../../Assets/WorldBuilder/Worlds/a707a707a707a707a707a707a707a707/BakeRevisions/264a149b22c54623b6bdbde732901853/Catalog.asset), [검증 보고서](../../../Assets/WorldBuilder/Worlds/a707a707a707a707a707a707a707a707/BakeRevisions/264a149b22c54623b6bdbde732901853/Build.json), [Published manifest](../../../Assets/WorldBuilder/Worlds/a707a707a707a707a707a707a707a707/Published/Manifest.json). 독립 QA가 A의 127파일 SHA-256과 catalog·scene GUID를 대조했다. 최초 발행 직전·직후의 실패 주입에서 발행본은 노출되지 않았다. [최초 발행 원본](../../../output/WorldBuilder/P07/T20-first-publish.txt).
+- **T20 발행·복구 통과**. A 발행 후 중복 BuildLock, 두 번째 Terrain 전 취소·저장 예외 주입, 부분 revision의 재개방 차단을 확인했다. B의 손상된 catalog는 파일 지문 검사에서 거절됐고, 발행 직전·직후 실패와 저장되지 않은 입력 변경에서 A 포인터 및 파일 지문이 계속 유효했다. 정상 B를 발행한 뒤 A로 Rollback했고 같은 manifest GUID에 A가 현재, B가 이전으로 남았다. 두 revision의 정리 차단을 확인했다. [T20 실행 원본](../../../output/WorldBuilder/P07/T20.txt) · [실패 주입 스크립트](../../../output/WorldBuilder/P07/T20-repro.cs.txt) · [B 검증 보고서](../../../Assets/WorldBuilder/Worlds/a707a707a707a707a707a707a707a707/BakeRevisions/5d05ab11cea142ebbe1d798941a432fd/Build.json).
+- **초기 T21 Editor 로드**. 재개방한 A의 16개 Terrain에서 타일당 513² 높이와 512² Hole, 512×700×512m, TerrainCollider의 동일 TerrainData, 나무 71개와 안정 ID 71개를 확인했다. `WorldBuilder.Editor`는 Editor 전용이며 저작 SO·Base bytes·Editor 컴포넌트 직접 참조를 검사했다. ShaderGraph importer의 메타데이터는 실제 씬 직렬화 참조와 대조했다. 독립 QA에서 원본 TerrainLayer 4개 참조가 발견됐다. [수정 전 의존성 기록](../../../output/WorldBuilder/P07/T21-editor-before-isolation.txt).
+- **영향 EditMode 회귀 10/10 통과**, 실패0·건너뜀0, 281.57초. P02 Sculpt/미캡처 보호, P03 Override, P04 POI·교량 계획, P05 T15/T16·물리 조회, P06 Hole 소유·식생 결정론을 이 변경에서 새로 실행했다. [Unity Test Runner 원본 job](../../../output/WorldBuilder/P07/regression-job.json).
+
+### P07 최종 격리 revision
+
+- 독립 QA가 찾은 원본 TerrainLayer 참조를 수정했다. TerrainData의 레이어와 월드 소유 Tree/Detail prototype을 새 revision에 연결하고, 저장 씬의 월드 소유 레이어·Prefab/모델 참조를 다시 검사한다. 초기 형식의 재발행은 차단한다.
+- [현재 Published 씬](../../../Assets/WorldBuilder/Worlds/a707a707a707a707a707a707a707a707/BakeRevisions/b88117153989419a96f281acbbc571e1/World.unity), [현재 catalog](../../../Assets/WorldBuilder/Worlds/a707a707a707a707a707a707a707a707/BakeRevisions/b88117153989419a96f281acbbc571e1/Catalog.asset), [현재 검증 보고서](../../../Assets/WorldBuilder/Worlds/a707a707a707a707a707a707a707a707/BakeRevisions/b88117153989419a96f281acbbc571e1/Build.json), [이전 revision 검증 보고서](../../../Assets/WorldBuilder/Worlds/a707a707a707a707a707a707a707a707/BakeRevisions/f6d1d70519e94908886538324c434d1c/Build.json). 두 형식 1 revision으로 발행→교체→Rollback을 재실행했다. [발행 원본](../../../output/WorldBuilder/P07/T20-isolated-revisions.txt) · [Published manifest](../../../Assets/WorldBuilder/Worlds/a707a707a707a707a707a707a707a707/Published/Manifest.json).
+- **T21 정적 검사와 Editor 로드 통과**. 재개방한 발행본의 높이·Hole·alphamap·나무·Detail 밀도를 저작 씬과 타일 16개에서 값 단위로 대조했다. 네 TerrainLayer가 모두 revision 안에 있다. QA가 두 revision의 270개 SHA-256과 32개 TerrainData에 기록된 원본 TerrainLayer 참조 0건을 별도로 확인했다. Player 빌드 판정은 **사용자 지시 대기**다. [최종 Editor 의존성과 native 대조](../../../output/WorldBuilder/P07/T21-editor.txt) · [회귀 Test Runner XML](../../../output/WorldBuilder/P07/regression.xml).
+- **최종 T17 재검사 1/1 통과**, 실패0·건너뜀0. 같은 발행본에서 세 링크의 실제 AI 경로와 교량·동굴 KCC 횡단, 수계 제외를 재검증했다. [최종 Test Runner 원본 job](../../../output/WorldBuilder/P07/T17-final-job.json) · [XML](../../../output/WorldBuilder/P07/T17-final.xml).
+- 시작 지문 2,680개를 대조했다. 기존 B/C, 전달 RAW, P03~P06 씬·데이터·NavMesh, 공용 ProjectSettings와 구매 원본의 뜻밖의 변경·누락은 0개다. 변경한 기존 파일은 P07 연결 코드, 재사용 테스트와 갱신한 문서 여덟 개다. [전체 대조](../../../output/WorldBuilder/P07/preservation.json) · [산출물 SHA-256](../../../output/WorldBuilder/P07/deliverables-hashes.json) · [하네스 자체 검사 43건](../../../output/WorldBuilder/P07/harness.txt).
+- **T20 도메인 리로드·프로세스 재시작 통과**. `beforeAssemblyReload`를 기록하고 같은 PID 33208에서 현재·이전 revision을 다시 열었다. Unity의 재시작 기능으로 PID 35428이 시작된 뒤 두 revision을 다시 열고 중단된 두 revision이 계속 거절되는지 확인했다. 시작 때 열린 P06Validation 씬과 Edit Mode를 복원했다. [라이프사이클 원본](../../../output/WorldBuilder/P07/T20-lifecycle.txt).
+- P07 기술 범위를 종료한다. 본편 입력·카메라, 저작 UX, 환경 미술·청감은 사용자 테스트 대기다. 월드 소유 FBX 전용 fixture와 물리 디스크 장애·프로세스 강제 종료 재현은 미수행이다. 정식 Player 판정은 사용자 지시 대기다.
+
+<a id="p08-streaming"></a>
+## P08 · 발행 월드의 런타임 스트리밍
+
+- 별도 월드 [P08 Authoring](../../../Assets/WorldBuilder/Worlds/a808a808a808a808a808a808a808a808/P08Authoring.unity) · [Definition](../../../Assets/10.Datas/WorldBuilder/P08Validation/Definition.asset) · [부트스트랩](../../../Assets/WorldBuilder/Worlds/a808a808a808a808a808a808a808a808/P08Bootstrap.unity) · [저작 지침](../../../Assets/docs/guide/WORLDBUILDER_STREAMING_AUTHORING_GUIDE.md).
+- 기준선 P07 현재 `b88117153989419a96f281acbbc571e1`, 이전 `f6d1d70519e94908886538324c434d1c`. P08은 같은 Base 높이 입력과 P07 검증·Bake 계약을 사용한 별도 fixture다. 세계 GUID와 그에 따른 sourceRevision·배치 ID 네임스페이스는 P08 전용이다. [P07 종료 근거](#p07-bake) · [시작 지문](../../../output/WorldBuilder/P08/baseline-sha256.csv).
+- [P08 manifest](../../../Assets/WorldBuilder/Worlds/a808a808a808a808a808a808a808a808/Published/Manifest.json)에서 현재 revision을 고른다. 첫 발행본 `223da555c4374e728120b0c0cb7f920b`의 [청크 catalog](../../../Assets/WorldBuilder/Worlds/a808a808a808a808a808a808a808a808/BakeRevisions/223da555c4374e728120b0c0cb7f920b/Chunks.asset)와 [검증 receipt](../../../Assets/WorldBuilder/Worlds/a808a808a808a808a808a808a808a808/BakeRevisions/223da555c4374e728120b0c0cb7f920b/Build.json). 16개 타일 Additive 씬과 revision 전용 catalog 키를 별도 [Addressables 그룹](../../../Assets/AddressableAssetsData/AssetGroups/WorldBuilder-a808a808a808a808a808a808a808a808.asset)에 등록했다.
+- 첫 Bake는 직렬화된 폭포 필드가 수계 지문을 바꿔 실패했다. 카메라 연결을 런타임 속성으로 바꿨다. 이어 Unity가 미저장 제목 없는 씬 다음 Additive 생성에 실패해, 각 스테이징 씬에 경로를 먼저 지정했다. [수계 지문 실패](../../../output/WorldBuilder/P08/bake-a.txt) · [스테이징 실패](../../../output/WorldBuilder/P08/bake-a-retry.txt) · [발행 원본](../../../output/WorldBuilder/P08/bake-a-final.txt).
+- 첫 Editor 스트리밍 실행은 재시도 중 이전 의존 실패가 남아 실패했다. 실패에 따른 해제를 마치는 중인 청크도 다음 요청에서 이전 실패를 지우도록 수정했다. [첫 실행 원문](../../../output/WorldBuilder/P08/T18-first.json).
+- T21 실제 Player 및 T22 standalone Addressables는 사용자 지시 대기다. Player·Addressables 빌드 없이 Editor에서 검증한다.
+
+### Editor 실증
+
+- **T18**. Editor에서 지연, 초기화 실패, 재시도, 진행 중 요청 철회 및 중복 씬·ID를 확인했다. AI는 P07 교량과 동굴 양쪽의 경로를 조회했다. 프로젝트 KCC는 별도로 교량 상판과 동굴 바닥을 지지한 채 횡단했다. 같은 XZ의 동굴은 건조했고 지상 수면은 기존 수영 조회에서 반환됐다. 물과 링크는 원거리 이동 후 청크가 해제되면서 조회에서 사라졌다. [Editor 실행 원문](../../../output/WorldBuilder/P08/T18-T19-editor.json).
+- 실제 ActorSpawnManager·Party 경로에서도 초기화 실패 전후 플레이어·카메라 포즈와 씬이 같았고, 재요청 성공 후 먼 목적지로 이동했다. 등록되지 않은 키에 대한 실제 Addressables 실패를 주입해도 저장 위치에서 벗어나지 않았다. 실제 KCC에 반대 방향 속도 두 건을 주입했을 때 두 번 모두 수평 변위 0.000m였다. 최초 진입 실패에서는 플레이어가 배치되기 전에 복구했고 Title을 다시 연 뒤 P08 재시도에 성공했다. [부트스트랩 원문](../../../output/WorldBuilder/P08/bootstrap-smoke.txt).
+- 첫 저장 확인에서 검증 모터 프리팹에 파티 전환 컴포넌트가 없다는 것을 확인했다. 프로젝트 ActorSpawnManager로 연결을 고친 뒤 실제 플레이어의 반경 0.35m, 높이 1.52m, step 0.5m, 경사 60°가 Bake 프로필 값과 일치했다. SaveManager의 격리 슬롯을 동일 A → B → Rollback A에서 읽어 저장 좌표, 비활성 인스턴스 및 미매칭 ID 보고를 재현했다. [저장·재진입 원문](../../../output/WorldBuilder/P08/bootstrap-smoke.txt).
+- **T20**. 취소 revision 거절, 발행 직후 실패 주입과 포인터 복원, A→B→A 및 동일 manifest GUID를 확인했다. 두 P08 revision에서 배치 ID 274개와 식생 ID 59개가 일치했다. [실행 원문](../../../output/WorldBuilder/P08/T20.txt) · [이전 revision의 catalog](../../../Assets/WorldBuilder/Worlds/a808a808a808a808a808a808a808a808/BakeRevisions/3df4edab22b94e57a6861a24234b9e38/Chunks.asset).
+- **T21 정적·Editor**. 두 revision의 타일 16개씩을 모두 재개방했다. 원본과 높이·Hole·나무·Detail 값이 같았고, revision별 TerrainLayer 격리와 키·금지 의존성 검사를 통과했다. 사용자 승인 뒤 수행할 실제 Player 판정과 분리한다. [T21 원문](../../../output/WorldBuilder/P08/T21-editor.txt).
+- 독립 QA는 두 발행본 402파일의 지문과 새 Addressables 34개 항목의 GUID를 대조했다. 시작 기준선 1,541개에서 차이가 있는 두 파일은 P08 그룹을 추가한 Addressables 설정과 P08Bootstrap을 추가한 빌드 씬 목록이다. 기존 키·프로필·월드·데이터 파일을 대조했고 예상 밖 변경 또는 누락은 0건이다. [파일 대조 원문](../../../output/WorldBuilder/P08/preservation-final.json) · [하네스 자체 검사](../../../output/WorldBuilder/P08/harness.txt).
+
+### 최종 자동 검사와 남은 판정
+
+- **T23 통과**. 최종 EditMode 153/153, 실패 0, 건너뜀 0. 씬 로더·세이브·전투·카메라·퀘스트 HUD·지도·기존 물과 수영, P07 T17, P04 계획과 교량, P05 수계, P06 동굴을 포함한다. 첫 실행의 기존 도착점 반사 검사 1건은 실제 메서드 시그니처를 지정해 수정했다. 부트스트랩과 기존 빌드 씬·P06·P07의 Missing Script는 점검 씬 7개 모두 0이다. [최종 Test Runner 원문](../../../output/WorldBuilder/P08/T23-final.json) · [첫 실패 원문](../../../output/WorldBuilder/P08/T23-first.json) · [Missing Script 대조](../../../output/WorldBuilder/P08/T23-missing-script.txt).
+- **T19 핸들·소유 자산 통과, 전체 메모리 안정 보류**. Editor에서 유지 시간을 진단용 0초로 설정해 50회 왕복했다. 안정 구간의 씬 10개와 소유 씬 핸들 9개는 일정했다. catalog가 NavMesh·proxy를, 활성 청크가 TerrainData를 소유하며 이 자산들의 합은 10,682,622B로 일정했다. 종료 뒤 검증 씬만 남았고 소유 씬·catalog 핸들과 pin은 0이었다. 미사용 자산 해제·GC 이후에도 전체 Editor 할당량이 1,134,466,917B에서 1,138,736,910B로 증가했다. 이 4,269,993B의 소유는 미확인이다. [50회 원본](../../../output/WorldBuilder/P08/T23-final.json).
+- 최초 교차 씬 진입 실패는 기존 씬을 다시 로드해 복구하는 경로다. 동일 월드 이동 실패에서는 현재 씬과 플레이어·카메라를 보존했다. AI 경로 조회를 실행했고 실제 AI가 점유 청크를 옮기면서 pin을 사용하는 주행은 미수행이다.
+- 실제 패드·키보드 입력으로 고속 이동과 카메라 체감, 최초 오류 안내·재시도 UI, 원경 전환의 시각 품질, 저작 UX는 사용자 테스트 대기다. T21 Player와 T22 standalone Addressables는 별도 사용자 지시 대기다.
+
+- Tile 32개의 최종 재개방에서 alphamap까지 저작 원본과 값이 같음을 확인했다. [최종 Editor 대조](../../../output/WorldBuilder/P08/T21-final.txt).
+- P08 미발행 실패·취소 산출물 두 개는 발행·보존 지정·Addressables 참조를 확인한 뒤 `output/WorldBuilder/P08/rejected-revisions/`에 옮겨 receipt와 함께 보관했다. Test Runner 임시 씬을 정리했다. 시작 때 열었던 P06Validation 단독 씬, Edit Mode, 시작 씬 지정 없음으로 복원했다. [정리·복원 원문](../../../output/WorldBuilder/P08/cleanup-editor.txt) · [검증 준비표](../../../output/harness/20261120-002945-7d3352eb/review.md).
+
+<a id="p09-validation"></a>
+## P09 · 통합 인수 검증
+
+4km Dirty 재생성 후속 측정에서 같은 32×32 패치의 중앙값이 28.53초에서 2.63초로 줄었다. Dirty/Full 세 쌍 모두 기존과 동일한 SHA-256이었다. 생산 브리지에서 AI 링크 완료·취소의 pin 해제, 교차 씬 첫 진입 실패의 Title 복구, 격리 슬롯 저장 좌표 재진입을 확인했다. [4km Dirty 저작 재검증](WORLDBUILDER_P09.md#4km-dirty-저작-재검증) · [생산 스트리밍 재검증](WORLDBUILDER_P09.md#생산-스트리밍-재검증).
+
+T01~T26을 이전 단계의 실행과 별도로 대조한다. P08 현재 revision `223da555c4374e728120b0c0cb7f920b`, 이전 revision `3df4edab22b94e57a6861a24234b9e38` 및 기존 월드·데이터·설정 21,392개 파일의 시작 SHA-256을 기록했다. [실행 매트릭스](WORLDBUILDER_P09.md) · [시작 변경 목록](../../../output/WorldBuilder/P09/status-before.txt) · [시작 지문](../../../output/WorldBuilder/P09/source-before.csv).
+
+T21 정적 검사에서 P08 두 revision의 청크 키와 meta GUID 34개, receipt 지문 402개를 대조했다. Runtime/Core/Data의 UnityEditor using 및 AssetDatabase 호출은 0개였다. [정적 원본](../../../output/WorldBuilder/P09/T21-static.txt). 독립 QA가 P06~P08 및 Addressables 1,821개를 재해시했고 1,820개는 일치한다. AddressableAssetSettings.asset만 시작 지문과 달랐다. 현재 설정에서 P08 그룹 한 줄을 제외한 지문은 P08 시작 지문과 일치한다. P09 시작 바이트 차이의 원인은 미확인이다.
+
+
+**P09 v1 단계 완료 · P10 착수.** 2026-11-20 사용자 결정으로 P09를 마감하고 잔여 검증을 후속 항목으로 넘겼다. 기존 회귀 실패 31건의 최신 결과는 통과 30, EditMode 세라 얼굴 모프 재현 1이다. 새 진단 Windows Development Player의 보관 Addressables 파일 105개와 2km·4km·P08 청크 로드를 검증했다. Editor GPU Usage 왕복의 p95/p99는 2km 13.79/16.34ms, 4km 13.83/16.16ms다. 진단 Player의 D3D11·D3D12 FrameTiming 27,603행과 D3D12 직접 연결 3,705개에서 GPU 유효 표본은 0개다. 4km Bake의 후속 A/B에서 Unity 할당 피크는 8.78GiB에서 5.10GiB로 감소했고 청크·Navigation 산출물이 일치했다. 512MiB 메모리 경고 기준은 여전히 초과한다. [Bake 메모리](WORLDBUILDER_P09.md#4km-bake-메모리).
+
+T20 실제 Editor 재시작에서 현재·이전 revision과 발행 포인터가 보존됐다. P08 보관 스냅샷의 GC 예약 크기는 일정했고 도달 객체는 10,415개 감소했다. Mono VM 섹션 예약 크기는 4,496,032B 증가했고, 네이티브 Mono VM·MonoDomain 루트의 할당 수와 크기는 동일했다. 새 진단 Player의 P08 워밍업·50회 후·월드 종료 스냅샷에서 PhysX 증가와 검증 이벤트 문자열 참조를 확인했다. Mono 사용량 카운터의 전체 귀속과 U01~U04 실입력·저작 검수는 남았다. U03의 2km·4km 격리 씬은 준비했다. P10의 첫 작업은 C 아틀라스 자료 계약과 T27·T28 검증이다. [T01~T26 판정](WORLDBUILDER_P09.md) · [진단 Player 메모리와 GPU](WORLDBUILDER_P09.md#진단-player-빌드와-p08-스냅샷) · [사용자 검수](WORLDBUILDER_P09.md#사용자-검수-대기) · [스트리밍 저작 지침](../../../Assets/docs/guide/WORLDBUILDER_STREAMING_AUTHORING_GUIDE.md).

@@ -1,0 +1,77 @@
+{
+  "preparedGates": {
+    "sources": 44,
+    "agentSlope": 45,
+    "agentRadius": 0.5,
+    "metrics": [
+      {
+        "id": "a5a0efad3aa12ee04545dc52a61c3294",
+        "forward": true,
+        "backward": true,
+        "waypointLegs": 35,
+        "edgeLegs": 1
+      },
+      {
+        "id": "40e207ea7cb961c3c535c5d8a426be5b",
+        "forward": true,
+        "backward": false,
+        "waypointLegs": 65,
+        "edgeLegs": 3
+      },
+      {
+        "id": "4080662811a63d277a68a7369896319f",
+        "forward": true,
+        "backward": true,
+        "waypointLegs": 39,
+        "edgeLegs": 2
+      }
+    ],
+    "waterCrossingSamples": 32,
+    "submerged": 0,
+    "minDeckClearance": 4.486367473769718,
+    "deckLegs": 8,
+    "issues": []
+  },
+  "preparedGatesLargerNavTiles": {
+    "sources": 44,
+    "agentSlope": 45,
+    "agentRadius": 0.5,
+    "metrics": [
+      {
+        "id": "a5a0efad3aa12ee04545dc52a61c3294",
+        "forward": true,
+        "backward": true,
+        "waypointLegs": 35,
+        "edgeLegs": 1,
+        "totalSamples": 821,
+        "backwardStatus": "PathComplete",
+        "remaining": 0
+      },
+      {
+        "id": "40e207ea7cb961c3c535c5d8a426be5b",
+        "forward": true,
+        "backward": false,
+        "waypointLegs": 65,
+        "edgeLegs": 3,
+        "totalSamples": 1557,
+        "backwardStatus": "PathPartial",
+        "remaining": 206.997833
+      },
+      {
+        "id": "4080662811a63d277a68a7369896319f",
+        "forward": true,
+        "backward": true,
+        "waypointLegs": 39,
+        "edgeLegs": 2,
+        "totalSamples": 917,
+        "backwardStatus": "PathComplete",
+        "remaining": 0
+      }
+    ],
+    "waterCrossingSamples": 32,
+    "submerged": 0,
+    "minDeckClearance": 4.486367473769718,
+    "deckLegs": 8,
+    "issues": []
+  }
+}

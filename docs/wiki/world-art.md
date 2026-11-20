@@ -1,8 +1,21 @@
-﻿# 월드와 아트
+# 월드와 아트
 
-2026-11-18 **WorldToon 전달 설계 연결(설계만, 구현 착수 전)**: 경량 월드 툰 셰이더군(Mesh·Foliage·Terrain4) 전달 패키지를 프로젝트 문서에 연결했다. 기존 비인간형 lilToon 전환·반응형 환경·식생 셰이더·WorldBuilder 지형과의 충돌 해소, 산출물 경로, 빌드 금지 규칙과의 조정은 [통합 계약](../../Assets/docs/design/world-art/environment/WORLDTOON_EXISTING_INTEGRATION.md)에, G0~G7·T01~T28 진행은 [작업 상태](../work-status/worldtoon.md)에 있다. 원문은 [전달 패키지](../전달용/WorldToon_Handoff/START_HERE.md). 코드·셰이더·재질 변경과 Unity 검증은 수행하지 않았으며 전 단계 `NOT_RUN`이다.
+## 본편 월드 제작 지침
 
-2026-11-18 **WorldBuilder P04 구현·자동 게이트 통과**: Region/POI·부지·Spline 도로·필수 교량 연결, 계획 SO/지형/씬 Undo와 실패 복원을 구현했다. 전체2km 규격을 유지한 별도512m 검증 구역에서 실제 연결 화면을 확인했고, 현재 변경본 관련 **91/91 통과(실패0·건너뜀0)**, 실제128m/512m Agent 교량 횡단·계획 이동/삭제/첫 적용 Undo/Redo·실패 복원·GUID 보존을 확인했다. 독립 QA가 최종 원문과 코드56/원본210/검증 자산98개 지문을 대조했다. [현재 상태·검사·남은 확인](../work-status/open-world/WORLDBUILDER.md#p04-planning), [P04 저작·사용자 테스트](../../Assets/docs/guide/WORLDBUILDER_PLANNING_AUTHORING_GUIDE.md). P05 수계 생성은 아직 진행하지 않았다.
+[오픈월드 맵 제작 가이드](../../Assets/docs/guide/OPENWORLD_MAP_AUTHORING_GUIDE.md)에서 지역의 탐험 목표, 랜드마크, 이동 동선을 정한다. 거점과 주변 동선을 블록아웃으로 주행해 본 뒤 아트와 콘텐츠를 배치한다.
+
+| 제작 단계 | 지침 |
+|---|---|
+| 지형과 수계 | [지형 저작](../../Assets/docs/guide/WORLDBUILDER_TERRAIN_AUTHORING_GUIDE.md) · [수계 저작](../../Assets/docs/guide/WORLDBUILDER_WATER_AUTHORING_GUIDE.md) · [지형·물 아트 작업 교훈](../../Assets/docs/guide/TERRAIN_WATER_ART_LESSONS.md) |
+| 거점·도로·교량 | [월드 계획 저작](../../Assets/docs/guide/WORLDBUILDER_PLANNING_AUTHORING_GUIDE.md) · [카메라 가림 체크리스트](../../Assets/docs/guide/CAMERA_OCCLUSION_FADE_GUIDE.md) |
+| 식생·소품·콘텐츠 배치 | [바이옴·식생·동굴](../../Assets/docs/guide/WORLDBUILDER_ECOLOGY_AUTHORING_GUIDE.md) · [자동 배치와 Override](../../Assets/docs/guide/WORLDBUILDER_PLACEMENT_AUTHORING_GUIDE.md) · [NPC·적·포털 배치 도구](../../Assets/docs/guide/MAP_PLACEMENT_TOOL_GUIDE.md) |
+| 발행과 플레이 검증 | [Bake·발행](../../Assets/docs/guide/WORLDBUILDER_BAKE_AUTHORING_GUIDE.md) · [청크 스트리밍](../../Assets/docs/guide/WORLDBUILDER_STREAMING_AUTHORING_GUIDE.md) · [C 월드 검증 사례](../work-status/open-world/WORLDBUILDER_P10_STREAMING.md) |
+
+2026-11-19 **WorldToon 경량 월드 툰 셰이더군 구현(G0~G6 Editor 범위)**: `Assets/06.Shaders/WorldToon/`에 Mesh(Lite/Standard/Far)·Foliage·Terrain4(+원거리 Basemap) 셰이더, `Tool/Editor/WorldToon/`에 분석·복제·적용·복구·Terrain/식생 검사·검증 씬 도구를 두었다. 대표 변형 300개 D3D 컴파일 PASS, EditMode 8/8 PASS, 검증 씬 낮·밤 캡처로 그림자·추가 광원·데칼·Terrain 구멍·5레이어 차단을 확인했다. 실제 월드 적용은 없다: NPC·몬스터는 lilToon 보호, 식생은 메시 Read/Write 꺼짐, 주요 지형은 4레이어 초과로 보류했고 바위·소품(URP/Lit)만 후보다. GPU 성능은 `NOT_MEASURED`, Player 빌드 항목(T26~T28)은 `사용자 지시 대기`, 외형은 `사용자 테스트 대기`. 판정·근거는 [작업 상태](../work-status/worldtoon.md), 프로젝트 결정은 [통합 계약](../../Assets/docs/design/world-art/environment/WORLDTOON_EXISTING_INTEGRATION.md)과 [결정 기록](../work-status/worldtoon/Decisions.md), 원문은 [전달 패키지](../전달용/WorldToon_Handoff/START_HERE.md).
+
+2026-11-19 **WorldBuilder P05 수계 저작**. 강·호수·바다·폭포를 SO로 저작하고 비파괴 지형 조형, URP 수면, 물리 수역 조회와 기존 수영 어댑터를 적용했다. 전용 2km 검증 씬의 512m 첫 확인 구역에서 수면과 폭포를 Play Mode로 확인했다. 최종 P05 EditMode **28/28 통과, 실패0·건너뜀0**이다. 실제 KCC·저작 UX·미술·청감은 사용자 테스트 대기다. [P05 검사·화면·인계](../work-status/open-world/WORLDBUILDER.md#p05-종료-인계), [수계 저작 지침](../../Assets/docs/guide/WORLDBUILDER_WATER_AUTHORING_GUIDE.md).
+
+2026-11-18 **WorldBuilder P04 구현·자동 게이트 통과**: Region/POI·부지·Spline 도로·필수 교량 연결, 계획 SO/지형/씬 Undo와 실패 복원을 구현했다. 전체2km 규격을 유지한 별도512m 검증 구역에서 실제 연결 화면을 확인했고, P04 종료 시점 **91/91 통과(실패0·건너뜀0)**, 실제128m/512m Agent 교량 횡단·계획 이동/삭제/첫 적용 Undo/Redo·실패 복원·GUID 보존을 확인했다. 독립 QA가 최종 원문과 코드56/원본210/검증 자산98개 지문을 대조했다. [P04 상태·검사](../work-status/open-world/WORLDBUILDER.md#p04-종료-인계), [P04 저작·사용자 테스트](../../Assets/docs/guide/WORLDBUILDER_PLANNING_AUTHORING_GUIDE.md).
 
 2026-11-17 **WorldBuilder P03 구현·자동 검사 통과**: 전역 후보·안정 ID/sourceIdentity·회전 footprint 공간 해시·실제 필터·수동 Override와 P02 Dirty 연결. 최종 관련 **EditMode60/60**, Delete/변환 각20회 Undo/Redo·Dirty/Full·저장/재로드·결합 실패 복원 확인. 독립 QA 지적을 수정·재검증했다. [코드·데이터·검증·남은 항목](../work-status/open-world/WORLDBUILDER.md#p03--공통-배치-기반-2026-11-17), [배치 저작/테스트 지침](../../Assets/docs/guide/WORLDBUILDER_PLACEMENT_AUTHORING_GUIDE.md).
 
@@ -78,4 +91,22 @@ LakeVillageWorld 대기 프레임 저하(2026-11-14~15): [조사·최종 근거]
 
 2026-11-14: [uplayground-vfx 정본](../../.claude/skills/uplayground-vfx/SKILL.md)을 작성하고 Codex 사용자 스킬 폴더에 설치했다. 기존 Unity MCP·Shuriken·MotionEvent·무기 궤적·풀을 활용하며 VFX Graph 노드 편집 제한을 명시했다. 정본/설치본 구조 검사와 3개 파일 해시 대조 통과. 실제 FX 제작·Unity 실행·미술 검증은 미수행이다. [설치·검증·사용법](../work-status/uplayground-vfx-skill.md).
 
-2026-11-18 **WorldBuilder P05 구현·검증 진행 중**: 수계 Core/SO·URP 수면·Volume·기존 수영 어댑터·폭포·원자적 저작 경로를 추가하고 독립 QA 결함을 수정 중이다. 이전 P04의91/91은 P05 변경본 검증으로 승계하지 않는다. [진행·실패·남은 확인](../work-status/open-world/WORLDBUILDER.md#p05-착수--2026-11-18). P06은 진행하지 않는다.
+2026-11-19 **WorldBuilder P06 기술 검증 완료**: 별도 2km 씬의 동굴·소유 HoleCut·P05 건조 체적과 바이옴·Terrain 식생을 검증했다. 프로젝트 KCC 양방향 횡단·끝막이 벽 차단, 생태 EditMode 9/9, 실제 도메인 리로드 후 Sculpt 캡처, T24 생성과 T26 카메라 근거를 연결했다. 본편 입력·카메라와 저작 UX·미술·청감은 사용자 테스트 대기다. [P06 종료 검증](../work-status/open-world/WORLDBUILDER.md#p06-close) · [P06 저작 지침](../../Assets/docs/guide/WORLDBUILDER_ECOLOGY_AUTHORING_GUIDE.md).
+
+2026-11-19 **WorldBuilder P07 검증·Bake·발행**. 별도 2km 월드에서 T17 AI 링크·KCC 통과, T20 격리 revision 발행·교체·Rollback, T21 Editor 로드와 영향 회귀 10/10을 확인했다. Player 판정은 사용자 지시 대기다. [P07 작업 상태와 근거](../work-status/open-world/WORLDBUILDER.md#p07-bake) · [저작 지침](../../Assets/docs/guide/WORLDBUILDER_BAKE_AUTHORING_GUIDE.md).
+
+2026-11-20 **WorldBuilder P08 스트리밍**. 별도 2km 월드에 16개 Additive 청크를 발행했다. Editor 이동 실패·재시도, 실제 저장 A→B→Rollback A, T20 발행 복구, T21 Editor 검사와 T23 회귀 153/153을 확인했다. 50회 왕복의 소유 핸들과 지형·NavMesh·proxy는 안정적이며 전체 Editor 메모리 판정은 보류다. Player와 실제 입력·저작 UX는 대기 상태다. [P08 작업 상태](../work-status/open-world/WORLDBUILDER.md#p08-streaming) · [저작 지침](../../Assets/docs/guide/WORLDBUILDER_STREAMING_AUTHORING_GUIDE.md).
+
+2026-11-20 **WorldBuilder P09 v1 단계 완료 · P10 착수.** 사용자 결정으로 P09를 마감하고 잔여 검증을 후속 항목으로 넘겼다. 4km Dirty 재생성은 중앙값 2.63초, 해시 3/3이다. 생산 브리지의 AI pin·Title 실패 복귀·격리 저장 재진입과 T20 실제 Editor 재시작을 통과했다. 기존 회귀 실패 31건의 통합 재실행은 통과 30, 세라 얼굴 모프 재현 1이다. 세라 얼굴 콘텐츠 누락은 P09 이전 붉은나무 R03·R06에도 기록돼 있고 RifleGirl 모델 46개에서 기존 모프를 찾지 못했다. U03용 2km·4km 격리 씬은 준비했고 U01~U04는 사용자 테스트 대기다. [P09 작업 상태](../work-status/open-world/WORLDBUILDER.md#p09-validation) · [검증 매트릭스](../work-status/open-world/WORLDBUILDER_P09.md) · [사용자 검수](../work-status/open-world/WORLDBUILDER_P09.md#사용자-검수-대기).
+
+Editor GPU 왕복 p95/p99는 2km 13.79/16.34ms, 4km 13.83/16.16ms다. 진단 Player의 D3D11·D3D12 FrameTiming 27,603행과 D3D12 직접 연결 3,705행에서 유효 GPU 표본은 0개였다. 진단 Player P08의 세 스냅샷에서 PhysX +2,647,920B와 검증 이벤트 문자열 +57,000B를 확인했다. PhysX 크기는 월드 종료 후 워밍업보다 작아졌다. 4km Bake 후속 A/B의 Unity 할당 피크는 8.78GiB에서 5.10GiB로 감소했고 청크 64개와 링크가 일치했다. GPU 미수행과 4km Bake 메모리 경고는 후속 기록에 유지한다. [메모리·GPU 기록](../work-status/open-world/WORLDBUILDER_P09.md#진단-player-빌드와-p08-스냅샷) · [v1 판정](../work-status/open-world/WORLDBUILDER_P09.md#v1-판정).
+
+4km Bake 기록의 Windows working set 최대는 저장 씬 재개방부터 첫 청크 최종 저장 직전 사이에 관측됐다. 최적화 후에도 Terrain 복제·Navigation·청크 저장 구간마다 Unity 할당이 1GiB 이상 증가했다. [단계별 Bake 메모리](../work-status/open-world/WORLDBUILDER_P09.md#4km-bake-메모리).
+
+Windows Development 진단 Player 빌드가 성공했다. 보관 Addressables 파일 105개의 지문이 새 패키지와 일치했고, 2km·4km·P08의 청크 로드·해제를 세 번씩 완료했다. 기존 저장 슬롯 5개와 프로젝트 설정 지문을 보존했다. [빌드·런타임 검증](../work-status/open-world/WORLDBUILDER_P09.md#진단-player-빌드와-p08-스냅샷).
+
+U04는 Boot에서 새 게임으로 라온을 선택하고, 저장 화면의 빈 슬롯에만 저장한 뒤 타이틀의 불러오기에서 그 슬롯을 선택한다. 현재 첫 빈 슬롯은 화면 3이다. [U04 검수 절차](../work-status/open-world/WORLDBUILDER_P09.md#사용자-검수-대기).
+
+**WorldBuilder P10-A~D 구현·Editor 검증 완료 · T35 사용자 테스트 대기.** C 아틀라스를 2,048m × 2,048m, 높이 0~700m로 적용했다. 바이옴 5개, 수계, POI 3곳, 도로 루프와 교량을 저장했다. Unity NavMesh에서 체크포인트 139구간을 양방향 검증했고, 강가↔호수 1,434m의 단일 역방향 질의는 부분 경로였다. 7개 지역 자동 배치, Dirty/Full 일치, Lock과 Override 21건을 확인했다. 실제 플레이어로 접근로·교량·타일 경계 5구간을 주행했고 TPS 화면 7장을 저장했다. 경관과 실제 조작 품질, 전 구간 수동 주행은 T35 검수에 남긴다. [P10 작업 상태와 검증](../work-status/open-world/WORLDBUILDER_P10.md) · [TPS 검수 절차](../work-status/open-world/WORLDBUILDER_P10.md#후속-게이트)
+
+**P10 C Editor 발행·핵심 횡단 통과.** 배치 377개와 기존 나무 1,260그루를 적용한 512m 청크 16개를 발행했다. 필수 AI 경로 133구간과 실제 TPS 교량·타일 경계 왕복, 목적지 청크 지연·실패·재시도를 확인했다. Editor 왕복 프레임 p95는 188.6/187.6ms로 기록됐다. 전체 도로 루프와 표현 품질은 사용자 테스트 대기다. [검증 프롬프트·MCP 결과](../work-status/open-world/WORLDBUILDER_P10_STREAMING.md)

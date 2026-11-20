@@ -1,0 +1,158 @@
+﻿{
+    "worldPlan":  {
+                      "plan":  "Assets/10.Datas/WorldBuilder/35c2ca802bd64575961ac7cda330ac91_Plan.asset",
+                      "water":  "Assets/10.Datas/WorldBuilder/P10Regional/WaterSystem.asset",
+                      "pois":  3,
+                      "roads":  3
+                  },
+    "savedBiomeAndPlanProbe":  {
+                                   "layerCount":  5,
+                                   "used":  [
+                                                22488,
+                                                14183,
+                                                16057,
+                                                11986,
+                                                17688
+                                            ],
+                                   "blended":  15464,
+                                   "alphaSumMaxError":  9.6857547760009766E-08,
+                                   "alphaSeamMax":  0,
+                                   "alphaAdjacentMaxDelta":  0.10196083784103394,
+                                   "planningIssues":  [
+                                                          "2167a5c1ad4a77fa8e7103cfa6c9980d MissingWaterPlan 수변 POI에는 확정된 계획 수위 입력이 필요합니다.",
+                                                          "27730e3f74ddb06f7d272a1013a6e6f6 MissingWaterPlan 수변 POI에는 확정된 계획 수위 입력이 필요합니다."
+                                                      ],
+                                   "waterIssues":  {
+                                                       "WB405":  1,
+                                                       "WB401":  2,
+                                                       "WB408":  2,
+                                                       "WB407":  1
+                                                   },
+                                   "waterExamples":  {
+                                                         "WB405":  "WB405 7deb92eb3a0b48099f70c60ca143b7ce (1154,49.2072677612305,651) falloff/Smooth halo 포함 실제 절토/성토 한도 초과",
+                                                         "WB401":  "WB401 227bd4b94e3f4d5aa7ec40fed895b938 (1294.5,12,509) 호안/강둑 전체 구간의 낮은 출구",
+                                                         "WB408":  "WB408 227bd4b94e3f4d5aa7ec40fed895b938 (1291,12,502.5) 수면이 지형 속에 묻혀 있습니다.",
+                                                         "WB407":  "WB407 7deb92eb3a0b48099f70c60ca143b7ce (1276.61907569906,16.9970682425935,537.3) 요구 깊이가 부족합니다. Sculpt·연산 순서·격자 대비 shore 폭을 확인하세요."
+                                                     },
+                                   "waterDetails":  [
+                                                        "WB405 7deb92eb3a0b48099f70c60ca143b7ce (1154,49.2072677612305,651) falloff/Smooth halo 포함 실제 절토/성토 한도 초과",
+                                                        "WB401 227bd4b94e3f4d5aa7ec40fed895b938 (1294.5,12,509) 호안/강둑 전체 구간의 낮은 출구",
+                                                        "WB408 227bd4b94e3f4d5aa7ec40fed895b938 (1291,12,502.5) 수면이 지형 속에 묻혀 있습니다.",
+                                                        "WB401 7deb92eb3a0b48099f70c60ca143b7ce (1294.61907569906,12.1812220829375,508.8) 호안/강둑 전체 구간의 낮은 출구",
+                                                        "WB407 7deb92eb3a0b48099f70c60ca143b7ce (1276.61907569906,16.9970682425935,537.3) 요구 깊이가 부족합니다. Sculpt·연산 순서·격자 대비 shore 폭을 확인하세요.",
+                                                        "WB408 7deb92eb3a0b48099f70c60ca143b7ce (802.619075699063,105.344950046815,1049.8) 수면이 지형 속에 묻혀 있습니다."
+                                                    ]
+                               },
+    "cascadeTrial":  {
+                         "pass":  false,
+                         "details":  [
+                                         "WB405 7deb92eb3a0b48099f70c60ca143b7ce (968,90.1020889282227,875) falloff/Smooth halo 포함 실제 절토/성토 한도 초과",
+                                         "WB401 227bd4b94e3f4d5aa7ec40fed895b938 (1309.45717098856,0,502.087720942468) 의도하지 않은 낮은 출구/강둑 여유고 부족",
+                                         "WB401 7deb92eb3a0b48099f70c60ca143b7ce (1321.26224470471,20.6699491092756,530.471212210894) 호안/강둑 전체 구간의 낮은 출구",
+                                         "WB407 7deb92eb3a0b48099f70c60ca143b7ce (1309.26224470471,20.0381282536945,529.471212210894) 요구 깊이가 부족합니다. Sculpt·연산 순서·격자 대비 shore 폭을 확인하세요.",
+                                         "WB408 7deb92eb3a0b48099f70c60ca143b7ce (1324.76224470471,36.27785019514,578.471212210894) 수면이 지형 속에 묻혀 있습니다."
+                                     ]
+                     },
+    "originalTerrainNavigation":  {
+                                      "slope":  45,
+                                      "voxel":  0.25,
+                                      "poi":  [
+                                                  {
+                                                      "index":  0,
+                                                      "x":  1069,
+                                                      "y":  97,
+                                                      "z":  1017,
+                                                      "lowest":  94.18783569335938,
+                                                      "highest":  97.5844955444336,
+                                                      "maxSlope":  16.152587069231526,
+                                                      "plannedWater":  0,
+                                                      "overlapsDraftWater":  false,
+                                                      "navSnap":  true
+                                                  },
+                                                  {
+                                                      "index":  1,
+                                                      "x":  833,
+                                                      "y":  172.5,
+                                                      "z":  1171,
+                                                      "lowest":  168.145263671875,
+                                                      "highest":  175.23765563964844,
+                                                      "maxSlope":  26.973049151103183,
+                                                      "plannedWater":  151,
+                                                      "overlapsDraftWater":  false,
+                                                      "navSnap":  true
+                                                  },
+                                                  {
+                                                      "index":  2,
+                                                      "x":  1505,
+                                                      "y":  28.700000762939453,
+                                                      "z":  450,
+                                                      "lowest":  27.6112003326416,
+                                                      "highest":  28.85023307800293,
+                                                      "maxSlope":  6.680615527512482,
+                                                      "plannedWater":  12,
+                                                      "overlapsDraftWater":  false,
+                                                      "navSnap":  true
+                                                  }
+                                              ],
+                                      "baselinePaths":  [
+                                                            {
+                                                                "from":  0,
+                                                                "to":  1,
+                                                                "query":  true,
+                                                                "status":  "PathPartial",
+                                                                "corners":  15
+                                                            },
+                                                            {
+                                                                "from":  1,
+                                                                "to":  2,
+                                                                "query":  true,
+                                                                "status":  "PathPartial",
+                                                                "corners":  3
+                                                            },
+                                                            {
+                                                                "from":  2,
+                                                                "to":  0,
+                                                                "query":  true,
+                                                                "status":  "PathComplete",
+                                                                "corners":  4
+                                                            }
+                                                        ]
+                                  },
+    "offlineRouteAndSectionProbe":  {
+                                        "implementation":  "WorldBuilder.Core.dll",
+                                        "reproduction":  "output/WorldBuilder/P10/WaterProbe-final.cs.txt",
+                                        "firstNarrowVariant":  {
+                                                                   "width":  14,
+                                                                   "shoreWidth":  2,
+                                                                   "bankWidth":  3,
+                                                                   "bankClearance":  2,
+                                                                   "conflictCodes":  [
+                                                                                         "WB401",
+                                                                                         "WB401",
+                                                                                         "WB407",
+                                                                                         "WB408"
+                                                                                     ],
+                                                                   "cutFillExceeded":  false
+                                                               },
+                                        "secondNarrowVariant":  {
+                                                                    "width":  14,
+                                                                    "shoreWidth":  3.5,
+                                                                    "bankWidth":  4.5,
+                                                                    "bankClearance":  1.25,
+                                                                    "conflictCodes":  [
+                                                                                          "WB401",
+                                                                                          "WB401",
+                                                                                          "WB407",
+                                                                                          "WB408"
+                                                                                      ],
+                                                                    "cutFillExceeded":  false
+                                                                },
+                                        "widenedVariant":  {
+                                                               "width":  16,
+                                                               "conflictCodes":  [
+                                                                                     "WB400"
+                                                                                 ],
+                                                               "reason":  "Self-intersecting expanded bank polygon"
+                                                           }
+                                    }
+}

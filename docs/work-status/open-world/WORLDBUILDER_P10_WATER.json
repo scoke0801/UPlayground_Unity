@@ -1,0 +1,17 @@
+{
+  "evaluate": {
+    "pass": true,
+    "elapsed": 38.5368622,
+    "patches": 2,
+    "meshes": 6,
+    "issues": []
+  },
+  "applied": {
+    "patches": 2,
+    "chunks": 6,
+    "falls": 1,
+    "waterHash": "995ba4a592809c9f63cae4c6303cb24fdccc9b1ea7aa5334595ffa29b484b658",
+    "terrainHash": "e0cf800ae7bb3629a82eff4ac5e0bf10f070acec52f0b85a2fcd8c1d3d624d10",
+    "scene": "Assets/WorldBuilder/Worlds/35c2ca802bd64575961ac7cda330ac91/Preview/WorldPreview.unity"
+  }
+}

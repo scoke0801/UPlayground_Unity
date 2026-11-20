@@ -67,7 +67,7 @@ namespace UPlayGround.UI
                 _cameraTestMap = TrainingGroundTravel.IsCameraTraining;
                 _statusText.text = "훈련할 맵을 선택하세요.";
                 Refresh();
-                SetDefaultFocus(_modeButton);
+                FocusTrainingAction();
             });
             _closeButton.onClick.AddListener(Hide);
             for (int i = 0; i < _lateralButtons.Length; i++)
@@ -96,8 +96,11 @@ namespace UPlayGround.UI
             _statusText.text = _selectingMap ? "훈련할 맵을 선택하세요." : "상대를 고르고 훈련을 시작하세요.";
             RefreshAttacks();
             Refresh();
-            SetDefaultFocus(_modeButton);
+            FocusTrainingAction();
         }
+
+        private void FocusTrainingAction() => SetDefaultFocus(
+            UIFocusNavigation.FirstNavigable(_modeButton, _startButton, _returnButton, _closeButton));
 
         protected override void OnHide()
         {
@@ -136,7 +139,7 @@ namespace UPlayGround.UI
             if (_selectingMap)
             {
                 string sceneName = _cameraTestMap ? _config.cameraTestSceneName : _config.sceneName;
-                if (!Application.CanStreamedLevelBeLoaded(sceneName))
+                if (!TrainingGroundTravel.CanLoadMap(sceneName))
                 {
                     _statusText.text = "선택한 맵을 불러올 수 없습니다.";
                     return;
@@ -198,8 +201,15 @@ namespace UPlayGround.UI
             if (_selectingMap)
             {
                 _formationPanel.SetActive(false);
-                SetLabel(_modeButton, "훈련 맵     " + (_cameraTestMap ? "카메라 테스트 맵" : "기존 맵") + "  >");
-                _modeButton.interactable = _startButton.interactable = true;
+                bool standard = TrainingGroundTravel.CanLoadMap(_config.sceneName);
+                bool camera = TrainingGroundTravel.CanLoadMap(_config.cameraTestSceneName);
+                _cameraTestMap = camera && (_cameraTestMap || !standard);
+                string mapLabel = _cameraTestMap ? "카메라 테스트 맵" : "기존 맵";
+                _modeButton.interactable = standard && camera;
+                _startButton.interactable = standard || camera;
+                SetLabel(_modeButton, _startButton.interactable
+                    ? "훈련 맵     " + mapLabel + (_modeButton.interactable ? "  >" : "")
+                    : "이용할 수 있는 훈련 맵이 없습니다.");
                 return;
             }
             bool ready = _session != null;
@@ -249,10 +259,17 @@ namespace UPlayGround.UI
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
         private static void Reset() { _returnScene = null; IsCameraTraining = false; }
 
+        public static bool CanEnter(TrainingGroundConfigSO config) =>
+            config != null && (Services.TryGet<IUITrainingService>(out _)
+                || CanLoadMap(config.sceneName) || CanLoadMap(config.cameraTestSceneName));
+
+        internal static bool CanLoadMap(string sceneName) =>
+            !string.IsNullOrWhiteSpace(sceneName) && Application.CanStreamedLevelBeLoaded(sceneName);
+
         /// <summary>훈련장 준비 화면 또는 맵 선택을 연다.</summary>
         public static void Enter(TrainingGroundConfigSO config)
         {
-            if (config == null) return;
+            if (!CanEnter(config)) return;
             UISvc.UI.ShowUI(UI_Scene_TrainingGround.UIKey);
         }
 

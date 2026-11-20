@@ -75,7 +75,10 @@ namespace UPlayGround.UI
             _configButton.onClick.AddListener(OnClickedConfigButton);
             if (_exitButton != null) _exitButton.onClick.AddListener(OnClickedExitButton);
             if (_trainingButton != null) _trainingButton.onClick.AddListener(OnClickedTrainingButton);
+        }
 
+        private void ConfigureNavigation()
+        {
             UIFocusNavigation.ConfigureGrid(new Selectable[]
             {
                 _mapButton,
@@ -93,14 +96,15 @@ namespace UPlayGround.UI
             {
                 foreach (var button in new[] { _trainingButton, _petButton })
                 {
-                    if (button == null) continue;
+                    if (!UIFocusNavigation.IsNavigable(button)) continue;
                     var navigation = button.navigation;
                     navigation.selectOnDown = _exitButton;
                     button.navigation = navigation;
                 }
                 var exitNavigation = _exitButton.navigation;
                 exitNavigation.mode = Navigation.Mode.Explicit;
-                exitNavigation.selectOnUp = _petButton != null ? _petButton : _trainingButton;
+                exitNavigation.selectOnUp = UIFocusNavigation.FirstNavigable(_petButton, _trainingButton,
+                    _skillTreeButton, _configButton);
                 _exitButton.navigation = exitNavigation;
             }
         }
@@ -112,6 +116,9 @@ namespace UPlayGround.UI
         protected override void OnShow()
         {
             base.OnShow();
+            if (_trainingButton != null)
+                _trainingButton.gameObject.SetActive(TrainingGroundTravel.CanEnter(_trainingConfig));
+            ConfigureNavigation();
             _openedFrame = Time.frameCount;
             PlayOpenTween();
             SetDefaultFocus(UIFocusNavigation.FirstNavigable(
@@ -285,6 +292,7 @@ namespace UPlayGround.UI
 
         private void OnClickedTrainingButton()
         {
+            if (!TrainingGroundTravel.CanEnter(_trainingConfig)) return;
             Hide();
             TrainingGroundTravel.Enter(_trainingConfig);
         }

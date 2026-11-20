@@ -52,11 +52,31 @@ namespace UPlayGround.UI.Tests
                     Assert.That(member.EffectiveAbilitySet, Is.Not.Null, member.name);
                 }
             }
-            Assert.That(EditorBuildSettings.scenes.Any(scene => scene.enabled
-                && System.IO.Path.GetFileNameWithoutExtension(scene.path) == config.sceneName), Is.True);
-            Assert.That(config.cameraTestSceneName, Is.Not.Empty);
-            Assert.That(EditorBuildSettings.scenes.Any(scene => scene.enabled
-                && System.IO.Path.GetFileNameWithoutExtension(scene.path) == config.cameraTestSceneName), Is.True);
+            var sceneNames = AssetDatabase.FindAssets("t:Scene", new[] { "Assets/01.Scenes/Test" })
+                .Select(AssetDatabase.GUIDToAssetPath)
+                .Select(System.IO.Path.GetFileNameWithoutExtension).ToArray();
+            Assert.That(sceneNames.Count(name => name == config.sceneName), Is.EqualTo(1));
+            Assert.That(sceneNames.Count(name => name == config.cameraTestSceneName), Is.EqualTo(1));
+            Assert.That(config.cameraTestSceneName, Is.Not.EqualTo(config.sceneName));
+            Assert.That(Application.CanStreamedLevelBeLoaded(config.fallbackReturnScene), Is.True);
+        }
+
+        [TestCase(null, null, false)]
+        [TestCase("Boot", null, true)]
+        [TestCase(null, "Boot", true)]
+        public void 씬_목록에_훈련_맵이_있을_때_메뉴에서_진입한다(string standard, string camera, bool expected)
+        {
+            var config = ScriptableObject.CreateInstance<TrainingGroundConfigSO>();
+            try
+            {
+                config.sceneName = standard;
+                config.cameraTestSceneName = camera;
+                Assert.That(TrainingGroundTravel.CanEnter(config), Is.EqualTo(expected));
+            }
+            finally
+            {
+                Object.DestroyImmediate(config);
+            }
         }
 
         [Test]

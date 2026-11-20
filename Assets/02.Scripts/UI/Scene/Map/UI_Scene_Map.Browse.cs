@@ -188,7 +188,7 @@ namespace UPlayGround.UI
             foreach (var portal in _regionInfo.portals)
             {
                 // 발견 키 없는 항목으로 잠금을 우회하지 않는다. 출구와 도착 거점은 별도 저작한다.
-                if (string.IsNullOrWhiteSpace(portal.activationId))
+                if (!portal.HasActivationId)
                     continue;
 
                 if (portal.requiresActivation
@@ -250,7 +250,7 @@ namespace UPlayGround.UI
 
         private void OnBrowsePortalClicked(MapRegionInfoSO.PortalEntry portal)
         {
-            if (string.IsNullOrWhiteSpace(portal.activationId)
+            if (!portal.HasActivationId
                 || (portal.requiresActivation
                     && !portal.startsActivated
                     && !PortalActivationState.IsActivated(portal.activationId)))

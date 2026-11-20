@@ -6,7 +6,8 @@
     "UPlayGround.Core",
     "UPlayGround.MotionSet.Core",
     "UPlayGround.Data",
-    "UPlayGround.Contracts"
+    "UPlayGround.Contracts",
+    "Unity.Addressables.Editor"
   ],
   "includePlatforms": [
     "Editor"

@@ -13,7 +13,7 @@ namespace UPlayGround.FlowGraph.Tests
     public sealed class WorldTravelIntegrationTests
     {
         private const string DatabasePath = "Assets/10.Datas/Map/MapConfigDatabase.asset";
-        private const string LakeScenePath = "Assets/01.Scenes/Scenario/LakeOfLifeScenario.unity";
+        private const string LakeScenePath = "Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity";
         private const string LakeCommonEndingFlag = "lake.red_tree.return.common_ending";
 
         [Test]
@@ -22,20 +22,22 @@ namespace UPlayGround.FlowGraph.Tests
             var database = AssetDatabase.LoadAssetAtPath<MapConfigDatabaseSO>(DatabasePath);
             Assert.That(database, Is.Not.Null);
             var errors = new List<string>();
-            int count = 0;
+            int listedPortalCount = 0;
             foreach (var entry in database.Entries)
             {
                 if (entry.regionInfo == null) continue;
                 foreach (var portal in entry.regionInfo.portals)
                 {
                     string target = string.IsNullOrEmpty(portal.targetSceneName) ? entry.mapId : portal.targetSceneName;
-                    CheckListedTarget(database, target, entry.mapId + "/" + portal.label, errors);
+                    CheckMappedTarget(database, target, entry.mapId + "/" + portal.label, errors,
+                        requireListed: portal.HasActivationId);
+                    if (!portal.HasActivationId) continue;
                     // 목적지 이름이 있어도 아이콘을 가진 지역이 숨겨져 있으면 선택할 수 없다.
-                    CheckListedTarget(database, entry.mapId, "지도 항목 소유 지역", errors);
-                    count++;
+                    CheckMappedTarget(database, entry.mapId, "지도 항목 소유 지역", errors);
+                    listedPortalCount++;
                 }
             }
-            Assert.That(count, Is.GreaterThan(0));
+            Assert.That(listedPortalCount, Is.GreaterThan(0), "검사할 발견형 지도 포털이 없습니다.");
             Assert.That(errors, Is.Empty, string.Join("\n", errors));
         }
 
@@ -43,7 +45,9 @@ namespace UPlayGround.FlowGraph.Tests
         public void 등록된_플레이_씬의_포털_대상은_지역_목록에서_선택할_수_있다()
         {
             var database = AssetDatabase.LoadAssetAtPath<MapConfigDatabaseSO>(DatabasePath);
-            var maps = new HashSet<string>(database.Entries.Select(e => e.mapId));
+            Assert.That(database, Is.Not.Null);
+            // 통합 월드 씬 이름과 지도에 등록된 논리 지역 ID는 다르다.
+            var maps = new HashSet<string>(database.Entries.Select(e => e.mapId)) { database.DefaultStartMapId };
             var errors = new List<string>();
             int count = 0;
             foreach (var buildScene in EditorBuildSettings.scenes.Where(s => s.enabled && maps.Contains(Path.GetFileNameWithoutExtension(s.path))))
@@ -59,7 +63,7 @@ namespace UPlayGround.FlowGraph.Tests
                         if (settings.FindProperty("_portalType").enumValueIndex != 0) continue;
                         string target = settings.FindProperty("_targetSceneName").stringValue;
                         if (string.IsNullOrWhiteSpace(target)) continue;
-                        CheckListedTarget(database, target, buildScene.path + "/" + component.name, errors);
+                        CheckMappedTarget(database, target, buildScene.path + "/" + component.name, errors);
                         count++;
                     }
                 }
@@ -140,11 +144,14 @@ namespace UPlayGround.FlowGraph.Tests
             finally { EditorSceneManager.ClosePreviewScene(scene); }
         }
 
-        private static void CheckListedTarget(MapConfigDatabaseSO database, string mapId, string source, List<string> errors)
+        private static void CheckMappedTarget(MapConfigDatabaseSO database, string mapId, string source, List<string> errors,
+            bool requireListed = true)
         {
             var region = database.GetRegionInfo(mapId);
-            if (region == null || string.IsNullOrWhiteSpace(region.continentName) || !database.IsRegionListed(mapId))
-                errors.Add(source + " -> " + mapId + ": 표시 이름 또는 지역 목록 공개 누락");
+            if (region == null || string.IsNullOrWhiteSpace(region.continentName))
+                errors.Add(source + " -> " + mapId + ": 지역 표시 이름 누락");
+            else if (requireListed && !database.IsRegionListed(mapId))
+                errors.Add(source + " -> " + mapId + ": 지역 목록 공개 누락");
             if (database.Entries.All(e => e.mapId != mapId || e.config == null))
                 errors.Add(source + " -> " + mapId + ": 지도 설정 누락");
         }

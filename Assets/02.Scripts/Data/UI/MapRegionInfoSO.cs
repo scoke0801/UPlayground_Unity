@@ -41,6 +41,9 @@ namespace UPlayGround.Data.UI
 
             [Tooltip("새 게임에서도 처음부터 활성화된 포탈.")]
             public bool startsActivated;
+
+            /// <summary>지도 이동 대상으로 노출하려면 현장 발견 ID가 필요하다.</summary>
+            public bool HasActivationId => !string.IsNullOrWhiteSpace(activationId);
         }
 
         [Header("이름")]

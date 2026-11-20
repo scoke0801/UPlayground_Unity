@@ -9,7 +9,8 @@ namespace UPlayGround.WorldBuilder.Core
     {
         public static PlacementBuildResult Build(string worldGuid, int epoch, int seed, WorldGrid grid, TerrainBuildResult terrainResult, double tileSize,
             IReadOnlyList<PlacementRule> rules, IReadOnlyList<PlacementPrefab> prefabs, IReadOnlyList<PlacementOverride> overrides,
-            IReadOnlyList<PlacementReservation> reservations, IReadOnlyList<int> tileOrder = null, bool parallel = false)
+            IReadOnlyList<PlacementReservation> reservations, IReadOnlyList<int> tileOrder = null, bool parallel = false,
+            Func<PlacementRecord, PlacementRule, PlacementRejection> finalFilter = null)
         {
             PlacementIdentity.ValidateGuid(worldGuid);
             PlacementIdentity.RequireFinite(tileSize);
@@ -89,7 +90,7 @@ namespace UPlayGround.WorldBuilder.Core
             }
             var terrain = new PlacementTerrain(grid, terrainResult);
 
-            Evaluate(terrain, grid, tileSize, count, automatic, fixedRecords, catalog, ruleMap, overrides, reservations, result);
+            Evaluate(terrain, grid, tileSize, count, automatic, fixedRecords, catalog, ruleMap, overrides, reservations, result, finalFilter);
             return result;
         }
 
@@ -143,7 +144,8 @@ namespace UPlayGround.WorldBuilder.Core
 
         private static void Evaluate(PlacementTerrain terrain, WorldGrid grid, double tileSize, int tileCount, List<PlacementRecord> automatic,
             List<PlacementRecord> fixedRecords, Dictionary<string, PlacementPrefab> prefabs, Dictionary<string, PlacementRule> rules,
-            IReadOnlyList<PlacementOverride> overrides, IReadOnlyList<PlacementReservation> reservations, PlacementBuildResult result)
+            IReadOnlyList<PlacementOverride> overrides, IReadOnlyList<PlacementReservation> reservations, PlacementBuildResult result,
+            Func<PlacementRecord, PlacementRule, PlacementRejection> finalFilter)
         {
             var spatial = new PlacementSpatialHash(tileSize);
             fixedRecords.Sort((a, b) => string.CompareOrdinal(a.id, b.id));
@@ -151,8 +153,17 @@ namespace UPlayGround.WorldBuilder.Core
             {
                 var reason = Prepare(p, prefabs, terrain, grid);
                 if (reason == PlacementRejection.None) reason = terrain.CheckSupport(p);
+                if (reason == PlacementRejection.None && finalFilter != null)
+                {
+                    rules.TryGetValue(p.ruleGuid ?? "", out var fixedRule);
+                    reason = finalFilter(p, fixedRule);
+                }
                 if (reason == PlacementRejection.None) reason = spatial.Check(p);
-                if (reason != PlacementRejection.None) result.Reject(p.ruleGuid, p.id, PlacementRejection.ManualConflict, true);
+                if (reason != PlacementRejection.None)
+                {
+                    if (finalFilter != null && reason != PlacementRejection.ManualConflict) result.Reject(p.ruleGuid, p.id, reason);
+                    result.Reject(p.ruleGuid, p.id, PlacementRejection.ManualConflict, true);
+                }
                 SetOwner(p, tileSize, tileCount); result.Records.Add(p); spatial.Add(p);
             }
             foreach (var p in automatic)
@@ -163,6 +174,7 @@ namespace UPlayGround.WorldBuilder.Core
                 if (reason == PlacementRejection.None && terrain.Slope(p.x, p.z) > rule.MaxSlope) reason = PlacementRejection.SlopeRejected;
                 if (reason == PlacementRejection.None) reason = terrain.CheckSupport(p);
                 if (reason == PlacementRejection.None && IsReserved(p, rule, overrides, reservations)) reason = PlacementRejection.ReservedArea;
+                if (reason == PlacementRejection.None && finalFilter != null) reason = finalFilter(p, rule);
                 if (reason == PlacementRejection.None) reason = spatial.Check(p);
                 if (reason != PlacementRejection.None) { result.Reject(p.ruleGuid, p.id, reason, HasTransformEdit(p.id, overrides)); continue; }
                 SetOwner(p, tileSize, tileCount); result.Records.Add(p); spatial.Add(p);

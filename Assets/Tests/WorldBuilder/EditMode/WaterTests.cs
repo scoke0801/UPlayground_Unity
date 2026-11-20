@@ -21,6 +21,51 @@ namespace UPlayGround.WorldBuilder.Tests
 
         [Test] public void T15_RiverDepthBanksAndLakeOutletAreValidated()
         { var result = Build(new[] { River(), Lake() }); Assert.That(result.Conflicts, Is.Empty, string.Join(" / ", result.Conflicts)); Assert.That(result.Terrain.GetHeight(60, 64), Is.EqualTo(6).Within(.001)); }
+
+        [Test]
+        public void RasterMarginsKeepSlopedBendsAndOpenEndsWithinWaterConstraints()
+        {
+            var river = River();
+            river.route = new[] { new PlanPoint(52, 14, 16), new PlanPoint(57, 12, 37),
+                new PlanPoint(69, 11, 71), new PlanPoint(67, 9, 103) };
+            river.width = 14;
+            river.shoreWidth = river.bankWidth = 4;
+            river.shoreRasterMargin = .7;
+            river.bankRasterMargin = .55;
+            river.waterlineRasterMargin = .12;
+
+            var result = Build(new[] { river });
+            Assert.That(result.Conflicts, Is.Empty, string.Join(" / ", result.Conflicts));
+
+            var exposed = new TerrainOperation(Id(103), TerrainOperationKind.SetAbsolute, new SampleRect(65, 70, 7, 5), 15, stage: 50);
+            Assert.That(Build(new[] { river }, new[] { exposed }).Conflicts.Any(issue => issue.Code == "WB408"), Is.True);
+        }
+
+        [Test]
+        public void RasterMarginsOutsideWorldHeightAreRejectedBeforeGrading()
+        {
+            var lake = Lake();
+            lake.level = lake.depth + .1;
+            lake.shoreWidth = lake.bankWidth = 4;
+            lake.shoreRasterMargin = .7;
+            var result = Build(new[] { lake });
+            Assert.That(result.Conflicts.Single().Code, Is.EqualTo("WB400"));
+            Assert.That(result.Patches, Is.Empty);
+        }
+
+        [Test]
+        public void ExtrapolatedBankOutsideWorldHeightReturnsConflict()
+        {
+            var river = River();
+            river.route = new[] { new PlanPoint(20, 300, 50), new PlanPoint(70, 6, 50), new PlanPoint(70, 5, 100) };
+            river.width = 14;
+            river.shoreWidth = river.bankWidth = 4;
+            river.shoreRasterMargin = 2;
+            river.waterlineRasterMargin = 1;
+            var result = Build(new[] { river });
+            Assert.That(result.Conflicts.Single().Code, Is.EqualTo("WB400"));
+            Assert.That(result.Terrain, Is.Null);
+        }
         [Test] public void UphillAndSelfIntersectionAreRejected()
         {
             var river = River(); river.route[1].y = 9; Assert.That(Build(new[] { river }).HasErrors, Is.True);

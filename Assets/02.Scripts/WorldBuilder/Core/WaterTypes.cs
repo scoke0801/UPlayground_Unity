@@ -16,6 +16,8 @@ namespace UPlayGround.WorldBuilder.Core
         public PlanPoint[] route, boundary;
         public double level, width = 12, depth = 2, shoreWidth = 2, bankWidth = 3, bankClearance = .5, falloff = 6;
         public double flowSpeed = 1, maxCutFill = 12, uvRepeat = 8, queryHeight = 3;
+        public double shoreRasterMargin, bankRasterMargin, waterlineRasterMargin;
+        public bool UsesRasterBank => shoreRasterMargin > 0 || bankRasterMargin > 0 || waterlineRasterMargin > 0;
         public int priority;
         public WaterBody Clone()
         {

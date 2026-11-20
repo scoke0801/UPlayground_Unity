@@ -10,17 +10,23 @@ namespace UPlayGround.WorldBuilder.Core
         {
             PlacementIdentity.ValidateGuid(body.guid);
             PlacementIdentity.RequireFinite(body.level, body.width, body.depth, body.shoreWidth, body.bankWidth, body.bankClearance,
-                body.falloff, body.flowSpeed, body.maxCutFill, body.uvRepeat, body.queryHeight);
+                body.falloff, body.flowSpeed, body.maxCutFill, body.uvRepeat, body.queryHeight,
+                body.shoreRasterMargin, body.bankRasterMargin, body.waterlineRasterMargin);
             if (!Enum.IsDefined(typeof(WaterBodyKind), body.kind) || body.depth <= 0 || body.shoreWidth < grid.SampleSpacing || body.bankWidth < grid.SampleSpacing
                 || body.bankClearance <= 0 || body.falloff <= 0 || body.flowSpeed < 0 || body.maxCutFill <= 0 || body.uvRepeat <= 0 || body.queryHeight < 0)
                 throw new ArgumentException("수계 단면·수치가 유효하지 않습니다.");
+            if (body.shoreRasterMargin < 0 || body.bankRasterMargin < 0 || body.waterlineRasterMargin < 0 ||
+                (body.UsesRasterBank && Math.Min(body.shoreWidth, body.bankWidth) <= grid.SampleSpacing * Math.Sqrt(2)))
+                throw new ArgumentException("격자 호안 전이는 한 셀 대각선보다 넓은 호안과 강둑이 필요합니다.");
+            double channelDepth = body.depth + body.shoreRasterMargin + body.waterlineRasterMargin;
+            double crestHeight = body.bankClearance + body.bankRasterMargin + body.waterlineRasterMargin;
             if (body.kind == WaterBodyKind.River)
             {
                 if (body.route == null || body.route.Length < 2 || body.width <= 2 * body.shoreWidth) throw new ArgumentException("강 경로와 충분한 폭이 필요합니다.");
                 for (int i = 0; i < body.route.Length; i++)
                 {
                     var p = body.route[i]; PlacementIdentity.RequireFinite(p.x, p.y, p.z);
-                    if (p.x < 0 || p.z < 0 || p.x > grid.WorldSize || p.z > grid.WorldSize || p.y - body.depth < grid.OriginY || p.y + body.bankClearance > grid.OriginY + grid.VerticalRange)
+                    if (p.x < 0 || p.z < 0 || p.x > grid.WorldSize || p.z > grid.WorldSize || p.y - channelDepth < grid.OriginY || p.y + crestHeight > grid.OriginY + grid.VerticalRange)
                         throw new ArgumentException("강 경로/수위가 월드 범위를 벗어납니다.");
                     if (i == 0) continue;
                     var a = body.route[i - 1];
@@ -28,13 +34,14 @@ namespace UPlayGround.WorldBuilder.Core
                     if (p.y > a.y + 1e-7) throw new ArgumentException("WB400 RiverUphill: 일반 강 수위가 하류 방향으로 역전됩니다.");
                 }
                 // 스트립 가장자리도 검사하므로 중심선만 교차하지 않는 급회전을 통과시키지 않는다.
-                var banks = RiverBanks(body, body.width / 2 + body.bankWidth + body.falloff);
+                double rasterPadding = body.UsesRasterBank ? grid.SampleSpacing * Math.Sqrt(2) : 0;
+                var banks = RiverBanks(body, body.width / 2 + body.bankWidth + body.falloff + rasterPadding);
                 PlanningGeometry.ValidatePolygon(banks, grid);
             }
             else
             {
                 PlanningGeometry.ValidatePolygon(body.boundary, grid);
-                if (body.level - body.depth < grid.OriginY || body.level + body.bankClearance > grid.OriginY + grid.VerticalRange) throw new ArgumentException("수위가 월드 고도 밖입니다.");
+                if (body.level - channelDepth < grid.OriginY || body.level + crestHeight > grid.OriginY + grid.VerticalRange) throw new ArgumentException("호안 보정이 포함된 수계 단면이 월드 고도 밖입니다.");
                 if (body.kind == WaterBodyKind.Sea && !Array.Exists(body.boundary, p => p.x == 0 || p.z == 0 || p.x == grid.WorldSize || p.z == grid.WorldSize))
                     throw new ArgumentException("바다에는 명시적인 월드 경계가 필요합니다.");
             }
@@ -44,10 +51,12 @@ namespace UPlayGround.WorldBuilder.Core
         public static PlanPoint HorizontalDirection(PlanPoint p) { double length = HorizontalLength(p); return length > 1e-12 ? new PlanPoint(p.x / length, 0, p.z / length) : new PlanPoint(); }
 
         /// <summary>양 끝의 cap은 열어 두며, 길이 방향 수위는 각 선분의 누적 호 길이에 선형이다.</summary>
-        public static void ProjectRiver(WaterBody body, double x, double z, out double distance, out double surfaceY, out PlanPoint flow, out double arc, PlanPoint[] banks = null)
+        public static void ProjectRiver(WaterBody body, double x, double z, out double distance, out double surfaceY, out PlanPoint flow, out double arc,
+            PlanPoint[] banks = null, bool extendSurface = false)
         {
             distance = double.PositiveInfinity; surfaceY = 0; flow = default; arc = 0; double length = 0;
             var point = new PlanPoint(x, 0, z);
+            double nearestEdge = double.PositiveInfinity;
             banks = banks ?? RiverBanks(body, body.width / 2);
             for (int i = 1; i < body.route.Length; i++)
             {
@@ -64,7 +73,40 @@ namespace UPlayGround.WorldBuilder.Core
                     flow = PlanPoint.Lerp(NodeFlow(body, i - 1), NodeFlow(body, i), fraction); arc = length + fraction * segmentLength; return;
                 }
                 double d = PlanningGeometry.DistanceToSegment(point, a, b, out double t);
-                if (d < distance)
+                if (extendSurface)
+                {
+                    double edge = PlanningGeometry.DistanceToSegment(point, leftA, leftB, out double edgeT);
+                    double right = PlanningGeometry.DistanceToSegment(point, rightA, rightB, out double rightT);
+                    bool isRight = right < edge;
+                    if (isRight) { edge = right; edgeT = rightT; }
+                    double cap = i == 1 ? PlanningGeometry.DistanceToSegment(point, leftA, rightA, out _) :
+                        i == body.route.Length - 1 ? PlanningGeometry.DistanceToSegment(point, leftB, rightB, out _) : double.PositiveInfinity;
+                    if (body.route.Length == 2)
+                        cap = Math.Min(cap, PlanningGeometry.DistanceToSegment(point, leftB, rightB, out _));
+                    if (Math.Min(edge, cap) < nearestEdge)
+                    {
+                        nearestEdge = Math.Min(edge, cap);
+                        if (cap < edge)
+                        {
+                            t = ((x - a.x) * (b.x - a.x) + (z - a.z) * (b.z - a.z)) / (segmentLength * segmentLength);
+                            edgeT = Math.Max(0, Math.Min(1, t));
+                        }
+                        else if (isRight)
+                        {
+                            Barycentric(point, rightA, leftB, rightB, out _, out double weightB, out double weightC);
+                            t = weightB + weightC;
+                        }
+                        else
+                        {
+                            Barycentric(point, leftA, leftB, rightA, out _, out t, out _);
+                        }
+                        distance = d;
+                        surfaceY = a.y + (b.y - a.y) * t;
+                        flow = PlanPoint.Lerp(NodeFlow(body, i - 1), NodeFlow(body, i), edgeT);
+                        arc = length + edgeT * segmentLength;
+                    }
+                }
+                else if (d < distance)
                 { distance = d; surfaceY = a.y + (b.y - a.y) * t; flow = HorizontalDirection(b - a) * body.flowSpeed; arc = length + t * segmentLength; }
                 length += segmentLength;
             }

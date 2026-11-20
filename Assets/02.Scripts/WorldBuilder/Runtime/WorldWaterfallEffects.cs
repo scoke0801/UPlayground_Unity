@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using UnityEngine;
 using UPlayGround.WorldBuilder.Data;
 
@@ -19,6 +19,7 @@ namespace UPlayGround.WorldBuilder.Runtime
         }
         public WaterfallPreset preset;
         public Camera observer;
+        public bool FollowMainCamera { get; set; }
         public Emitter[] emitters = Array.Empty<Emitter>();
         private void OnEnable()
         {
@@ -34,6 +35,7 @@ namespace UPlayGround.WorldBuilder.Runtime
         public void Tick()
         {
             if (preset == null) return;
+            if (FollowMainCamera && observer == null) observer = Camera.main;
             for (int i = 0; i < emitters.Length; i++)
             {
                 var emitter = emitters[i]; if (emitter.landing == null) continue;

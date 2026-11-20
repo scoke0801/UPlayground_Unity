@@ -1,4 +1,4 @@
-{
+﻿{
   "name": "WorldBuilder.Editor",
   "rootNamespace": "UPlayGround.WorldBuilder.Editor",
   "references": [
@@ -8,9 +8,10 @@
     "UPlayGround.Actor",
     "UPlayGround.Data",
     "UPlayGround.Contracts",
+    "KinematicCharacterController",
     "Unity.RenderPipelines.Universal.Runtime",
     "UPlayGround.EditorTools",
-    "Unity.Splines",
+    "Unity.Splines", "Unity.Addressables", "Unity.Addressables.Editor", "Unity.ResourceManager",
     "Unity.Mathematics"
   ],
   "includePlatforms": [

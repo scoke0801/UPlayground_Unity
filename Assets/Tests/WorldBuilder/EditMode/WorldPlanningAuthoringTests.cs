@@ -88,8 +88,11 @@ namespace UPlayGround.WorldBuilder.Tests
             Assert.That(plan.pois[0].anchor.x, Is.EqualTo(anchor.x)); Assert.That(plan.AppliedHash, Is.EqualTo(before));
             Assert.That(_definition.PlacementHash, Is.EqualTo(placements)); Assert.That(_definition.Operations.Count, Is.EqualTo(operations)); AssertPreview();
             WorldPlanningAuthoring.ClearGeneratedPlan(_definition); Assert.That(plan.AppliedStructures, Is.Empty); AssertPreview();
-            Undo.PerformUndo(); Assert.That(plan.AppliedHash, Is.EqualTo(before)); AssertPreview();
-            Undo.PerformRedo(); Assert.That(plan.AppliedStructures, Is.Empty); AssertPreview();
+            for (int cycle = 0; cycle < 20; cycle++)
+            {
+                Undo.PerformUndo(); Assert.That(plan.AppliedHash, Is.EqualTo(before)); AssertPreview();
+                Undo.PerformRedo(); Assert.That(plan.AppliedStructures, Is.Empty); AssertPreview();
+            }
         }
         [Test] public void T13_DownstreamPlacementFailureRestoresPlanTerrainAndUserChild()
         {

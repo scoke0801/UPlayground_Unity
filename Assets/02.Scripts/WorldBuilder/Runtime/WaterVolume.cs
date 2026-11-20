@@ -1,6 +1,7 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UPlayGround.Contracts;
 using UPlayGround.WorldBuilder.Core;
+using UPlayGround.WorldBuilder.Data;
 
 namespace UPlayGround.WorldBuilder.Runtime
 {
@@ -11,11 +12,19 @@ namespace UPlayGround.WorldBuilder.Runtime
         [SerializeField] private WaterBody _body;
         [SerializeField] private PlanPoint[] _polygon;
         [SerializeField] private WaterExclusion[] _exclusions;
+        [SerializeField] private WorldDefinition _ecology;
         [SerializeField] private Terrain[] _terrains;
         [SerializeField] private Bounds _bounds;
         [SerializeField] private double _area;
+        private CaveDryVolume[] _bakedDryVolumes;
         public string BodyId => _body?.guid;
         public Bounds Bounds => _bounds;
+        public void BindTerrains(Terrain[] terrains) => _terrains = terrains;
+        public void BindEcology(WorldDefinition definition) => _ecology = definition;
+        private void Awake()
+        {
+            if (TryGetComponent<WorldBakedWaterExclusions>(out var baked)) _bakedDryVolumes = baked.volumes;
+        }
         public void Initialize(WaterBody body, WaterExclusion[] exclusions, Terrain[] terrains)
         {
             _body = body.Clone(); _polygon = body.kind == WaterBodyKind.River ? WaterGeometry.RiverBanks(body, body.width / 2) : (PlanPoint[])body.boundary.Clone();
@@ -33,6 +42,14 @@ namespace UPlayGround.WorldBuilder.Runtime
             if (_body == null || !_bounds.Contains(position) || !float.IsFinite(position.x) || !float.IsFinite(position.y) || !float.IsFinite(position.z)) return false;
             if (_exclusions != null) foreach (var exclusion in _exclusions)
                 if (position.y >= exclusion.minY && position.y <= exclusion.maxY && PlanningGeometry.Contains(exclusion.boundary, position.x, position.z)) return false;
+            if (_ecology != null)
+            {
+                var dry = _ecology.EcologyDryVolumes;
+                for (int i = 0; i < dry.Count; i++)
+                    if (dry[i].Contains(position)) return false;
+            }
+            if (_bakedDryVolumes != null) foreach (var dry in _bakedDryVolumes)
+                if (dry.Contains(position)) return false;
             if (!WaterGeometry.TrySample(_body, position.x, position.z, out double level, out _, out PlanPoint flow, _polygon)) return false;
             if (!TryGetBottom(position, out float bottom) || level <= bottom + .001 || position.y < bottom - .03 || position.y > level + _body.queryHeight) return false;
             sample = new WaterSample { BodyId = _body.guid, SurfaceY = (float)level, Depth = (float)level - bottom, Flow = ToVector(flow), Priority = _body.priority, SpecificityArea = _area };

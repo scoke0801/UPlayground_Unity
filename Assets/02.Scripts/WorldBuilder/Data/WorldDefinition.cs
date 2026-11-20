@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Security.Cryptography;
 using UnityEngine;
 using UPlayGround.WorldBuilder.Core;
 
@@ -35,12 +34,46 @@ namespace UPlayGround.WorldBuilder.Data
         [SerializeField] private int _appliedPlacementSeed, _appliedGenerationEpoch;
         [SerializeField] private WorldPlan _planning;
         public WorldPlan Planning => _planning;
+        [SerializeField] private WorldEcology _ecology;
+        [SerializeField] private string _ecologyOwner;
+        [SerializeField] private CaveDryVolume[] _ecologyDryVolumes;
+        [SerializeField] private TerrainLayer[] _ecologyLayers;
+        public WorldEcology Ecology => _ecology;
+        public string EcologyOwner => _ecologyOwner;
+        public IReadOnlyList<CaveDryVolume> EcologyDryVolumes => _ecologyDryVolumes ?? Array.Empty<CaveDryVolume>();
+        public IReadOnlyList<TerrainLayer> EcologyLayers => _ecologyLayers ?? Array.Empty<TerrainLayer>();
+
+        public void SetEcology(WorldEcology source, IReadOnlyList<PlacementReservation> reservations, CaveDryVolume[] dryVolumes)
+        {
+            PlacementIdentity.ValidateGuid(source.ecologyGuid);
+            if (source.worldGuid != _worldGuid || source.ecologyGuid == _worldGuid ||
+                source.ecologyGuid == _planning?.planGuid || source.ecologyGuid == _waterSystem?.systemGuid ||
+                (_ecology != null && (_ecology != source || _ecologyOwner != source.ecologyGuid)))
+                throw new InvalidOperationException("EcologyIdentityConflict: 월드 또는 연산 소유자가 다릅니다.");
+            var copy = new List<PlacementReservation>();
+            foreach (var reservation in _placementReservations)
+                if (reservation.ownerPlanGuid != source.ecologyGuid) copy.Add(reservation.Clone());
+            foreach (var reservation in reservations) copy.Add(reservation.Clone());
+            _placementReservations = copy;
+            _ecology = source;
+            _ecologyOwner = source.ecologyGuid;
+            _ecologyDryVolumes = dryVolumes;
+            var layers = new List<TerrainLayer>(EcologyLayers);
+            if (layers.Count == 0) layers.Add(source.defaultLayer);
+            else if (!layers.Contains(source.defaultLayer)) layers.Add(source.defaultLayer);
+            var biomes = new List<BiomePreset>(source.biomes);
+            biomes.Sort((a, b) => string.CompareOrdinal(a.biomeId, b.biomeId));
+            foreach (var biome in biomes) if (!layers.Contains(biome.layer)) layers.Add(biome.layer);
+            _ecologyLayers = layers.ToArray();
+        }
+
         [SerializeField] private WaterSystemDefinition _waterSystem;
         public WaterSystemDefinition WaterSystem => _waterSystem;
         /// <summary>수계 원본 교체로 소유 연산을 잃지 않도록 한 월드의 원본을 유지한다.</summary>
         public void SetWaterSystem(WaterSystemDefinition source)
         {
             source.ValidateIdentity(_worldGuid);
+            if (_ecology != null && source.systemGuid == _ecologyOwner) throw new InvalidOperationException("WaterIdentityConflict: 생태와 수계 소유자가 충돌합니다.");
             if (_planning != null && source.systemGuid == _planning.planGuid) throw new InvalidOperationException("WaterIdentityConflict: 계획과 수계의 연산 소유자 GUID가 충돌합니다.");
             if (_waterSystem != null && _waterSystem != source) throw new InvalidOperationException("WaterIdentityConflict: 연결된 수계 원본을 자동 교체하지 않습니다.");
             _waterSystem = source;
@@ -63,6 +96,7 @@ namespace UPlayGround.WorldBuilder.Data
         {
             if (planning == null) throw new ArgumentNullException(nameof(planning));
             PlacementIdentity.ValidateGuid(planning.planGuid);
+            if (_ecology != null && planning.planGuid == _ecologyOwner) throw new InvalidOperationException("PlanningIdentityConflict: 생태와 계획 소유자가 충돌합니다.");
             if (_waterSystem != null && planning.planGuid == _waterSystem.systemGuid) throw new InvalidOperationException("PlanningIdentityConflict: 수계와 계획의 연산 소유자 GUID가 충돌합니다.");
             if (_planning != null && _planning != planning) throw new InvalidOperationException("이미 연결된 계획 자산은 명시적 이관 없이 교체할 수 없습니다.");
             var copy = new List<PlacementReservation>();
@@ -131,21 +165,26 @@ namespace UPlayGround.WorldBuilder.Data
             if (!string.IsNullOrEmpty(_worldGuid)) throw new InvalidOperationException("이미 초기화한 월드의 Base를 교체할 수 없습니다.");
             if (!Guid.TryParseExact(worldGuid, "N", out _) || profile == null || source == null) throw new ArgumentException("월드 식별자·프로필·원본이 필요합니다.");
             var grid = profile.CreateGrid();
-            _ = Raw16HeightmapCodec.Decode(source.bytes, grid.SampleCount, grid.SampleCount, HeightmapRowOrigin.South);
+            byte[] bytes = source.bytes;
+            _ = Raw16HeightmapCodec.Decode(bytes, grid.SampleCount, grid.SampleCount, HeightmapRowOrigin.South);
             _worldGuid = worldGuid;
             _profile = profile;
             _baseHeight = source;
-            _baseSha256 = HashBytes(source.bytes);
-            _sourceRevision = ComputeSourceRevision();
+            _baseSha256 = HashBytes(bytes);
+            _sourceRevision = ComputeSourceRevision(_baseSha256);
             _previewSceneGuid = sceneGuid;
         }
 
         /// <summary>기록된 원본과 좌표 의미가 유지될 때만 Base를 제공한다.</summary>
         public HeightField ReadSource()
         {
-            if (_profile == null || _baseHeight == null || _sourceRevision != ComputeSourceRevision() || HashBytes(_baseHeight.bytes) != _baseSha256)
+            if (_profile == null || _baseHeight == null)
                 throw new InvalidOperationException("SourceRevisionConflict: Base 또는 월드 좌표 규격이 바뀌었습니다.");
-            return Raw16HeightmapCodec.Decode(_baseHeight.bytes, _profile.SampleCount, _profile.SampleCount, HeightmapRowOrigin.South);
+            byte[] bytes = _baseHeight.bytes;
+            string hash = HashBytes(bytes);
+            if (hash != _baseSha256 || _sourceRevision != ComputeSourceRevision(hash))
+                throw new InvalidOperationException("SourceRevisionConflict: Base 또는 월드 좌표 규격이 바뀌었습니다.");
+            return Raw16HeightmapCodec.Decode(bytes, _profile.SampleCount, _profile.SampleCount, HeightmapRowOrigin.South);
         }
 
         /// <summary>저장된 패치 무결성을 검사하고 불변 수치 명령으로 변환한다.</summary>
@@ -184,14 +223,14 @@ namespace UPlayGround.WorldBuilder.Data
             }
         }
 
-        private string ComputeSourceRevision()
+        private string ComputeSourceRevision(string baseHash)
         {
             var grid = _profile.CreateGrid();
             using (var stream = new MemoryStream())
             using (var writer = new BinaryWriter(stream))
             {
                 writer.Write(_worldGuid);
-                writer.Write(HashBytes(_baseHeight.bytes));
+                writer.Write(baseHash);
                 writer.Write(grid.SampleCount);
                 writer.Write(grid.WorldSize);
                 writer.Write(grid.OriginY);
@@ -203,10 +242,7 @@ namespace UPlayGround.WorldBuilder.Data
         }
 
         /// <summary>외부 blob과 메타데이터의 결합을 확인하는 SHA-256 식별자.</summary>
-        public static string HashBytes(byte[] bytes)
-        {
-            using (var sha = SHA256.Create()) return BitConverter.ToString(sha.ComputeHash(bytes)).Replace("-", "").ToLowerInvariant();
-        }
+        public static string HashBytes(byte[] bytes) => TerrainSnapshotCodec.ComputeSha256(bytes);
     }
 
     /// <summary>큰 패치는 별도 불변 바이너리 자산으로 보관해 SO Undo 비용을 제한한다.</summary>

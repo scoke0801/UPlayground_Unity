@@ -55,7 +55,7 @@ namespace UPlayGround.WorldBuilder.Core
             {
                 writer.Write(1); writer.Write(ordered.Length);
                 for (int i = 0; i < ordered.Length; i++) WriteOperation(writer, ordered[i]);
-                return TerrainSnapshotCodec.Hash(stream.ToArray());
+                return TerrainSnapshotCodec.ComputeSha256(stream.ToArray());
             }
         }
 

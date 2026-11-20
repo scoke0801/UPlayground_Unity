@@ -27,6 +27,7 @@ namespace UPlayGround.WorldBuilder.Core
                 var patch = BuildPatch(world, system, body, polygon, grid, protectedZones, result);
                 result.Patches.Add(patch); operations.Add(patch.ToCore());
             }
+            if (result.Conflicts.Exists(issue => issue.Code == "WB400")) return result;
             result.Terrain = TerrainOperationEvaluator.Build(source, grid, operations);
             for (int i = 0; i < result.Bodies.Count; i++)
             {
@@ -51,23 +52,30 @@ namespace UPlayGround.WorldBuilder.Core
             double x0 = grid.WorldSize, z0 = grid.WorldSize, x1 = 0, z1 = 0;
             foreach (var zone in zones) if (zone.blocksTerrain && PlanningGeometry.Overlaps(polygon, zone.boundary)) result.Reject(body.guid, "WB406", "수면의 보호/구조물 공간 침범: " + zone.guid, polygon[0]);
             foreach (var p in polygon) { x0 = Math.Min(x0, p.x); z0 = Math.Min(z0, p.z); x1 = Math.Max(x1, p.x); z1 = Math.Max(z1, p.z); }
-            double margin = body.bankWidth + body.falloff, step = grid.SampleSpacing;
+            double step = grid.SampleSpacing, diagonal = step * Math.Sqrt(2);
+            bool rasterBank = body.UsesRasterBank;
+            double crest = body.bankWidth + (rasterBank ? diagonal : 0);
+            double margin = crest + body.falloff;
+            double shelf = rasterBank ? Math.Min(diagonal, 2 * (Math.Min(body.shoreWidth, body.bankWidth) - diagonal) / 3) : 0;
+            double shoreRun = Math.Max(step * .1, body.shoreWidth - diagonal - shelf);
+            double bankRun = Math.Max(step * .1, body.bankWidth - diagonal - shelf);
             int ix = Math.Max(0, (int)Math.Floor((x0 - margin) / step)), iz = Math.Max(0, (int)Math.Floor((z0 - margin) / step));
             var rect = new SampleRect(ix, iz, Math.Min(grid.SampleCount - 1, (int)Math.Ceiling((x1 + margin) / step)) - ix + 1,
                 Math.Min(grid.SampleCount - 1, (int)Math.Ceiling((z1 + margin) / step)) - iz + 1);
             var patch = new GradePatch { ElementGuid = body.guid, OperationGuid = PlanningIdentity.Derive(world, system, body.guid, "water-bed-bank"),
                 Bounds = rect, Values = new float[rect.Width * rect.Height], Masks = new float[rect.Width * rect.Height], Stage = 20 };
+            var rows = RiverRowBounds(body, polygon, rect.Z * step, rect.Height, step, margin + diagonal);
             for (int z = rect.Z; z < rect.Z + rect.Height; z++) for (int x = rect.X; x < rect.X + rect.Width; x++)
             {
                 double wx = x * step, wz = z * step, level = body.level;
+                if (rows != null && (wx < rows[z - rect.Z].min || wx > rows[z - rect.Z].max)) continue;
                 var gradePoint = new PlanPoint(wx, 0, wz);
                 if (body.kind == WaterBodyKind.River)
                 {
                     var start = body.route[0]; var end = body.route[body.route.Length - 1];
                     var first = WaterGeometry.HorizontalDirection(body.route[1] - start); var last = WaterGeometry.HorizontalDirection(end - body.route[body.route.Length - 2]);
                     double beforeStart = (wx - start.x) * first.x + (wz - start.z) * first.z, afterEnd = (wx - end.x) * last.x + (wz - end.z) * last.z;
-                    double rasterPadding = grid.SampleSpacing * Math.Sqrt(2);
-                    if (beforeStart < -rasterPadding || afterEnd > rasterPadding) continue;
+                    if (beforeStart < -diagonal || afterEnd > diagonal) continue;
                     if (beforeStart < 0) gradePoint -= first * beforeStart;
                     if (afterEnd > 0) gradePoint -= last * afterEnd;
                 }
@@ -75,14 +83,17 @@ namespace UPlayGround.WorldBuilder.Core
                 if (distance < -margin) continue;
                 if (body.kind == WaterBodyKind.River)
                 {
-                    WaterGeometry.ProjectRiver(body, wx, wz, out _, out level, out _, out _, polygon);
+                    WaterGeometry.ProjectRiver(body, wx, wz, out _, out level, out _, out _, polygon, rasterBank);
                 }
-                double target;
-                // 대각선·열린 cap의 격자 보간에도 요구 깊이를 남기도록 한 셀 대각선의 여유를 둔다.
-                double rasterShoreWidth = Math.Max(grid.SampleSpacing * .1, body.shoreWidth - grid.SampleSpacing * Math.Sqrt(2));
-                if (distance >= 0) target = level - body.depth * Math.Min(1, distance / rasterShoreWidth);
-                else target = level + body.bankClearance * Math.Min(1, -distance / Math.Max(grid.SampleSpacing * .1, body.bankWidth - grid.SampleSpacing * Math.Sqrt(2)));
-                double mask = distance >= -body.bankWidth ? 1 : Math.Max(0, 1 - (-distance - body.bankWidth) / body.falloff);
+                // 수면 높이와 완만하게 만나는 구간을 확보해 격자 보간이 호안을 뒤집지 않게 한다.
+                level -= Math.Max(-1, Math.Min(1, distance / diagonal)) * body.waterlineRasterMargin;
+                double run = Math.Max(0, Math.Abs(distance) - shelf);
+                double target = distance >= 0
+                    ? level - (body.depth + body.shoreRasterMargin) * Math.Min(1, run / shoreRun)
+                    : level + (body.bankClearance + body.bankRasterMargin) * Math.Min(1, run / bankRun);
+                double mask = distance >= -crest ? 1 : Math.Max(0, 1 - (-distance - crest) / body.falloff);
+                if (rasterBank && mask > 0 && (target < grid.OriginY || target > grid.OriginY + grid.VerticalRange))
+                    result.Reject(body.guid, "WB400", "격자 호안 외삽 고도가 월드 범위를 벗어납니다.", new PlanPoint(wx, target, wz));
                 int index = (z - rect.Z) * rect.Width + x - rect.X; patch.Values[index] = (float)target; patch.Masks[index] = (float)mask;
             }
             return patch;
@@ -115,9 +126,13 @@ namespace UPlayGround.WorldBuilder.Core
             double minX = grid.WorldSize, minZ = grid.WorldSize, maxX = 0, maxZ = 0;
             foreach (var p in polygon) { minX = Math.Min(minX, p.x); minZ = Math.Min(minZ, p.z); maxX = Math.Max(maxX, p.x); maxZ = Math.Max(maxZ, p.z); }
             double step = grid.SampleSpacing / 2;
-            for (double z = Math.Max(0, minZ - body.bankWidth); z <= Math.Min(grid.WorldSize, maxZ + body.bankWidth) + 1e-7; z += step)
+            double bankMinZ = Math.Max(0, minZ - body.bankWidth), bankMaxZ = Math.Min(grid.WorldSize, maxZ + body.bankWidth);
+            var bankRows = RiverRowBounds(body, polygon, bankMinZ, (int)Math.Ceiling((bankMaxZ - bankMinZ) / step) + 1, step, body.bankWidth);
+            int row = 0;
+            for (double z = bankMinZ; z <= bankMaxZ + 1e-7; z += step, row++)
             for (double x = Math.Max(0, minX - body.bankWidth); x <= Math.Min(grid.WorldSize, maxX + body.bankWidth) + 1e-7; x += step)
             {
+                if (bankRows != null && (x < bankRows[row].min || x > bankRows[row].max)) continue;
                 double distance = WaterGeometry.SignedDistance(body, x, z, polygon);
                 if (distance >= -1e-7 || distance < -body.bankWidth) continue;
                 double level = body.level;
@@ -126,13 +141,16 @@ namespace UPlayGround.WorldBuilder.Core
                     var start = body.route[0]; var end = body.route[body.route.Length - 1];
                     var first = WaterGeometry.HorizontalDirection(body.route[1] - start); var last = WaterGeometry.HorizontalDirection(end - body.route[body.route.Length - 2]);
                     if ((x - start.x) * first.x + (z - start.z) * first.z < -1e-7 || (x - end.x) * last.x + (z - end.z) * last.z > 1e-7) continue;
-                    WaterGeometry.ProjectRiver(body, x, z, out _, out level, out _, out _, polygon);
+                    WaterGeometry.ProjectRiver(body, x, z, out _, out level, out _, out _, polygon, body.UsesRasterBank);
                 }
                 if (sample.Height(x, z) < level - .03)
                     result.Reject(body.guid, "WB401", "호안/강둑 전체 구간의 낮은 출구", new PlanPoint(x, level, z));
             }
-            for (double z = minZ; z <= maxZ + 1e-7; z += step) for (double x = minX; x <= maxX + 1e-7; x += step)
+            var waterRows = RiverRowBounds(body, polygon, minZ, (int)Math.Ceiling((maxZ - minZ) / step) + 1, step, 0);
+            row = 0;
+            for (double z = minZ; z <= maxZ + 1e-7; z += step, row++) for (double x = minX; x <= maxX + 1e-7; x += step)
             {
+                if (waterRows != null && (x < waterRows[row].min || x > waterRows[row].max)) continue;
                 if (!WaterGeometry.TrySample(body, x, z, out double level, out double depth, out _, polygon)) continue;
                 double ground = sample.Height(x, z);
                 var p = new PlanPoint(x, level, z);
@@ -152,7 +170,7 @@ namespace UPlayGround.WorldBuilder.Core
                 for (int j = 0; j <= count; j++)
                 {
                     var p = PlanPoint.Lerp(a, b, (double)j / count); double level = body.level;
-                    if (body.kind == WaterBodyKind.River) WaterGeometry.ProjectRiver(body, p.x, p.z, out _, out level, out _, out _, polygon);
+                    if (body.kind == WaterBodyKind.River) WaterGeometry.ProjectRiver(body, p.x, p.z, out _, out level, out _, out _, polygon, body.UsesRasterBank);
                     var outside = p + normal * body.bankWidth;
                     if (PlanningGeometry.Contains(polygon, outside.x, outside.z)) outside = p - normal * body.bankWidth;
                     if (outside.x < 0 || outside.z < 0 || outside.x > grid.WorldSize || outside.z > grid.WorldSize)
@@ -161,6 +179,30 @@ namespace UPlayGround.WorldBuilder.Core
                         result.Reject(body.guid, "WB401", "의도하지 않은 낮은 출구/강둑 여유고 부족", outside);
                 }
             }
+        }
+
+        private static (double min, double max)[] RiverRowBounds(WaterBody body, PlanPoint[] polygon, double minZ, int rowCount,
+            double step, double padding)
+        {
+            if (body.kind != WaterBodyKind.River || !body.UsesRasterBank) return null;
+            // 강의 스트립과 그 외곽 여유가 닿는 행만 검사한다. 모든 판정 표본은 기존 격자를 사용한다.
+            padding += 1e-6;
+            var rows = new (double min, double max)[rowCount];
+            for (int i = 0; i < rowCount; i++) rows[i] = (double.PositiveInfinity, double.NegativeInfinity);
+            for (int i = 1; i < body.route.Length; i++)
+            {
+                var a = polygon[i - 1]; var b = polygon[i];
+                var c = polygon[polygon.Length - i]; var d = polygon[polygon.Length - i - 1];
+                double left = Math.Min(Math.Min(a.x, b.x), Math.Min(c.x, d.x)) - padding;
+                double right = Math.Max(Math.Max(a.x, b.x), Math.Max(c.x, d.x)) + padding;
+                double south = Math.Min(Math.Min(a.z, b.z), Math.Min(c.z, d.z)) - padding;
+                double north = Math.Max(Math.Max(a.z, b.z), Math.Max(c.z, d.z)) + padding;
+                int start = Math.Max(0, (int)Math.Ceiling((south - minZ) / step));
+                int end = Math.Min(rowCount - 1, (int)Math.Floor((north - minZ) / step));
+                for (int row = start; row <= end; row++)
+                    rows[row] = (Math.Min(rows[row].min, left), Math.Max(rows[row].max, right));
+            }
+            return rows;
         }
 
         public static void ValidateWaterfalls(IReadOnlyList<WaterBody> bodies, IReadOnlyList<WaterfallEdge> falls, double minimumDrop, double poolMargin, double tolerance, WaterBuildResult result)

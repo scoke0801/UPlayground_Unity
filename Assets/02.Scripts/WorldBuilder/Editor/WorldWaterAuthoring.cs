@@ -57,6 +57,27 @@ namespace UPlayGround.WorldBuilder.Editor
                 { if (edge.upstreamGuid == guid) edge.upperLip.y += delta; if (edge.downstreamGuid == guid) edge.lowerLanding.y += delta; }
             });
         }
+        public static WaterBuildResult Move(WorldDefinition definition, WaterSystemDefinition source, string guid, PlanPoint offset)
+        {
+            PlacementIdentity.RequireFinite(offset.x, offset.y, offset.z);
+            return Edit(definition, source, () =>
+            {
+                var body = source.bodies.Find(b => b.waterGuid == guid) ?? throw new InvalidOperationException("수계 ID가 없습니다.");
+                if (body.route != null)
+                    for (int i = 0; i < body.route.Length; i++) body.route[i] += offset;
+                if (body.boundary != null)
+                {
+                    var horizontal = new PlanPoint(offset.x, 0, offset.z);
+                    for (int i = 0; i < body.boundary.Length; i++) body.boundary[i] += horizontal;
+                }
+                body.level += offset.y;
+                foreach (var edge in source.waterfalls)
+                {
+                    if (edge.upstreamGuid == guid) edge.upperLip += offset;
+                    if (edge.downstreamGuid == guid) edge.lowerLanding += offset;
+                }
+            });
+        }
         public static PlanPoint[] ProposeRoute(WorldDefinition definition, WaterSystemDefinition source, string guid)
         {
             source.ValidateIdentity(definition.WorldGuid);

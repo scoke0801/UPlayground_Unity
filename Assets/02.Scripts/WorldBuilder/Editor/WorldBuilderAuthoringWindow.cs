@@ -46,6 +46,8 @@ namespace UPlayGround.WorldBuilder.Editor
             CreatePlacementUI(scroll);
             CreatePlanningUI(scroll);
             CreateWaterUI(scroll);
+            CreateEcologyUI(scroll);
+            CreateBakeUI(scroll);
             var bounds = new RectIntField("표본 영역 X/Z/너비/높이") { value = _bounds };
             bounds.RegisterValueChangedCallback(change => _bounds = change.newValue);
             scroll.Add(bounds);
@@ -120,6 +122,7 @@ namespace UPlayGround.WorldBuilder.Editor
             if (_definition != null) _session = new WorldTerrainAuthoringSession(_definition, WorldBuilderAuthoringAssets.FindTerrains(_definition));
             if (_definition != null && _definition.Planning != null) { _planningAsset = _definition.Planning; _planningField?.SetValueWithoutNotify(_planningAsset); }
             RefreshOperations();
+            RefreshBakeUI();
         }
 
         private WorldTerrainAuthoringSession Require() => _session ?? throw new InvalidOperationException("저작 정의와 열린 미리보기를 먼저 연결하세요.");

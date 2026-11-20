@@ -52,8 +52,24 @@ namespace UPlayGround.WorldBuilder.Tests
         [Test] public void MoveDeleteUndoAndRepeatRebuildPreserveOtherWaterAndOperations()
         {
             var source = Source; string before = PhysicalHash(); string bodyId = source.bodies[2].waterGuid;
-            WorldWaterAuthoring.Edit(_definition, source, () => { for (int i = 0; i < source.bodies[2].boundary.Length; i++) source.bodies[2].boundary[i].x += 1; });
-            string moved = PhysicalHash(); Assert.That(moved, Is.Not.EqualTo(before)); Undo.PerformUndo(); Assert.That(PhysicalHash(), Is.EqualTo(before)); Undo.PerformRedo(); Assert.That(PhysicalHash(), Is.EqualTo(moved));
+            double lipX = source.waterfalls[0].upperLip.x, landingX = source.waterfalls[0].lowerLanding.x;
+            WorldWaterAuthoring.Move(_definition, source, source.bodies[1].waterGuid, new PlanPoint(1, 0, 0));
+            Assert.That(source.waterfalls[0].upperLip.x, Is.EqualTo(lipX + 1));
+            Assert.That(source.waterfalls[0].lowerLanding.x, Is.EqualTo(landingX));
+            string moved = PhysicalHash(); Assert.That(moved, Is.Not.EqualTo(before));
+            string movedHash = source.AppliedHash;
+            var terrainAssets = WorldBuilderAuthoringAssets.FindTerrains(_definition).Cast<Terrain>().Select(tile => tile.terrainData).ToArray();
+            for (int cycle = 0; cycle < 20; cycle++)
+            {
+                Undo.PerformUndo();
+                Assert.That(PhysicalHash(), Is.EqualTo(before));
+                Assert.That(source.waterfalls[0].upperLip.x, Is.EqualTo(lipX));
+                Undo.PerformRedo();
+                Assert.That(PhysicalHash(), Is.EqualTo(moved));
+                Assert.That(source.AppliedHash, Is.EqualTo(movedHash));
+                Assert.That(source.waterfalls[0].upperLip.x, Is.EqualTo(lipX + 1));
+                Assert.That(WorldBuilderAuthoringAssets.FindTerrains(_definition).Cast<Terrain>().Select(tile => tile.terrainData), Is.EqualTo(terrainAssets));
+            }
             WorldWaterAuthoring.Edit(_definition, source, () => { source.waterfalls.Clear(); source.bodies.RemoveAt(1); });
             Assert.That(Query.volumes.Length, Is.EqualTo(2)); Assert.That(source.bodies.Any(b => b.waterGuid == bodyId));
             Undo.PerformUndo(); Assert.That(Query.volumes.Length, Is.EqualTo(3)); AssertApplied();

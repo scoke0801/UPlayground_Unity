@@ -41,6 +41,7 @@ namespace UPlayGround.WorldBuilder.Editor
             {
                 var node = Create("Water_" + body.guid, container.transform); var volume = Add<WaterVolume>(node);
                 volume.Initialize(body, source.exclusions.ToArray(), terrains.ToArray()); volumes.Add(volume);
+                if (definition.Ecology != null) volume.BindEcology(definition);
                 var preset = source.bodies.Find(b => b.waterGuid == body.guid).preset;
                 var material = new Material(preset.material); preset.Apply(material); material.name = "P05 Water";
                 material = SaveAsset(definition, material, StableJson(material), created);
@@ -66,6 +67,21 @@ namespace UPlayGround.WorldBuilder.Editor
             string cache = "Library/WorldBuilder/" + definition.WorldGuid + "/WaterHierarchy"; Directory.CreateDirectory(cache);
             File.WriteAllText(cache + "/" + query.hierarchyHash + ".txt", HierarchySnapshot(query));
             EditorSceneManager.MarkSceneDirty(SceneManager.GetActiveScene());
+        }
+        internal static void BindEcology(WorldDefinition definition)
+        {
+            foreach (var root in SceneManager.GetActiveScene().GetRootGameObjects())
+            foreach (var query in root.GetComponentsInChildren<WorldWaterQuery>(true))
+            {
+                if (query.definition != definition) continue;
+                foreach (var volume in query.volumes)
+                {
+                    Undo.RegisterCompleteObjectUndo(volume, "동굴 물리 제외 연결");
+                    volume.BindEcology(definition);
+                }
+                Undo.RegisterCompleteObjectUndo(query, "수계 계층 지문 기록");
+                query.hierarchyHash = HierarchyHash(query);
+            }
         }
         private static WorldWaterfallEffects.Emitter CreateFall(WorldDefinition definition, WaterfallEdge edge, WaterfallPreset preset, Transform parent, List<string> created)
         {
@@ -180,6 +196,8 @@ namespace UPlayGround.WorldBuilder.Editor
                 {
                     if (component == null) { text.Append("MissingScript"); continue; }
                     string json = EditorJsonUtility.ToJson(component);
+                    if (component is WaterVolume && query.definition.Ecology == null)
+                        json = Regex.Replace(json, ",\"_ecology\":\\{\"instanceID\":0\\}", "");
                     if (component == query) json = Regex.Replace(json, "\"hierarchyHash\":\"[^\"]*\"", "\"hierarchyHash\":\"\"");
                     text.Append(component.GetType().FullName).Append(NormalizeReferences(json));
                     if (component is MeshFilter filter && filter.sharedMesh != null) text.Append(MeshHash(filter.sharedMesh));

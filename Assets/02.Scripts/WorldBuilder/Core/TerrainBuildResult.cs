@@ -42,6 +42,21 @@ namespace UPlayGround.WorldBuilder.Core
         public bool[] CopySurfaces() => (bool[])_surfaces.Clone();
 
         /// <summary>시각이나 실행 순서가 포함되지 않은 정규 little-endian 결과 해시를 만든다.</summary>
-        public string ComputeHash() => TerrainSnapshotCodec.Hash(TerrainSnapshotCodec.Encode(this));
+        public string ComputeHash() => TerrainSnapshotCodec.ComputeSha256(TerrainSnapshotCodec.Encode(this));
+
+        internal void CopySnapshotPayload(byte[] bytes, int offset)
+        {
+            int heightBytes = checked(_heights.Length * sizeof(float));
+            Buffer.BlockCopy(_heights, 0, bytes, offset, heightBytes);
+            if (!BitConverter.IsLittleEndian)
+            {
+                for (int i = offset; i < offset + heightBytes; i += sizeof(float))
+                    Array.Reverse(bytes, i, sizeof(float));
+            }
+
+            offset += heightBytes;
+            for (int i = 0; i < _surfaces.Length; i++)
+                bytes[offset + i] = _surfaces[i] ? (byte)1 : (byte)0;
+        }
     }
 }

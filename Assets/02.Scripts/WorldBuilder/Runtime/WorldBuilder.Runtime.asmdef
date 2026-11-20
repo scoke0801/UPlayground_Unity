@@ -1,7 +1,7 @@
 ﻿{
   "name": "WorldBuilder.Runtime",
   "rootNamespace": "UPlayGround.WorldBuilder.Runtime",
-  "references": ["WorldBuilder.Core", "WorldBuilder.Data", "UPlayGround.Contracts"],
+  "references": ["Unity.Addressables", "Unity.ResourceManager", "WorldBuilder.Core", "WorldBuilder.Data", "UPlayGround.Contracts"],
   "includePlatforms": [],
   "autoReferenced": true
 }

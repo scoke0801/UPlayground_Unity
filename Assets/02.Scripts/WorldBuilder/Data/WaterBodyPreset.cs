@@ -11,6 +11,7 @@ namespace UPlayGround.WorldBuilder.Data
         public float flowSpeed = 1, maxCutFill = 12, uvRepeat = 8, queryHeight = 3;
         public float searchStep = 4;
         public int maxVisited = 120000;
+        [Min(0)] public float shoreRasterMargin, bankRasterMargin, waterlineRasterMargin;
         public Material material;
         public Texture2D normalMap;
         public FootstepSurfaceProfileSO footstepProfile;

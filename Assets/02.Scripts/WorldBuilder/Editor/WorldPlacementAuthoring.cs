@@ -25,8 +25,16 @@ namespace UPlayGround.WorldBuilder.Editor
                 rules.Add(rule.ToCore());
             }
             var grid = definition.Profile.CreateGrid();
+            Func<PlacementRecord, PlacementRule, PlacementRejection> ecologyFilter = null;
+            if (definition.Ecology != null)
+            {
+                var ecologyRules = WorldVegetationEvaluation.PrefabRules(definition, terrain, out ecologyFilter);
+                rules.RemoveAll(r => ecologyRules.Exists(v => v.RuleGuid == r.RuleGuid));
+                rules.AddRange(ecologyRules);
+            }
             LastResult = PlacementEngine.Build(definition.WorldGuid, definition.GenerationEpoch, definition.PlacementSeed, grid, terrain,
-                definition.Profile.TileCells * grid.SampleSpacing, rules, definition.PlacementCatalog.ReadPrefabs(), edits ?? definition.PlacementOverrides, definition.PlacementReservations);
+                definition.Profile.TileCells * grid.SampleSpacing, rules, definition.PlacementCatalog.ReadPrefabs(), edits ?? definition.PlacementOverrides,
+                definition.PlacementReservations, finalFilter: ecologyFilter);
             return LastResult;
         }
 
@@ -70,6 +78,12 @@ namespace UPlayGround.WorldBuilder.Editor
                 var terrain = TerrainOperationEvaluator.Build(definition.ReadSource(), definition.Profile.CreateGrid(), definition.ReadOperations());
                 var result = Evaluate(definition, terrain);
                 ApplyInTransaction(definition, result);
+                if (definition.Ecology != null)
+                {
+                    var terrains = WorldBuilderAuthoringAssets.FindTerrains(definition);
+                    WorldEcologyAuthoring.RefreshApplied(definition, terrain, terrains);
+                    foreach (var tile in terrains) AssetDatabase.SaveAssetIfDirty(tile.terrainData);
+                }
                 EditorUtility.SetDirty(definition); AssetDatabase.SaveAssetIfDirty(definition);
                 Undo.FlushUndoRecordObjects(); Undo.CollapseUndoOperations(group);
                 return result;
@@ -91,7 +105,10 @@ namespace UPlayGround.WorldBuilder.Editor
         }
         private static void ApplyInTransaction(WorldDefinition definition, PlacementBuildResult result)
         {
-            if (result.HasErrors) throw new InvalidOperationException("PlacementConflict: 배치 오류 " + result.Diagnostics.FindAll(d => d.IsError).Count + "건. 기존 결과를 복원했습니다. 후보 진단을 확인하세요.");
+            if (result.HasErrors)
+                throw new InvalidOperationException("PlacementConflict: " + string.Join(" / ", result.Diagnostics.FindAll(d => d.IsError ||
+                    result.Diagnostics.Exists(error => error.IsError && error.CandidateId != null && error.CandidateId == d.CandidateId))
+                    .ConvertAll(d => d.CandidateId + " " + d.Reason)));
             // 객체 생성 등록은 기존 객체의 기록을 끝내므로 SO의 최종 상태를 먼저 확정한다.
             definition.SetPlacements(result);
             Undo.FlushUndoRecordObjects();
@@ -148,7 +165,7 @@ namespace UPlayGround.WorldBuilder.Editor
                 foreach (var marker in go.GetComponentsInChildren<WorldPlacementRoot>(true)) if (marker.definition == definition) result.Add(marker);
             return result;
         }
-        private static void EnsurePreviewClean(WorldDefinition definition)
+        internal static void EnsurePreviewClean(WorldDefinition definition)
         {
             var seen = new HashSet<string>(StringComparer.Ordinal);
             var expected = new Dictionary<string, PlacementRecord>(StringComparer.Ordinal);

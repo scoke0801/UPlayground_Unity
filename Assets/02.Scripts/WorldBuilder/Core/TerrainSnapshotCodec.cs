@@ -2,6 +2,9 @@ using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+#if UNITY_EDITOR_WIN
+using System.Runtime.InteropServices;
+#endif
 
 namespace UPlayGround.WorldBuilder.Core
 {
@@ -16,16 +19,19 @@ namespace UPlayGround.WorldBuilder.Core
         public static byte[] Encode(TerrainBuildResult result)
         {
             if (result == null) throw new ArgumentNullException(nameof(result));
-            using (var stream = new MemoryStream())
-            using (var writer = new BinaryWriter(stream, Encoding.UTF8, true))
+            const int headerBytes = 12;
+            int samples = result.SampleCount;
+            int cells = samples - 1;
+            var bytes = new byte[checked(headerBytes + sizeof(float) * samples * samples + cells * cells)];
+            using (var stream = new MemoryStream(bytes, writable: true))
+            using (var writer = new BinaryWriter(stream))
             {
-                writer.Write(SnapshotMagic); writer.Write(Version); writer.Write(result.SampleCount);
-                for (int z = 0; z < result.SampleCount; z++)
-                for (int x = 0; x < result.SampleCount; x++) writer.Write(result.GetHeight(z, x));
-                for (int z = 0; z < result.SampleCount - 1; z++)
-                for (int x = 0; x < result.SampleCount - 1; x++) writer.Write(result.GetSurface(z, x));
-                return stream.ToArray();
+                writer.Write(SnapshotMagic);
+                writer.Write(Version);
+                writer.Write(samples);
             }
+            result.CopySnapshotPayload(bytes, headerBytes);
+            return bytes;
         }
 
         /// <summary>완전한 결과만 복원하고 잘린 데이터와 후행 바이트를 거절한다.</summary>
@@ -96,11 +102,31 @@ namespace UPlayGround.WorldBuilder.Core
             }
         }
 
-        internal static string Hash(byte[] bytes)
+        /// <summary>스냅샷과 원본에 저장하는 소문자 SHA-256 지문을 계산한다.</summary>
+        public static string ComputeSha256(byte[] bytes)
         {
+            if (bytes == null) throw new ArgumentNullException(nameof(bytes));
+#if UNITY_EDITOR_WIN
+            // 4km 저작에서 수십 MiB의 버퍼를 해시할 때 Windows CNG의 SHA-256 공급자를 사용한다.
+            const int sha256AlgorithmHandle = 0x00000041;
+            if (bytes.Length >= 1024 * 1024)
+            {
+                var digest = new byte[32];
+                if (BCryptHash(new IntPtr(sha256AlgorithmHandle), IntPtr.Zero, 0, bytes, bytes.Length, digest, digest.Length) == 0)
+                    return ToHex(digest);
+            }
+#endif
             using (var sha = SHA256.Create())
-                return BitConverter.ToString(sha.ComputeHash(bytes)).Replace("-", "").ToLowerInvariant();
+                return ToHex(sha.ComputeHash(bytes));
         }
+
+        private static string ToHex(byte[] digest) => BitConverter.ToString(digest).Replace("-", "").ToLowerInvariant();
+
+#if UNITY_EDITOR_WIN
+        [DllImport("bcrypt.dll", ExactSpelling = true)]
+        private static extern int BCryptHash(IntPtr algorithm, IntPtr secret, int secretLength,
+            [In] byte[] input, int inputLength, [Out] byte[] output, int outputLength);
+#endif
 
         private static void ValidateHeader(BinaryReader reader, uint magic)
         {

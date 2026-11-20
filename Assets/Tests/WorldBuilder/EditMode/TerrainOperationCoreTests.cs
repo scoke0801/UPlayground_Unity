@@ -174,6 +174,19 @@ namespace UPlayGround.WorldBuilder.Tests
         }
 
         [Test]
+        public void SnapshotKeepsVersionOneBytesAndLargeSha256()
+        {
+            var result = new TerrainBuildResult(2, new[] { 1f, -.5f, 0f, 2f }, new[] { true });
+            CollectionAssert.AreEqual(new byte[]
+            {
+                0x57, 0x42, 0x54, 0x53, 1, 0, 0, 0, 2, 0, 0, 0,
+                0, 0, 0x80, 0x3f, 0, 0, 0, 0xbf, 0, 0, 0, 0, 0, 0, 0, 0x40, 1
+            }, TerrainSnapshotCodec.Encode(result));
+            Assert.That(TerrainSnapshotCodec.ComputeSha256(new byte[1024 * 1024]),
+                Is.EqualTo("30e14955ebf1352266dc2ff8067e68104607e750abb9d3b36582b8af909fcb58"));
+        }
+
+        [Test]
         public void SnapshotAndPatchRoundtripRejectMalformedTrailingAndNonfinitePayloads()
         {
             TerrainBuildResult result = TerrainOperationEvaluator.Build(Source(), Grid, Stack());

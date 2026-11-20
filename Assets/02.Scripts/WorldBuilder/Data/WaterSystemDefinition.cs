@@ -44,7 +44,8 @@ namespace UPlayGround.WorldBuilder.Data
                 return new WaterBody { guid = waterGuid, kind = kind, isRouteLocked = isRouteLocked, route = route == null ? null : (PlanPoint[])route.Clone(),
                     boundary = boundary == null ? null : (PlanPoint[])boundary.Clone(), level = level, priority = waterPriority,
                     width = preset.width, depth = preset.requiredDepth, shoreWidth = preset.shoreWidth, bankWidth = preset.bankWidth, bankClearance = preset.bankClearance,
-                    falloff = preset.shoreFalloff, flowSpeed = preset.flowSpeed, maxCutFill = preset.maxCutFill, uvRepeat = preset.uvRepeat, queryHeight = preset.queryHeight };
+                    falloff = preset.shoreFalloff, flowSpeed = preset.flowSpeed, maxCutFill = preset.maxCutFill, uvRepeat = preset.uvRepeat, queryHeight = preset.queryHeight,
+                    shoreRasterMargin = preset.shoreRasterMargin, bankRasterMargin = preset.bankRasterMargin, waterlineRasterMargin = preset.waterlineRasterMargin };
             }
         }
     }

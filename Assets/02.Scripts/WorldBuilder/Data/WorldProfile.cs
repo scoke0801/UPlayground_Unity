@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UPlayGround.WorldBuilder.Core;
 
@@ -13,6 +14,7 @@ namespace UPlayGround.WorldBuilder.Data
         [SerializeField] private float _originY;
         [SerializeField] private float _verticalRange = 700;
         [SerializeField] private int _tileCells = 512;
+        [SerializeField] private RegionConcept[] _regionConcepts = Array.Empty<RegionConcept>();
 
         public float WorldSize => _worldSize;
         public int SampleCount => _sampleCount;
@@ -20,6 +22,7 @@ namespace UPlayGround.WorldBuilder.Data
         public float VerticalRange => _verticalRange;
         public int TileCells => _tileCells;
         public int TileCount => (_sampleCount - 1) / _tileCells;
+        public IReadOnlyList<RegionConcept> RegionConcepts => _regionConcepts;
 
         /// <summary>Unity Terrain이 지원하는 타일 규격을 검사해 수치 스냅샷을 만든다.</summary>
         public WorldGrid CreateGrid()
@@ -39,6 +42,16 @@ namespace UPlayGround.WorldBuilder.Data
             _originY = originY;
             _verticalRange = verticalRange;
             _tileCells = tileCells;
+        }
+
+        [Serializable]
+        public struct RegionConcept
+        {
+            [SerializeField] private string _regionId;
+            [SerializeField] private Texture2D _image;
+
+            public string RegionId => _regionId;
+            public Texture2D Image => _image;
         }
     }
 }

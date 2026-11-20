@@ -75,6 +75,7 @@ namespace UPlayGround.WorldBuilder.Core
         public bool HasConfirmedWaterLevel;
         public double PlannedWaterLevel, Clearance = 3, DeckThickness = .5, DeckWidth = 6, PresetSpan, SpanTolerance = .01, MaxApproachSlope = 12, SupportTolerance = .05;
         public double ApproachLength = 16, MaxApproachCutFill = 3;
+        public double MaxShoulderSlope;
     }
     [Serializable]
     public sealed class RoadKnot

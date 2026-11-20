@@ -30,14 +30,7 @@ namespace UPlayGround.WorldBuilder.Editor
             });
             AddButton(section, "수계 이동 (Undo)", () =>
             {
-                var water = WaterSource(); WorldWaterAuthoring.Edit(_definition, water, () =>
-                {
-                    var body = water.bodies.Find(b => b.waterGuid == _waterGuid) ?? throw new InvalidOperationException("waterGuid가 없습니다.");
-                    var delta = WorldPlan.Point(_waterOffset);
-                    if (body.route != null) for (int i = 0; i < body.route.Length; i++) body.route[i] += delta;
-                    if (body.boundary != null) for (int i = 0; i < body.boundary.Length; i++) body.boundary[i] += delta;
-                    body.level += delta.y;
-                }); Bind();
+                WorldWaterAuthoring.Move(_definition, WaterSource(), _waterGuid, WorldPlan.Point(_waterOffset)); Bind();
             });
             AddButton(section, "선택 수계 삭제 (Undo)", () => { var water = WaterSource(); WorldWaterAuthoring.Edit(_definition, water, () => { if (water.bodies.RemoveAll(b => b.waterGuid == _waterGuid) != 1) throw new InvalidOperationException("수계 ID가 없거나 중복입니다."); }); Bind(); });
             AddButton(section, "강 경로 제안·확정/Lock (Undo)", () =>

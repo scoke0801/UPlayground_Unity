@@ -8,6 +8,7 @@
     "WorldBuilder.Runtime",
     "UPlayGround.Contracts",
     "UPlayGround.Actor",
+    "KinematicCharacterController",
     "Unity.Splines",
     "Unity.Mathematics"
   ],

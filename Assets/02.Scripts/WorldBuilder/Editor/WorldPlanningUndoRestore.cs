@@ -22,6 +22,8 @@ namespace UPlayGround.WorldBuilder.Editor
                     if (preview.definition != null) Track(preview.definition);
                 foreach (var preview in UnityEngine.Object.FindObjectsByType<UPlayGround.WorldBuilder.Runtime.WorldWaterQuery>(FindObjectsSortMode.None))
                     if (preview.definition != null) Track(preview.definition);
+                foreach (var preview in UnityEngine.Object.FindObjectsByType<UPlayGround.WorldBuilder.Runtime.WorldEcologyPreview>(FindObjectsSortMode.None))
+                    if (preview.definition != null) Track(preview.definition);
             };
         }
         internal static void Track(WorldDefinition definition) => Applied[definition] = definition.AppliedTerrainHash;

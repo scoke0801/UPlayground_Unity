@@ -191,7 +191,7 @@ namespace UPlayGround.WorldBuilder.Editor
             mesh.vertices = vertices; mesh.normals = normals; mesh.tangents = tangents; mesh.uv = uv; mesh.triangles = chunk.Triangles; mesh.RecalculateBounds();
             string folder = WorldFolder(definition) + "/Authoring/PlanningMeshes"; WorldBuilderAuthoringAssets.EnsureFolder(folder);
             string hash = HashMesh(mesh), path = folder + "/" + hash + ".asset";
-            string guid = AssetDatabase.AssetPathToGUID(path);
+            string guid = AssetDatabase.AssetPathToGUID(path, AssetPathToGUIDOptions.OnlyExistingAssets);
             if (!string.IsNullOrEmpty(guid))
             {
                 string resolved = AssetDatabase.GUIDToAssetPath(guid); var existing = AssetDatabase.LoadAssetAtPath<Mesh>(resolved);
@@ -241,7 +241,7 @@ namespace UPlayGround.WorldBuilder.Editor
             }
             return result;
         }
-        private static void EnsurePreviewClean(WorldDefinition definition, WorldPlan plan, string allowedSplineRoadGuid)
+        internal static void EnsurePreviewClean(WorldDefinition definition, WorldPlan plan, string allowedSplineRoadGuid)
         {
             var expected = new Dictionary<string, PlacementRecord>(StringComparer.Ordinal); foreach (var p in plan.AppliedStructures) expected.Add(p.id, p);
             var seen = new HashSet<string>(StringComparer.Ordinal); var seenRoads = new HashSet<string>(StringComparer.Ordinal);

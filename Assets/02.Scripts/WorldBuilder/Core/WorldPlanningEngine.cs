@@ -264,16 +264,42 @@ namespace UPlayGround.WorldBuilder.Core
             double x0 = grid.WorldSize, z0 = grid.WorldSize, x1 = 0, z1 = 0, margin = road.Options.Width / 2 + road.Options.Falloff;
             foreach (var p in samples) { x0 = Math.Min(x0, p.x); z0 = Math.Min(z0, p.z); x1 = Math.Max(x1, p.x); z1 = Math.Max(z1, p.z); }
             var patch = CreatePatch(world, plan, road.Guid, "road", x0 - margin, z0 - margin, x1 + margin, z1 + margin, grid, 32);
+            const int segmentGroupSize = 16;
+            var segmentBounds = new (double minX, double minZ, double maxX, double maxZ)[(samples.Length - 2) / segmentGroupSize + 1];
+            for (int group = 0; group < segmentBounds.Length; group++)
+            {
+                int first = group * segmentGroupSize;
+                var a = samples[first];
+                var bounds = (minX: a.x, minZ: a.z, maxX: a.x, maxZ: a.z);
+                for (int i = first + 1; i <= Math.Min(first + segmentGroupSize, samples.Length - 1); i++)
+                {
+                    var point = samples[i];
+                    bounds = (Math.Min(bounds.minX, point.x), Math.Min(bounds.minZ, point.z),
+                        Math.Max(bounds.maxX, point.x), Math.Max(bounds.maxZ, point.z));
+                }
+                segmentBounds[group] = bounds;
+            }
             Fill(patch, grid, (x, z) =>
             {
                 var p = new PlanPoint(x, 0, z);
                 if (PlanningGeometry.IsInWater(p, bridges)) return (0.0, 0.0);
                 foreach (var structure in structures) if (!structure.IsBridge && PlacementSpatialHash.Contains(structure.Placement, x, z)) return (0.0, 0.0);
                 double best = double.MaxValue, height = 0;
-                for (int i = 1; i < samples.Length; i++)
+                for (int group = 0; group < segmentBounds.Length; group++)
                 {
-                    double distance = PlanningGeometry.DistanceToSegment(p, samples[i - 1], samples[i], out double t);
-                    if (distance >= best) continue; best = distance; height = PlanPoint.Lerp(samples[i - 1], samples[i], t).y;
+                    var bounds = segmentBounds[group];
+                    double dx = Math.Max(0, Math.Max(bounds.minX - x, x - bounds.maxX));
+                    double dz = Math.Max(0, Math.Max(bounds.minZ - z, z - bounds.maxZ));
+                    if (dx * dx + dz * dz > best * best + 1e-8) continue;
+                    int first = group * segmentGroupSize + 1;
+                    int end = Math.Min(first + segmentGroupSize, samples.Length);
+                    for (int i = first; i < end; i++)
+                    {
+                        double distance = PlanningGeometry.DistanceToSegment(p, samples[i - 1], samples[i], out double t);
+                        if (distance >= best) continue;
+                        best = distance;
+                        height = PlanPoint.Lerp(samples[i - 1], samples[i], t).y;
+                    }
                 }
                 return (height, PlanningGeometry.SmoothFalloff(best - road.Options.Width / 2, road.Options.Falloff));
             });
@@ -370,7 +396,8 @@ namespace UPlayGround.WorldBuilder.Core
                     double wx = grid.SampleToWorld(x + patch.Bounds.X), wz = grid.SampleToWorld(z + patch.Bounds.Z);
                     // 계획 수계 경계의 절벽은 접근 가능한 교대 바깥 지면 경사와 구분한다.
                     if (PlanningGeometry.Contains(bridge.WaterZone.boundary, wx - step, wz) || PlanningGeometry.Contains(bridge.WaterZone.boundary, wx + step, wz) || PlanningGeometry.Contains(bridge.WaterZone.boundary, wx, wz - step) || PlanningGeometry.Contains(bridge.WaterZone.boundary, wx, wz + step)) continue;
-                    if (terrain.Slope(wx, wz) > bridge.MaxApproachSlope) result.Reject(bridge.Guid, PlanningIssue.BridgeApproachRejected, "교량 성토 접근부 경사가 제한을 넘습니다.");
+                    double shoulderLimit = bridge.MaxShoulderSlope > 0 ? bridge.MaxShoulderSlope : bridge.MaxApproachSlope;
+                    if (terrain.Slope(wx, wz) > shoulderLimit) result.Reject(bridge.Guid, PlanningIssue.BridgeApproachRejected, "교대 주변 지형의 경사가 제한을 넘습니다.");
                 }
         }
         private static void ValidateProtectedPatches(IReadOnlyList<TerrainOperation> operations, IReadOnlyList<PlanZone> zones, WorldGrid grid, WorldPlanningResult result)
@@ -413,9 +440,9 @@ namespace UPlayGround.WorldBuilder.Core
             }
             foreach (var b in bridges)
             {
-                add(b.Guid); PlacementIdentity.RequireFinite(b.Start.x, b.Start.y, b.Start.z, b.End.x, b.End.y, b.End.z, b.DeckWidth, b.DeckThickness, b.PresetSpan, b.SpanTolerance, b.Clearance, b.ApproachLength, b.MaxApproachCutFill, b.SupportTolerance, b.PlannedWaterLevel, b.MaxApproachSlope);
+                add(b.Guid); PlacementIdentity.RequireFinite(b.Start.x, b.Start.y, b.Start.z, b.End.x, b.End.y, b.End.z, b.DeckWidth, b.DeckThickness, b.PresetSpan, b.SpanTolerance, b.Clearance, b.ApproachLength, b.MaxApproachCutFill, b.SupportTolerance, b.PlannedWaterLevel, b.MaxApproachSlope, b.MaxShoulderSlope);
                 PlanningGeometry.ValidatePolygon(b.WaterZone.boundary, grid);
-                if (b.DeckWidth <= 0 || b.DeckThickness <= 0 || b.SpanTolerance < 0 || b.Clearance < 0 || b.ApproachLength <= 0 || b.MaxApproachCutFill < 0 || b.SupportTolerance < 0 || b.MaxApproachSlope <= 0 || b.MaxApproachSlope >= 90) throw new ArgumentException("교량 프리셋 범위를 확인하세요.");
+                if (b.DeckWidth <= 0 || b.DeckThickness <= 0 || b.SpanTolerance < 0 || b.Clearance < 0 || b.ApproachLength <= 0 || b.MaxApproachCutFill < 0 || b.SupportTolerance < 0 || b.MaxApproachSlope <= 0 || b.MaxApproachSlope >= 90 || b.MaxShoulderSlope < 0 || b.MaxShoulderSlope >= 90) throw new ArgumentException("교량 프리셋 범위를 확인하세요.");
             }
             foreach (var road in roads)
             {

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
+using Unity.Profiling;
 using UnityEngine;
 using UPlayGround.WorldBuilder.Core;
 using UPlayGround.WorldBuilder.Data;
@@ -11,6 +12,15 @@ namespace UPlayGround.WorldBuilder.Editor
     /// <summary>저작 명령의 트랜잭션·외부 편집 기준·네이티브 지형 복구를 소유한다.</summary>
     public sealed class WorldTerrainAuthoringSession : IDisposable
     {
+        private static readonly ProfilerMarker ReadTerrainMarker = new("WorldBuilder.Authoring.ReadTerrain");
+        private static readonly ProfilerMarker CaptureTerrainMarker = new("WorldBuilder.Authoring.CaptureRollback");
+        private static readonly ProfilerMarker ApplyTerrainMarker = new("WorldBuilder.Authoring.ApplyTerrain");
+        private static readonly ProfilerMarker SaveTerrainMarker = new("WorldBuilder.Authoring.SaveTerrain");
+        private static readonly ProfilerMarker SnapshotHashMarker = new("WorldBuilder.Authoring.SnapshotHash");
+        private static readonly ProfilerMarker SnapshotWriteMarker = new("WorldBuilder.Authoring.SnapshotWrite");
+        private static readonly ProfilerMarker ReadSourceMarker = new("WorldBuilder.Authoring.ReadSource");
+        private static readonly ProfilerMarker EvaluateMarker = new("WorldBuilder.Authoring.Evaluate");
+
         private readonly WorldDefinition _definition;
         private readonly WorldTerrainStateAdapter _terrain;
         private TerrainBuildResult _logical;
@@ -154,11 +164,11 @@ namespace UPlayGround.WorldBuilder.Editor
         /// <summary>균일 명령 추가도 전체 검증 후 한 Undo 그룹으로 확정한다.</summary>
         public void AddOperation(TerrainOperationRecord record)
         {
-            EnsureClean();
+            var source = EnsureClean();
             EnsureStackApplied();
             var records = CopyRecords();
             records.Add(record.Clone());
-            Commit(records, record.ToCore(_definition.SourceRevision).Bounds, false, "지형 명령 추가");
+            Commit(records, record.ToCore(_definition.SourceRevision).Bounds, false, "지형 명령 추가", source: source);
         }
 
         /// <summary>Falloff 마스크도 SO 배열 대신 불변 영역 패치로 저장한다.</summary>
@@ -182,22 +192,22 @@ namespace UPlayGround.WorldBuilder.Editor
         /// <summary>삭제·활성·이동 변경은 old/new 영역의 합집합을 다시 평가한다.</summary>
         public void ReplaceOperation(int index, TerrainOperationRecord replacement)
         {
-            EnsureClean();
+            var source = EnsureClean();
             EnsureStackApplied();
             var records = CopyRecords();
             var old = records[index].ToCore(_definition.SourceRevision).Bounds;
             SampleRect dirty = old;
             if (replacement == null) records.RemoveAt(index);
             else { records[index] = replacement.Clone(); dirty = SampleRect.Union(old, replacement.ToCore(_definition.SourceRevision).Bounds); }
-            Commit(records, dirty, false, "지형 명령 변경");
+            Commit(records, dirty, false, "지형 명령 변경", source: source);
         }
 
         /// <summary>명령 변경을 재평가하되 미캡처 Terrain은 자동 덮어쓰지 않는다.</summary>
         public void Regenerate()
         {
-            EnsureClean();
+            var source = EnsureClean();
             if (_definition.ActiveSession != null) throw new InvalidOperationException("EditSessionActive: 먼저 Capture/Revert하세요.");
-            Commit(CopyRecords(), SampleRect.Full(_definition.Profile.SampleCount), false, "지형 재생성");
+            Commit(CopyRecords(), SampleRect.Full(_definition.Profile.SampleCount), false, "지형 재생성", source: source);
         }
 
         /// <summary>사용자가 선택한 경우에만 미캡처 변경과 활성 세션을 버린다.</summary>
@@ -286,7 +296,7 @@ namespace UPlayGround.WorldBuilder.Editor
         }
 
         /// <summary>지정 계획의 파생 연산만 바꾸고 Sculpt·다른 저작 레이어를 같은 트랜잭션에서 보존한다.</summary>
-        public void ReplaceOwnedOperations(string ownerGuid, IReadOnlyList<TerrainOperationRecord> replacements, Action applyPlanningData)
+        public void ReplaceOwnedOperations(string ownerGuid, IReadOnlyList<TerrainOperationRecord> replacements, Action applyPlanningData, bool updateEcology = true)
         {
             PlacementIdentity.ValidateGuid(ownerGuid); EnsureReadyForBake();
             var records = new List<TerrainOperationRecord>(); SampleRect? dirty = null;
@@ -301,19 +311,23 @@ namespace UPlayGround.WorldBuilder.Editor
                 var bounds = record.ToCore(_definition.SourceRevision).Bounds;
                 records.Add(record.Clone()); dirty = dirty.HasValue ? SampleRect.Union(dirty.Value, bounds) : bounds;
             }
-            Commit(records, dirty ?? SampleRect.Full(_definition.Profile.SampleCount), false, "월드 계획 적용", applyPlanningData);
+            Commit(records, dirty ?? SampleRect.Full(_definition.Profile.SampleCount), false, "월드 계획 적용", applyPlanningData, updateEcology);
         }
 
-        private void Commit(List<TerrainOperationRecord> records, SampleRect dirty, bool clearSession, string label, Action applyPlanningData = null)
+        private void Commit(List<TerrainOperationRecord> records, SampleRect dirty, bool clearSession, string label,
+            Action applyPlanningData = null, bool updateEcology = true, HeightField source = null)
         {
-            var source = _definition.ReadSource();
+            using (ReadSourceMarker.Auto()) source ??= _definition.ReadSource();
             var operations = new List<TerrainOperation>();
             foreach (var record in records) operations.Add(record.ToCore(_definition.SourceRevision));
             int n = _definition.Profile.SampleCount;
-            var result = TerrainOperationEvaluator.Rebuild(source, _definition.Profile.CreateGrid(), operations, _logical, dirty);
+            TerrainBuildResult result;
+            using (EvaluateMarker.Auto())
+                result = TerrainOperationEvaluator.Rebuild(source, _definition.Profile.CreateGrid(), operations, _logical, dirty);
             WorldWaterAuthoring.ValidateTerrainChange(_definition, result, records);
             dirty = dirty.Expand(DirtyDependencyGraph.GetHeightHalo(operations), n, n);
-            var before = _terrain.CaptureTiles();
+            List<WorldTerrainStateAdapter.TileSnapshot> before;
+            using (CaptureTerrainMarker.Auto()) before = _terrain.CaptureTiles();
             var oldLogical = _logical;
             string oldStackHash = _logicalStackHash;
             Undo.IncrementCurrentGroup();
@@ -325,16 +339,20 @@ namespace UPlayGround.WorldBuilder.Editor
                 applyPlanningData?.Invoke();
                 _definition.SetOperations(records);
                 if (clearSession) _definition.SetSession(null);
-                _terrain.Apply(result, dirty);
+                using (ApplyTerrainMarker.Auto()) _terrain.Apply(result, dirty);
                 WorldDirtyFlags changed = WorldDirtyFlags.Height | WorldDirtyFlags.Holes;
-                RecordApplied(_terrain.Read(), _definition.DirtyLayers | DirtyDependencyGraph.Expand(changed), dirty);
+                TerrainBuildResult physical;
+                using (ReadTerrainMarker.Auto()) physical = _terrain.Read();
+                RecordApplied(physical, _definition.DirtyLayers | DirtyDependencyGraph.Expand(changed), dirty);
                 WorldPlacementAuthoring.RebuildInTransaction(_definition, result);
+                if (updateEcology) WorldEcologyAuthoring.RefreshApplied(_definition, physical, _terrain.Terrains);
                 SaveDefinition();
                 _logical = result;
                 _logicalStackHash = CurrentStackHash();
                 SaveTerrains();
                 Undo.FlushUndoRecordObjects();
                 Undo.CollapseUndoOperations(group);
+                if (_definition.Ecology != null && updateEcology) WorldPlanningUndoRestore.Track(_definition);
                 LastError = null;
             }
             catch
@@ -377,10 +395,16 @@ namespace UPlayGround.WorldBuilder.Editor
             catch (Exception exception) { LastError = exception.Message; Debug.LogException(exception); }
         }
 
-        private void EnsureClean()
+        private HeightField EnsureClean()
         {
-            _ = _definition.ReadSource();
-            if (_terrain.Read().ComputeHash() != _definition.AppliedTerrainHash) throw new InvalidOperationException("UncapturedTerrainEdits: Capture/Revert 전에는 Regenerate/Bake할 수 없습니다.");
+            HeightField source;
+            using (ReadSourceMarker.Auto()) source = _definition.ReadSource();
+            TerrainBuildResult physical;
+            using (ReadTerrainMarker.Auto()) physical = _terrain.Read();
+            string hash;
+            using (SnapshotHashMarker.Auto()) hash = physical.ComputeHash();
+            if (hash != _definition.AppliedTerrainHash) throw new InvalidOperationException("UncapturedTerrainEdits: Capture/Revert 전에는 Regenerate/Bake할 수 없습니다.");
+            return source;
         }
 
         private void EnsureStackApplied()
@@ -392,10 +416,18 @@ namespace UPlayGround.WorldBuilder.Editor
 
         private void RecordApplied(TerrainBuildResult physical, WorldDirtyFlags dirty, SampleRect? region = null)
         {
-            _lastAppliedHash = physical.ComputeHash();
+            byte[] snapshot;
+            using (SnapshotHashMarker.Auto())
+            {
+                snapshot = TerrainSnapshotCodec.Encode(physical);
+                _lastAppliedHash = TerrainSnapshotCodec.ComputeSha256(snapshot);
+            }
             string cache = CachePath(_lastAppliedHash);
             Directory.CreateDirectory(Path.GetDirectoryName(cache));
-            if (!File.Exists(cache)) File.WriteAllBytes(cache, TerrainSnapshotCodec.Encode(physical));
+            if (!File.Exists(cache))
+            {
+                using (SnapshotWriteMarker.Auto()) File.WriteAllBytes(cache, snapshot);
+            }
             _definition.SetAppliedState(_lastAppliedHash, CurrentStackHash(), dirty, region);
             if (_definition.Planning != null) WorldPlanningUndoRestore.Track(_definition);
             SaveDefinition();
@@ -406,7 +438,11 @@ namespace UPlayGround.WorldBuilder.Editor
         private string CurrentStackHash() => TerrainOperationEvaluator.ComputeStackHash(_definition.ReadOperations());
         private List<TerrainOperationRecord> CopyRecords() { var result = new List<TerrainOperationRecord>(); foreach (var record in _definition.Operations) result.Add(record.Clone()); return result; }
         private void SaveDefinition() { EditorUtility.SetDirty(_definition); AssetDatabase.SaveAssetIfDirty(_definition); }
-        private void SaveTerrains() { foreach (var terrain in _terrain.Terrains) AssetDatabase.SaveAssetIfDirty(terrain.terrainData); }
+        private void SaveTerrains()
+        {
+            using var sample = SaveTerrainMarker.Auto();
+            foreach (var terrain in _terrain.Terrains) AssetDatabase.SaveAssetIfDirty(terrain.terrainData);
+        }
 
         private TextAsset SaveBlob(string category, byte[] bytes, List<string> created)
         {

@@ -1,0 +1,13 @@
+Boot=Ready
+Map=RiverBasin4km.ForestReview
+Camera=InGame
+Screen=2560x1440
+SaveSlot=
+TerrainTree=175
+OUTBOUND reached grounded=1211/1211 lowest=95.30
+ROUNDTRIP grounded=2512/2512
+Foliage on static frame ms p50=16.00 p95=23.86 frames=150
+Foliage off static frame ms p50=15.70 p95=30.16 frames=150
+Foliage on static frame ms p50=15.54 p95=23.02 frames=150
+PASS
+Editor frame ms p95=24.99 samples=2492

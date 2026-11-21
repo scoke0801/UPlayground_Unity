@@ -1,0 +1,91 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9fde6389ae73f2b4985a26c9d60e840d, type: 3}
+  m_Name: f150b4516d3140f58fae94b43f64432c_Authoring
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.WorldDefinition
+  _worldGuid: f150b4516d3140f58fae94b43f64432c
+  _profile: {fileID: 11400000, guid: fd930c4b925cd5140842989a17379811, type: 2}
+  _baseHeight: {fileID: 4900000, guid: e461c38f2a9bedc42a8614cfa7fefae4, type: 3}
+  _baseSha256: bdb14bc21b18839ede1bfcf3dcc572f4cf48337efb379e3941421bcebb12f0f6
+  _sourceRevision: 97ba52c826f7b125312c4567a278d66cabeee8fa5407629f1521c32450b7088d
+  _previewSceneGuid: fee2517e1bef5c74badd109494242da8
+  _operations:
+  - operationGuid: 8c423ec6c1e24de1b1ff5d758bd807ad
+    ownerPlanGuid: 
+    ownerElementGuid: 
+    kind: 1
+    x: 0
+    z: 0
+    width: 1195
+    height: 1508
+    value: 0
+    stage: 40
+    priority: 0
+    sequence: 0
+    enabled: 1
+    automatic: 0
+    radius: 1
+    iterations: 1
+    protection: 1
+    patch: {fileID: 4900000, guid: e97090ef444dca544a01b6a8677a1b51, type: 3}
+    patchSha256: 351f5bb52a913cddf3f3e12f79ba5ed2ee27cf676b993076ff4cc12b5c11b8f8
+    sourceRevision: 97ba52c826f7b125312c4567a278d66cabeee8fa5407629f1521c32450b7088d
+  - operationGuid: b5c2bc21827249ac8a127fd1913d72a4
+    ownerPlanGuid: 
+    ownerElementGuid: 
+    kind: 1
+    x: 0
+    z: 0
+    width: 1743
+    height: 1773
+    value: 0
+    stage: 40
+    priority: 0
+    sequence: 1
+    enabled: 1
+    automatic: 0
+    radius: 1
+    iterations: 1
+    protection: 1
+    patch: {fileID: 4900000, guid: 5433fd070212bda4abf0eeb4879dc86c, type: 3}
+    patchSha256: e0b2a91c9986376e795631816083430b5f6215485b39e498d742a643164fe422
+    sourceRevision: 97ba52c826f7b125312c4567a278d66cabeee8fa5407629f1521c32450b7088d
+  _activeSession:
+    rid: -2
+  _appliedTerrainHash: a10fe74cb7da26fb514552fc31aa1fe3ebbae65e13bdf96568b4924cba029ad0
+  _appliedStackHash: 344aaea3dfc2c4e2ae2041ae2d62e17c3ed344e7263172d6c8fe95a7a6af5628
+  _dirtyLayers: 255
+  _dirtyX: 0
+  _dirtyZ: 0
+  _dirtyWidth: 1743
+  _dirtyHeight: 1773
+  _placementSeed: 0
+  _generationEpoch: 0
+  _placementCatalog: {fileID: 0}
+  _placementRules: []
+  _placementOverrides: []
+  _placementReservations: []
+  _placements: []
+  _placementHash: 
+  _appliedPlacementSeed: 0
+  _appliedGenerationEpoch: 0
+  _planning: {fileID: 0}
+  _ecology: {fileID: 0}
+  _ecologyOwner: 
+  _ecologyDryVolumes: []
+  _ecologyLayers: []
+  _waterSystem: {fileID: 0}
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }

@@ -12,6 +12,21 @@ Shader "UPlayGround/WorldBuilder/Water"
         _DepthFade("깊이 전이", Float) = 3
         _FoamWidth("물가 포말 폭", Float) = .6
         _FoamStrength("포말 세기", Float) = .45
+        // 수중 합성에 등록된 수역이 사용하는 표면 정보 패스 설정.
+        [HideInInspector] _FoamColor("포말 색", Color) = (.85,.94,.91,1)
+        [HideInInspector] _RefractionStrength("굴절 세기", Float) = .008
+        [HideInInspector] _ReflectionStrength("반사 세기", Float) = .26
+        [HideInInspector] _Smoothness("매끄러움", Float) = .86
+        [HideInInspector] _AmbientFloor("환경광 하한", Float) = .18
+        [HideInInspector] _SurfaceOpacity("수면 불투명도", Float) = .36
+        [HideInInspector] _UnderwaterOpacity("수면 아래 불투명도", Float) = .74
+        [HideInInspector] _FoamScale("포말 반복", Float) = 1.8
+        [HideInInspector] _FoamSpeed("포말 이동", Float) = .35
+        [HideInInspector] _EdgeDistance("가장자리 전이", Float) = .35
+        [HideInInspector] _DepthDistance("광학 깊이 전이", Float) = 3
+        [HideInInspector] _WaveScale("광학 노멀 반복", Float) = .15
+        [HideInInspector] _WaveStrength("광학 노멀 세기", Float) = .22
+        [HideInInspector] _WaveVelocity("광학 노멀 이동", Vector) = (.023,.012,-.017,.013)
     }
     SubShader
     {
@@ -31,6 +46,7 @@ Shader "UPlayGround/WorldBuilder/Water"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Packing.hlsl"
             TEXTURE2D(_NormalMap); SAMPLER(sampler_NormalMap);
+            float _WaterManaged, _WaterSceneActive;
             CBUFFER_START(UnityPerMaterial)
             float4 _ShallowColor, _DeepColor, _WaveDrift;
             float _NormalScale, _NormalTiling, _ScrollSpeed, _DepthFade, _FoamWidth, _FoamStrength;
@@ -39,7 +55,14 @@ Shader "UPlayGround/WorldBuilder/Water"
             struct Varyings { float4 positionCS:SV_POSITION; float3 world:TEXCOORD0; float2 uv:TEXCOORD1; float2 flow:TEXCOORD2; };
             Varyings Vert(Attributes v)
             {
-                Varyings o; o.world=TransformObjectToWorld(v.positionOS.xyz); o.positionCS=TransformWorldToHClip(o.world); o.uv=v.uv; o.flow=v.flow; return o;
+                Varyings o = (Varyings)0;
+                // 등록된 수면은 정보 패스와 수중 Resolve에서 합성한다.
+                if (_WaterSceneActive > .5 && _WaterManaged > .5)
+                {
+                    o.positionCS = float4(0, 0, 0, 1);
+                    return o;
+                }
+                o.world=TransformObjectToWorld(v.positionOS.xyz); o.positionCS=TransformWorldToHClip(o.world); o.uv=v.uv; o.flow=v.flow; return o;
             }
             half4 Frag(Varyings v):SV_Target
             {
@@ -60,5 +83,6 @@ Shader "UPlayGround/WorldBuilder/Water"
             }
             ENDHLSL
         }
+        UsePass "Hidden/UPlayGround/WaterSurfaceInfo/WaterSurfaceInfo"
     }
 }

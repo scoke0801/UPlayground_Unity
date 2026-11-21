@@ -1,0 +1,10 @@
+Boot=Ready
+Map=RiverBasin4km.ForestReview
+Camera=InGame
+Screen=2560x1440
+SaveSlot=
+TerrainTree=219
+OUTBOUND reached grounded=1294/1294 lowest=95.30
+ROUNDTRIP grounded=2589/2589
+PASS
+Editor frame ms p95=23.66 samples=2569

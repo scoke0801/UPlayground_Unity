@@ -1,0 +1,76 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa94a30776c9b83428023c8211294d44, type: 3}
+  m_Name: B1_Plan
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.WorldPlan
+  worldGuid: 6effd90b68ea4b3d8f8caa5197fcfe34
+  planGuid: eb4c48e3cf8c45d3b2b8cd6c3a55aa18
+  regions: []
+  pois: []
+  reservations: []
+  structures: []
+  roads: []
+  bridges:
+  - bridgeGuid: b1006000000000000000000000000004
+    waterPlanGuid: b1006000000000000000000000000002
+    preset: {fileID: 11400000, guid: d0beb2af775176a4fb0c32ea92b42730, type: 2}
+    startSocket: {x: 1721.5627, y: 52.25, z: 1844.6356}
+    endSocket: {x: 1758.4373, y: 52.25, z: 1875.3644}
+    hasConfirmedWaterLevel: 1
+    plannedWaterLevel: 44.3
+    waterZone:
+      guid: b1006000000000000000000000000005
+      boundary:
+      - x: 1701.2350000000001
+        y: 44
+        z: 1871.61
+      - x: 1731.165
+        y: 44
+        z: 1899.49
+      - x: 1778.7649999999999
+        y: 44
+        z: 1848.39
+      - x: 1748.835
+        y: 44
+        z: 1820.51
+      blocksRoad: 1
+      blocksTerrain: 0
+      blocksPlacement: 1
+  _appliedHash: 25230c04656e871b43a76d9ad1ed29aee06467981019e63bd35415f2e4056aee
+  _appliedStructures:
+  - id: b1006000000000000000000000000004
+    sourceIdentity: manual:6effd90b68ea4b3d8f8caa5197fcfe34:b1006000000000000000000000000004
+    layerGuid: 
+    ruleGuid: 
+    prefabGuid: 7943e68d997be3d4a96f894587567cf6
+    surfaceId: terrain
+    lineage: 
+    epoch: 0
+    seed: 0
+    ownerX: 0
+    ownerZ: 0
+    x: 1740
+    y: 52.25
+    z: 1860
+    yaw: 50.19442890773481
+    scaleX: 1
+    scaleY: 1
+    scaleZ: 1
+    heightOffset: 0
+    halfX: 2.799999952316284
+    halfZ: 23.99992860004861
+    spacing: 0
+    maxSupportDelta: 0
+    anchor: 1
+    isFixed: 1
+  _appliedRoadGuids: []
+  _appliedPlanGuid: eb4c48e3cf8c45d3b2b8cd6c3a55aa18

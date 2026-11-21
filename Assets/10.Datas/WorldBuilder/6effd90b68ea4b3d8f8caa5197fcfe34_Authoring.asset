@@ -1,0 +1,240 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9fde6389ae73f2b4985a26c9d60e840d, type: 3}
+  m_Name: 6effd90b68ea4b3d8f8caa5197fcfe34_Authoring
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.WorldDefinition
+  _worldGuid: 6effd90b68ea4b3d8f8caa5197fcfe34
+  _profile: {fileID: 11400000, guid: f286dd29b87259e48bbb0a8c6295a0ba, type: 2}
+  _baseHeight: {fileID: 4900000, guid: 2f89bbe14fc572a40aeaadfa695d449f, type: 3}
+  _baseSha256: 4ee50dbcaacf71bce54fcfcc8f57b46861d233029926af714565a32b5dd2bd24
+  _sourceRevision: 4ef5b515bb3eb9e6a0c859c9287e609215162f28c544c1b281d56412f326445c
+  _previewSceneGuid: 2a857c3a0529ef44c961a9d2c630a22f
+  _operations:
+  - operationGuid: e04b3db0bd224c07b037a5924554fa18
+    ownerPlanGuid: 
+    ownerElementGuid: 
+    kind: 1
+    x: 920
+    z: 138
+    width: 2528
+    height: 3294
+    value: 0
+    stage: 10
+    priority: 0
+    sequence: 0
+    enabled: 1
+    automatic: 0
+    radius: 1
+    iterations: 1
+    protection: 1
+    patch: {fileID: 4900000, guid: 2665e83dfae74e744951fa7adf7a411e, type: 3}
+    patchSha256: f2cfa46d5f7b83536a8d4867797d3fb5259c9368cc8eb43925f21801225199ed
+    sourceRevision: 4ef5b515bb3eb9e6a0c859c9287e609215162f28c544c1b281d56412f326445c
+  - operationGuid: e93b86b58b2b471da49500fb07293627
+    ownerPlanGuid: 
+    ownerElementGuid: 
+    kind: 1
+    x: 1162
+    z: 1187
+    width: 1068
+    height: 1598
+    value: 0
+    stage: 10
+    priority: 0
+    sequence: 1
+    enabled: 1
+    automatic: 0
+    radius: 1
+    iterations: 1
+    protection: 1
+    patch: {fileID: 4900000, guid: f34ba2d900610a942b7947c2ba352eae, type: 3}
+    patchSha256: 7ea332cd6f0d845dd60f7073b38c53b63e83b798fc2b919a7bcf296466c389cf
+    sourceRevision: 4ef5b515bb3eb9e6a0c859c9287e609215162f28c544c1b281d56412f326445c
+  - operationGuid: 55e1c920f3e445c88cf29468de5e895c
+    ownerPlanGuid: 
+    ownerElementGuid: 
+    kind: 1
+    x: 1220
+    z: 1250
+    width: 949
+    height: 1479
+    value: 0
+    stage: 10
+    priority: 0
+    sequence: 2
+    enabled: 1
+    automatic: 0
+    radius: 1
+    iterations: 1
+    protection: 1
+    patch: {fileID: 4900000, guid: 97aea3296d4a91546b551b91b1f01ded, type: 3}
+    patchSha256: fd4e1f84c3a2351085ffeb662ade9cdede68ec97887cf903e522ef1793a146e1
+    sourceRevision: 4ef5b515bb3eb9e6a0c859c9287e609215162f28c544c1b281d56412f326445c
+  - operationGuid: 06e3f16e6c7d75d6a39114dfaa542486
+    ownerPlanGuid: b1006000000000000000000000000001
+    ownerElementGuid: b1006000000000000000000000000002
+    kind: 1
+    x: 1588
+    z: 1799
+    width: 216
+    height: 266
+    value: 0
+    stage: 20
+    priority: 0
+    sequence: 0
+    enabled: 1
+    automatic: 1
+    radius: 1
+    iterations: 1
+    protection: 1
+    patch: {fileID: 4900000, guid: 51690e09bbaf885449aaf58d19b0fc15, type: 3}
+    patchSha256: 8e6744ea20a00f54245c625cfbf36b0ce0918c4f29a035ff83f4f1c547cdc8c0
+    sourceRevision: 4ef5b515bb3eb9e6a0c859c9287e609215162f28c544c1b281d56412f326445c
+  - operationGuid: edff13bc50306191f096e8a00732689e
+    ownerPlanGuid: eb4c48e3cf8c45d3b2b8cd6c3a55aa18
+    ownerElementGuid: b1006000000000000000000000000004
+    kind: 1
+    x: 1703
+    z: 1826
+    width: 38
+    height: 38
+    value: 0
+    stage: 31
+    priority: 0
+    sequence: 0
+    enabled: 1
+    automatic: 1
+    radius: 1
+    iterations: 1
+    protection: 1
+    patch: {fileID: 4900000, guid: e670b15f41298e846865528a61d5b4ad, type: 3}
+    patchSha256: e9a5e2fd8f65a9d528d1277f125273da7b1057fc37f4c5baa15013a29855d4ad
+    sourceRevision: 4ef5b515bb3eb9e6a0c859c9287e609215162f28c544c1b281d56412f326445c
+  - operationGuid: 6b1e2d7427c856865912c2ec534cc638
+    ownerPlanGuid: eb4c48e3cf8c45d3b2b8cd6c3a55aa18
+    ownerElementGuid: b1006000000000000000000000000004
+    kind: 1
+    x: 1740
+    z: 1857
+    width: 38
+    height: 38
+    value: 0
+    stage: 31
+    priority: 0
+    sequence: 0
+    enabled: 1
+    automatic: 1
+    radius: 1
+    iterations: 1
+    protection: 1
+    patch: {fileID: 4900000, guid: 370f3ced9bca8324699aa59ab13a349c, type: 3}
+    patchSha256: 80e80559efacfb826898484d960ecbd10ca45a3934013a7dc70f97d4d1c9a3e5
+    sourceRevision: 4ef5b515bb3eb9e6a0c859c9287e609215162f28c544c1b281d56412f326445c
+  _activeSession:
+    rid: -2
+  _appliedTerrainHash: a419ef6f40251e58d5cb08fe2c5de50b27ad9cf8f9b68fdede5ecab26d2979c3
+  _appliedStackHash: 2c8971c4a833821f29441a74ebf33133a7f9684d90e5cc08e5efc55bc1c62ff9
+  _dirtyLayers: 767
+  _dirtyX: 920
+  _dirtyZ: 138
+  _dirtyWidth: 2528
+  _dirtyHeight: 3294
+  _placementSeed: 0
+  _generationEpoch: 0
+  _placementCatalog: {fileID: 0}
+  _placementRules: []
+  _placementOverrides: []
+  _placementReservations:
+  - guid: eb9d9f3add2f9c10b9ff6e1c13c49070
+    ownerPlanGuid: b1006000000000000000000000000001
+    minX: 1602.0381329882673
+    minZ: 1812.7226078457902
+    maxX: 1789.506587742644
+    maxZ: 2050.290557963973
+    boundary:
+    - x: 1627.9618670117327
+      y: 49.8
+      z: 2050.290557963973
+    - x: 1647.5933050467386
+      y: 48.2
+      z: 2002.1935347782087
+    - x: 1670.9987143813362
+      y: 47
+      z: 1961.9362307227007
+    - x: 1700.3552306283796
+      y: 46
+      z: 1935.5153661003617
+    - x: 1750.4133790219423
+      y: 44
+      z: 1869.438610220859
+    - x: 1789.506587742644
+      y: 42.8
+      z: 1833.2773921542098
+    - x: 1770.493412257356
+      y: 42.8
+      z: 1812.7226078457902
+    - x: 1729.5866209780577
+      y: 44
+      z: 1850.561389779141
+    - x: 1679.6447693716204
+      y: 46
+      z: 1916.4846338996383
+    - x: 1649.0012856186638
+      y: 47
+      z: 1944.0637692772993
+    - x: 1622.4066949532614
+      y: 48.2
+      z: 1989.8064652217913
+    - x: 1602.0381329882673
+      y: 49.8
+      z: 2039.7094420360274
+  - guid: 201e16e84f6e7a15e06457bd8676ab58
+    ownerPlanGuid: eb4c48e3cf8c45d3b2b8cd6c3a55aa18
+    minX: 1719.7702278520908
+    minZ: 1842.4846005709464
+    maxX: 1760.2297721479092
+    maxZ: 1877.5153994290536
+    boundary: []
+  - guid: 81b2d3eb96a0883d7cad345bbe257ff5
+    ownerPlanGuid: eb4c48e3cf8c45d3b2b8cd6c3a55aa18
+    minX: 1701.2350000000001
+    minZ: 1820.51
+    maxX: 1778.7649999999999
+    maxZ: 1899.49
+    boundary:
+    - x: 1701.2350000000001
+      y: 44
+      z: 1871.61
+    - x: 1731.165
+      y: 44
+      z: 1899.49
+    - x: 1778.7649999999999
+      y: 44
+      z: 1848.39
+    - x: 1748.835
+      y: 44
+      z: 1820.51
+  _placements: []
+  _placementHash: 
+  _appliedPlacementSeed: 0
+  _appliedGenerationEpoch: 0
+  _planning: {fileID: 11400000, guid: e72bdbf9ccd85064d8da2e84e7f834eb, type: 2}
+  _ecology: {fileID: 0}
+  _ecologyOwner: 
+  _ecologyDryVolumes: []
+  _ecologyLayers: []
+  _waterSystem: {fileID: 11400000, guid: 0519d40e7dbca304690900f14e680b5e, type: 2}
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }

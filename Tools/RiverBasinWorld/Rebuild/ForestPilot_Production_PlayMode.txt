@@ -1,0 +1,2 @@
+ForestPilot_Production 1920x1080 NVIDIA GeForce RTX 3060 Ti Direct3D11 terrains=64 distance/density=90/340/1 quality=PC vSync=1 targetFPS=60 Unity 6000.3.21f1
+Start at (988

@@ -1,0 +1,176 @@
+{
+  "sha256": "5ebef2be73b19a493d13a7ead0c759892aaaff1f1acfcb45519c4085758abbbb",
+  "bytes": 8396802,
+  "size": 2049,
+  "min": -16.71,
+  "max": 294.84,
+  "bridges": [
+    {
+      "id": "B1",
+      "bed": 41.4,
+      "water": 44,
+      "deck": 52
+    },
+    {
+      "id": "B2",
+      "bed": 80.4,
+      "water": 83,
+      "deck": 94
+    },
+    {
+      "id": "B3",
+      "bed": 32.4,
+      "water": 35,
+      "deck": 48
+    },
+    {
+      "id": "B4",
+      "bed": 19.4,
+      "water": 22,
+      "deck": 29
+    }
+  ],
+  "westernWater": [
+    {
+      "id": "southwest-lake",
+      "x": 530,
+      "z": 418,
+      "surface": 15,
+      "depth": 9
+    },
+    {
+      "id": "forest-pool",
+      "x": 321,
+      "z": 1098,
+      "surface": 91,
+      "depth": 6
+    }
+  ],
+  "watercourseStats": [
+    {
+      "id": "inlet",
+      "probes": 217,
+      "dry": 0
+    },
+    {
+      "id": "outlet",
+      "probes": 59,
+      "dry": 0
+    },
+    {
+      "id": "southwest-inlet",
+      "probes": 73,
+      "dry": 0
+    },
+    {
+      "id": "west-mouth",
+      "probes": 78,
+      "dry": 0
+    },
+    {
+      "id": "south-mouth",
+      "probes": 63,
+      "dry": 0
+    },
+    {
+      "id": "forest-spring",
+      "probes": 43,
+      "dry": 0
+    },
+    {
+      "id": "forest-creek",
+      "probes": 82,
+      "dry": 0
+    }
+  ],
+  "routeStats": [
+    {
+      "id": "lake-loop",
+      "probes": 363,
+      "belowWater": 0,
+      "maxGradeDeg": 16.47,
+      "steepestAt": [
+        594,
+        665
+      ],
+      "maxRoadError": 2.52
+    },
+    {
+      "id": "keep-to-pass",
+      "probes": 42,
+      "belowWater": 0,
+      "maxGradeDeg": 11.93,
+      "steepestAt": [
+        803,
+        1531
+      ],
+      "maxRoadError": 1.21
+    },
+    {
+      "id": "alpine-approach",
+      "probes": 91,
+      "belowWater": 0,
+      "maxGradeDeg": 17.28,
+      "steepestAt": [
+        1597,
+        1650
+      ],
+      "maxRoadError": 1.63
+    },
+    {
+      "id": "coast",
+      "probes": 61,
+      "belowWater": 0,
+      "maxGradeDeg": 6.26,
+      "steepestAt": [
+        1386,
+        133
+      ],
+      "maxRoadError": 0.9
+    },
+    {
+      "id": "quarry-approach",
+      "probes": 52,
+      "belowWater": 0,
+      "maxGradeDeg": 13.95,
+      "steepestAt": [
+        1644,
+        1058
+      ],
+      "maxRoadError": 1.9
+    }
+  ],
+  "sightlines": [
+    {
+      "id": "village-to-keep",
+      "terrainOccludes": false,
+      "maxObstructionMeters": -4.11
+    },
+    {
+      "id": "bend-to-bridge",
+      "terrainOccludes": false,
+      "maxObstructionMeters": -2.04
+    },
+    {
+      "id": "bridge-exit-to-keep",
+      "terrainOccludes": false,
+      "maxObstructionMeters": -2.79
+    },
+    {
+      "id": "observatory-to-lake",
+      "terrainOccludes": true,
+      "maxObstructionMeters": 16.27
+    },
+    {
+      "id": "ridge-to-lake",
+      "terrainOccludes": false,
+      "maxObstructionMeters": -4.81
+    }
+  ],
+  "cornersSouthFirst": [
+    -4.33746852826734,
+    -12.968459601739529,
+    57.620508125429154,
+    61.96823071641107
+  ]
+}

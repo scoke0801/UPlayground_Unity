@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9fde6389ae73f2b4985a26c9d60e840d, type: 3}
+  m_Name: 5f12bb1019204196a2324aaf28a2f9dc_Authoring
+  m_EditorClassIdentifier: WorldBuilder.Data::UPlayGround.WorldBuilder.Data.WorldDefinition
+  _worldGuid: 5f12bb1019204196a2324aaf28a2f9dc
+  _profile: {fileID: 11400000, guid: 70267b348f4a6694aa9ac62a130e1b83, type: 2}
+  _baseHeight: {fileID: 4900000, guid: bd5461e34e572b448950968fe74f7e8b, type: 3}
+  _baseSha256: 01a533e4d6572ee3be42f4188ecff375e6241caec53f5111d4cad2274afd4d49
+  _sourceRevision: 229e9b66ae39ce702293d006a826ad425084a269969c39cc512048b9ea783232
+  _previewSceneGuid: 88d2497bf1149124badc75b5effe7e91
+  _operations: []
+  _activeSession:
+    rid: -2
+  _appliedTerrainHash: eb4700d9ed1fcce617841fc4385257da7b149f9fc1da1d1701eccfd392fe37fc
+  _appliedStackHash: 7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8
+  _dirtyLayers: 0
+  _dirtyX: 0
+  _dirtyZ: 0
+  _dirtyWidth: 0
+  _dirtyHeight: 0
+  _placementSeed: 0
+  _generationEpoch: 0
+  _placementCatalog: {fileID: 0}
+  _placementRules: []
+  _placementOverrides: []
+  _placementReservations: []
+  _placements: []
+  _placementHash: 
+  _appliedPlacementSeed: 0
+  _appliedGenerationEpoch: 0
+  _planning: {fileID: 0}
+  _ecology: {fileID: 0}
+  _ecologyOwner: 
+  _ecologyDryVolumes: []
+  _ecologyLayers: []
+  _waterSystem: {fileID: 0}
+  references:
+    version: 2
+    RefIds:
+    - rid: -2
+      type: {class: , ns: , asm: }

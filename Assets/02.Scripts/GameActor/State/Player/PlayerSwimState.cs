@@ -212,6 +212,13 @@ namespace UPlayGround.State
                 motor.TransientPosition.y, targetY, _surfaceY - playerController.SwimMaxDiveDepth,
                 _isDiving ? _verticalCommand : 0f,
                 playerController.SwimVerticalSharpness, playerController.SwimMaxVerticalSpeed);
+            if (!_isDiving && TryFollowBank(up, targetY, out float bankY))
+            {
+                // 완만한 하상 위에서는 부력 기준을 잠시 올려 출수 깊이까지 헤엄칠 수 있게 한다.
+                desiredVertical = PlayerSwimRules.ResolveVerticalSpeed(
+                    motor.TransientPosition.y, bankY, playerController.SwimVerticalSharpness,
+                    playerController.SwimMaxVerticalSpeed);
+            }
             vertical = Mathf.Lerp(vertical, desiredVertical, 1 - Mathf.Exp(-playerController.SwimVerticalResponse * deltaTime));
 
             currentVelocity = planar + up * vertical;
@@ -310,6 +317,25 @@ namespace UPlayGround.State
             return Physics.Raycast(
                 origin, -motor.CharacterUp, GroundProbeDistance + GroundProbeUp,
                 motor.CollidableLayers & motor.StableGroundLayers, QueryTriggerInteraction.Ignore);
+        }
+
+        private bool TryFollowBank(Vector3 up, float floatY, out float bankY)
+        {
+            bankY = 0f;
+            if (!playerController.HasMoveInput()) return false;
+
+            Vector3 direction = Vector3.ProjectOnPlane(playerController.MoveInputVector, up).normalized;
+            Vector3 feet = motor.TransientPosition;
+            Vector3 origin = feet + direction * (motor.Capsule.radius + GroundProbeUp) + up * GroundProbeDistance;
+            if (!Physics.Raycast(origin, -up, out RaycastHit hit, GroundProbeDistance * 2f,
+                    motor.CollidableLayers & motor.StableGroundLayers, QueryTriggerInteraction.Ignore)) return false;
+
+            float stableNormal = Mathf.Cos(motor.MaxStableSlopeAngle * Mathf.Deg2Rad);
+            if (Vector3.Dot(hit.normal, up) < stableNormal || Vector3.Dot(hit.normal, direction) >= 0f
+                || hit.point.y <= floatY || hit.point.y > _surfaceY + GroundProbeUp) return false;
+
+            bankY = hit.point.y + GroundProbeUp;
+            return true;
         }
 
         private void ExitToGround()

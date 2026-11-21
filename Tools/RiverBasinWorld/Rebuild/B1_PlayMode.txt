@@ -1,0 +1,13 @@
+Boot Ready
+Map RiverBasin4km
+Save slot 
+Audio loops 2
+Camera InGame
+DONE
+B1 서→동 PASS reached=True error=1.05 ground=542/542 swimFrames=0 swimAtEnd=False feet=(1763.01, 52.38, 1879.17) lowest=52.18
+B1 동→서 PASS reached=True error=1.00 ground=502/502 swimFrames=0 swimAtEnd=False feet=(1716.95, 52.21, 1840.79) lowest=52.22
+수영 서→동 PASS reached=True error=1.02 ground=146/367 swimFrames=219 swimAtEnd=False feet=(1671.48, 48.73, 1971.03) lowest=45.82
+수영 동→서 PASS reached=True error=1.02 ground=134/330 swimFrames=193 swimAtEnd=False feet=(1638.65, 48.83, 1951.93) lowest=45.82
+수영 서안 복귀 PASS reached=True error=1.01 ground=148/242 swimFrames=91 swimAtEnd=False feet=(1638.62, 48.84, 1952.00) lowest=45.87
+수영 동안 복귀 PASS reached=True error=1.04 ground=128/211 swimFrames=81 swimAtEnd=False feet=(1671.43, 48.73, 1971.07) lowest=45.77
+Editor frame p95 (ms) 61.96 / max 337.55 / frames 2194

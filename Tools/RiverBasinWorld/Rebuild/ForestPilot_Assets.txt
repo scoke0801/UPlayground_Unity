@@ -1,0 +1,5 @@
+tiles=64 colliders=64 missing=0 source heights equal=True east seam height max=0
+trees=219 treeDist=340 billboardDist=95 detailDist=90 treeIndices=PF_EastLands_Osmanthus_01_Green_8=21,PF_EastLands_Osmanthus_01_Gold_1=33,PF_EastLands_Osmanthus_02_Green_5=29,PF_EastLands_Osmanthus_02_Gold_10=18,PF_EastLands_Osmanthus_03_Green_7=12,PF_EastLands_Osmanthus_03_Copper_0=18,TGV_Birch_Tree_04B=21,TGV_Beech_Tree_03B=11,PF_Farm_GenTree_B_Young_01=4,TGV_Beech_Tree_05A=8,TGV_Birch_Sapling_01B=12,TGV_Beech_Sapling_01A=32
+details=50117,14108,1052 shrubs=26
+default spawn=(1706.97, 51.92, 1832.47)
+game view (1920.00, 1080.00)

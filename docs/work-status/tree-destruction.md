@@ -1,8 +1,55 @@
 # LakeVillageWorld 일반 수목 파괴 연결
 
 - 정본: [환경 통합 계약](../../Assets/docs/design/world-art/environment/REACTIVE_ENVIRONMENT_INTEGRATION.md), [저작 지침](../../Assets/docs/guide/REACTIVE_ENVIRONMENT_AUTHORING_GUIDE.md).
+- 최신 확장: [EastLands 상호작용 수목 확장](#eastlands-상호작용-수목-확장).
 - 요청: 일반 나무를 실제 타격으로 파괴할 수 있게 한다. 보호 식생·채집 소유권·원본 구매 자산과 기존 배치 ID는 보존한다.
 - 현재 단계: **일반 수목4,767개 낙하 완료 정책·드롭/FX·잔해 소거 구현 반영, EditMode80/80·본편 복제본15/15 통과**. 직접 공격 입력·KCC/Nav 체감·실제 저장/지역 왕복·성능·미술 인수는 사용자 테스트 대기다. [최신 구현·검증](#낙하-완료-수명-구현--2026-11-15).
+
+## EastLands 상호작용 수목 확장
+
+- 2026-11-21 타입 저작을 반영했다. Dreamscape EastLands의 원형과 대응 밑동·절단 줄기를 재사용했다. 원형은 메시 LOD 3단계와 임포스터를, 절단 모델은 메시 LOD 3단계를 유지한다. [낙하 완료 설계](../../Assets/docs/design/world-art/environment/TREE_DESTRUCTION_COMPLETION_DESIGN.md).
+- 배치용 프리팹 3종은 [직립 침엽수](../../Assets/03.Prefabs/Environment/ReactiveTrees/PF_ReactiveEastLandsConiferStraight.prefab), [굽은 침엽수](../../Assets/03.Prefabs/Environment/ReactiveTrees/PF_ReactiveEastLandsConiferTwisted.prefab), [키 큰 대나무](../../Assets/03.Prefabs/Environment/ReactiveTrees/PF_ReactiveEastLandsBambooTall.prefab)다. 프리팹 원본의 배치 ID는 비워 두고 씬 배치가 ID를 소유한다. 이번 적용 범위는 신규 배치용 프리팹이다.
+- 종별 절단 피벗과 로컬 단위 낙하 레시피를 사용한다. 타격은 줄기 Capsule만 받으며 물리 Collider의 원본 치수를 보존했다. 내구도 100, 목재 1~4개, 낙하 완료 후 보상·FX·정리를 기존 정책에서 가져왔다. 낙하가 처음부터 막히면 침엽수는 밑동과 짧은 통나무를, 대나무는 밑동을 사용한다.
+- Unity에서 새 프리팹 3개, SO 6개, 파생 재질 10개를 생성했다. 구매 의존 파일과 meta 102개를 생성 전후 SHA-256으로 대조해 변경 0개를 확인했다. [저작 스크립트](../../Tools/ReactiveEnvironment/eastlands-tree-assets.csx).
+- Editor EditMode 환경 통합 테스트 55/55 통과. 신규 프리팹 3종의 축소·확대·초기 막힘 9/9에서 `HitRequest` 내구도 감소, 절단 모델 전환, 낙하 중 JSON 포즈 복원, 목재 보상 1회 생성과 잔해 소거를 확인했다. [EditMode 결과](../../output/ReactiveEnvironment/EastLandsTrees/editmode.json) · [프리팹 재현 결과](../../output/ReactiveEnvironment/EastLandsTrees/combat-probe.json) · [저작 결과](../../output/ReactiveEnvironment/EastLandsTrees/creation.json).
+- 실제 물리 공간에서 수목 3종 × 배율 0.5/1/2의 인접 배치 9/9를 검사했다. 전투 형상 질의는 접촉 줄기만 반환했고, 두 나무 사이와 비활성 원형 위치는 피격 대상이 없었다. 첫 물리 검사는 fixture 등록이 누락되어 전투 검출기의 대상 생존 조건을 만족하지 못했고, 등록을 연결해 다시 실행했다. [줄기 피격 결과](../../output/ReactiveEnvironment/EastLandsTrees/trunk-hit.json).
+- Unity 프리뷰에서 원형·절단 포즈 6장을 확인했다. 누락 스크립트·재질과 반응 셰이더 오류가 없었다. 첫 캡처의 청록색 임시 셰이더는 동기 렌더링으로 다시 촬영해 교체했다. 원형과 절단 프리뷰는 [환경 에셋 카탈로그 후속 항목](#환경-에셋-카탈로그-수목-확장)에 모았다. 본편 씬의 조명, LOD 전환 및 실제 낙하 감각은 사용자 테스트 대기다.
+- 사용자 테스트 대기. 날씨 서비스를 제공하는 월드의 별도 테스트 슬롯에서 세 프리팹을 일반 GameObject 배치로 놓고 고유한 SceneEntityId가 있는지 확인한다. **EL-T01** 키보드·마우스 또는 패드로 수관과 줄기, 인접 두 그루 사이를 각각 공격한다. 닿은 줄기만 피해를 받고 파괴 후 서 있는 Collider가 사라져야 한다. **EL-T02** 열린 곳과 벽 사이에서 각각 벌목하고, 목재가 한 번만 나온 뒤 잔해가 사라지는지 본다. **EL-T03** 낙하 중과 보상 획득 이후 각각 저장·로드하거나 지역을 왕복한다. 형상이 올바르게 복원되고 목재가 다시 생성되지 않아야 한다. 결과는 항목 ID, 통과·실패·미수행, 실제 결과와 입력 장치, 필요 시 영상이나 로그로 기록한다. Player·Addressables 빌드는 미수행이다.
+- 보존 산출물은 신규 프리팹·SO·재질의 meta, [검증 준비표](../../output/harness/20261121-155455-fc957254/review.md)와 카탈로그·검증 근거다. 임시 Unity 검사 씬은 닫았다.
+
+## 환경 에셋 카탈로그 수목 확장
+
+- 카탈로그에서 대응 절단 모델이 있는 [목서](../../Assets/03.Prefabs/Environment/ReactiveTrees/PF_ReactiveEastLandsOsmanthus.prefab)와 [대나무 군락](../../Assets/03.Prefabs/Environment/ReactiveTrees/PF_ReactiveEastLandsBambooGroup.prefab)을 배치용 프리팹으로 추가했다. 군락의 세 줄기는 각각 피격과 물리 Capsule을 갖고, 한 번의 공격·파괴·보상·저장으로 처리된다. 같은 원형의 구매 의존 파일·meta 88개 해시 변경 0개를 확인했다. [저작 결과](../../output/ReactiveEnvironment/EastLandsTrees/asset-catalog-creation.json).
+- 신규 프리팹의 축소·확대·초기 막힘 6/6에서 실제 `HitRequest`, 방향성 낙하, JSON 복원, 목재 보상 1회와 잔해 소거를 확인했다. 별도 물리 질의 6/6에서 인접 개체 제외, 원형 전환 뒤 피격 해제, 군락 세 줄기 각각의 피격과 광역 형상 검출 1회를 확인했다. [파괴·복원](../../output/ReactiveEnvironment/EastLandsTrees/asset-catalog-combat.json) · [줄기 검출](../../output/ReactiveEnvironment/EastLandsTrees/asset-catalog-trunk-hit.json).
+- 당시 출력 폴더가 사라져 Unity 프리뷰로 상호작용 수목 5종 목록을 다시 구성했다. 이후 위키에서 3,176개 전체 목록을 찾아 [수목·소품 추가](#수목과-파괴-소품-추가)에서 양방향으로 연결했다. [검증 준비표](../../output/harness/20261121-173948-bb9897e4/review.md).
+- 이번 반영은 배치용 프리팹까지다. 위 EL-T01~03을 두 신규 타입에 적용해 본편 공격 입력, 낙하·가독성, 지역 왕복을 확인한다. 대나무 군락은 각 줄기에 대한 개별 공격과 세 줄기를 모두 포함한 범위 공격을 각각 시도해 피해와 목재 생성이 한 번인지 확인한다. 사용자 테스트 대기다.
+
+## 수목과 파괴 소품 추가
+
+- Unity 배치용 [붉은 활엽수](../../Assets/03.Prefabs/Environment/ReactiveTrees/PF_ReactiveFarmRedTree.prefab)와 [작은 대나무](../../Assets/03.Prefabs/Environment/ReactiveTrees/PF_ReactiveEastLandsBambooSmall.prefab)를 추가했다. 붉은 활엽수는 Farmlands C 붉은 잎과 기존 절단 잔해·레시피를 재사용한다. 작은 대나무는 원형·절단 모델에 맞춘 독립 벌목 레시피를 사용한다.
+- [나무통](../../Assets/03.Prefabs/Environment/ReactiveProps/PF_ReactiveFarmBarrel.prefab)은 내구도 50, 가연, 타격 파괴로 목재 1개다. [도자기 화병](../../Assets/03.Prefabs/Environment/ReactiveProps/PF_ReactiveFarmVase.prefab)은 내구도 25, 비가연, 타격 파괴 시 먼지 FX를 사용한다. 두 소품은 Swap 레시피로 원형 형상과 충돌을 함께 해제한다. [설계](../../Assets/docs/design/world-art/environment/TREE_DESTRUCTION_COMPLETION_DESIGN.md).
+- Unity 복제본에서 수목의 축소·확대·초기 막힘과 두 소품의 충돌 해제·정리·저장 복원 **8/8**, 소품의 발화·물 반응 **2/2** 통과. 테스트 드롭 서비스는 빈 보상도 확정 원장에 기록한다. 화병의 실제 보상 입력은 빈 표인지 별도로 확인했다. 시작 파일 해시는 저작 스크립트별 Farmlands 106개, EastLands 60개가 모두 일치했다. [파괴·복원](../../output/ReactiveEnvironment/CatalogExpansion-20261121/combat-probe.json) · [열·물 반응](../../output/ReactiveEnvironment/CatalogExpansion-20261121/element-probe.json) · [저작 결과](../../output/ReactiveEnvironment/CatalogExpansion-20261121/creation.json).
+- [상호작용형 카탈로그](../../output/asset-catalog/index.html) 수목 7종·소품 2종. 프리팹 경로, 검색, 미리보기 16장과 [전체 환경 카탈로그 3,176개](../asset-catalog/index.html)의 양방향 링크를 검사했다. 추가 캡처 6장은 Unity에서 확인했다. [검증 준비표](../../output/harness/20261121-174811-802dfc95/review.md).
+- 사용자 테스트 대기. EL-T01~03으로 두 수목을 확인한다. **EL-P01** 별도 테스트 슬롯에서 일반 공격·화염·물로 나무통과 화병을 시험한다. 나무통이 타격으로 부서지면 목재 1개가 나오며, 화병은 파괴 후 통행이 열리고 보상이 없어야 한다. 저장·지역 왕복 이후 파괴와 보상이 중복되면 실패다. 파괴 순간의 FX·소리·플레이 감각은 본편에서 확인한다. 이번 적용 범위는 배치용 프리팹이며 본편 배치와 Player 검사는 미수행이다.
+
+## 전체 카탈로그 조사와 수목 확장
+
+- [전체 환경 에셋 3,176개](../asset-catalog/index.html)의 경로를 대조해 모두 확인했다. 카탈로그의 나무 분류 270개와 소품 859개는 Unity에서 전부 로드해 Collider, LOD, 재질, 반응·채집 소유와 메시 참조를 조사했다. 원래 촬영에서 빠진 44개는 카탈로그의 제외 사유를 보존했다. 나무 분류에는 절단·잔해·임포스터 부품 91개와 묘목·관목·덩굴·낙엽 24개가 섞여 있다. [전수 조사 CSV](../../output/ReactiveEnvironment/AllTreeAudit/inventory.csv) · [수목 Unity 원본](../../output/ReactiveEnvironment/AllTreeAudit/unity-tree-prefabs.json) · [소품 Unity 원본](../../output/ReactiveEnvironment/AllTreeAudit/unity-prop-prefabs.json).
+- EastLands의 구매 절단 대응 수목 17종을 실측하고 미연결 11종을 [배치용 상호작용 프리팹](../../output/asset-catalog/tree.html)으로 연결했다. 6종은 단일 상부 줄기, 5종은 상부 2~3개를 원래 절단 위치에 조립해 같은 피벗으로 넘긴다. 원본 의존 파일·meta 252개 저작 전후 해시 변경 0개. [절단 위치·규격](../../output/ReactiveEnvironment/AllTreeAudit/eastlands-geometry.json) · [저작 결과](../../output/ReactiveEnvironment/AllTreeAudit/eastlands-creation.json) · [Unity 파괴·복원 33/33](../../output/ReactiveEnvironment/AllTreeAudit/eastlands-combat.json).
+- Idyllic의 수목 55개는 Unity 메시 서명으로 15개 형상 그룹을 확인했다. 그중 [전나무 Fir_02](../../Assets/03.Prefabs/Environment/ReactiveTrees/PF_ReactiveIdyllicFir02.prefab)는 Blender에서 원본 LOD0~2를 각각 절단해 밑동과 낙목 6개 메시를 만들었다. 원본 UV는 유지하고, 높이 1.08m·지름 약 0.39m 단면에 나이테 텍스처를 적용했다. 첫 낙목 캡처에서 늘어난 잎은 낙목 전용 재질로 교정했다. [Blender 제작 원본](../../Tools/ReactiveEnvironment/Source/Fir02_FallParts.blend) · [내보내기](../../Assets/08.Models/ReactiveTrees/Fir02_FallParts.fbx) · [근접 단면](../../output/ReactiveEnvironment/AllTreeAudit/PF_ReactiveIdyllicFir02-cap.png) · [Unity 타격·복원 3/3](../../output/ReactiveEnvironment/AllTreeAudit/fir02-combat.json).
+- [상호작용형 카탈로그](../../output/asset-catalog/index.html)는 수목 총 19종과 기존 소품 2종이다. 이번 저작 범위는 배치용 프리팹이며 기존 월드·저장 슬롯의 배치는 그대로다. Idyllic 나머지 14개 메시 형상, Toon Golden Valley 수관 원형 44개와 별도 저작이 필요한 나무, 소품의 추가 파손 제작은 조사표에 남아 있다.
+- 최종 환경 통합 EditMode **55/55** 통과. Unity 캡처 25장은 EastLands 신규 11종 원형·절단과 Fir_02 원형·절단·근접 단면이다. 실패 진단용 임시 스크립트와 바람 비교 캡처를 정리하고 Blender 제작본·FBX·텍스처·meta와 최종 검증 근거를 보존했다. [EditMode 결과](../../output/ReactiveEnvironment/AllTreeAudit/editmode.json) · [검증 준비표](../../output/harness/20261121-181203-1db43904/review.md).
+- 사용자 테스트 대기. EL-T01~03으로 작은 대나무, 갈라진 침엽수, 목서, Fir_02를 열린 곳과 벽 주변에서 확인한다. 여러 줄기가 동시에 화면에 들어오는 상황에서 타격 범위와 목재 보상, LOD가 바뀌는 거리에서 단면과 수관, 쓰러지는 방향과 통로를 확인한다. 자동 복제본 결과는 본편 성능·미술·입력 인수를 대체하지 않는다.
+
+### Fir_02 밑동 잎 정리
+
+- 밑동 LOD0~2에서 절단선 아래에 남았던 잎 카드를 제거했다. Unity에서 모든 밑동 LOD의 나무껍질·나이테 슬롯과 1.08m 절단 높이를 확인했다. 낙목 3개 LOD는 기존 삼각형 수와 재질 연결을 유지했다. [정리 전](../../output/ReactiveEnvironment/AllTreeAudit/PF_ReactiveIdyllicFir02-cap.png) · [정리 후](../../output/ReactiveEnvironment/AllTreeAudit/PF_ReactiveIdyllicFir02-clean-stump.png).
+- Blender 원본과 FBX, Unity 프리팹, 카탈로그의 절단 캡처를 갱신했다. 축소·확대·낙하 길막의 피격·보상·저장 복원 **3/3** 통과. 본편 조명과 실제 플레이는 사용자 테스트 대기다. [Blender 출력 검증](../../output/ReactiveEnvironment/AllTreeAudit/fir02-blender.json) · [타격·복원](../../output/ReactiveEnvironment/AllTreeAudit/fir02-combat.json) · [준비표](../../output/harness/20261121-182941-7f811131/review.md).
+
+### Fir_02 밑동 근접 실루엣 개선
+
+- 잎 정리 후 남은 22삼각형 밑동을 둥근 절단 둘레, 굴곡 있는 나무껍질과 지면으로 퍼지는 뿌리로 다시 저작했다. LOD0/1/2는 원주 48/28/16분할과 1,152/448/160삼각형이다. Blender에서 세 메시의 닫힌 형상과 바깥 방향을 검사하고 Unity에서 삼각형 수, 재질 슬롯, 1.08m 절단 높이와 접지 범위를 대조했다. [이전 근접 컷](../../output/ReactiveEnvironment/AllTreeAudit/PF_ReactiveIdyllicFir02-clean-stump.png) · [최종 근접 컷](../../output/ReactiveEnvironment/AllTreeAudit/PF_ReactiveIdyllicFir02-rounded-stump.png).
+- FBX·Blender 원본과 Unity 프리팹을 갱신하고 카탈로그에 새 낙목 컷을 반영했다. Unity 복제본 파괴·보상·저장 복원 **3/3** 통과. 본편 지형의 뿌리 접지와 실제 카메라 외형은 사용자 테스트 대기다. [재현 결과](../../output/ReactiveEnvironment/AllTreeAudit/fir02-rounded-combat.json) · [준비표](../../output/harness/20261121-183423-d4cf9753/review.md).
 
 ## 조사 완료 — 2026-11-15
 

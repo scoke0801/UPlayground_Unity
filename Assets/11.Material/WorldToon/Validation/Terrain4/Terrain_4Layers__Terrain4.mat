@@ -54,14 +54,14 @@ Material:
     m_Ints: []
     m_Floats:
     - _AdditionalLightStrength: 1
-    - _BandSoftness: 0.04
-    - _BandThreshold: 0.05
+    - _BandSoftness: 0.4
+    - _BandThreshold: 0.2
     - _EnableInstancedPerPixelNormal: 1
     - _IndirectStrength: 1
     - _NumLayersCount: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
     - _LitTint: {r: 1, g: 1, b: 1, a: 1}
-    - _ShadeTint: {r: 0.45, g: 0.47, b: 0.6, a: 1}
+    - _ShadeTint: {r: 0.1, g: 0.1, b: 0.1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

@@ -14,6 +14,8 @@
 | 구분 | 상태 |
 |---|---|
 | 코드 작성 | 완료(Mesh·Foliage·Terrain4·Basemap 셰이더, 분석·변환·적용·복구·검사·검증 씬 도구, EditMode 테스트) |
+| 식생 경량 셰이더(2026-11-20) | 사용자 지시("측정하지 말고 만들라")로 측정 없이 구현. `UPlayGround/WorldToon/Foliage`에 환경 반응 계약(젖음·그을림·연소 발광·연료 소거·공유 버퍼·지형 셀), UPG 풀 밟기 변위, 높이 기반 바람 가중치, 높이 색 그라데이션을 넣었다. 변환기는 반응형 식생 파생 재질을 Foliage로만 변환하고(그래프 색 텍스처·그라데이션·컷오프 이름 대응), 반응형 오브젝트 슬롯에는 반응 계약 재질만 적용한다. 임포스터 빌보드·Transparent·Reactive Toon은 원본 유지. D3D 84변형 컴파일 실패 0, 검증 씬 F구역(실제 나무 2·풀 2) 캡처로 외형 근접 확인. **성능 이득 미측정, 실제 월드 미적용** |
+| 반응형 환경 | WorldToon Mesh는 반응 상태 계약이 없어 반응형 오브젝트에 쓸 수 없다. 2026-11-20 도구 보호(WT-PROTECT-002) 결함 수정, EditMode 11/11. 후보인 바위·소품은 반응형 대상이 아니며 원본(URP/Lit)도 반응 표현이 없다 |
 | 컴파일 확인 | 완료 — 셰이더 import 오류 0, 대표 변형 300개 D3D 컴파일 실패 0, C# 컴파일 오류 0(WorldToon 범위). 같은 시점 다른 작업의 `WorldBuilder/Editor/WorldCaveEvaluation.cs` 컴파일 오류가 콘솔에 있었으며 범위 밖이라 손대지 않았다 |
 | 시각 검증 | 자동 캡처 PASS(렌더 깨짐 없음). 미술 품질 `사용자 테스트 대기` |
 | 성능 검증 | `NOT_MEASURED`(정적 바이트코드 지표만) |
@@ -52,7 +54,7 @@
 
 ## 남은 확인과 다음 행동
 
-1. **사용자 외형 확인:** [캡처](worldtoon/captures/) 또는 재생성한 검증 씬에서 바위·소품의 툰 명암(Shade Tint·경계)이 의도에 맞는지. 스타일 수치는 [WorldToonStyle_Default](../../Assets/10.Datas/Environment/WorldToon/WorldToonStyle_Default.asset)에서 바꾸고 변환 도구를 다시 실행한다.
+1. **사용자 외형 확인:** 2026-11-20 "원본과 차이가 너무 큼" 피드백으로 기본 스타일을 원본 근접형으로 재조정했다([결정](worldtoon/Decisions.md), [검증](worldtoon/ValidationReport.md#원본-근접-재조정2026-11-20)). `Cam_A_Pairs_day.png`로 재확인한다. 같은 날 검증 씬이 텍스처 없는 FBX 재질을 쓰던 문제를 고쳐 실제 게임 재질(`PoorProp_Stone_Field`)로 다시 캡처했다. [캡처](worldtoon/captures/) 또는 재생성한 검증 씬에서 바위·소품의 툰 명암(Shade Tint·경계)이 의도에 맞는지. 스타일 수치는 [WorldToonStyle_Default](../../Assets/10.Datas/Environment/WorldToon/WorldToonStyle_Default.asset)에서 바꾸고 변환 도구를 다시 실행한다.
 2. **Player 빌드 지시:** T26~T28과 G2 GPU A/B는 Player(필요 시 Addressables) 빌드가 필요하다. 지시가 있으면 [성능 보고](worldtoon/PerformanceReport.md)의 계획대로 측정한다.
 3. 실제 게임 씬의 바위·소품 적용 범위(어느 씬·프리팹)를 정하면 복제 재질 적용을 진행한다. 원본 모델·프리팹은 수정하지 않는다.
 4. NOT_RUN 항목(T04 캐스케이드, T08~T10, T13~T15, T18, T20~T21)은 적용 범위 확정 후 Frame Debugger와 함께 진행한다.

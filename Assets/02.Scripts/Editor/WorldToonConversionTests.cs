@@ -187,6 +187,96 @@ namespace UPlayGround.Editor.Tests
         }
 
         [Test]
+        public void ReactiveToonMaterial_IsProtected()
+        {
+            Material source = CreateSourceAsset("UPlayGround/Environment/Reactive Toon", "ReactiveSource");
+
+            WorldToonMaterialAnalysis analysis = WorldToonMaterialAnalyzer.Analyze(source);
+
+            Assert.That(analysis.Status, Is.EqualTo(WorldToonConversionStatus.Protected));
+            Assert.That(analysis.Warnings[0], Does.StartWith("WT-PROTECT-002"));
+        }
+
+        private const string ReactiveVegetationShader = "UPlayGround/Environment/Vegetation/933532a4fcc9baf4fa0491de14d08ed7";
+
+        [Test]
+        public void ReactiveVegetation_ConvertsOnlyToFoliage_AndKeepsContract()
+        {
+            Material source = CreateSourceAsset(ReactiveVegetationShader, "ReactiveVegetationSource");
+            source.SetColor("_WetTint", new Color(0.2f, 0.3f, 0.9f, 1f));
+            source.SetFloat("_AllowFuelCoverage", 1f);
+            var record = new WorldToonConversionRecord();
+            WorldToonMaterialAnalysis analysis = WorldToonMaterialAnalyzer.Analyze(source);
+
+            var mesh = WorldToonMaterialConverter.CreateCopy(analysis, WorldToonPreset.MeshLite, _style, record, TempRoot);
+            var foliage = WorldToonMaterialConverter.CreateCopy(analysis, WorldToonPreset.FoliageNear, _style, record, TempRoot);
+
+            Assert.That(analysis.IsReactive, Is.True);
+            Assert.That(mesh.Material, Is.Null);
+            Assert.That(mesh.Message, Does.Contain("WT-PROTECT-002"));
+            Assert.That(foliage.Material, Is.Not.Null);
+            Assert.That(UPlayGround.Gameplay.World.ReactiveEnvironment.ReactiveEnvironmentSurface.SupportsReaction(foliage.Material), Is.True);
+            Assert.That(Vector4.Distance(foliage.Material.GetColor("_WetTint"), new Color(0.2f, 0.3f, 0.9f, 1f)), Is.LessThan(1e-4f));
+            Assert.That(foliage.Material.GetFloat("_AllowFuelCoverage"), Is.EqualTo(1f));
+            Assert.That(foliage.Material.IsKeywordEnabled(WorldToonVariantManifest.WindHeightKeyword), Is.True);
+        }
+
+        [Test]
+        public void ReactiveObjectSlot_AcceptsFoliageCopy()
+        {
+            Material source = CreateSourceAsset(ReactiveVegetationShader, "ReactiveOwnedVegetation");
+            var record = new WorldToonConversionRecord();
+            Material copy = WorldToonMaterialConverter.CreateCopy(WorldToonMaterialAnalyzer.Analyze(source), WorldToonPreset.FoliageNear, _style, record, TempRoot).Material;
+            var owner = new GameObject("ReactiveTree");
+            owner.SetActive(false);
+            try
+            {
+                owner.AddComponent<UPlayGround.Gameplay.World.ReactiveEnvironment.ReactiveEnvironmentObject>();
+                var child = new GameObject("Leaves");
+                child.transform.SetParent(owner.transform);
+                child.AddComponent<MeshFilter>();
+                var renderer = child.AddComponent<MeshRenderer>();
+                renderer.sharedMaterial = source;
+
+                string result = WorldToonMaterialConverter.ApplyToSlot(renderer, 0, copy, record);
+
+                Assert.That(renderer.sharedMaterial == copy, Is.True, result);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(owner);
+            }
+        }
+
+        [Test]
+        public void SlotUnderReactiveObject_IsBlocked()
+        {
+            Material source = CreateSourceAsset("Universal Render Pipeline/Lit", "ReactiveOwnedSource");
+            var record = new WorldToonConversionRecord();
+            Material copy = WorldToonMaterialConverter.CreateCopy(WorldToonMaterialAnalyzer.Analyze(source), WorldToonPreset.MeshLite, _style, record, TempRoot).Material;
+            var owner = new GameObject("ReactiveOwner");
+            owner.SetActive(false);
+            try
+            {
+                owner.AddComponent<UPlayGround.Gameplay.World.ReactiveEnvironment.ReactiveEnvironmentObject>();
+                var child = new GameObject("Body");
+                child.transform.SetParent(owner.transform);
+                child.AddComponent<MeshFilter>();
+                var renderer = child.AddComponent<MeshRenderer>();
+                renderer.sharedMaterial = source;
+
+                string result = WorldToonMaterialConverter.ApplyToSlot(renderer, 0, copy, record, allowNeedsReview: true);
+
+                Assert.That(result, Does.Contain("WT-PROTECT-002"));
+                Assert.That(renderer.sharedMaterial == source, Is.True);
+            }
+            finally
+            {
+                UnityEngine.Object.DestroyImmediate(owner);
+            }
+        }
+
+        [Test]
         public void Manifest_CoversEveryPreset()
         {
             foreach (WorldToonPreset preset in System.Enum.GetValues(typeof(WorldToonPreset)))

@@ -25,6 +25,17 @@ namespace UPlayGround.Tool.Editor.WorldToon
         public const string ReceiveShadowsOffKeyword = "_RECEIVE_SHADOWS_OFF";
         public const string AdditionalLightsKeyword = "_WT_ADDITIONAL_LIGHTS";
         public const string WindKeyword = "_WT_WIND";
+        // Foliage 재질별 선택 키워드: 원본 분석 결과(정점 색 없음·접촉 변위 사용)로 변환기가 켠다.
+        public const string WindHeightKeyword = "_WT_WIND_HEIGHT";
+        public const string InteractionKeyword = "_WT_INTERACTION";
+        public const string GradientKeyword = "_WT_GRADIENT";
+        private static readonly string[] FoliageOptionalKeywords = { WindHeightKeyword, InteractionKeyword, GradientKeyword };
+
+        /// <summary>프리셋이 환경 반응 계약을 가진 셰이더(Foliage)를 쓰는지.</summary>
+        public static bool SupportsEnvironmentReaction(WorldToonPreset preset)
+        {
+            return Get(preset).ShaderName == FoliageShader;
+        }
 
         /// <summary>프리셋 하나가 쓰는 셰이더와 고정 키워드.</summary>
         public readonly struct Entry
@@ -76,6 +87,11 @@ namespace UPlayGround.Tool.Editor.WorldToon
                     set.Add(keyword);
                 if (entry.AllowsCutout)
                     set.Add(AlphaTestKeyword);
+            }
+            if (shaderName == FoliageShader)
+            {
+                foreach (string keyword in FoliageOptionalKeywords)
+                    set.Add(keyword);
             }
             return set;
         }

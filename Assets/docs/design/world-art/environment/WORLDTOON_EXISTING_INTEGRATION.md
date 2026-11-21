@@ -59,7 +59,8 @@
 ## 6. 구현 결과로 확정된 계약(2026-11-19)
 
 - **전역 스타일 없음:** `WorldToonStyleProfileSO`(`Assets/10.Datas/Environment/WorldToon/`) 값은 변환 도구가 생성 재질 상수로 기록한다. 원문 `WorldToonGlobals`는 만들지 않는다. 프로파일 변경 후에는 변환 도구를 다시 실행한다.
+- **반응형 식생(2026-11-20):** Foliage는 기존 식생 파생 셰이더와 같은 반응 계약(`_EnvironmentReactionSupported`·`_EnvState0/1`·`_FuelCoverage`·`_ENVIRONMENT_REACTION_BUFFER`·지형 셀 마스크)을 `VegetationReaction.hlsl` 그대로 include해 지원한다. 접촉 변위는 `UPG_FoliageInteraction.hlsl`을 그대로 쓴다(새 입력 없음). 이로써 §1의 "Foliage는 비교 후 후보" 중 반응형 식생도 후보가 됐다. Reactive Toon(외곽선·균열·역할)은 대체하지 않는다.
 - **바람 입력:** Foliage는 `EnvironmentShaderState`의 `_LW_Wind/_LW_PreviousWind`만 읽는다.
 - **저장 범위:** WorldToon 도구는 자기 에셋만 `SaveAssetIfDirty`로 저장한다. 전체 `SaveAssets`는 자동 업그레이드된 RP 에셋 같은 무관한 에셋까지 저장할 수 있어 쓰지 않는다.
-- **보호 강제 범위:** 도구는 lilToon 계열 셰이더(WT-PROTECT-001)와 스키닝·애니메이터 슬롯(WT-MAT-002)을 막는다. 보호 캐릭터 프리팹의 비lilToon 정적 슬롯은 경로로 막지 않으므로 적용 범위를 고를 때 [ProjectAudit §6](../../../../../docs/work-status/worldtoon/ProjectAudit.md)의 목록을 제외한다.
+- **보호 강제 범위:** 도구는 lilToon 계열 셰이더(WT-PROTECT-001), 반응형 환경 재질·반응형 오브젝트 하위 렌더러(WT-PROTECT-002, 판정은 런타임 `ReactiveEnvironmentSurface.SupportsReaction`과 `ReactiveEnvironmentObject` 소유 여부), 스키닝·애니메이터 슬롯(WT-MAT-002)을 막는다. WorldToon에는 반응 상태(`_EnvState0/_EnvState1/_FuelCoverage`) 계약이 없어, 반응형 오브젝트에 쓰면 런타임 검증이 표면을 거부하고 젖음·그을림·연소 표현이 사라지기 때문이다. 전역 비 젖음 `_LW_Wetness`는 지면 셰이더(CreekGround·GroundOverlay)만 읽으므로 바위·소품(URP/Lit 원본)은 교체 전후 모두 젖음 표현이 없다. 보호 캐릭터 프리팹의 비lilToon 정적 슬롯은 경로로 막지 않으므로 적용 범위를 고를 때 [ProjectAudit §6](../../../../../docs/work-status/worldtoon/ProjectAudit.md)의 목록을 제외한다.
 - 그 밖의 설계 변경은 [결정 기록](../../../../../docs/work-status/worldtoon/Decisions.md)을 따른다.

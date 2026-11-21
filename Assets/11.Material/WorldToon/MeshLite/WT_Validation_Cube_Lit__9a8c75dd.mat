@@ -45,8 +45,8 @@ Material:
     - _AddPrecomputedVelocity: 0
     - _AdditionalLightStrength: 1
     - _AlphaClip: 0
-    - _BandSoftness: 0.04
-    - _BandThreshold: 0.05
+    - _BandSoftness: 0.4
+    - _BandThreshold: 0.2
     - _Cull: 2
     - _Cutoff: 0.5
     - _IndirectStrength: 1
@@ -57,6 +57,6 @@ Material:
     m_Colors:
     - _BaseColor: {r: 0.29999998, g: 0.45, b: 0.7, a: 1}
     - _LitTint: {r: 1, g: 1, b: 1, a: 1}
-    - _ShadeTint: {r: 0.45, g: 0.47, b: 0.6, a: 1}
+    - _ShadeTint: {r: 0.1, g: 0.1, b: 0.1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

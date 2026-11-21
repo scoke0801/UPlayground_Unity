@@ -4,6 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UPlayGround.Data.Rendering;
+using UPlayGround.Gameplay.World.ReactiveEnvironment;
 
 namespace UPlayGround.Tool.Editor.WorldToon
 {
@@ -53,6 +54,8 @@ namespace UPlayGround.Tool.Editor.WorldToon
                 return new CopyResult(null, false, false, $"WT-BUILD-001: 셰이더 없음 {entry.ShaderName}");
             if (analysis.IsCutout && !entry.AllowsCutout)
                 return new CopyResult(null, false, false, $"WT-MAT-001: {preset}는 Cutout 미허용");
+            if (analysis.IsReactive && !WorldToonVariantManifest.SupportsEnvironmentReaction(preset))
+                return new CopyResult(null, false, false, $"WT-PROTECT-002: 반응형 환경 재질은 반응 계약이 있는 Foliage 프리셋으로만 변환 ({preset} 차단)");
 
             string sourceId = GlobalObjectId.GetGlobalObjectIdSlow(analysis.Source).ToString();
             string presetId = preset.ToString();
@@ -110,22 +113,61 @@ namespace UPlayGround.Tool.Editor.WorldToon
             SetToggle(material, "_ReceiveShadows", !HasKeyword(entry, WorldToonVariantManifest.ReceiveShadowsOffKeyword));
             SetToggle(material, "_WTAdditionalLights", HasKeyword(entry, WorldToonVariantManifest.AdditionalLightsKeyword));
             SetToggle(material, "_WTWind", HasKeyword(entry, WorldToonVariantManifest.WindKeyword));
+            bool isFoliage = entry.ShaderName == WorldToonVariantManifest.FoliageShader;
+            // 반응형 식생 원본은 정점 색 바람 마스크를 보장하지 않으므로 오브젝트 높이 가중치를 쓴다.
+            bool useHeightWind = isFoliage && analysis.IsReactive;
+            bool useContactBend = isFoliage && analysis.UsesContactBend;
+            bool useGradient = isFoliage && analysis.HasGradient;
+            SetToggle(material, "_WTWindHeight", useHeightWind);
+            SetToggle(material, "_WTInteraction", useContactBend);
+            SetToggle(material, "_WTGradient", useGradient);
+            if (useGradient)
+            {
+                SetColorIfPresent(material, "_GradientTop", analysis.GradientTop);
+                SetColorIfPresent(material, "_GradientBottom", analysis.GradientBottom);
+            }
+            // 정규화 높이 h = y / height - minY / height. 같은 원본 재질을 크기가 다른 메시가 공유하면 처음 분석한 메시 기준이다.
+            float height = Mathf.Max(analysis.ObjectHeight, 0.01f);
+            SetFloatIfPresent(material, "_HeightScale", 1f / height);
+            SetFloatIfPresent(material, "_HeightOffset", -analysis.ObjectMinY / height);
+            if (isFoliage && analysis.IsReactive)
+                CopyReactionSettings(analysis.Source, material);
             material.renderQueue = analysis.IsCutout ? (int)RenderQueue.AlphaTest : (int)RenderQueue.Geometry;
             material.SetOverrideTag("RenderType", analysis.IsCutout ? "TransparentCutout" : "Opaque");
             material.enableInstancing = true;
             ApplyStyle(material, style);
-            ApplyKeywords(material, shader, entry, analysis.IsCutout);
+            ApplyKeywords(material, shader, entry, analysis.IsCutout, useHeightWind, useContactBend, useGradient);
+        }
+
+        // 원본의 반응 표현 색·연료 소거 설정을 옮긴다. 상태 값(_EnvState*)은 런타임이 PropertyBlock·버퍼로 쓰므로 복사하지 않는다.
+        private static readonly string[] ReactionColorProperties = { "_WetTint", "_CharTint", "_FireColor" };
+
+        private static void CopyReactionSettings(Material source, Material target)
+        {
+            foreach (string property in ReactionColorProperties)
+            {
+                if (source.HasProperty(property))
+                    target.SetColor(property, source.GetColor(property));
+            }
+            if (source.HasProperty("_AllowFuelCoverage"))
+                target.SetFloat("_AllowFuelCoverage", source.GetFloat("_AllowFuelCoverage"));
         }
 
         // 저장된 재질은 속성 쓰기 중 키워드가 다시 동기화될 수 있어 모든 속성을 쓴 뒤 마지막에 키워드를 확정한다.
         // 셰이더 키워드 공간의 local 키워드만 다루며 매니페스트 밖 키워드는 끈다.
-        private static void ApplyKeywords(Material material, Shader shader, WorldToonVariantManifest.Entry entry, bool isCutout)
+        private static void ApplyKeywords(Material material, Shader shader, WorldToonVariantManifest.Entry entry, bool isCutout, bool useHeightWind, bool useContactBend, bool useGradient)
         {
             var enabled = new System.Collections.Generic.List<UnityEngine.Rendering.LocalKeyword>();
             foreach (string keyword in entry.Keywords)
                 enabled.Add(new UnityEngine.Rendering.LocalKeyword(shader, keyword));
             if (isCutout)
                 enabled.Add(new UnityEngine.Rendering.LocalKeyword(shader, WorldToonVariantManifest.AlphaTestKeyword));
+            if (useHeightWind)
+                enabled.Add(new UnityEngine.Rendering.LocalKeyword(shader, WorldToonVariantManifest.WindHeightKeyword));
+            if (useContactBend)
+                enabled.Add(new UnityEngine.Rendering.LocalKeyword(shader, WorldToonVariantManifest.InteractionKeyword));
+            if (useGradient)
+                enabled.Add(new UnityEngine.Rendering.LocalKeyword(shader, WorldToonVariantManifest.GradientKeyword));
             material.enabledKeywords = enabled.ToArray();
         }
 
@@ -154,7 +196,10 @@ namespace UPlayGround.Tool.Editor.WorldToon
             Material source = materials[slot];
             WorldToonMaterialAnalysis analysis = WorldToonMaterialAnalyzer.Analyze(source, renderer);
             if (analysis.Status == WorldToonConversionStatus.Protected)
-                return "WT-PROTECT-001: 보호 슬롯 — 적용 차단";
+                return $"보호 슬롯 — 적용 차단: {string.Join(" / ", analysis.Warnings)}";
+            // 반응 재질이거나 반응형 오브젝트 소속이면 대상도 반응 계약을 가져야 런타임 검증을 통과하고 표현이 유지된다.
+            if ((analysis.IsReactive || analysis.IsReactiveOwned) && !ReactiveEnvironmentSurface.SupportsReaction(target))
+                return "WT-PROTECT-002: 반응형 슬롯에 반응 계약이 없는 재질 — 적용 차단";
             if (analysis.Status == WorldToonConversionStatus.Unsupported)
                 return $"적용 차단 — {string.Join(" / ", analysis.Warnings)}";
             if (analysis.Status == WorldToonConversionStatus.NeedsReview && !allowNeedsReview)

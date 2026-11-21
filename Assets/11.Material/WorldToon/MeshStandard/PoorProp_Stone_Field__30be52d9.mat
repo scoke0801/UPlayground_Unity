@@ -7,11 +7,12 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Stone_Field__9332d820
+  m_Name: PoorProp_Stone_Field__30be52d9
   m_Shader: {fileID: 4800000, guid: a8cb2fb0c49462d4d8fc28b7bf59f65e, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - _WT_ADDITIONAL_LIGHTS
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 1
@@ -25,7 +26,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _BaseMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 8ba7a6ef2860ff34b9436a2c7d9b0534, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
@@ -45,18 +46,18 @@ Material:
     - _AddPrecomputedVelocity: 0
     - _AdditionalLightStrength: 1
     - _AlphaClip: 0
-    - _BandSoftness: 0.04
-    - _BandThreshold: 0.05
+    - _BandSoftness: 0.4
+    - _BandThreshold: 0.2
     - _Cull: 2
     - _Cutoff: 0.5
     - _IndirectStrength: 1
     - _ReceiveShadows: 1
     - _Surface: 0
-    - _WTAdditionalLights: 0
+    - _WTAdditionalLights: 1
     - _XRMotionVectorsPass: 1
     m_Colors:
-    - _BaseColor: {r: 0.9063317, g: 0.9063317, b: 0.9063317, a: 1}
+    - _BaseColor: {r: 0.8, g: 0.76, b: 0.7, a: 1}
     - _LitTint: {r: 1, g: 1, b: 1, a: 1}
-    - _ShadeTint: {r: 0.45, g: 0.47, b: 0.6, a: 1}
+    - _ShadeTint: {r: 0.1, g: 0.1, b: 0.1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

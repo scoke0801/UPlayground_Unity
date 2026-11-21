@@ -22,6 +22,7 @@
 | 항목 | 결정 |
 |---|---|
 | 명암 | `band = smoothstep(N·L)`, 주광 기여 = `light.color × distanceAttenuation × lerp(Shade, Lit, band × shadowAttenuation)`. 그림자 가시성은 한 번만 결합(이중 감쇠 없음). 주광이 꺼지면 직접광 0 |
+| 기본 스타일(2026-11-20 변경) | 사용자 피드백 "원본과 차이가 너무 큼"으로 기본값을 원본 근접형으로 바꿨다: Shade Tint (0.45,0.47,0.6)→(0.1,0.1,0.1), Band Threshold 0.05→0.2, Band Softness 0.04→0.4. 근거: 원본(URP/Lit)과 WorldToon 쌍 5개를 같은 상대 각도 3방향에서 렌더해 픽셀 평균 차이를 비교했고, 64개 조합 중 이 값이 최소(현행 39.4 → 24.3, 약 −38%). 이전 값은 어두운 면을 푸르게 밝히고 경계가 딱딱해 차이가 컸다. 셰이더 Properties 기본값과 SO 기본값도 같은 값으로 맞췄다(Basemap 전달이 안 될 때도 같은 값). 남은 차이: 밝은 면 안의 N·L 음영 감쇠와 스페큘러 하이라이트가 없다(Lite 설계상 제외) |
 | GI | 설치 URP의 `SAMPLE_GI` 단일 경로(현재 프로젝트는 Legacy Light Probes·Lightmap). `MixRealtimeAndBakedGI`로 Subtractive 중복 방지 |
 | SSAO | `CreateAmbientOcclusionFactor` + `GetMainLight(inputData, shadowMask, aoFactor)`로 직접·간접 AO 수신 |
 | 추가 광원 | `_WT_ADDITIONAL_LIGHTS`(Standard)에서만. URP 17.3 공식 순서(Forward+ 방향광 선행 루프 → `LIGHT_LOOP_BEGIN`)를 따른 단순 확산광 |

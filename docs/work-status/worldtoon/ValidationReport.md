@@ -23,7 +23,7 @@
 
 | ID | 판정 | 근거 |
 |---|---|---|
-| T01 보호 대상 | lilToon 셰이더 기준 PASS / 보호 캐릭터의 비lilToon 정적 슬롯 판정은 미구현 | 테스트 `LilToonMaterial_IsProtected_AndNotCopied`(원본 내용 해시 불변·생성 0), 검증 씬 lilToon 슬롯 `ApplyToSlot` → `WT-PROTECT-001` 차단, 테스트 `SkinnedSlot_IsBlockedUntilReviewed`(스키닝 슬롯 WT-MAT-002 차단). 경로 기준 보호 목록은 [ProjectAudit §6](ProjectAudit.md)에서 사람이 제외 |
+| T01 보호 대상 | lilToon·반응형 환경(재질·오브젝트) PASS / 보호 캐릭터의 비lilToon 정적 슬롯 판정은 미구현 | 테스트 `LilToonMaterial_IsProtected_AndNotCopied`(원본 내용 해시 불변·생성 0), 검증 씬 lilToon 슬롯 `ApplyToSlot` → `WT-PROTECT-001` 차단, 테스트 `SkinnedSlot_IsBlockedUntilReviewed`(스키닝 슬롯 WT-MAT-002 차단). 경로 기준 보호 목록은 [ProjectAudit §6](ProjectAudit.md)에서 사람이 제외 |
 | T02 Opaque/Cutout | PASS(자동) · 외형 `사용자 테스트 대기` | 테스트 `CutoutSource_UsesAlphaTestQueueAndKeyword`(AlphaTest 큐·키워드·Cutoff), 식생 카드 실루엣 캡처 |
 | T03 주광·낮밤 | PASS(자동 캡처) · `사용자 테스트 대기` | 밤 캡처에서 WorldToon 재질은 주광을 끄면 어두워짐(자체 발광 없음). 대조로 원본 URP/Lit은 밝게 남았다(환경 반사로 추정, 원인 미확인) |
 | T04 주광 그림자·캐스케이드 | 부분 PASS / 캐스케이드 경계·거리 페이드 NOT_RUN | 그림자 수신·생성 캡처 확인. 2캐스케이드 경계 장면 미구성 |
@@ -53,7 +53,16 @@
 | T27 Addressables·원거리 | `사용자 지시 대기` | Player·Addressables 빌드 필요 |
 | T28 Release/Development | `사용자 지시 대기` | Player 빌드 필요 |
 
+### 반응형 식생 Foliage(2026-11-20)
+
+- 셰이더 import 오류 0, `RunOne(WorldToonFoliage)` **PASS compiled=84**(반응 공유 버퍼·인스턴싱·높이 바람·풀 밟기·그라데이션 조합 포함).
+- 검증 씬 F구역: 월드 대응표(`Vegetation/Catalog.asset`)의 원본→반응형 파생 재질을 그대로 씌운 원본과 Foliage 변환본을 나란히 배치. `Cam_F_Vegetation`, `Cam_A_Pairs` 하단(나무 GenTree A·C, TallGrass_02, AmurSilvergrass_02 × 3방향). 1차 변환은 그래프 색 텍스처 이름·위아래 색 그라데이션을 읽지 못해 흰색이었고, 분석기에 이름 대응과 셰이더에 높이 그라데이션을 넣어 해결했다. 남은 차이: 잎 서브서피스·프레넬, 줄기 노멀/ORM, 그래프 색 변주 노이즈 없음. 갈대 이삭이 약간 얇다(컷오프 임계값 차이).
+- Bush_05는 대응표에 없는 Transparent 원본이라 양쪽 모두 원본(흰색) — 변환 대상 아님.
+- 실제 반응(젖음·연소·연료 소거) 화면, 풀 밟기, 공유 버퍼 경로의 Play 확인은 NOT_RUN. 성능 NOT_MEASURED.
+
 ### EditMode
+
+2026-11-20 — **11/11 PASS**: 반응형 보호 2개 추가(`ReactiveToonMaterial_IsProtected`, `SlotUnderReactiveObject_IsBlocked`). 계기: 보호 목록의 반응형 셰이더 이름이 실제(`UPlayGround/Environment/Reactive Toon`)와 달라(`…/ToonReactive`) 보호가 동작하지 않던 결함을 발견해 런타임 판정 함수 재사용으로 고쳤다.
 
 2026-11-19 — **9/9 PASS**: 보호(lilToon)·Transparent 차단·반복 변환 재사용과 원본 불변·프리셋 키워드·Cutout·수정된 생성본 보호·스키닝 슬롯 차단·Terrain 4/5레이어·Manifest.
 
@@ -61,6 +70,12 @@
 
 2026-11-19 22:09 — **PASS, 300개 컴파일 실패 0**(Mesh·Foliage·Terrain4·TerrainBaseMap 전 패스).
 
+### 원본 근접 재조정(2026-11-20)
+
+사용자 확인 결과 "원본과 차이가 너무 큼" → 기본 스타일을 바꿨다([결정](Decisions.md)). 이전 비교 캡처는 ① 데칼이 WorldToon 바위만 덮었고 ② 고정 카메라가 두 대상을 서로 다른 각도(한쪽은 밝은 면, 한쪽은 어두운 면)에서 봐서 차이가 과장됐다. 데칼은 비교 카메라 밖 전용 바위(`Cam_A_Decal`)로 옮기고, 쌍마다 같은 상대 각도로 찍은 `Cam_A_Pairs`(왼쪽 원본 | 오른쪽 WorldToon, 쌍 5개 × 태양 쪽·그늘 쪽·측면)를 추가했다. 재생성 후 EditMode 9/9 PASS, 데칼 합성 유지. 외형은 다시 `사용자 테스트 대기`.
+
+같은 날 사용자 지적 "돌처럼 보이지 않음"의 원인: 검증 씬이 바위 **FBX**(`Assets/08.Models/PoorVillage/*.fbx`, 텍스처 없는 내장 흰 재질 `Stone_Field`)를 배치했다. 게임 씬은 **프리팹**(`Assets/03.Prefabs/Environment/PoorVillage/*.prefab`)이 지정한 돌 텍스처 재질 `PoorProp_Stone_Field`(URP/Lit)를 쓴다(WorldThemes 씬 15개에서 참조 확인). 검증 씬을 프리팹 기준으로 바꿔 재생성·재캡처했고, 흰 재질에서 만든 복제본 4개는 사용처가 없어 삭제·기록에서 제거했다. 이전 캡처의 흰 바위 비교는 실제 게임 재질 기준이 아니었다.
+
 ## 사용자가 볼 화면
 
-[captures/](captures/)의 `Cam_A_Compare`(원본|WorldToon), `Cam_A_ShadeSide`(어두운 면·명암 경계), `Cam_B_Lights`(Lite|Standard, 밤), `Cam_C_Foliage`, `Cam_D_Terrain`(2|4+구멍|5레이어 차단). 검증 씬을 직접 열려면 `WorldToonValidationSceneBuilder.Build()`로 재생성한 뒤 `Assets/01.Scenes/ArtReview/WorldToonValidation.unity`를 연다(월드 원점에서 20km 떨어진 곳에 배치).
+[captures/](captures/)의 **`Cam_A_Pairs`(같은 각도 원본|WorldToon 나란히 — 우선 확인)**, `Cam_A_Compare`(원본|WorldToon), `Cam_A_ShadeSide`(어두운 면·명암 경계), `Cam_A_Decal`(데칼), `Cam_B_Lights`(Lite|Standard, 밤), `Cam_C_Foliage`, `Cam_D_Terrain`(2|4+구멍|5레이어 차단). 검증 씬을 직접 열려면 `WorldToonValidationSceneBuilder.Build()`로 재생성한 뒤 `Assets/01.Scenes/ArtReview/WorldToonValidation.unity`를 연다(월드 원점에서 20km 떨어진 곳에 배치).

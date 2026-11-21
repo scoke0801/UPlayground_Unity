@@ -26,13 +26,15 @@ namespace UPlayGround.Tool.Editor.WorldToon
 
         private static readonly string[] RockModels =
         {
-            "Assets/08.Models/PoorVillage/Terrain_Boulder_A.fbx",
-            "Assets/08.Models/PoorVillage/Terrain_Boulder_B.fbx",
-            "Assets/08.Models/PoorVillage/Terrain_RockCluster.fbx",
+            // FBX 기본 재질은 텍스처가 없는 흰 재질이다. 게임에서 쓰는 프리팹(돌 텍스처 재질 지정)으로 비교해야 한다.
+            "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_A.prefab",
+            "Assets/03.Prefabs/Environment/PoorVillage/Terrain_Boulder_B.prefab",
+            "Assets/03.Prefabs/Environment/PoorVillage/Terrain_RockCluster.prefab",
         };
 
         // 씬이 게임 월드와 겹쳐 보이지 않도록 먼 곳에 둔다.
         private static readonly Vector3 Origin = new Vector3(20000f, 0f, 20000f);
+        private static readonly Vector3 DecalTargetPosition = Origin + new Vector3(0f, 0f, -40f);
 
         [UPlaygroundTool(ToolId)]
         private static void BuildFromCatalog()
@@ -58,6 +60,7 @@ namespace UPlayGround.Tool.Editor.WorldToon
                 BuildZoneC(scene, style, report);
                 BuildZoneD(scene, style, report);
                 BuildZoneE(scene, report);
+                BuildZoneF(scene, style, record, report);
                 BuildCameras(scene);
                 Directory.CreateDirectory(Path.GetDirectoryName(ScenePath));
                 EditorSceneManager.SaveScene(scene, ScenePath);
@@ -109,7 +112,7 @@ namespace UPlayGround.Tool.Editor.WorldToon
             var ground = GameObject.CreatePrimitive(PrimitiveType.Plane);
             ground.name = "Ground_URPLit";
             ground.transform.position = Origin;
-            ground.transform.localScale = new Vector3(14f, 1f, 14f);
+            ground.transform.localScale = new Vector3(30f, 1f, 30f); // F 식생 구역(z +70~+135)까지 덮는다
             ground.GetComponent<Renderer>().sharedMaterial = EnsureGroundMaterial();
             Place(sun, scene);
             Place(ground, scene);
@@ -156,7 +159,21 @@ namespace UPlayGround.Tool.Editor.WorldToon
             }
             AddPrimitivePair(zone, scene, PrimitiveType.Sphere, Origin + new Vector3(-12f, 1f, 16f), style, record, report);
             AddPrimitivePair(zone, scene, PrimitiveType.Cube, Origin + new Vector3(-12f, 0.75f, 22f), style, record, report);
-            AddDecal(zone, Origin + new Vector3(-4f, 1.5f, -6f), report);
+            AddDecalTarget(zone, scene, style, record, report);
+        }
+
+        // 데칼이 비교용 바위를 덮으면 원본과 차이가 과장되므로, 데칼 검사는 비교 카메라 밖의 전용 바위에서 한다.
+        private static void AddDecalTarget(GameObject zone, Scene scene, WorldToonStyleProfileSO style, WorldToonConversionRecord record, StringBuilder report)
+        {
+            var model = AssetDatabase.LoadAssetAtPath<GameObject>(RockModels[0]);
+            if (model == null)
+                return;
+            var target = (GameObject)PrefabUtility.InstantiatePrefab(model, scene);
+            target.name = model.name + "_DecalTarget";
+            target.transform.SetParent(zone.transform);
+            target.transform.position = DecalTargetPosition;
+            report.AppendLine("A: " + ConvertRenderers(target, WorldToonPreset.MeshLite, style, record));
+            AddDecal(zone, DecalTargetPosition + new Vector3(2f, 1.5f, 0f), report);
         }
 
         private static void AddPrimitivePair(GameObject zone, Scene scene, PrimitiveType type, Vector3 position, WorldToonStyleProfileSO style, WorldToonConversionRecord record, StringBuilder report)
@@ -215,7 +232,7 @@ namespace UPlayGround.Tool.Editor.WorldToon
             decal.transform.rotation = Quaternion.Euler(90f, 0f, 0f);
             var projector = decal.AddComponent<DecalProjector>();
             projector.material = material;
-            projector.size = new Vector3(14f, 3f, 6f);
+            projector.size = new Vector3(8f, 3f, 6f);
         }
 
         private static Texture2D EnsureDecalTexture()
@@ -522,6 +539,8 @@ namespace UPlayGround.Tool.Editor.WorldToon
             AddCaptureCamera(scene, "Cam_A_Compare", Origin + new Vector3(-6f, 6f, -22f), Origin + new Vector3(-6f, 1f, 4f));
             // 해를 마주 보는 방향: 어두운 면(Shade Tint)과 명암 경계를 본다.
             AddCaptureCamera(scene, "Cam_A_ShadeSide", Origin + new Vector3(-6f, 5f, 34f), Origin + new Vector3(-6f, 1f, 4f));
+            AddCaptureCamera(scene, "Cam_F_Vegetation", VegetationOrigin + new Vector3(0f, 9f, -26f), VegetationOrigin + new Vector3(0f, 3f, 20f));
+            AddCaptureCamera(scene, "Cam_A_Decal", DecalTargetPosition + new Vector3(0f, 6f, -12f), DecalTargetPosition + new Vector3(0f, 1f, 0f));
             AddCaptureCamera(scene, "Cam_B_Lights", Origin + new Vector3(20f, 4f, -18f), Origin + new Vector3(20f, 1f, -6f));
             AddCaptureCamera(scene, "Cam_C_Foliage", Origin + new Vector3(-7f, 1.2f, -21f), Origin + new Vector3(-7f, 0.4f, -13f));
             AddCaptureCamera(scene, "Cam_D_Terrain", Origin + new Vector3(70f, 30f, -55f), Origin + new Vector3(80f, 0f, -5f));
@@ -570,6 +589,7 @@ namespace UPlayGround.Tool.Editor.WorldToon
                     RenderToFile(camera, file);
                     report.AppendLine(file);
                 }
+                report.AppendLine(CapturePairSheet(scene, suffix));
             }
             finally
             {
@@ -578,6 +598,91 @@ namespace UPlayGround.Tool.Editor.WorldToon
                 EditorSceneManager.CloseScene(scene, true);
             }
             return report.ToString();
+        }
+
+        // 고정 카메라는 원본과 WorldToon을 다른 각도에서 보므로, 쌍마다 같은 상대 위치(태양 쪽·그늘 쪽·측면)에서 찍어 나란히 붙인다.
+        // 열: 원본 | WorldToon, 행: 쌍 × 방향. 결과 파일: Cam_A_Pairs_{suffix}.png
+        private static string CapturePairSheet(Scene scene, string suffix)
+        {
+            const int width = 400;
+            const int height = 300;
+            var originals = new Dictionary<string, GameObject>();
+            var toons = new Dictionary<string, GameObject>();
+            foreach (GameObject root in scene.GetRootGameObjects())
+            {
+                foreach (Transform child in root.GetComponentsInChildren<Transform>(true))
+                {
+                    if (child.name.EndsWith("_Original"))
+                        originals[child.name.Substring(0, child.name.Length - "_Original".Length)] = child.gameObject;
+                    else if (child.name.EndsWith("_WorldToonLite"))
+                        toons[child.name.Substring(0, child.name.Length - "_WorldToonLite".Length)] = child.gameObject;
+                    else if (child.name.EndsWith("_WorldToonFoliage"))
+                        toons[child.name.Substring(0, child.name.Length - "_WorldToonFoliage".Length)] = child.gameObject;
+                }
+            }
+            var keys = new List<string>();
+            foreach (string key in toons.Keys)
+                if (originals.ContainsKey(key))
+                    keys.Add(key);
+            if (keys.Count == 0 || RenderSettings.sun == null)
+                return "Pairs: 비교 쌍 또는 태양 없음";
+
+            Vector3 sunForward = RenderSettings.sun.transform.forward;
+            Vector3 sunSide = -new Vector3(sunForward.x, 0f, sunForward.z).normalized;
+            Vector3[] directions = { sunSide, -sunSide, Vector3.Cross(Vector3.up, sunSide) };
+
+            var cameraObject = new GameObject("PairSheetCamera");
+            SceneManager.MoveGameObjectToScene(cameraObject, scene);
+            var camera = cameraObject.AddComponent<Camera>();
+            camera.fieldOfView = 35f;
+            var target = new RenderTexture(width, height, 24, RenderTextureFormat.ARGB32);
+            var frame = new Texture2D(width, height, TextureFormat.RGB24, false);
+            int rows = keys.Count * directions.Length;
+            var sheet = new Texture2D(width * 2, height * rows, TextureFormat.RGB24, false);
+            RenderTexture previous = RenderTexture.active;
+            try
+            {
+                for (int k = 0; k < keys.Count; k++)
+                {
+                    for (int d = 0; d < directions.Length; d++)
+                    {
+                        int row = rows - 1 - (k * directions.Length + d);
+                        sheet.SetPixels32(0, row * height, width, height, RenderObject(camera, target, frame, originals[keys[k]], directions[d]));
+                        sheet.SetPixels32(width, row * height, width, height, RenderObject(camera, target, frame, toons[keys[k]], directions[d]));
+                    }
+                }
+                sheet.Apply();
+                string file = $"{CaptureRoot}/Cam_A_Pairs_{suffix}.png";
+                File.WriteAllBytes(file, sheet.EncodeToPNG());
+                return file;
+            }
+            finally
+            {
+                RenderTexture.active = previous;
+                camera.targetTexture = null;
+                target.Release();
+                UnityEngine.Object.DestroyImmediate(target);
+                UnityEngine.Object.DestroyImmediate(frame);
+                UnityEngine.Object.DestroyImmediate(sheet);
+                UnityEngine.Object.DestroyImmediate(cameraObject);
+            }
+        }
+
+        private static Color32[] RenderObject(Camera camera, RenderTexture target, Texture2D frame, GameObject subject, Vector3 direction)
+        {
+            Renderer[] renderers = subject.GetComponentsInChildren<Renderer>();
+            Bounds bounds = renderers[0].bounds;
+            foreach (Renderer renderer in renderers)
+                bounds.Encapsulate(renderer.bounds);
+            float radius = bounds.extents.magnitude;
+            camera.transform.position = bounds.center + direction * radius * 3.2f + Vector3.up * radius * 0.8f;
+            camera.transform.LookAt(bounds.center);
+            camera.targetTexture = target;
+            camera.Render();
+            RenderTexture.active = target;
+            frame.ReadPixels(new Rect(0, 0, target.width, target.height), 0, 0);
+            frame.Apply();
+            return frame.GetPixels32();
         }
 
         private static void RenderToFile(Camera camera, string file)
@@ -602,6 +707,79 @@ namespace UPlayGround.Tool.Editor.WorldToon
                 target.Release();
                 UnityEngine.Object.DestroyImmediate(target);
             }
+        }
+
+        // F: 실제 월드 식생. 왼쪽은 월드가 쓰는 반응형 파생 재질(대응표의 original→reactive), 오른쪽은 WorldToon Foliage 변환본.
+        private const string VegetationCatalogPath = "Assets/10.Datas/Environment/Vegetation/Catalog.asset";
+        private static readonly Vector3 VegetationOrigin = Origin + new Vector3(0f, 0f, 70f);
+        private static readonly string[] VegetationModels =
+        {
+            "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Meshes/Foliage/Trees/SM_Farm_GenTree_A_FullTree_01.fbx",
+            "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Meshes/Foliage/Trees/SM_Farm_GenTree_C_FullTree_01.fbx",
+            "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Meshes/Foliage/Trees/Bushes/SM_Farm_GenTree_Bush_05.fbx",
+            "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Meshes/Foliage/Grass/Grass_02/SM_Farm_TallGrass_02.fbx",
+            "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Meshes/Foliage/Plants/SM_EastLands_AmurSilvergrass_02.fbx",
+        };
+
+        private static void BuildZoneF(Scene scene, WorldToonStyleProfileSO style, WorldToonConversionRecord record, StringBuilder report)
+        {
+            var catalog = AssetDatabase.LoadAssetAtPath<UPlayGround.Data.ReactiveEnvironment.VegetationReactionCatalogSO>(VegetationCatalogPath);
+            if (catalog == null)
+            {
+                report.AppendLine("F: 식생 대응표 없음 — 생략");
+                return;
+            }
+            var reactiveByOriginal = new Dictionary<Material, Material>();
+            foreach (var surface in catalog.surfaces)
+            {
+                if (surface.original != null && surface.reactive != null)
+                    reactiveByOriginal[surface.original] = surface.reactive;
+            }
+
+            var zone = new GameObject("F_Vegetation");
+            Place(zone, scene);
+            for (int i = 0; i < VegetationModels.Length; i++)
+            {
+                var model = AssetDatabase.LoadAssetAtPath<GameObject>(VegetationModels[i]);
+                if (model == null)
+                {
+                    report.AppendLine($"F: 모델 없음 {VegetationModels[i]}");
+                    continue;
+                }
+                Vector3 row = VegetationOrigin + new Vector3(-14f, 0f, i * 16f);
+                var original = (GameObject)PrefabUtility.InstantiatePrefab(model, scene);
+                original.name = model.name + "_Original";
+                original.transform.SetParent(zone.transform);
+                original.transform.position = row;
+                int mapped = MapToWorldMaterials(original, reactiveByOriginal);
+
+                var toon = (GameObject)PrefabUtility.InstantiatePrefab(model, scene);
+                toon.name = model.name + "_WorldToonFoliage";
+                toon.transform.SetParent(zone.transform);
+                toon.transform.position = row + new Vector3(28f, 0f, 0f);
+                MapToWorldMaterials(toon, reactiveByOriginal);
+                report.AppendLine($"F: 월드 재질 대응 {mapped}슬롯 · " + ConvertRenderers(toon, WorldToonPreset.FoliageNear, style, record));
+            }
+        }
+
+        // 월드 씬과 같은 재질이 되도록 원본 재질을 대응표의 반응형 파생 재질로 바꾼다(검증 씬 인스턴스만).
+        private static int MapToWorldMaterials(GameObject root, Dictionary<Material, Material> reactiveByOriginal)
+        {
+            int mapped = 0;
+            foreach (Renderer renderer in root.GetComponentsInChildren<Renderer>())
+            {
+                Material[] materials = renderer.sharedMaterials;
+                for (int slot = 0; slot < materials.Length; slot++)
+                {
+                    if (materials[slot] != null && reactiveByOriginal.TryGetValue(materials[slot], out Material reactive))
+                    {
+                        materials[slot] = reactive;
+                        mapped++;
+                    }
+                }
+                renderer.sharedMaterials = materials;
+            }
+            return mapped;
         }
 
         private static string ConvertRenderers(GameObject root, WorldToonPreset preset, WorldToonStyleProfileSO style, WorldToonConversionRecord record)

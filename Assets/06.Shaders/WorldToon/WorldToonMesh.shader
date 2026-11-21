@@ -15,9 +15,9 @@ Shader "UPlayGround/WorldToon/Mesh"
 
         [Header(Toon Style)]
         _LitTint("Lit Tint", Color) = (1, 1, 1, 1)
-        _ShadeTint("Shade Tint", Color) = (0.45, 0.47, 0.6, 1)
-        _BandThreshold("Band Threshold", Range(-1, 1)) = 0.05
-        _BandSoftness("Band Softness", Range(0.001, 0.5)) = 0.04
+        _ShadeTint("Shade Tint", Color) = (0.1, 0.1, 0.1, 1)
+        _BandThreshold("Band Threshold", Range(-1, 1)) = 0.2
+        _BandSoftness("Band Softness", Range(0.001, 0.5)) = 0.4
         _IndirectStrength("Indirect Strength", Range(0, 2)) = 1
         _AdditionalLightStrength("Additional Light Strength", Range(0, 2)) = 1
 

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
+using UPlayGround.Gameplay.World.ReactiveEnvironment;
 
 namespace UPlayGround.Tool.Editor.WorldToon
 {
@@ -29,6 +30,19 @@ namespace UPlayGround.Tool.Editor.WorldToon
         public bool IsCutout;
         public float Cutoff = 0.5f;
         public float Cull = (float)CullMode.Back;
+        /// <summary>원본이 환경 반응 계약(젖음·그을림·연소·연료)을 가진 재질. 같은 계약을 가진 Foliage로만 변환한다.</summary>
+        public bool IsReactive;
+        /// <summary>렌더러가 반응형 오브젝트에 속한다. 대상 재질이 반응 계약을 가져야만 적용한다.</summary>
+        public bool IsReactiveOwned;
+        /// <summary>원본 셰이더가 UPG 풀 밟기 변위를 쓴다. 변환본도 접촉 변위를 켠다.</summary>
+        public bool UsesContactBend;
+        /// <summary>원본 식생 그래프의 위·아래 색 그라데이션. 잎·풀 색의 주 출처라 Foliage가 높이로 재현한다.</summary>
+        public bool HasGradient;
+        public Color GradientTop = Color.white;
+        public Color GradientBottom = Color.white;
+        /// <summary>렌더러 메시의 오브젝트 공간 높이 범위(정규화 높이 계산용). 렌더러 없이 분석하면 기본 4m.</summary>
+        public float ObjectMinY;
+        public float ObjectHeight = 4f;
 
         /// <summary>상태를 더 심각한 쪽으로만 올리고 경고 코드를 남긴다.</summary>
         public void Raise(WorldToonConversionStatus status, string warning)
@@ -57,7 +71,6 @@ namespace UPlayGround.Tool.Editor.WorldToon
         private static readonly string[] ProtectedShaderPrefixes =
         {
             "lilToon", "Hidden/lilToon", "_lil/", "Hidden/ltspass",
-            "UPlayGround/Environment/ToonReactive",
         };
 
         // 범위 밖(물·하늘·파티클·UI·식생 그래프·지형) 셰이더. Mesh 변환 대상이 아니다.
@@ -70,8 +83,38 @@ namespace UPlayGround.Tool.Editor.WorldToon
             "Hidden/", "UPlayGround/WorldToon",
         };
 
-        private static readonly string[] BaseTextureProperties = { "_BaseMap", "_MainTex", "_BaseColorMap", "_Albedo", "_MainTexture" };
-        private static readonly string[] BaseColorProperties = { "_BaseColor", "_Color", "_MainColor", "_Tint" };
+        public const string ReactiveToonShaderName = "UPlayGround/Environment/Reactive Toon";
+        private const string ContactBendMarker = "UPG_Foliage";
+
+        // 셰이더 소스가 UPG 접촉 변위 함수를 호출하는지로 판정한다(이름 분기 대신 기능 사용 여부).
+        private static bool ShaderSourceUsesContactBend(Shader shader)
+        {
+            string path = AssetDatabase.GetAssetPath(shader);
+            if (string.IsNullOrEmpty(path) || !path.EndsWith(".shader") || !System.IO.File.Exists(path))
+                return false;
+            return System.IO.File.ReadAllText(path).Contains(ContactBendMarker);
+        }
+
+        // 앞쪽이 우선. 뒤쪽은 프로젝트 식생 그래프(Leaves·Trunk·Plant·Grass·Idyllic·Props)의 색 텍스처 이름이다.
+        private static readonly string[] BaseTextureProperties =
+        {
+            "_BaseMap", "_MainTex", "_BaseColorMap", "_Albedo", "_MainTexture",
+            "_Color_Map", "_ColorMap", "_Foliage_Map", "_Base_Color", "_Texture",
+        };
+        private static readonly string[] BaseColorProperties = { "_BaseColor", "_Color", "_MainColor", "_Tint", "_Color_Tint", "_ColorTint" };
+        private static readonly string[] CutoffProperties = { "_Cutoff", "_Alpha_Clip", "_MaskClip", "_AlphaClipThreshold", "_Alpha_Cutoff" };
+        private static readonly string[] CutoutKeywords = { "_ALPHATEST_ON", "_BUILTIN_ALPHATEST_ON" };
+        private static readonly (string Top, string Bottom)[] GradientProperties =
+        {
+            ("_Foliage_Color_Top", "_Foliage_Color_Bottom"), ("_ColorTop", "_ColorBottom"), ("_Color_Top", "_Color_Bottom"),
+            ("_Top_Color", "_Bottom_Color"), ("_Color_Tint_Top", "_Color_Tint_Bottom"),
+        };
+
+        private static bool HasPropertyOfType(Material material, string property, ShaderPropertyType type)
+        {
+            int index = material.shader.FindPropertyIndex(property);
+            return index >= 0 && material.shader.GetPropertyType(index) == type;
+        }
 
         /// <summary>재질 하나를 분석한다. renderer가 있으면 렌더러 문맥(스키닝·애니메이션)도 검사한다.</summary>
         public static WorldToonMaterialAnalysis Analyze(Material source, Renderer renderer = null)
@@ -89,6 +132,16 @@ namespace UPlayGround.Tool.Editor.WorldToon
                 analysis.Raise(WorldToonConversionStatus.Protected, $"WT-PROTECT-001: 보호 셰이더 {shaderName}");
                 return analysis;
             }
+            // Reactive Toon은 외곽선·균열·역할(Body/Interior) 표현까지 가진 툰 셰이더라 Foliage로 대체하지 않는다.
+            if (shaderName == ReactiveToonShaderName)
+            {
+                analysis.Raise(WorldToonConversionStatus.Protected, $"WT-PROTECT-002: Reactive Toon 유지 {shaderName}");
+                return analysis;
+            }
+            // 반응 계약을 가진 식생 파생 셰이더는 같은 계약을 가진 WorldToon Foliage로만 변환할 수 있다(CreateCopy가 강제).
+            // 판정은 런타임 ReactiveEnvironmentSurface와 같은 함수를 쓴다.
+            analysis.IsReactive = ReactiveEnvironmentSurface.SupportsReaction(source);
+            analysis.UsesContactBend = ShaderSourceUsesContactBend(source.shader);
             if (StartsWithAny(shaderName, OutOfScopeShaderPrefixes))
             {
                 analysis.Raise(WorldToonConversionStatus.Unsupported, $"WT-MAT-001: 범위 밖 셰이더 {shaderName}");
@@ -97,6 +150,11 @@ namespace UPlayGround.Tool.Editor.WorldToon
             if (IsTransparent(source))
             {
                 analysis.Raise(WorldToonConversionStatus.Unsupported, "WT-MAT-001: Transparent는 v1 미지원(원본 유지)");
+                return analysis;
+            }
+            if (UsesBillboarding(source))
+            {
+                analysis.Raise(WorldToonConversionStatus.Unsupported, "WT-MAT-001: 임포스터 빌보드 — 시점 회전 계산이 없어 원본 유지");
                 return analysis;
             }
 
@@ -130,11 +188,21 @@ namespace UPlayGround.Tool.Editor.WorldToon
             return material.renderQueue >= (int)RenderQueue.Transparent;
         }
 
+        private static bool UsesBillboarding(Material material)
+        {
+            foreach (string keyword in material.shaderKeywords)
+            {
+                if (keyword.Contains("BILLBOARD"))
+                    return true;
+            }
+            return false;
+        }
+
         private static void ReadBaseInputs(Material source, WorldToonMaterialAnalysis analysis)
         {
             foreach (string property in BaseTextureProperties)
             {
-                if (!source.HasProperty(property))
+                if (!HasPropertyOfType(source, property, ShaderPropertyType.Texture) || source.GetTexture(property) == null)
                     continue;
                 analysis.BaseTexture = source.GetTexture(property);
                 analysis.BaseScale = source.GetTextureScale(property);
@@ -143,9 +211,18 @@ namespace UPlayGround.Tool.Editor.WorldToon
             }
             foreach (string property in BaseColorProperties)
             {
-                if (!source.HasProperty(property))
+                if (!HasPropertyOfType(source, property, ShaderPropertyType.Color))
                     continue;
                 analysis.BaseColor = source.GetColor(property);
+                break;
+            }
+            foreach ((string top, string bottom) in GradientProperties)
+            {
+                if (!HasPropertyOfType(source, top, ShaderPropertyType.Color) || !HasPropertyOfType(source, bottom, ShaderPropertyType.Color))
+                    continue;
+                analysis.HasGradient = true;
+                analysis.GradientTop = source.GetColor(top);
+                analysis.GradientBottom = source.GetColor(bottom);
                 break;
             }
             if (analysis.BaseTexture == null)
@@ -155,11 +232,20 @@ namespace UPlayGround.Tool.Editor.WorldToon
         private static void ReadSurfaceInputs(Material source, WorldToonMaterialAnalysis analysis)
         {
             bool clipFlag = source.HasProperty("_AlphaClip") && source.GetFloat("_AlphaClip") > 0.5f;
-            bool clipKeyword = source.IsKeywordEnabled("_ALPHATEST_ON");
+            bool clipKeyword = false;
+            foreach (string keyword in CutoutKeywords)
+                clipKeyword |= source.IsKeywordEnabled(keyword);
             bool cutoutQueue = source.renderQueue >= (int)RenderQueue.AlphaTest && source.renderQueue < (int)RenderQueue.Transparent;
             analysis.IsCutout = clipFlag || clipKeyword || cutoutQueue;
-            if (source.HasProperty("_Cutoff"))
-                analysis.Cutoff = source.GetFloat("_Cutoff");
+            foreach (string property in CutoffProperties)
+            {
+                if (!HasPropertyOfType(source, property, ShaderPropertyType.Float) && !HasPropertyOfType(source, property, ShaderPropertyType.Range))
+                    continue;
+                float value = source.GetFloat(property);
+                // 일부 그래프의 _Alpha_Clip은 0/1 토글이다. 1이면 임계값이 아니므로 URP 기본 0.5를 쓴다.
+                analysis.Cutoff = value >= 0.99f ? 0.5f : value;
+                break;
+            }
             if (source.HasProperty("_Cull"))
                 analysis.Cull = source.GetFloat("_Cull");
             if (analysis.Cull == (float)CullMode.Off)
@@ -185,6 +271,15 @@ namespace UPlayGround.Tool.Editor.WorldToon
         // 스키닝·재질 애니메이션은 피격색·디졸브 등 속성 의존이 있을 수 있어 어댑터 검증 전 자동 적용하지 않는다.
         private static void InspectRendererContext(Renderer renderer, WorldToonMaterialAnalysis analysis)
         {
+            // 반응형 오브젝트는 모든 Renderer·슬롯이 반응 호환 재질이어야 검증을 통과한다(ReactiveEnvironmentSurface.Validate).
+            // 차단 여부는 대상 재질을 아는 ApplyToSlot이 정한다.
+            analysis.IsReactiveOwned = renderer.GetComponentInParent<ReactiveEnvironmentObject>(true) != null;
+            Bounds local = renderer.localBounds;
+            if (local.size.y > 0.01f)
+            {
+                analysis.ObjectMinY = local.min.y;
+                analysis.ObjectHeight = local.size.y;
+            }
             if (renderer is SkinnedMeshRenderer)
                 analysis.Raise(WorldToonConversionStatus.NeedsReview, "WT-MAT-002: 스키닝 렌더러 — 재질 속성 코드·애니메이션 의존 검증 필요");
             if (renderer.GetComponentInParent<Animator>() != null || renderer.GetComponentInParent<UnityEngine.Animation>() != null)

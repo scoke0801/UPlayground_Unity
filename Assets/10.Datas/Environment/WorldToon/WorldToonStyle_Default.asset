@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: WorldToonStyle_Default
   m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Rendering.WorldToonStyleProfileSO
   litTint: {r: 1, g: 1, b: 1, a: 1}
-  shadeTint: {r: 0.45, g: 0.47, b: 0.6, a: 1}
-  bandThreshold: 0.05
-  bandSoftness: 0.04
+  shadeTint: {r: 0.1, g: 0.1, b: 0.1, a: 1}
+  bandThreshold: 0.2
+  bandSoftness: 0.4
   indirectStrength: 1
   additionalLightStrength: 1

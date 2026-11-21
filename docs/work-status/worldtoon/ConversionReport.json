@@ -2,51 +2,6 @@
     "toolVersion": "worldtoon-1.0",
     "generated": [
         {
-            "sourceMaterialId": "GlobalObjectId_V1-1-1ccc7905ba967324d83b0e7938b760c0-2710713138995046620-0",
-            "sourceDependencyHash": "55ecd6816fa478c8f8c89edc4e3a2389",
-            "sourceShaderName": "Universal Render Pipeline/Lit",
-            "sourceKeywords": [],
-            "presetId": "MeshLite",
-            "targetMaterialGuid": "7e1912bf00e2c734e8ed1755ff1c5513",
-            "targetPath": "Assets/11.Material/WorldToon/MeshLite/Stone_Field__1481a12a.mat",
-            "generatedContentHash": "066b1a175b33bc7d44f7d7cce6af4f78",
-            "status": "Ready",
-            "warnings": [
-                "INFO: BaseMap 없음 → White 텍스처와 Base Color로 변환"
-            ],
-            "toolVersion": "worldtoon-1.0"
-        },
-        {
-            "sourceMaterialId": "GlobalObjectId_V1-1-b6801af199fb8e24685d52aa7668a012-2710713138995046620-0",
-            "sourceDependencyHash": "1dfbee1d3747c80c88dd3ef9dc50e83a",
-            "sourceShaderName": "Universal Render Pipeline/Lit",
-            "sourceKeywords": [],
-            "presetId": "MeshLite",
-            "targetMaterialGuid": "b6304deb99755b5409a084dacba5d9c4",
-            "targetPath": "Assets/11.Material/WorldToon/MeshLite/Stone_Field__9332d820.mat",
-            "generatedContentHash": "066b1a175b33bc7d44f7d7cce6af4f78",
-            "status": "Ready",
-            "warnings": [
-                "INFO: BaseMap 없음 → White 텍스처와 Base Color로 변환"
-            ],
-            "toolVersion": "worldtoon-1.0"
-        },
-        {
-            "sourceMaterialId": "GlobalObjectId_V1-1-56115915d223d7744a2f44dd9897ebc8-2710713138995046620-0",
-            "sourceDependencyHash": "d03cd0696620b4b0a72877a9578406b9",
-            "sourceShaderName": "Universal Render Pipeline/Lit",
-            "sourceKeywords": [],
-            "presetId": "MeshLite",
-            "targetMaterialGuid": "24d8ebe57b1adc8418804b9a19f18a70",
-            "targetPath": "Assets/11.Material/WorldToon/MeshLite/Stone_Field__91c6e63a.mat",
-            "generatedContentHash": "066b1a175b33bc7d44f7d7cce6af4f78",
-            "status": "Ready",
-            "warnings": [
-                "INFO: BaseMap 없음 → White 텍스처와 Base Color로 변환"
-            ],
-            "toolVersion": "worldtoon-1.0"
-        },
-        {
             "sourceMaterialId": "GlobalObjectId_V1-3-2fefd2bc7d093cb41b0a88ec8c7c2e90-2100000-0",
             "sourceDependencyHash": "31b289d546fe681ba1bf2d7c8b67c834",
             "sourceShaderName": "Universal Render Pipeline/Lit",
@@ -54,7 +9,7 @@
             "presetId": "MeshLite",
             "targetMaterialGuid": "d56f7f2d99ece34498a4bef9935e03d4",
             "targetPath": "Assets/11.Material/WorldToon/MeshLite/WT_Validation_Sphere_Lit__bf284051.mat",
-            "generatedContentHash": "eee7406bfb25a8e337f7bbf1fd452f7c",
+            "generatedContentHash": "3fe44c0f9a87a5781997f0cc821ce16e",
             "status": "Ready",
             "warnings": [
                 "INFO: BaseMap 없음 → White 텍스처와 Base Color로 변환"
@@ -69,7 +24,7 @@
             "presetId": "MeshLite",
             "targetMaterialGuid": "c56695be763916346bb0efedd9cd2ac9",
             "targetPath": "Assets/11.Material/WorldToon/MeshLite/WT_Validation_Cube_Lit__9a8c75dd.mat",
-            "generatedContentHash": "c185a31aa76e96987f4cb99a4ff8f75e",
+            "generatedContentHash": "6aa7cff8f0e042dc9479556d96a8295f",
             "status": "Ready",
             "warnings": [
                 "INFO: BaseMap 없음 → White 텍스처와 Base Color로 변환"
@@ -77,18 +32,111 @@
             "toolVersion": "worldtoon-1.0"
         },
         {
-            "sourceMaterialId": "GlobalObjectId_V1-1-1ccc7905ba967324d83b0e7938b760c0-2710713138995046620-0",
-            "sourceDependencyHash": "55ecd6816fa478c8f8c89edc4e3a2389",
+            "sourceMaterialId": "GlobalObjectId_V1-3-38a6e930668fe3e4e9c49f4f25081cea-2100000-0",
+            "sourceDependencyHash": "5b63c5ca53fc878116e0ffed61d3e7c4",
+            "sourceShaderName": "Universal Render Pipeline/Lit",
+            "sourceKeywords": [],
+            "presetId": "MeshLite",
+            "targetMaterialGuid": "d4a171962d828e04fa956e279fdbfa68",
+            "targetPath": "Assets/11.Material/WorldToon/MeshLite/PoorProp_Stone_Field__30be52d9.mat",
+            "generatedContentHash": "2b83120358692e8184899217f8f393e9",
+            "status": "Ready",
+            "warnings": [],
+            "toolVersion": "worldtoon-1.0"
+        },
+        {
+            "sourceMaterialId": "GlobalObjectId_V1-3-38a6e930668fe3e4e9c49f4f25081cea-2100000-0",
+            "sourceDependencyHash": "5b63c5ca53fc878116e0ffed61d3e7c4",
             "sourceShaderName": "Universal Render Pipeline/Lit",
             "sourceKeywords": [],
             "presetId": "MeshStandard",
-            "targetMaterialGuid": "5ad282eb8ff30df4cb6216c973a7ffcc",
-            "targetPath": "Assets/11.Material/WorldToon/MeshStandard/Stone_Field__1481a12a.mat",
-            "generatedContentHash": "7a2c4609c657d100728151c2b9052240",
+            "targetMaterialGuid": "fd90b3f79a865ba4784a27703a128966",
+            "targetPath": "Assets/11.Material/WorldToon/MeshStandard/PoorProp_Stone_Field__30be52d9.mat",
+            "generatedContentHash": "cdb30fae5a99abcfb510174193ac0eba",
             "status": "Ready",
-            "warnings": [
-                "INFO: BaseMap 없음 → White 텍스처와 Base Color로 변환"
+            "warnings": [],
+            "toolVersion": "worldtoon-1.0"
+        },
+        {
+            "sourceMaterialId": "GlobalObjectId_V1-3-c6f54a06db820db4c8c56a4f08e789ac-2100000-0",
+            "sourceDependencyHash": "523b237c5dae51ad531b256688670c4b",
+            "sourceShaderName": "UPlayGround/Environment/Vegetation/5bf02d37cc25a0745988227a855e652f",
+            "sourceKeywords": [
+                "_USE_NORMAL_MAPS",
+                "_USE_ORM",
+                "_USE_WPO"
             ],
+            "presetId": "FoliageNear",
+            "targetMaterialGuid": "61b8b39fa7210af4781fad3b099cd906",
+            "targetPath": "Assets/11.Material/WorldToon/FoliageNear/8ede67ab9e42e0846af6c1c098b146ed_2100000__d893e807.mat",
+            "generatedContentHash": "cc4a8aeda06f4813865fb7ac510d60b1",
+            "status": "Ready",
+            "warnings": [],
+            "toolVersion": "worldtoon-1.0"
+        },
+        {
+            "sourceMaterialId": "GlobalObjectId_V1-3-427bc547411b37c4ea1bb2a70b5bcc66-2100000-0",
+            "sourceDependencyHash": "0fbd57fbf9f84e6f705f509c0de9283e",
+            "sourceShaderName": "UPlayGround/Environment/Vegetation/cddbef5a918a4a4a9beba91b949025d6",
+            "sourceKeywords": [
+                "_USE_HEIGHT_GRADIENCE",
+                "_USE_WPO",
+                "_BUILTIN_ALPHATEST_ON",
+                "_BUILTIN_AlphaClip"
+            ],
+            "presetId": "FoliageNear",
+            "targetMaterialGuid": "91903133d75c3b5488eb5ec4c9b3ec5b",
+            "targetPath": "Assets/11.Material/WorldToon/FoliageNear/8f12a94af1abc5a42b0bd7f6446cf24f_2100000__ebe252cd.mat",
+            "generatedContentHash": "c2f344a08e7accba3f236b033dd7d58a",
+            "status": "Ready",
+            "warnings": [],
+            "toolVersion": "worldtoon-1.0"
+        },
+        {
+            "sourceMaterialId": "GlobalObjectId_V1-3-b750b7a726b498d47b0632503ef1c589-2100000-0",
+            "sourceDependencyHash": "18e284c4a6b98d3f65e6440c905a9d9a",
+            "sourceShaderName": "UPlayGround/Environment/Vegetation/4fb6b4160e35c0045b7026aa2ad95152",
+            "sourceKeywords": [
+                "_USEDITHERING_ON",
+                "_USEVERTEXCOLOR_ON"
+            ],
+            "presetId": "FoliageNear",
+            "targetMaterialGuid": "088ea1a28faee50479808c99635b5aa3",
+            "targetPath": "Assets/11.Material/WorldToon/FoliageNear/80fa9cfca0c07ba408996960226e2e56_2100000__74a4ca90.mat",
+            "generatedContentHash": "719f7851007c07a4b5f60d43b7b1e0d5",
+            "status": "Ready",
+            "warnings": [],
+            "toolVersion": "worldtoon-1.0"
+        },
+        {
+            "sourceMaterialId": "GlobalObjectId_V1-3-3effeea2722ff3c4c8c88fd4462beffd-2100000-0",
+            "sourceDependencyHash": "598054faebf51387355a4fa3e0ff861d",
+            "sourceShaderName": "UPlayGround/Environment/Vegetation/2ae88eff124d8d642a5035dbb580dfbe",
+            "sourceKeywords": [
+                "_BUILTIN_ALPHATEST_ON",
+                "_BUILTIN_AlphaClip"
+            ],
+            "presetId": "FoliageNear",
+            "targetMaterialGuid": "0232a4f4abb294d42b131e80a5a6b1c6",
+            "targetPath": "Assets/11.Material/WorldToon/FoliageNear/ab4e8125721e6b64296f310fe2c9d917_2100000__42d371ab.mat",
+            "generatedContentHash": "1820e877a439c71bf213759d26a5bc8e",
+            "status": "Ready",
+            "warnings": [],
+            "toolVersion": "worldtoon-1.0"
+        },
+        {
+            "sourceMaterialId": "GlobalObjectId_V1-3-9bab562fc8d8f4941872f12f3bc61b2b-2100000-0",
+            "sourceDependencyHash": "fa19c429db652546ac58f097a0a02681",
+            "sourceShaderName": "UPlayGround/Environment/Vegetation/933532a4fcc9baf4fa0491de14d08ed7",
+            "sourceKeywords": [
+                "_ALPHATEST_ON"
+            ],
+            "presetId": "FoliageNear",
+            "targetMaterialGuid": "c7d668fa01530c846ab2f4462b77a48f",
+            "targetPath": "Assets/11.Material/WorldToon/FoliageNear/65fc171ae00aaae4c9647e19d0db1512_2100000__94ff27d0.mat",
+            "generatedContentHash": "6ef0fb8f05af2a353e5d2d5052d703aa",
+            "status": "Ready",
+            "warnings": [],
             "toolVersion": "worldtoon-1.0"
         }
     ],

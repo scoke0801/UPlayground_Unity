@@ -4,6 +4,22 @@
 
 [오픈월드 맵 제작 가이드](../../Assets/docs/guide/OPENWORLD_MAP_AUTHORING_GUIDE.md)에서 지역의 탐험 목표, 랜드마크, 이동 동선을 정한다. 거점과 주변 동선을 블록아웃으로 주행해 본 뒤 아트와 콘텐츠를 배치한다.
 
+**RiverBasinWorld · 4km 제작용 지형.** 북부 산맥과 동부 협곡을 4km 월드 좌표에서 새로 만들고, 같은 씬에 제작 TerrainData 64장·지형 재질·타일별 수면을 연결했다. Editor 재개방에서 경계 112곳과 콜라이더·수면 참조를 확인했다. [공간 설계](../../Assets/docs/design/world-art/open-world/RIVER_BASIN_WORLD_REBUILD_DESIGN.md) · [4km 씬과 검증](../work-status/river-basin-world.md#4km-제작용-heightmap-적용)
+
+**북부 산맥 원경.** Terrain 원경 전환 거리를 늘린 비교에도 회색 면이 남아, 북부 지형 21장의 바위·절벽·적설 배합을 보정했다. [원인과 검증](../work-status/river-basin-world.md#북부-산맥-원경-재질-보정)
+
+**동부 사면 반복.** 사용자 구도에 드러난 그리드 반복을 줄이도록 동부 타일 16장의 암석·풍화암·건조 지면 배합을 바꿨다. [같은 구도의 비교와 적용](../work-status/river-basin-world.md#동부-사면-재질-반복-보정)
+
+**타일 이음새·합류부·설산.** 64개 지형의 공유 재질 경계를 블렌딩하고, 합류부와 도로 사면을 보정한 높이·수면을 저장했다. 설산은 새 적설 텍스처와 고도·경사 마스크를 사용한다. [Unity 적용과 검증](../work-status/river-basin-world.md#타일-이음새합류부설산-보정)
+
+**RiverBasin4km B1 석교와 상류 수영로.** 4km 씬에 P04 석교·착지, P05 수역과 양안 자갈길, 플레이어·TPS 카메라·물소리를 연결했다. 4km 씬을 단독으로 Play하면 B1 접근로에서 시작한다. 나머지 교량, 북부 폭포, 동부 사암 사막, 서부 가을 숲은 후속 구간이다. [B1 적용과 검증](../work-status/river-basin-world.md#4km-b1-석교와-상류-수영로) · [게임월드 제작 설계](../../Assets/docs/design/world-art/open-world/RIVER_BASIN_WORLD_REBUILD_DESIGN.md#4km-게임월드-제작)
+
+**RiverBasin4km 다음 제작.** B1 성능과 청크 로딩을 먼저 계측하고 호수 마을 → B3 → B1 → 중앙 성채 정문을 도보로 왕복할 수 있게 연결한다. 본선을 인수한 뒤 B2·B4로 순환로를 닫고 폭포·사막·숲으로 확장한다. [제작 순서와 인수 조건](../../Assets/docs/design/world-art/open-world/RIVER_BASIN_WORLD_REBUILD_DESIGN.md#b1-이후-제작-방침) · [현재 상태](../work-status/river-basin-world.md#4km-다음-제작-방침)
+
+**RiverBasin4km 서부 숲 식생 우선 검증.** 숲 연못 동쪽의 약 126m Play 구간에 0.5m 격자의 낮은 풀을 보강했다. 목서 사이에 자작나무·너도밤나무와 어린 나무 군락을 섞어 높이와 수관을 다양화했다. [검증 씬과 왕복 결과](../work-status/river-basin-world.md#4km-서부-숲-식생-검증) · [잔디 보정 전후](../work-status/river-basin-world.md#사용자-제보에-따른-잔디-밀도-보정) · [수목 후보와 배치](../work-status/river-basin-world.md#수형-다양화와-어린-나무)
+
+**RiverBasin4km 숲 연못 동쪽 제작 적용.** 126m 첫 구간에 수목 219그루, 풀 65,277개와 관목 26개를 옮겼다. 길 주변 도색을 섞고 제작 지형 높이와 타일 이음새를 확인했다. [제작 씬과 검증 근거](../work-status/river-basin-world.md#4km-숲-연못-동쪽-식생-적용)
+
 | 제작 단계 | 지침 |
 |---|---|
 | 지형과 수계 | [지형 저작](../../Assets/docs/guide/WORLDBUILDER_TERRAIN_AUTHORING_GUIDE.md) · [수계 저작](../../Assets/docs/guide/WORLDBUILDER_WATER_AUTHORING_GUIDE.md) · [지형·물 아트 작업 교훈](../../Assets/docs/guide/TERRAIN_WATER_ART_LESSONS.md) |
@@ -68,6 +84,14 @@ LakeVillageWorld 대기 프레임 저하(2026-11-14~15): [조사·최종 근거]
 
 일반 수목 파괴 연결(2026-11-15): [작업 상태·검증 근거](../work-status/tree-destruction.md). FullTree5종4,767개에 내구도100·목재1~4개·종류별 Stump/Trunk·방향성 낙하/막힘 잔해를 연결해 본편 씬에 저장했다. 환경 통합40/40·복제본 실제 피격/JSON15개 시나리오·식생15,396개 전수 구성 통과, 배치 ID/원형 외형 변경0·구매 원본/meta234개 해시 변경0. 보호829개와 나머지 식생은 보존했다. 고사목3개 추가 전환은 자동 승인 검토에서 범위 확장/기존 구성 제거로 거절되어 미적용이다. [직접 공격·낙목/KCC/Nav·저장/지역 왕복·성능·미술 인수](../work-status/reactive-environment-tests.md#일반-나무-파괴-연결-인수--2026-11-15)는 사용자 테스트 대기이며 종전 대기 성능 인수를 승계하지 않는다.
 
+2026-11-21 **EastLands 상호작용 수목 3종 저작 반영.** 직립·굽은 침엽수와 키 큰 대나무를 배치용 프리팹으로 추가했다. EditMode 55/55, 낙하·보상·복원 9/9와 인접 줄기 피격 9/9를 통과했다. 본편 플레이는 사용자 테스트 대기다. [프리팹·검증 상태](../work-status/tree-destruction.md#eastlands-상호작용-수목-확장).
+
+2026-11-21 **상호작용형 수목 7종·소품 2종.** 목서와 대나무 군락에 이어 붉은 활엽수·작은 대나무·나무통·도자기 화병을 추가했다. 신규 4종 파괴·복원 8/8, 소품 원소 반응 2/2. 전체 환경 목록과 상호작용 목록을 연결했다. [카탈로그](../../output/asset-catalog/index.html) · [적용과 검증](../work-status/tree-destruction.md#수목과-파괴-소품-추가).
+
+2026-11-21 **환경 에셋 전수 조사·상호작용형 수목 19종.** 카탈로그 3,176개 경로와 수목·소품 1,129개 Unity 프리팹을 확인했다. EastLands 절단 대응 17종 연결과 Blender 제작 Fir_02 반영. 신규 수목 자동 재현 36/36, 본편 사용자 테스트 대기. [전수 조사·프리팹·남은 범위](../work-status/tree-destruction.md#전체-카탈로그-조사와-수목-확장).
+
+**Fir_02 밑동 근접 외형 개선.** 남은 잎 카드를 제거하고 절단 둘레·나무껍질·뿌리 형태를 다시 저작했다. 가까운 LOD는 원주 48분할, 파괴·보상·복원 3/3이다. [전후 캡처와 재검증](../work-status/tree-destruction.md#fir_02-밑동-근접-실루엣-개선).
+
 전환 전 조사(2026-11-15): 당시 식생15,396개는 전부 비파괴였다. [조사 당시 구성](../work-status/reactive-environment.md#나무-파괴-연결-재확인--2026-11-15)은 과거 근거이며, 이후 일반 수목4,767개는 위 파괴 연결 결과로 대체됐다.
 
 [최종 결과·검증 근거](../work-status/reactive-environment.md#식생-전수-전환-결과--2026-11-14): 식생15,396/15,396개와 Terrain10층을 실제 본편에 연결·저장했다. 재로드 후 전수 구성 유효, 누락/중복 ID·배치/활성/ID 변경0, 원본/메타332개 해시 변경0이다. 퀘스트/수중/채집 시각 식생829개를 비가연·비파괴 정책으로 보호한다. 외형·LOD·바람·알파와 기존 채집 소유권을 보존한다.
@@ -75,6 +99,14 @@ LakeVillageWorld 대기 프레임 저하(2026-11-14~15): [조사·최종 근거]
 [표현 최적화·최종 자동 검증](../work-status/reactive-environment.md#공유-표현-버퍼와-전환-최종-자동-검증--2026-11-14): 활성 식생15,284개+Terrain 셀3,188개(총18,472대상), 강수 판정 전수 차이0. Native 강수 묶음과 공유 GPU 표현으로 강수 중앙 tick은 Editor에서220~230ms→67~74ms, 표현은약60ms→10ms로 줄었다. CPU 화학·전파·저장과 카메라 밖 대상 처리는 유지한다. GPU 일반/인스턴싱 출력 대조와 열/물·JSON·ID 재등록·Terrain 원본 복구를 확인했다.
 
 **전수 전환·자동 검증과 최종 플레이 인수를 구분한다.** 일반 공격 입력·실제 저장/지역 왕복·KCC/Nav·모든 LOD/임포스터·목표 기기 성능·미술/청감은 [LV-V01~06 사용자 테스트 대기](../work-status/reactive-environment-tests.md#lakevillageworld-식생-전수-전환-인수-전환-완료사용자-검수-대기-2026-11-14)다. 강수 tick 잔여67~74ms는 목표 기기 FPS 통과 근거가 아니며 성능 인수는 보류다. 기존 재생성 원본 부재와 비식생을 포함한 W 전체 인수는 이번 식생 전환으로 해소되지 않는다.
+
+## 환경 에셋 카탈로그
+
+2026-11-21: 오브젝트를 배치·교체할 때 먼저 [환경 에셋 카탈로그](../asset-catalog/index.html)에서 프리팹 경로와 외형을 찾는다. 나무·그루터기·통나무, 덤불·꽃·풀, 바위·돌, 건물·구조물, 소품, 던전 키트 6개 페이지에 3,176개를 캡처 사진·이름·경로·크기·삼각형 수와 함께 담았고, 경로를 클릭하면 복사된다. 새 오브젝트를 만들기 전에 기존 팩에 쓸 만한 것이 있는지 먼저 확인하는 용도다.
+
+- 캡처 조명은 인게임 낮 시간대(WorldLighting `time01=0.38` 태양·LakeVillageWorld 하늘·LakeAtmosphere 볼륨)를 임시 씬에 복제해 찍었다.
+- 한계: 카테고리는 자동 분류, 캡처는 LOD0·고정 조명이라 실제 플레이 화면과는 다르고 색감은 참고용이다. 44개 제외·7개 빈 캡처가 있다. 미술 품질 판단의 근거로 쓰지 않는다. [범위·한계·검증](../work-status/asset-catalog.md)
+- 팩이 바뀌면 [재생성 절차](../../Tools/AssetCatalog/README.md)로 갱신한다. 결과물은 `docs/asset-catalog/`에 있고 Git 커밋은 하지 않았다.
 
 ## 유기체 모델링 품질 스킬
 

@@ -831,6 +831,9 @@ Assets/04.Images/Environment/*
 # 돌등성 고밀도 성의 모델·프리팹·재질과 GUID만 추적한다.
 !/Assets/08.Models/
 /Assets/08.Models/*
+!/Assets/08.Models/ReactiveTrees.meta
+!/Assets/08.Models/ReactiveTrees/
+!/Assets/08.Models/ReactiveTrees/**
 !/Assets/08.Models/WorldCities.meta
 !/Assets/08.Models/WorldCities/
 /Assets/08.Models/WorldCities/*
@@ -845,6 +848,14 @@ Assets/04.Images/Environment/*
 !/Assets/03.Prefabs/Environment/WorldCities/StonegateHighPoly.meta
 !/Assets/03.Prefabs/Environment/WorldCities/StonegateHighPoly/
 !/Assets/03.Prefabs/Environment/WorldCities/StonegateHighPoly/**
+
+# 배치용 반응형 수목 프리팹과 GUID를 보존한다.
+!/Assets/03.Prefabs/Environment/ReactiveTrees.meta
+!/Assets/03.Prefabs/Environment/ReactiveTrees/
+!/Assets/03.Prefabs/Environment/ReactiveTrees/**
+!/Assets/03.Prefabs/Environment/ReactiveProps.meta
+!/Assets/03.Prefabs/Environment/ReactiveProps/
+!/Assets/03.Prefabs/Environment/ReactiveProps/**
 
 # RAON의 Frank 무기 커브 이식 결과와 재현 스크립트를 보존한다.
 !/ArtSource/FrankWeaponRetarget/

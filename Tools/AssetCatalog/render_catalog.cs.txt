@@ -1,0 +1,72 @@
+// Unity MCP execute_code(action=execute) 본문으로 실행하는 메서드 본문이다. (컴파일러: codedom, C# 6 — 문자열 보간 등 사용 불가)
+// 환경 프리팹 후보를 모아 EditorApplication.update에서 순차 캡처하고 docs/asset-catalog/ 아래에 쓴다.
+// 진행 상황은 <root>/progress.txt(마지막 줄 DONE ...)로 확인한다. 실행 전 root 경로를 확인한다.
+ShaderUtil.allowAsyncCompilation = false; // 비동기 셰이더 컴파일 중 빈 이미지가 찍히는 문제 방지
+string root = System.IO.Path.GetFullPath("docs/asset-catalog");
+System.IO.Directory.CreateDirectory(root + "/img");
+var RO = System.Text.RegularExpressions.RegexOptions.IgnoreCase;
+var inc = new System.Text.RegularExpressions.Regex(@"(Environment|Props|Nature|Foliage|Building|Rock|Stone)", RO);
+var exc = new System.Text.RegularExpressions.Regex(@"(Character|/UI/|UI_|VFX|Effects|Weapon|/FX/|Particle|impostor|billboard|_COLL|/Collisions?/|Collider|Decal|Theme_|Town_Street|PoorVillage/Terrain_DeadTree)", RO);
+var guids = AssetDatabase.FindAssets("t:Prefab", new[]{"Assets"});
+var paths = new System.Collections.Generic.List<string>();
+foreach (var g in guids){ var p = AssetDatabase.GUIDToAssetPath(g);
+  bool special = p.Contains("Pspsps/Prefab/Environment/");
+  if (!special && (!inc.IsMatch(p) || exc.IsMatch(p))) continue;
+  if (special && exc.IsMatch(p.Replace("Character",""))) continue;
+  paths.Add(p); }
+paths.Sort(System.StringComparer.Ordinal);
+var rxTree = new System.Text.RegularExpressions.Regex(@"(tree|conifer|bamboo|fir_|osmanthus_\d|sapling|stump|trunk|branch|remnant|palm|willow|beech|birch|(^|_)logs?(_|\d|$)|logbundle)", RO);
+var rxPlant = new System.Text.RegularExpressions.Regex(@"(bush|flower|grass|plant|fern|mushroom|vine|reed|crop|hedge|lily|weed|clover|leaf|leaves|shrub|moss|cactus|pumpkin|wheat|corn|vegetable|herb)", RO);
+var rxRock = new System.Text.RegularExpressions.Regex(@"(rock|stone|boulder|cliff|pebble|crystal|\bore\b|cave|terrain|mountain|island)", RO);
+var rxStruct = new System.Text.RegularExpressions.Regex(@"(house|building|tower|castle|gate|wall|roof|bridge|fence|barn|windmill|shrine|temple|stair|door|window|pillar|column|hut|cabin|tent|pier|dock|arch|keep|fort|ruin|gazebo|well|chimney|lighthouse|wharf|harbor)", RO);
+System.Func<string,string> cat = delegate(string p){
+  string n = System.IO.Path.GetFileNameWithoutExtension(p);
+  if (p.Contains("Fantastic Dungeon Pack") || p.Contains("Platformer_8_Underworld") || p.Contains("Environment/Dungeon") || p.Contains("OpenWorld/Dungeons")) return "dungeon";
+  if (rxTree.IsMatch(n) && !System.Text.RegularExpressions.Regex.IsMatch(n,"fence|step",RO)) return "tree";
+  if (rxPlant.IsMatch(n)) return "plant";
+  if (rxStruct.IsMatch(n)) return "structure";
+  if (rxRock.IsMatch(n)) return "rock";
+  return "prop";
+};
+var S=256; var bg=new Color(0.82f,0.88f,0.95f,1f);
+var pru=new PreviewRenderUtility(); pru.cameraFieldOfView=30f; pru.camera.backgroundColor=bg; pru.camera.clearFlags=CameraClearFlags.SolidColor; pru.camera.cullingMask=~0;
+pru.lights[0].intensity=1.6f; pru.lights[0].transform.rotation=Quaternion.Euler(40,-30,0); pru.lights[1].intensity=0.8f; pru.ambientColor=new Color(0.7f,0.7f,0.75f);
+var entries=new System.Collections.Generic.List<string>(); var skipped=new System.Collections.Generic.List<string>();
+int idx=0; var tickWatch=new System.Diagnostics.Stopwatch();
+EditorApplication.CallbackFunction tick=null;
+tick = delegate(){
+  tickWatch.Restart();
+  while (idx < paths.Count && tickWatch.ElapsedMilliseconds < 400){
+    string p=paths[idx++]; GameObject inst=null;
+    try {
+      var pf=AssetDatabase.LoadAssetAtPath<GameObject>(p); if(pf==null){ skipped.Add(p+"|null"); continue; }
+      inst=(GameObject)UnityEngine.Object.Instantiate(pf); inst.SetActive(true); // 루트가 비활성인 프리팹이 있다(TreeRemnant 등)
+      bool remn = p.Contains("TreeRemnants"); // 베인 나무 상태 프리팹: 서 있는 Trunk는 숨기고 Stump·BlockedLog만 보인다
+      foreach(var t in inst.GetComponentsInChildren<Transform>(true)){ if(t==inst.transform) continue; t.gameObject.layer=0; if(remn){ if(t.name=="Trunk") t.gameObject.SetActive(false); else if(t.parent==inst.transform&&(t.name=="Stump"||t.name=="BlockedLog")) t.gameObject.SetActive(true);} }
+      foreach(var lg in inst.GetComponentsInChildren<LODGroup>(false)){ var l=lg.GetLODs(); if(l.Length==0) continue; var keep=new System.Collections.Generic.HashSet<Renderer>(l[0].renderers); foreach(var lod in l) foreach(var r in lod.renderers) if(r!=null&&!keep.Contains(r)) r.enabled=false; lg.enabled=false; }
+      Bounds b=new Bounds(); bool has=false; int tris=0, rc=0;
+      foreach(var r in inst.GetComponentsInChildren<Renderer>(false)){ if(!r.enabled) continue; if(!(r is MeshRenderer)&&!(r is SkinnedMeshRenderer)) continue; rc++; if(!has){b=r.bounds;has=true;} else b.Encapsulate(r.bounds); var mf=r.GetComponent<MeshFilter>(); if(mf&&mf.sharedMesh) tris+=mf.sharedMesh.triangles.Length/3; else if(r is SkinnedMeshRenderer && ((SkinnedMeshRenderer)r).sharedMesh) tris+=((SkinnedMeshRenderer)r).sharedMesh.triangles.Length/3; }
+      if(!has||b.extents.magnitude<0.001f||b.extents.magnitude>400f||rc>600){ skipped.Add(p+"|"+(has?("size "+b.size+" rc "+rc):"norenderer")); UnityEngine.Object.DestroyImmediate(inst); continue; }
+      pru.AddSingleGO(inst);
+      float rad=b.extents.magnitude; float dist=rad/Mathf.Sin(15f*Mathf.Deg2Rad);
+      pru.camera.transform.position=b.center+new Vector3(0.45f,0.25f,-1f).normalized*dist; pru.camera.transform.LookAt(b.center); pru.camera.nearClipPlane=Mathf.Max(0.01f,dist-rad*2); pru.camera.farClipPlane=dist+rad*3;
+      pru.BeginPreview(new Rect(0,0,S,S),GUIStyle.none); pru.camera.Render(); var tex=pru.EndPreview() as RenderTexture; var prev=RenderTexture.active; RenderTexture.active=tex;
+      var t2=new Texture2D(S,S,TextureFormat.RGB24,false); t2.ReadPixels(new Rect(0,0,S,S),0,0); t2.Apply(); RenderTexture.active=prev;
+      string guid=AssetDatabase.AssetPathToGUID(p);
+      System.IO.File.WriteAllBytes(root+"/img/"+guid+".jpg", t2.EncodeToJPG(85));
+      UnityEngine.Object.DestroyImmediate(t2); UnityEngine.Object.DestroyImmediate(inst); inst=null;
+      string name=System.IO.Path.GetFileNameWithoutExtension(p);
+      entries.Add("{\"path\":\""+p+"\",\"name\":\""+name.Replace("\"","")+"\",\"img\":\""+guid+".jpg\",\"cat\":\""+cat(p)+"\",\"h\":"+b.size.y.ToString("F1")+",\"w\":"+Mathf.Max(b.size.x,b.size.z).ToString("F1")+",\"tris\":"+tris+"}");
+    } catch(System.Exception e){ skipped.Add(p+"|ex "+e.Message.Replace("\n"," ")); if(inst!=null) UnityEngine.Object.DestroyImmediate(inst); }
+    if(idx%60==0) EditorUtility.UnloadUnusedAssetsImmediate();
+  }
+  System.IO.File.WriteAllText(root+"/progress.txt", idx+"/"+paths.Count+" ok="+entries.Count+" skipped="+skipped.Count);
+  if(idx>=paths.Count){
+    EditorApplication.update-=tick; pru.Cleanup(); ShaderUtil.allowAsyncCompilation=true;
+    System.IO.File.WriteAllText(root+"/manifest.json","["+string.Join(",",entries.ToArray())+"]", new System.Text.UTF8Encoding(false));
+    System.IO.File.WriteAllText(root+"/skipped.txt", string.Join("\n",skipped.ToArray()));
+    System.IO.File.WriteAllText(root+"/progress.txt","DONE "+idx+"/"+paths.Count+" ok="+entries.Count+" skipped="+skipped.Count);
+  }
+};
+EditorApplication.update += tick;
+return "started: "+paths.Count+" candidates";

@@ -1,0 +1,52 @@
+// Unity MCP execute_code(action=execute) 본문이다. (codedom, C# 6)
+// 이미 만들어진 docs/asset-catalog/img/*.jpg를 인게임 낮 조명으로 다시 촬영해 같은 파일명으로 덮어쓴다.
+// render_catalog.cs.txt(후보 수집·초기 캡처) 실행 뒤에 돌린다. 동기 실행이라 수천 장이면 MCP 시간 제한에 걸리므로
+// 파일 목록을 나눠 호출하거나 render_catalog.cs.txt처럼 EditorApplication.update로 바꿔서 쓴다.
+//
+// 인게임 값의 출처
+//  - 태양: WorldLightingController.BuildDefaultProfile()의 time01=0.38 키프레임(세기 1.05, 색 1/0.92/0.82, 회전 X=0.38*360-90, Y=30)
+//  - 하늘·앰비언트: LakeVillageWorld 씬의 RenderSettings(Skybox 모드, DaySky_Clear.mat, ambientIntensity 키프레임 0.95 적용)
+//  - 포스트프로세싱: LakeVillageWorld가 쓰는 Volume 프로필 LakeAtmosphere.asset(ColorAdjustments, Bloom)
+//  - 정오(t=0.5)는 태양이 머리 위라 옆면이 어두워 목록용으로는 t=0.38을 쓴다.
+// 안개는 끈다. 크기 수백 m 오브젝트가 안개에 묻혀 빈 이미지가 된다.
+// 편집 중인 씬은 건드리지 않고 임시 additive 씬에서 찍은 뒤 닫는다. 실행 중에는 씬 편집을 피한다.
+ShaderUtil.allowAsyncCompilation = false; // 비동기 셰이더 컴파일 중 빈 이미지가 찍히는 문제 방지
+string root = System.IO.Path.GetFullPath("docs/asset-catalog");
+var files = new System.Collections.Generic.List<string>(System.IO.Directory.GetFiles(root + "/img", "*.jpg")); files.Sort(System.StringComparer.Ordinal);
+var prevScene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+var sc = UnityEditor.SceneManagement.EditorSceneManager.NewScene(UnityEditor.SceneManagement.NewSceneSetup.EmptyScene, UnityEditor.SceneManagement.NewSceneMode.Additive);
+UnityEngine.SceneManagement.SceneManager.SetActiveScene(sc);
+RenderSettings.skybox = AssetDatabase.LoadAssetAtPath<Material>("Assets/10.Datas/World/Sky/DaySky_Clear.mat");
+RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Skybox; RenderSettings.ambientIntensity = 0.95f;
+RenderSettings.defaultReflectionMode = UnityEngine.Rendering.DefaultReflectionMode.Skybox; RenderSettings.reflectionIntensity = 1f; RenderSettings.fog = false;
+var sunGo = new GameObject("Sun"); var sun = sunGo.AddComponent<Light>(); sun.type = LightType.Directional; sun.color = new Color(1f,0.92f,0.82f); sun.intensity = 1.05f; sun.shadows = LightShadows.Soft;
+sunGo.transform.rotation = Quaternion.Euler(0.38f*360f-90f, 30f, 0f); RenderSettings.sun = sun; DynamicGI.UpdateEnvironment();
+var volGo = new GameObject("Vol"); var vol = volGo.AddComponent<UnityEngine.Rendering.Volume>(); vol.isGlobal = true; vol.sharedProfile = AssetDatabase.LoadAssetAtPath<UnityEngine.Rendering.VolumeProfile>("Assets/10.Datas/World/ScenarioMaps/LakeOfLifeScenario/LakeAtmosphere.asset");
+var camGo = new GameObject("Cam"); var cam = camGo.AddComponent<Camera>(); cam.fieldOfView = 30f; cam.clearFlags = CameraClearFlags.SolidColor; cam.backgroundColor = new Color(0.82f,0.88f,0.95f); cam.allowHDR = true;
+var acd = camGo.AddComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>(); acd.renderPostProcessing = true; acd.renderShadows = true;
+const int S = 256; var rt = new RenderTexture(S,S,24,RenderTextureFormat.ARGB32); cam.targetTexture = rt;
+int fixedBack = 0, still = 0;
+foreach (var f in files) {
+  string guid = System.IO.Path.GetFileNameWithoutExtension(f); string p = AssetDatabase.GUIDToAssetPath(guid);
+  var pf = AssetDatabase.LoadAssetAtPath<GameObject>(p); if (pf == null) continue;
+  var inst = (GameObject)PrefabUtility.InstantiatePrefab(pf, sc); inst.SetActive(true); // 루트가 비활성인 프리팹이 있다
+  bool remn = p.Contains("TreeRemnants"); // 베인 나무 상태: 서 있는 Trunk는 숨기고 Stump·BlockedLog만 보인다
+  foreach (var t in inst.GetComponentsInChildren<Transform>(true)) { if (t == inst.transform) continue; t.gameObject.layer = 0; if (remn) { if (t.name == "Trunk") t.gameObject.SetActive(false); else if (t.parent == inst.transform && (t.name == "Stump" || t.name == "BlockedLog")) t.gameObject.SetActive(true); } }
+  foreach (var lg in inst.GetComponentsInChildren<LODGroup>(false)) { var l = lg.GetLODs(); if (l.Length == 0) continue; var keep = new System.Collections.Generic.HashSet<Renderer>(l[0].renderers); foreach (var lod in l) foreach (var r in lod.renderers) if (r != null && !keep.Contains(r)) r.enabled = false; lg.enabled = false; }
+  Bounds b = new Bounds(); bool has = false; foreach (var r in inst.GetComponentsInChildren<Renderer>(false)) { if (!r.enabled) continue; if (!(r is MeshRenderer) && !(r is SkinnedMeshRenderer)) continue; if (!has) { b = r.bounds; has = true; } else b.Encapsulate(r.bounds); }
+  if (!has) { UnityEngine.Object.DestroyImmediate(inst); continue; }
+  float rad = b.extents.magnitude; float dist = rad / Mathf.Sin(15f*Mathf.Deg2Rad); cam.nearClipPlane = Mathf.Max(0.01f, dist-rad*2); cam.farClipPlane = dist+rad*3;
+  byte[] best = null;
+  for (int attempt = 0; attempt < 2; attempt++) { // 한쪽 면만 그려지는 벽은 반대 방향(+Z)에서 다시 찍는다
+    Vector3 d = attempt == 0 ? new Vector3(0.45f,0.25f,-1f) : new Vector3(-0.45f,0.25f,1f);
+    camGo.transform.position = b.center + d.normalized*dist; camGo.transform.LookAt(b.center);
+    cam.Render(); var pv = RenderTexture.active; RenderTexture.active = rt; var t2 = new Texture2D(S,S,TextureFormat.RGB24,false); t2.ReadPixels(new Rect(0,0,S,S),0,0); t2.Apply(); RenderTexture.active = pv;
+    var bytes = t2.EncodeToJPG(88); UnityEngine.Object.DestroyImmediate(t2);
+    if (bytes.Length > 2600) { best = bytes; if (attempt == 1) fixedBack++; break; } // 2.6KB 미만이면 빈 이미지다(픽셀 비교 방식은 신뢰할 수 없었다)
+  }
+  if (best != null) System.IO.File.WriteAllBytes(f, best); else still++;
+  UnityEngine.Object.DestroyImmediate(inst);
+}
+rt.Release(); UnityEngine.Object.DestroyImmediate(rt);
+UnityEngine.SceneManagement.SceneManager.SetActiveScene(prevScene); UnityEditor.SceneManagement.EditorSceneManager.CloseScene(sc, true); ShaderUtil.allowAsyncCompilation = true;
+return "files=" + files.Count + " backView=" + fixedBack + " stillBlank=" + still;

@@ -1,0 +1,44 @@
+Assets/03.Prefabs/Environment/AmbientFauna/AirMote.prefab|norenderer
+Assets/03.Prefabs/Environment/AmbientFauna/Butterfly.prefab|norenderer
+Assets/03.Prefabs/Environment/AmbientFauna/Firefly.prefab|norenderer
+Assets/03.Prefabs/Environment/AmbientFauna/Gnat.prefab|norenderer
+Assets/03.Prefabs/Environment/OpenWorld/Dungeons/BriarRing.prefab|size (93.74, 20.68, 64.93) rc 1563
+Assets/03.Prefabs/Environment/OpenWorld/Dungeons/ChainTemple.prefab|size (63.40, 64.34, 63.40) rc 2357
+Assets/03.Prefabs/Environment/OpenWorld/Dungeons/SunkenHall.prefab|size (48.48, 37.45, 80.70) rc 1680
+Assets/03.Prefabs/LivingWorld/Environment/DroughtVillageEnvironment.prefab|norenderer
+Assets/03.Prefabs/LivingWorld/Environment/LakeOfLifeEnvironment.prefab|norenderer
+Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Prefabs/Code Related/Controller.prefab|norenderer
+Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Prefabs/Code Related/VegetationBendControl.prefab|norenderer
+Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Prefabs/Code Related/WindControl.prefab|norenderer
+Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Prefabs/FloatingLeafs_Green.prefab|norenderer
+Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Prefabs/FloatingLeafs_Yellow.prefab|norenderer
+Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Prefabs/GodRays.prefab|norenderer
+Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Deer/PF_Animal_NavMesh.prefab|norenderer
+Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Water/EastLands_LongRiver.prefab|size (714.52, 59.21, 526.88) rc 1
+Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Scenes/MainCamera.prefab|norenderer
+Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Animals/PF_Animals_NavMesh.prefab|norenderer
+Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Assembled/FarmHouse.prefab|size (32.90, 30.33, 40.64) rc 683
+Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Assembled/FarmHouse_Interior.prefab|size (32.90, 30.62, 40.27) rc 2066
+Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/BakedPaths/Path_03.prefab|size (357.31, 19.45, 794.02) rc 1
+Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Grass/PF_Farm_GrassMedium_01 1.prefab|size (0.00, 0.00, 0.00) rc 1
+Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Grass/PF_Farm_GrassMedium_01.prefab|size (0.00, 0.00, 0.00) rc 1
+Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Grass/PF_Farm_GrassShort_01 1.prefab|size (0.00, 0.00, 0.00) rc 1
+Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Grass/PF_Farm_GrassShort_01.prefab|size (0.00, 0.00, 0.00) rc 1
+Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Grass/PF_Farm_GrassTall_01.prefab|size (0.00, 0.00, 0.00) rc 1
+Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Gobold/PF_Gobold_NavMesh.prefab|norenderer
+Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Waterfalls/PF_DemoRiver.prefab|size (0.00, 0.00, 0.00) rc 1
+Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Waterfalls/PF_FogTorus.prefab|norenderer
+Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Waterfalls/PF_WaterfallFoam.prefab|norenderer
+Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Scenes/Post Processing.prefab|norenderer
+Assets/ExternalAssets/Environment/PolyartStudio/Farmlands/Prefabs/Waterfalls/PF_WaterfallMist.prefab|norenderer
+Assets/ExternalAssets/Environment/PolyartStudio/Farmlands/Prefabs/Waterfalls/PF_WaterfallMistNew.prefab|norenderer
+Assets/ExternalAssets/Environment/PolyartStudio/SharedResources/Prefabs/Door_Entrance.prefab|norenderer
+Assets/ExternalAssets/Environment/PolyartStudio/SharedResources/Prefabs/Door_Exit.prefab|norenderer
+Assets/ExternalAssets/Environment/PolyartStudio/SharedResources/Prefabs/FirstPersonController.prefab|norenderer
+Assets/ExternalAssets/Environment/PolyartStudio/SharedResources/Prefabs/MainCamera.prefab|norenderer
+Assets/ExternalAssets/Environment/PolyartStudio/SharedResources/Prefabs/Tools/Path Tool.prefab|size (0.00, 0.00, 0.00) rc 1
+Assets/ExternalAssets/Environment/PolyartStudio/SharedResources/Prefabs/Tools/RiverGenerator.prefab|size (0.00, 0.00, 0.00) rc 1
+Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Background/TGV_BG_Hill_01.prefab|size (1024.01, 164.17, 1024.03) rc 1
+Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Background/TGV_BG_Mountain_01.prefab|size (1024.18, 185.99, 1024.25) rc 1
+Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Background/TGV_BG_Mountain_02.prefab|size (1024.08, 239.38, 1024.10) rc 1
+Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Background/TGV_BG_Mountain_03.prefab|size (1024.02, 222.11, 1024.01) rc 1

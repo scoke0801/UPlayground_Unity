@@ -1,0 +1,56 @@
+// 2단 폭포 주변 지표 재질. 급경사 절벽은 NorthCliff, 립·상류 하상과 중경사는 WeatheredRock, 웅덩이 바닥과 물가 1.6m는 Shore 자갈로 칠한다.
+// 작업 전 alphamap 백업(output/RiverBasinWorld/NorthFalls/backup/alpha_5_6.bin)이 없을 때만 만들고, 칠하기는 항상 그 백업 기준으로 계산해 재실행해도 누적되지 않는다.
+const string MODE = "apply";
+var tile = Terrain.activeTerrains.First(t => t.name == "Terrain_5_6");
+var data = tile.terrainData; var origin = tile.transform.position; int ares = data.alphamapResolution; int layers = data.alphamapLayers;
+Func<string, int> Layer = n => { for (int i = 0; i < layers; i++) if (data.terrainLayers[i].name == n) return i; throw new Exception("레이어 없음 " + n); };
+int layerCliff = Layer("NorthCliff"), layerWeathered = Layer("WeatheredRock"), layerShore = Layer("Shore"), layerRock = Layer("Rock");
+int ax = Mathf.FloorToInt((RegionMin.x - origin.x) / data.size.x * ares), az = Mathf.FloorToInt((RegionMin.y - origin.z) / data.size.z * ares);
+int bx = Mathf.CeilToInt((RegionMax.x - origin.x) / data.size.x * ares), bz = Mathf.CeilToInt((RegionMax.y - origin.z) / data.size.z * ares);
+int w = bx - ax + 1, h = bz - az + 1;
+string backup = "output/RiverBasinWorld/NorthFalls/backup/alpha_5_6.bin";
+float[,,] basis;
+if (!System.IO.File.Exists(backup))
+{
+    basis = data.GetAlphamaps(ax, az, w, h);
+    using (var writer = new System.IO.BinaryWriter(System.IO.File.Create(backup)))
+    { writer.Write(ax); writer.Write(az); writer.Write(w); writer.Write(h); writer.Write(layers); foreach (float v in basis) writer.Write(v); }
+}
+else
+{
+    using (var reader = new System.IO.BinaryReader(System.IO.File.OpenRead(backup)))
+    {
+        if (reader.ReadInt32() != ax || reader.ReadInt32() != az || reader.ReadInt32() != w || reader.ReadInt32() != h || reader.ReadInt32() != layers) throw new Exception("백업 영역 불일치");
+        basis = new float[h, w, layers]; for (int z = 0; z < h; z++) for (int x = 0; x < w; x++) for (int k = 0; k < layers; k++) basis[z, x, k] = reader.ReadSingle();
+    }
+}
+var paint = (float[,,])basis.Clone(); int painted = 0;
+for (int z = 0; z < h; z++)
+for (int x = 0; x < w; x++)
+{
+    var p = new Vector3(origin.x + (ax + x + 0.5f) / ares * data.size.x, 0f, origin.z + (az + z + 0.5f) / ares * data.size.z);
+    var sq = ToSQ(p); float influence = Mathf.Clamp01(Influence(sq.x, sq.y) * 1.15f); if (influence <= 0.001f) continue;
+    float y = tile.SampleHeight(p) + origin.y;
+    float slope = data.GetSteepness((p.x - origin.x) / data.size.x, (p.z - origin.z) / data.size.z);
+    bool upperZone = sq.x < CliffLine(sq.y);
+    float water = upperZone ? UpperWater(Mathf.Min(sq.x, MainLipS)) : PoolSurface(sq.x);
+    // 물가 자갈은 수면 위 0.9m까지만. 첫 적용에서 1.6m 띠가 하류 평지 전체를 갈색으로 덮었다.
+    float wet = 1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(water + 0.3f, water + 0.9f, y));
+    float steep = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(38f, 55f, slope));
+    float medium = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(24f, 38f, slope)) * (1f - steep);
+    float noise = Mathf.PerlinNoise(p.x * 0.17f + 5f, p.z * 0.17f);
+    var target = new float[layers];
+    target[layerCliff] += steep * (0.55f + 0.3f * noise); target[layerRock] += steep * (0.45f - 0.3f * noise);
+    // 중경사는 회색 암반 위주. 갈색 WeatheredRock만 쓰면 절벽 위가 흙더미처럼 보였다.
+    target[layerRock] += medium * 0.7f; target[layerWeathered] += medium * 0.3f;
+    float rest = 1f - steep - medium;
+    // 상류 하상은 젖은 암반, 웅덩이 물가는 자갈. 나머지 완경사는 기존 지표를 유지한다.
+    if (upperZone) target[layerWeathered] += rest * wet; else target[layerShore] += rest * wet;
+    float keep = rest * (1f - wet);
+    for (int k = 0; k < layers; k++) paint[z, x, k] = Mathf.Lerp(basis[z, x, k], target[k] + basis[z, x, k] * keep, influence);
+    float sum = 0f; for (int k = 0; k < layers; k++) sum += paint[z, x, k]; for (int k = 0; k < layers; k++) paint[z, x, k] /= sum;
+    painted++;
+}
+if (MODE != "apply") return "DRY painted=" + painted;
+data.SetAlphamaps(ax, az, paint); EditorUtility.SetDirty(data); AssetDatabase.SaveAssets();
+return "PAINTED " + painted + " cells res=" + ares + " rect=" + ax + "," + az + "," + w + "x" + h;

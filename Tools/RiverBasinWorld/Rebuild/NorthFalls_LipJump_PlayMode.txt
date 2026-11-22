@@ -1,0 +1,11 @@
+NorthFalls_LipJump 1920x1080 Unity 6000.3.21f1 loop=False
+Start (2864.40, 151.22, 3422.40) route=2864/3422 > 2845/3424 > 2844/3418 > 2843/3410 > 2819/3398
+Reached (2844.50, 3424.00) at (2846.46, 146.63, 3423.84) swim=False t=6.1
+Reached (2844.00, 3417.50) at (2844.57, 146.65, 3419.40) swim=False t=6.8
+SwimEnter (2843.20, 133.25, 3413.11)
+Reached (2842.60, 3410.10) at (2842.92, 131.93, 3412.00) swim=True t=8.1
+SwimExit (2829.86, 135.20, 3405.27)
+Reached (2818.70, 3398.00) at (2820.36, 139.69, 3399.08) swim=False t=17.0
+samples=2471 grounded=1063 swimFrames=1248 swimEntries=1 swimAtEnd=False stuck=0 timeout=False
+feetLowest=131.91 feetHighest=151.14 end=(2820.36, 139.69, 3399.08) state=PlayerGroundMoveState
+PASS

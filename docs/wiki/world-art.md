@@ -2,6 +2,10 @@
 
 ## 본편 월드 제작 지침
 
+**월드 안개 조사(2026-11-21).** 열린 `RiverBasin4km`는 지수 제곱 거리 안개를 사용한다. `LakeVillageWorld` 저장본에는 선형 안개(110~1,250m), 호숫가 하늘 프로필, 폭포 입수 물보라의 `Mist` 파티클이 연결돼 있다. 수역을 그리는 카메라는 물 합성 패스에서 공기 구간의 거리 안개를 계산한다. [4km 씬과 Editor 확인](../work-status/river-basin-world.md#4km-거리-안개-조사) · [호수 씬](../../Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity) · [호숫가 하늘 프로필](../../Assets/10.Datas/World/OpenWorld/LakeVisualV2/LakeShoreSky.asset) · [수면 합성](../work-status/toon-water-world.md#구현과-정규-연결)
+
+**툰 안개.** PC Renderer에 거리 팔레트·높이 적분·국소 부피 안개를 연결했다. 사막 마을에 프로젝트 날씨·플레이어 기준점·교전 입력을 연결하고, 네 구역의 비교 씬과 일곱 지역 프리셋을 추가했다. [통합 계약](../../Assets/docs/design/world-art/environment/TOON_FOG_INTEGRATION.md) · [단계별 상태](../work-status/toon-fog/TaskStatus.md) · [비교 씬](../../Assets/01.Scenes/ArtReview/ToonFogValidation.unity)
+
 [오픈월드 맵 제작 가이드](../../Assets/docs/guide/OPENWORLD_MAP_AUTHORING_GUIDE.md)에서 지역의 탐험 목표, 랜드마크, 이동 동선을 정한다. 거점과 주변 동선을 블록아웃으로 주행해 본 뒤 아트와 콘텐츠를 배치한다.
 
 **RiverBasinWorld · 4km 제작용 지형.** 북부 산맥과 동부 협곡을 4km 월드 좌표에서 새로 만들고, 같은 씬에 제작 TerrainData 64장·지형 재질·타일별 수면을 연결했다. Editor 재개방에서 경계 112곳과 콜라이더·수면 참조를 확인했다. [공간 설계](../../Assets/docs/design/world-art/open-world/RIVER_BASIN_WORLD_REBUILD_DESIGN.md) · [4km 씬과 검증](../work-status/river-basin-world.md#4km-제작용-heightmap-적용)
@@ -14,11 +18,17 @@
 
 **RiverBasin4km B1 석교와 상류 수영로.** 4km 씬에 P04 석교·착지, P05 수역과 양안 자갈길, 플레이어·TPS 카메라·물소리를 연결했다. 4km 씬을 단독으로 Play하면 B1 접근로에서 시작한다. 나머지 교량, 북부 폭포, 동부 사암 사막, 서부 가을 숲은 후속 구간이다. [B1 적용과 검증](../work-status/river-basin-world.md#4km-b1-석교와-상류-수영로) · [게임월드 제작 설계](../../Assets/docs/design/world-art/open-world/RIVER_BASIN_WORLD_REBUILD_DESIGN.md#4km-게임월드-제작)
 
+**RiverBasin4km 북부 2단 폭포(2026-11-22).** 본류가 초원 한가운데서 끊기던 상류 끝(X 2844 / Z 3418)에 바위 틈 샘 → 상단 폭포 9.4m → 얕은 립 웅덩이 → 본 폭포 11.2m(폭 13m) → 수심 4m 낙수 웅덩이 → 기존 본류를 연결했다. 지형은 WorldBuilder Sculpt 명령으로 기록해 재생성에도 남는다. 가상 패드 Play 3경로(웅덩이 횡단 왕복, 하류 출구, 립에서 낙하 후 수영·상륙) 모두 통과했다. 미술·물소리 청감은 사용자 테스트 대기다. [적용과 검증](../work-status/river-basin-world.md#4km-북부-2단-폭포) · [설계](../../Assets/docs/design/world-art/open-world/RIVER_BASIN_WORLD_REBUILD_DESIGN.md#북부-본류-폭포)
+
 **RiverBasin4km 다음 제작.** B1 성능과 청크 로딩을 먼저 계측하고 호수 마을 → B3 → B1 → 중앙 성채 정문을 도보로 왕복할 수 있게 연결한다. 본선을 인수한 뒤 B2·B4로 순환로를 닫고 폭포·사막·숲으로 확장한다. [제작 순서와 인수 조건](../../Assets/docs/design/world-art/open-world/RIVER_BASIN_WORLD_REBUILD_DESIGN.md#b1-이후-제작-방침) · [현재 상태](../work-status/river-basin-world.md#4km-다음-제작-방침)
 
 **RiverBasin4km 서부 숲 식생 우선 검증.** 숲 연못 동쪽의 약 126m Play 구간에 0.5m 격자의 낮은 풀을 보강했다. 목서 사이에 자작나무·너도밤나무와 어린 나무 군락을 섞어 높이와 수관을 다양화했다. [검증 씬과 왕복 결과](../work-status/river-basin-world.md#4km-서부-숲-식생-검증) · [잔디 보정 전후](../work-status/river-basin-world.md#사용자-제보에-따른-잔디-밀도-보정) · [수목 후보와 배치](../work-status/river-basin-world.md#수형-다양화와-어린-나무)
 
-**RiverBasin4km 숲 연못 동쪽 제작 적용.** 126m 첫 구간에 수목 219그루, 풀 65,277개와 관목 26개를 옮겼다. 길 주변 도색을 섞고 제작 지형 높이와 타일 이음새를 확인했다. [제작 씬과 검증 근거](../work-status/river-basin-world.md#4km-숲-연못-동쪽-식생-적용)
+**RiverBasin4km 숲 연못 동쪽 제작 적용.** 126m 첫 구간에 수목 219그루, 풀 65,277개와 관목 26개를 옮겼다. 가상 패드로 숲길과 상주 타일 경계를 왕복했다. 1080p Editor의 CPU·GPU p95가 16.7ms 목표를 넘었고, 거리·밀도 축소로 개선되지 않아 풀 90m·표시 밀도 100%, 나무 340m·빌보드 95m를 다음 숲길의 비교 기준으로 둔다. 정규 청크 재진입과 미술 인수는 대기 중이다. [제작 씬과 검증 근거](../work-status/river-basin-world.md#4km-숲-연못-동쪽-식생-적용)
+
+**RiverBasin4km 서부 가을 숲 전역.** X 440~1450 / Z 1600~2900과 사당 능선에 새 수목·관목 18,447개와 수관 아래 성긴 풀을 결정적 스크립트로 배치했다. 파일럿 구간은 보존했고 경계 밖 50m는 밀도를 서서히 맞췄다. 핵심 숲의 수관 피복은 55%이고 길·수면·부지 침범은 0이다. 대형 수종의 줄기 충돌도 확인했다. 가상 패드로 네 경로를 왕복해 막힘 0과 안정 지지 100%를 확인했다. 1080p Editor의 CPU·GPU p95는 16.7ms 목표를 넘고, 원인 미분류인 1.8~8.9초 프레임 정지가 있다. 미술 인수와 Player 계측은 대기 중이다. [배치·검증·남은 항목](../work-status/river-basin-world.md#4km-서부-가을-숲-전역-식생)
+
+**서부 숲 식생.** 지형 12장에서 숲 경계 안 풀 인스턴스 2,771,383개와 프리팹 11종을 확인했다. 4km 씬에는 날씨와 목서 6종의 나무 승격을 연결했다. 목서 6,118그루는 평소 TerrainTree로 표시하며, 반응형 실물의 상한은 32개다. 이동 성능과 사당 능선 수관 색, 벌목·연소의 실제 조작은 사용자 테스트 대기다. [풀 비교 캡처](../work-status/river-basin-world.md#지면-식생-자연화-사용자-제보--2026-11-21) · [승격 설계](../../Assets/docs/design/world-art/environment/TERRAIN_TREE_PROMOTION_DESIGN.md) · [구현·검증 상태](../work-status/river-basin-world.md#반응형-수목-승격-설계와-play-실측)
 
 | 제작 단계 | 지침 |
 |---|---|

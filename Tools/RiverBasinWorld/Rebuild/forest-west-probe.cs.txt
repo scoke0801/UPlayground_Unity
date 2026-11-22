@@ -1,0 +1,65 @@
+// RiverBasin4km 서부 숲 Play 왕복 프로브 (Play 진입 후 Unity MCP execute_code로 실행, C# 6)
+// 인자: forest-west-probe-run.txt  →  name=<기록 이름> / pts=x,z;x,z;... (첫 점에서 시작, 마지막 점 도착 후 역순 복귀)
+// 가상 Gamepad 왼쪽 스틱만 카메라 기준으로 넣는다. 워밍업 3초 뒤 FrameTimingManager CPU/GPU를 진행·복귀로 나눠 집계한다.
+// 2초 동안 0.4m 미만 전진하면 막힘으로 기록하고 다음 점으로 넘어간다. 결과: ForestWest_<name>_PlayMode.txt
+var cfg = System.IO.File.ReadAllText("Tools/RiverBasinWorld/Rebuild/forest-west-probe-run.txt");
+string name = "probe"; var pts = new System.Collections.Generic.List<Vector2>();
+foreach (var line in cfg.Split('\n')) { var kv = line.Trim().Split('='); if (kv.Length != 2) continue;
+    if (kv[0] == "name") name = kv[1].Trim();
+    if (kv[0] == "pts") foreach (var s in kv[1].Split(';')) { var xy = s.Split(','); pts.Add(new Vector2(float.Parse(xy[0]), float.Parse(xy[1]))); } }
+if (!EditorApplication.isPlaying) return "Play 모드가 아니다";
+var actor = UnityEngine.Object.FindFirstObjectByType<UPlayGround.PlayerActor>();
+var motor = actor.GetComponent<KinematicCharacterController.KinematicCharacterMotor>();
+System.Func<float, float, float> GroundY = (x, z) => { foreach (var t in Terrain.activeTerrains) { var o = t.transform.position; if (x >= o.x && x < o.x + 512 && z >= o.z && z < o.z + 512) return t.SampleHeight(new Vector3(x, 0, z)) + o.y; } return 0; };
+var route = new System.Collections.Generic.List<Vector2>(pts); for (int i = pts.Count - 2; i >= 0; i--) route.Add(pts[i]);
+int turnIndex = pts.Count - 1;
+var start = new Vector3(pts[0].x, GroundY(pts[0].x, pts[0].y) + 0.15f, pts[0].y);
+var look = new Vector3(pts[1].x - pts[0].x, 0, pts[1].y - pts[0].y).normalized;
+motor.SetPositionAndRotation(start, Quaternion.LookRotation(look));
+var pad = UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Gamepad>();
+var log = new System.Text.StringBuilder();
+log.AppendLine("ForestWest_" + name + " " + Screen.width + "x" + Screen.height + " " + SystemInfo.graphicsDeviceName + " " + SystemInfo.graphicsDeviceType + " quality=" + QualitySettings.names[QualitySettings.GetQualityLevel()] + " vSync=" + QualitySettings.vSyncCount + " Unity " + Application.unityVersion);
+log.AppendLine("Start " + start + " route=" + string.Join(" > ", route.ConvertAll(v => v.x.ToString("F0") + "/" + v.y.ToString("F0")).ToArray()));
+float t0 = Time.realtimeSinceStartup; int wp = 1; int phase = 0; int lastCheckF = 0; // 0 진행 1 복귀
+var cpu = new System.Collections.Generic.List<float>[2] { new System.Collections.Generic.List<float>(), new System.Collections.Generic.List<float>() };
+var gpu = new System.Collections.Generic.List<float>[2] { new System.Collections.Generic.List<float>(), new System.Collections.Generic.List<float>() };
+int[] grounded = new int[2], samples = new int[2]; int stuck = 0; float maxStep = 0;
+Vector3 lastCheck = start; float lastCheckT = t0; Vector3 prevPos = start; float worstCpu = 0; Vector3 worstPos = start;
+var ft = new FrameTiming[1];
+EditorApplication.CallbackFunction tick = null;
+tick = () => {
+    if (!EditorApplication.isPlaying || motor == null) { EditorApplication.update -= tick; return; }
+    float now = Time.realtimeSinceStartup; var pos = motor.TransientPosition;
+    var cam = Camera.main;
+    if (now - t0 < 3f) { UnityEngine.InputSystem.InputSystem.QueueStateEvent(pad, new UnityEngine.InputSystem.LowLevel.GamepadState()); lastCheckT = now; return; }
+    var target = route[wp]; var dir = new Vector3(target.x - pos.x, 0, target.y - pos.z);
+    if (dir.magnitude < 2.5f || now - lastCheckT > 2f && Time.frameCount - lastCheckF > 60 && (pos - lastCheck).magnitude < 0.4f) {
+        if (dir.magnitude >= 2.5f) { stuck++; log.AppendLine("STUCK near " + pos.ToString("F1") + " target " + target); }
+        if (wp == turnIndex) { phase = 1; log.AppendLine("Arrival " + pos.ToString("F2")); }
+        wp++; lastCheck = pos; lastCheckT = now; lastCheckF = Time.frameCount;
+        if (wp >= route.Count) {
+            UnityEngine.InputSystem.InputSystem.QueueStateEvent(pad, new UnityEngine.InputSystem.LowLevel.GamepadState());
+            EditorApplication.update -= tick; UnityEngine.InputSystem.InputSystem.RemoveDevice(pad);
+            System.Func<System.Collections.Generic.List<float>, string> P = (l) => { if (l.Count == 0) return "n=0"; l.Sort(); return "n=" + l.Count + " p50=" + l[l.Count / 2].ToString("F2") + " p95=" + l[Mathf.Min(l.Count - 1, (int)(l.Count * 0.95f))].ToString("F2") + " max=" + l[l.Count - 1].ToString("F2"); };
+            for (int k = 0; k < 2; k++) log.AppendLine((k == 0 ? "outbound" : "return") + " CPU " + P(cpu[k]) + " GPU " + P(gpu[k]) + " grounded " + grounded[k] + "/" + samples[k]);
+            log.AppendLine("stuck=" + stuck + " maxStep=" + maxStep.ToString("F2") + " worstCPU=" + worstCpu.ToString("F1") + " at " + worstPos.ToString("F1"));
+            log.AppendLine("Return " + pos.ToString("F2")); log.AppendLine("ROUNDTRIP");
+            System.IO.File.WriteAllText("Tools/RiverBasinWorld/Rebuild/ForestWest_" + name + "_PlayMode.txt", log.ToString());
+            return;
+        }
+        target = route[wp]; dir = new Vector3(target.x - pos.x, 0, target.y - pos.z);
+    }
+    if ((pos - lastCheck).magnitude >= 0.4f) { lastCheck = pos; lastCheckT = now; lastCheckF = Time.frameCount; }
+    var f = cam.transform.forward; f.y = 0; f.Normalize(); var r = cam.transform.right; r.y = 0; r.Normalize(); dir.Normalize();
+    var st = new UnityEngine.InputSystem.LowLevel.GamepadState(); st.leftStick = new Vector2(Vector3.Dot(dir, r), Vector3.Dot(dir, f)).normalized;
+    UnityEngine.InputSystem.InputSystem.QueueStateEvent(pad, st);
+    FrameTimingManager.CaptureFrameTimings();
+    if (FrameTimingManager.GetLatestTimings(1, ft) > 0) {
+        if (ft[0].cpuFrameTime > 0) { cpu[phase].Add((float)ft[0].cpuFrameTime); if (ft[0].cpuFrameTime > worstCpu) { worstCpu = (float)ft[0].cpuFrameTime; worstPos = pos; } }
+        if (ft[0].gpuFrameTime > 0) gpu[phase].Add((float)ft[0].gpuFrameTime);
+    }
+    samples[phase]++; if (motor.GroundingStatus.IsStableOnGround) grounded[phase]++;
+    maxStep = Mathf.Max(maxStep, Mathf.Abs(pos.y - prevPos.y)); prevPos = pos;
+};
+EditorApplication.update += tick;
+return "probe started " + name + " points=" + route.Count;

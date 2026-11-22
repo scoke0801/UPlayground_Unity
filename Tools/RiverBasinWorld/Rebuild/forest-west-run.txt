@@ -1,0 +1,3 @@
+mode=dry
+overlap=0.55
+slice=380,1540,1520,3330

@@ -9,6 +9,81 @@
 
 ## WorldBuilder 신규 제작
 
+### 4km 북부 2단 폭포
+
+2026-11-22 **제작 씬 반영·저장 · 가상 패드 Play 3경로 통과 / 미술·청감 사용자 테스트 대기.** 사용자 요청("RiverBasin4km에 폭포 연결해줘. 게임적으로 예쁘게 어울리게")으로 설계 순서(본선 → B2~B4 → 폭포)보다 앞당겨 제작했다.
+
+- **위치 결정.** 설계의 X 2800 / Z 3300 부근은 폭 150m가 넘는 평탄한 초원이라 낙차를 만들면 보(洑)처럼 읽힌다. 반면 본류 상류 끝(계획 첫 제어점 X 2850 / Z 3360)은 초원 한가운데서 사각 수면으로 뚝 끊겨 있었다([작업 전](../../output/RiverBasinWorld/NorthFalls/before-downstream.png)). 그래서 그 바로 북쪽 산체 계곡 입구(립 X 2844 / Z 3418)에 폭포를 두었다. 이곳은 양옆 사면이 폭포를 감싸고, 폭포가 강이 시작되는 지점이 된다. 하류 방향은 (−0.08, 0, −1)이다.
+- **구성.** 바위 틈 샘(수위 156.6) → 상단 폭포 약 9.4m(폭 6m) → 얕은 립 웅덩이(147.2, 수심 0.6m로 걸어서 건넌다) → 본 폭포 11.2m(폭 13~14m, 던짐 4m) → 낙수 웅덩이(136.04, 폭 약 26m, 중심 수심 4.0~4.2m) → 기존 본류 머리(136.04에서 하류로 0.09m/m 하강)로 이어진다. 웅덩이 서쪽 s 12~32는 17° 자갈 출구로 비워 두었고, 하류는 10° 이하로 얕아져 본류로 걸어 나간다.
+- **지형.** Terrain_5_6 한 장의 X 2817~2865 / Z 3361~3452(3,249표본, 최대 절토 12.67m·성토 3.51m)만 바꿨다. 네이티브 높이를 고친 뒤 `WorldTerrainAuthoringSession.CaptureSculpt`로 **지형 명령 스택 7번째(AddDelta, 소유자 없음)**로 기록했다. 그래서 WorldBuilder 지형 재생성에도 유지된다. 적용 후 `EnsureReadyForBake`에서 미캡처 변경이 없음을 확인했다. alphamap은 4m 해상도(128²)라 급경사 NorthCliff·Rock, 립 하상 WeatheredRock, 물가 0.9m Shore만 칠했다.
+- **수면·낙수.** 수면은 기존 본류와 같은 `Surface.mat`(Lake Water)의 1m 격자 3장(샘·립 웅덩이·낙수 웅덩이)이다. 모두 `FootstepWaterSurface`에 등록해 웅덩이는 수영, 립 웅덩이·샘은 얕은 물 걷기가 된다. 낙수는 호수 폭포 R3의 양면 중력 곡선 방식을 따른다. 재질은 `Lake Wide Fall` 복제본에 강 합성 값을 `Surface.mat`에서 복사했고, 몸통 색을 강의 탁한 초록으로 맞췄다(첫 청록은 렌더 비교에서 어긋났다). 상·하 폭포에는 `WaterfallLink`를 연결했다. 본류 머리 `Water_5_6`은 원본 WaterJoined 자산을 두고, 세 꼭짓점이 모두 웅덩이 안인 삼각형 32개만 뺀 파생 메시로 교체했다. 웅덩이 수면은 본류가 아직 136.04로 평평한 s 48까지 덮는다. 하류 하상은 본류의 실제 수면(s 46부터 하강)에서 깊이를 빼서 만들었고, 서쪽 굴착 폭은 본류 서안(q≈+3)에 맞췄다. 첫 시도에서는 평평한 웅덩이 수위 기준으로 대칭 굴착해, 수면 없는 갈색 오목지와 수심 0의 투명 띠가 생겼다([진단: 웅덩이만 끔](../../output/RiverBasinWorld/NorthFalls/diag-junction-poolOff.png)).
+- **P05 대신 수작업 수면을 쓴 이유.** (1) 잇는 본류가 P05가 아닌 기존 Lake Water 수면이라, 폭포의 립 합성이 같은 셰이더 계열이어야 경계가 남지 않는다. (2) P05 수계를 재생성하면 B1 계층과 수영 어댑터를 지우고 다시 만들어 B1 재검증이 필요하다. (3) P05 폭포 curtain은 립→착지를 잇는 평평한 직선 띠다. 지형만 WorldBuilder 명령 스택에 기록했다.
+- **암반·식생·연출.** 월드가 쓰는 Polyart EastLands 바위·절벽 17개는 낙구 양끝의 사각 윤곽과 지형 모서리를 덮는 기둥 바위, 웅덩이를 감싸는 절벽, 샘 바위, 물가 바위, 웅덩이 출구 여울의 반쯤 잠긴 강돌 3개다(총 20개). 목서·관목·갈대 12개도 함께 배치했다. 물보라·미스트 14개는 기존 RiverBasinWorld 입자를 복제했다. 소리는 B1 강바닥 루프와 구분되는 저역 굉음 12초 루프를 결정적 합성해 본 폭포(10~110m)와 상단 폭포(5~45m)에 붙였다.
+- **Play 검증(가상 패드, 1920×1080).** [웅덩이 횡단 왕복](../../Tools/RiverBasinWorld/Rebuild/NorthFalls_PoolCross_PlayMode.txt): 동쪽 둑 → 수영 → 서쪽 자갈 출구 → 역방향, 수영 진입·이탈 각 2회, 막힘 0. [하류 출구](../../Tools/RiverBasinWorld/Rebuild/NorthFalls_Downstream_PlayMode.txt): 웅덩이 수영 → 본류 쪽 걸음 전환, 막힘 0. [립 낙하](../../Tools/RiverBasinWorld/Rebuild/NorthFalls_LipJump_PlayMode.txt): 동쪽 사면 → 립 웅덩이 걷기 → 낙구 낙하 약 14m → 수영 → 서쪽 상륙, 막힘 0. 이 프로젝트에는 낙하 피해가 없어 립 낙하는 안전한 다이빙 동선이다. Play 중 Console 오류는 0이다. 실제 입력·카메라 체감은 대신하지 않는다.
+- **화면.** [하류 TPS](../../output/RiverBasinWorld/NorthFalls/play-tps-downstream-final.png) · [서쪽 출구 TPS](../../output/RiverBasinWorld/NorthFalls/play-tps-west-beach.png) · [정면](../../output/RiverBasinWorld/NorthFalls/v2-front.png) · [측면](../../output/RiverBasinWorld/NorthFalls/v2-side.png) · [조망](../../output/RiverBasinWorld/NorthFalls/v2-vista.png) · [수중](../../output/RiverBasinWorld/NorthFalls/v2-underwater.png) · [하류 접합부 TPS 구도](../../output/RiverBasinWorld/NorthFalls/junction-final-tps.png) · [하류 접합부 서쪽](../../output/RiverBasinWorld/NorthFalls/junction-final-west.png)
+- **남은 확인·주의.** (1) 하류에서는 본류 수면이 출구 여울(s≈49)에서 웅덩이 쪽으로 완만하게 오르는 경사 꺾임이 보인다. 여울 강돌로 자연 지형처럼 보이게 했으나, 미술 인수는 사용자 확인이 필요하다. (2) 기존 본류 `Water_5_6`에는 수면 등록이 없어 웅덩이를 벗어나면 수영이 아니라 걷기다(작업 전부터 같은 상태). (3) 물소리는 합성 임시 음원이며 청감 인수 대기다. (4) 성능·밤·비 미계측. (5) 작업 후 검사에서 B1 P05 수계 계층 지문이 P05 수면 재질 값 차이로 불일치했다. 작업 전 상태는 확인하지 않았다. 이번 작업에서 해당 재질을 바꾸지 않았고 git 기준 변경도 없다. P05 재생성 전에 확인해야 한다.
+- **재생성 시 유지 범위.** 지형은 명령 스택 7번째라 WorldBuilder 지형 재생성에도 남는다. P05 수계 재생성은 이 폭포를 건드리지 않는다. 다음 경우에는 표시된 단계를 다시 실행해야 한다. 본류 수면(WaterJoined)을 다시 생성하면 잘라낸 `Water_5_6`이 원본으로 돌아가 웅덩이 위에 사각 머리가 다시 겹치므로 `north-falls-trim`을 다시 실행한다. P06 생태 등으로 alphamap을 다시 쓰면 `north-falls-paint`를 다시 실행한다(paint는 작업 전 백업 기준이라 그 백업도 갱신해야 한다). 수작업 메시·바위·입자는 지형 높이가 바뀌면 water 이후 단계를 다시 실행한다.
+- **저작 기록·되돌리기.** [Tools/RiverBasinWorld/Rebuild/north-falls-*.cs.txt](../../Tools/RiverBasinWorld/Rebuild/north-falls-run.cs.txt)를 `north-falls-run.cs.txt`가 공용 형상 정의와 함께 terrain → paint → water → trim → dress → fx → capture 순으로 실행한다. `north-falls-reset`은 이번 Sculpt 명령만 지형 스택에서 빼고 「북부 폭포」 계층·생성 메시·재질·본류 메시·alphamap을 작업 전으로 되돌린다. 작업 전 사본은 `output/RiverBasinWorld/NorthFalls/backup/`(Terrain_5_6·씬·월드 정의·alphamap)에 있다. 제작 반복 중 생긴 미참조 Sculpt 패치·세션 4벌은 지웠다(그 반복들에 대한 Editor Undo는 쓸 수 없다). 최종 패치 `86ff23fc…`와 세션 스냅샷 `c1920703…`(84MB, 미추적)만 남겼다. 기존 작업들도 세션 스냅샷을 보존해 왔다. 다만 100MB 미만이라 커밋할 때 함께 포함될 수 있다.
+
+사용자 테스트: RiverBasin4km을 단독 Play하고 Hierarchy의 `북부 폭포`로 이동하거나 하류 본류(X 2836 / Z 3362)에서 북쪽을 본다. 결과는 `NF-조망/접근/수영/상륙/립낙하/소리 | 통과·실패·미수행 | 증상·위치`로 남긴다.
+
+### 4km 거리 안개 조사
+
+2026-11-21 열린 Unity Editor의 활성 [RiverBasin4km 씬](../../Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Preview/RiverBasin4km.unity)에서 `RenderSettings.fog` 활성, `ExponentialSquared`, 밀도 `0.00062`를 읽고 저장값과 대조했다. `PC_RPAsset`의 기본 Renderer에 [수중 렌더러 기능](../../Assets/02.Scripts/Gameplay/World/UnderwaterRendererFeature.cs)이 활성화되어 있다. 이 기능이 수역을 합성할 때 [WaterCommon](../../Assets/06.Shaders/Water/WaterCommon.hlsl)에서 공기 구간의 거리 안개를 계산한다. Play Mode 화면과 Player 확인은 미수행이다. [월드 위키](../wiki/world-art.md)
+
+### 4km 서부 가을 숲 전역 식생
+
+2026-11-21 **제작 씬 반영 · 자동 검사와 Editor Play 왕복 통과 / 성능 목표 미달 / 미술 인수 사용자 테스트 대기.** 설계의 [서부 가을 숲](../../Assets/docs/design/world-art/open-world/RIVER_BASIN_WORLD_REBUILD_DESIGN.md#서부-가을-숲과-수변-식생) 범위 X 440~1450 / Z 1600~2900과 사당 접근 능선에 126m 파일럿의 수종·풀 규칙을 넓혔다. 설계 순서상 본선(호수 마을 → B3 → B1 → 성채)이 먼저지만 사용자 요청에 따라 숲을 앞당겼다. 본선 도로가 확정되면 숲 가장자리를 아래 스크립트로 재평가한다.
+
+- **방식.** 이 월드에는 P06 `WorldEcology`가 없고 P06 적용은 alphamap을 다시 쓰므로 쓰지 않았다. 전역 좌표 기반 결정적 스크립트 [forest-west-populate.cs.txt](../../Tools/RiverBasinWorld/Rebuild/forest-west-populate.cs.txt)(인자 [forest-west-run.txt](../../Tools/RiverBasinWorld/Rebuild/forest-west-run.txt))로 TerrainTree·Terrain Detail·표시 거리만 썼다. 높이·지표 재질은 그대로다. 파일럿의 나무 219그루(식재 범위 X 845~1023 / Z 2174~2384), 풀(상자 X 826~1024 / Z 2172~2412), 관목 오브젝트 26개는 유지했다. 상자 안에서 파일럿 나무가 없던 서쪽·북쪽 띠는 새 수목으로 채웠다. 저장본은 기록 파일 내용을 그대로 붙여 실행한 결과이며, 같은 인자로 dry 실행해 생성 수와 피복률이 같게 나오는 것을 확인했다. 인자 파일은 `mode=dry`로 두었다.
+- **배치.** `Terrain_0~2_3~6` 12장에 파일럿과 같은 순서의 수목 프로토타입 12종 + 목서 관목 3종, 풀 3종(0.5m 셀·InstanceCountMode)을 맞췄다. 새 인스턴스는 18,447개로 대형·어린 활엽수 10,780, 묘목 5,432, 관목 2,235다. 구역별 수종은 연못·개울 둑 자작나무 위주, 숲 안 목서·너도밤나무, Z 2720 이북과 사당 능선길 구리·황금 목서, 길·가장자리 어린 나무·어린 활엽수다. 낮은 주파수 잡음으로 수관이 비는 공터를 만들고 풀은 수관 아래에서 성기게, 공터·길가에서 촘촘하게 했다.
+- **수치(정적).** 핵심 숲 수관 피복 55.4%(숲 안 59.6, 능선 55.6, 물가 28.9, 가장자리 29.2). 대형 수목 최근접 간격 p10/p50/p90 7.2/8.1/10.8m. 파일럿 포함 전 수목 18,666그루 중 순환로·사당길 중심 4m 안 0, 길 중심에서 수관 반경+2m 안의 어린 활엽수 0, 실제 수면 메시 아래 0, 강가 마을·사당 부지 0, 지면 이탈 0. 첫 감사에서 길 4m 안 묘목 11그루, 길로 가지가 넘어오는 어린 활엽수 8그루를 찾아 스크립트 최종 필터로 막았다. 숲 타일 10장의 표시 설정은 풀 90m·나무 340m·빌보드 95m로 같다.
+- **파일럿 경계.** 바깥 대형 수목 밀도가 파일럿의 약 두 배라 상자 바깥 50m에 걸쳐 대형 수목(0.5배→1배)과 풀(0.75배→1배)을 서서히 늘렸다. 대형 수목 밀도는 상자 안 47그루/ha, 바깥 60m 띠 72그루/ha다. [북쪽 경계](../../Tools/RiverBasinWorld/Rebuild/ForestWest_PilotSeam_North.png) · [서쪽 연못 둑](../../Tools/RiverBasinWorld/Rebuild/ForestWest_PilotSeam_West.png). 서쪽 연못 둑 공터에 같은 크기의 자작나무 묘목이 고르게 흩어져 있어 군락처럼 보이지 않는 점은 미술 확인 항목이다.
+- **나무 충돌.** 숲 타일 10장 모두 TerrainCollider 나무 충돌이 켜져 있다. Play에서 대형 수종 9종(목서 6, 자작나무, 너도밤나무 2)은 네 방향 수평 레이가 모두 줄기에 맞았다. 어린 활엽수·너도밤 묘목·관목은 충돌이 없다(아래 결함).
+- **화면.** [내부 수관과 하층 풀](../../Tools/RiverBasinWorld/Rebuild/ForestWest_S1_Interior.png) · [순환로에서 강가 마을 방향](../../Tools/RiverBasinWorld/Rebuild/ForestWest_LoopToVillage.png) · [사당 능선길](../../Tools/RiverBasinWorld/Rebuild/ForestWest_ShrineRidge.png) · [TPS 순환로](../../Tools/RiverBasinWorld/Rebuild/ForestWest_LoopEdge_TPS.png) · [TPS 사당 능선](../../Tools/RiverBasinWorld/Rebuild/ForestWest_ShrineRidge_TPS.png). 이 다섯 장은 파일럿 경계 보정으로 재생성하기 전 배치다. 수종·규칙은 같지만 개별 나무 위치는 다르다. 상공 캡처는 나무 표시 거리 밖이 섞여 밀도 판단에 쓰지 않는다([참고](../../Tools/RiverBasinWorld/Rebuild/ForestWest_S1_Aerial.png)).
+- **Editor Play 왕복(1920×1080, 가상 패드, [프로브](../../Tools/RiverBasinWorld/Rebuild/forest-west-probe.cs.txt)).** 순환로 가장자리(Z 2560 경계), 숲 안 자유 보행(X 1024 경계), 사당 능선길, 개울 동안(Z 2048 경계) 최종 배치로 다시 왕복한 네 경로 모두 막힘 0, 안정 지지 100%(5,557 / 4,524 / 5,355 / 3,149 표본)다. 이전 배치 첫 실행의 막힘 1건은 3m 안 장애물이 없는 지점의 2.65초 프레임 정지에 따른 오판이었다. 그래서 판정에 프레임 수 기준을 함께 쓰도록 고쳤다. Console 오류는 기존 Localization 1건뿐이다. [순환로](../../Tools/RiverBasinWorld/Rebuild/ForestWest_LoopEdge_PlayMode.txt) · [숲 안](../../Tools/RiverBasinWorld/Rebuild/ForestWest_Interior_PlayMode.txt) · [사당 능선](../../Tools/RiverBasinWorld/Rebuild/ForestWest_ShrineRidge_PlayMode.txt) · [개울](../../Tools/RiverBasinWorld/Rebuild/ForestWest_CreekBank_PlayMode.txt)
+
+**성능 목표 미달.** 최종 배치 이동 CPU p95는 23~42ms, GPU p95는 15~33ms로 16.7ms를 넘는다(사당 능선 CPU 23~25 / GPU 15~17ms, 순환로 33~40 / 25~28ms, 숲 안 30~32 / 25ms, 개울 36~42 / 31~33ms). 파일럿 기준은 CPU 39~42 / GPU 20~21ms였다. 이동 중 1.8~8.9초의 프레임 정지가 경로마다 0~1회 나타났다(개울 복귀 8.9초, 사당 복귀 1.8초, 이전 배치 순환로·숲 안 2.6~2.8초). 같은 지점에 서서 다시 계측하면 재현되지 않아 원인은 미분류다. 플레이 체감에 직접 닿는 문제라 Profiler로 먼저 분류해야 한다.
+
+| 같은 지점 정지 계측 (X 1000 / Z 2450, 서향) | CPU p50 1회 / 2회 | GPU p50 1회 / 2회 |
+|---|---:|---:|
+| 전체 | 24.3 / 25.4ms | 19.4 / 21.5ms |
+| 풀 끔 | 21.8 / 35.7ms | 19.4 / 16.5ms |
+| 나무 끔 | 17.6 / 20.7ms | 17.1 / 14.9ms |
+| 식생 모두 끔 | 16.9 / 18.3ms | 15.1 / 11.0ms |
+
+정지 계측은 재생성 전 배치에서 했다. 나무가 가장 큰 항목이고(표시 340m 안 4,431그루), 식생을 모두 꺼도 CPU가 16.7ms 근처다. 나무 표시 340/260/200/140m 비교는 같은 340m 설정이 30.9 → 27.4ms로 흔들려 Editor에서 효과를 판정하지 못했다. 저장값 340m를 유지한다. [식생 항목 비교](../../Tools/RiverBasinWorld/Rebuild/ForestWest_Bench_PlayMode.txt)(2회차 기록) · [나무 거리 비교](../../Tools/RiverBasinWorld/Rebuild/ForestWest_BenchTreeDist_PlayMode.txt). 목표 판정은 Profiler를 붙인 Player 계측이 필요하며 별도 지시 전에는 실행하지 않는다.
+
+**남은 항목.**
+- 사용자 테스트 대기: 실제 입력으로 숲길·공터·연못 조망 확인, 카메라 회전 가림, 수종·색 배합과 길 양옆이 가로수처럼 곧게 늘어서 보이는지에 대한 미술 판단, 밤 장면.
+- 알려진 결함(기존): 파일럿부터 쓰는 `PF_Farm_GenTree_B_Young_01`(새로 445그루)과 `TGV_Beech_Sapling_01A`는 MeshCollider라 TerrainTree 충돌이 생기지 않는다(`TerrainCollider: MeshCollider is not supported` 경고). 어린 활엽수 줄기를 통과할 수 있다. 외부 에셋 원본 대신 캡슐 콜라이더를 둔 프로젝트 복제 프리팹으로 바꾸는 것을 권한다.
+- 미수행: 청크 로드·재진입, Player 계측, 숲 바닥 지표 재질 보정(현재 Meadow·Forest 혼합 유지), 갈대·수생 식물 호안 띠.
+
+#### 지면 식생 자연화 (사용자 제보 · 2026-11-21)
+
+**제작 씬 반영 · 같은 구도 비교 캡처 완료 / Play 계측·미술 인수 사용자 테스트 대기.** 사용자 제보는 "잔디 배치가 인위적이고 어디나 같은 풀"이다. 원인은 이전 스크립트 세 곳이었다. 수관 원 경계에서 풀 밀도가 0/1로 끊겼고, 길 가장자리 감쇠 폭이 모든 길에서 같았다. 또 모든 칸이 같은 3종을 70/20/1.5% 비율로 뽑아 균일한 점무늬가 됐다.
+
+- **방식.** 풀은 나무 배치와 분리한 결정적 스크립트 [forest-west-grass.cs.txt](../../Tools/RiverBasinWorld/Rebuild/forest-west-grass.cs.txt)(인자 [forest-west-grass-run.txt](../../Tools/RiverBasinWorld/Rebuild/forest-west-grass-run.txt), `scale=1.4`)가 소유한다. 그늘은 실제 배치된 TreeInstance(17,691그루)와 이후의 반응형 수목 GameObject에서 계산한다. 그래서 나무를 다시 배치하면 이 스크립트를 이어서 실행한다. [forest-west-populate.cs.txt](../../Tools/RiverBasinWorld/Rebuild/forest-west-populate.cs.txt)는 이제 나무만 쓴다. 파일럿 상자의 풀도 같은 규칙으로 다시 만들었다. 옛 균일 풀과 새 풀 사이에 이음새가 생기기 때문이다. 본문은 [run-script.cs.txt](../../Tools/RiverBasinWorld/Rebuild/run-script.cs.txt)로 파일을 그대로 컴파일해 실행한다.
+- **규칙.** 수관 그늘은 연속값으로 바꾸고 4m 블러와 잡음을 넣었다. 길 거리와 감쇠 폭(1.2~4.7m)은 잡음으로 흔들었다. 도메인 왜곡한 저주파 잡음으로 군락 유형을 고른다. 유형은 물가(짙은 녹색), 숲 바닥(포기로 뭉치고 맨땅·낙엽 더미 얼룩), 무성한 풀밭(키 큰 황갈색 풀 포함, 칸당 최대 2), 건조 능선·양지 사면(마른 황토색), 보통 틈이다. 약 4m 주기 잡음으로 포기를 만들고, 그늘이 옅은 곳에는 억새·들꽃 군락을 둔다.
+- **에셋.** [환경 에셋 카탈로그](../asset-catalog/plant.html)에서 Farmlands 풀 3종 메시, Farmlands 키 큰 풀, EastLands 억새, Toon Golden Valley 들꽃 군락 2종과 낙엽 더미를 골랐다. 구매 원본 대신 프로젝트 소유 재질 복제본(`Assets/10.Datas/World/RiverBasinWorld/ForestWest/` 8개, 인스턴싱 켬)과 Detail 프리팹(`Assets/03.Prefabs/Environment/RiverBasinWorld/ForestWest/` 11개)을 만들었다. 가을 풀은 B1 재질보다 밑동을 밝게 해 지면과 이었다. 어두운 포기가 밝은 지면에서 구멍처럼 보였기 때문이다. B1 재질은 그대로다. Idyllic FlowerMeadow는 위에서 삼각형 판으로 보여 폐기했다.
+- **수량.** 숲 경계 안 풀 인스턴스 3,240,697 → 2,771,383(85%). 프로토타입은 3종에서 11종으로 늘었다. 인스턴스 총량은 줄었지만 패치·프로토타입별 그리기 호출은 늘 수 있다. 성능 판정은 Play 계측이 필요하다.
+- **비교.** 같은 위치에서 적용 전후를 찍었다. [숲 안 전](../../Tools/RiverBasinWorld/Rebuild/GrassCompare/Before_Interior.png) · [숲 안 후](../../Tools/RiverBasinWorld/Rebuild/GrassCompare/After_Interior_1.png) · [능선 전](../../Tools/RiverBasinWorld/Rebuild/GrassCompare/Before_Ridge.png) · [능선 후](../../Tools/RiverBasinWorld/Rebuild/GrassCompare/After_Ridge2.png) · [공터 들꽃 군락](../../Tools/RiverBasinWorld/Rebuild/GrassCompare/After_Overview2.png). Editor Console의 풀 관련 오류는 0건이다.
+- **사용자 테스트 대기.** 실제 이동 중 풀 밀도의 변화와 색 배합, 길 가장자리, 들꽃·억새 군락의 빈도, 숲 바닥 낙엽 더미를 확인한다. 이동 계측(CPU·GPU p95)은 미수행이다. 지표 재질이 밝은 단색 잔디라 풀 사이 바닥이 인공적으로 보이는 문제는 남아 있다. 숲 바닥 지표 재질 보정은 별도 작업이다.
+- **저장 에셋 재확인.** Unity Editor에서 지형 12장을 읽어 숲 경계 안 인스턴스 2,771,383개, 각 타일의 프로토타입 11종, 누락된 풀 프리팹 참조 0건을 확인했다. 연결 재질은 9종이며 새로 생성된 재질 수는 확인하지 않았다. 풀 프리팹과 재질 경로는 현재 Git 제외 대상이다. 나무 배치 스크립트는 현재 풀 쓰기를 건너뛰며, 건너뛴 지점 아래에 옛 풀 배치 코드가 남아 있다.
+
+#### 반응형 수목 승격 설계와 Play 실측
+
+**구현 및 제작 씬 반영.** 4km 씬의 지형 10장에 목서 6종 **6,118그루**를 연결했다. 씬은 RiverBasin 날씨 시간표를 사용한다. 사당 능선 금색·구리색 목서를 위해 기존 씬의 색과 임포스터 텍스처를 반응형 재질 복제본에 옮겼다. 자작나무·너도밤나무·어린 활엽수와 관목은 TerrainTree로 유지한다. [지형 나무 승격 설계](../../Assets/docs/design/world-art/environment/TERRAIN_TREE_PROMOTION_DESIGN.md) · [씬](../../Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Preview/RiverBasin4km.unity)
+
+- **채택 방향.** 평소에는 TerrainTree로 두고 상호작용이 일어난 나무만 반응형 GameObject로 승격한다. 원장에는 승격된 실물만 등록하고 바뀐 나무만 저장한다. 선례는 지형 풀을 셀 단위 C# 객체로 반응시키는 `TerrainDetailReaction`이다. [지형 나무 승격 설계](../../Assets/docs/design/world-art/environment/TERRAIN_TREE_PROMOTION_DESIGN.md)
+- **Play 실측(Terrain_1_4, 1,820그루).** 런타임 사본 생성 3.7ms·4.3MB, 한 그루 숨김 직후 정지 없음(3회), 숨긴 나무는 화면에서 사라짐. 줄기 충돌은 콜라이더 데이터 재지정(3~7ms)으로만 제거됐고 대조 나무는 유지됐다. 플레이어가 그 타일에 서 있는 상태에서 재지정해도 KCC 안정 지지가 끊기지 않았다. 사본 직후 한 나무의 높이가 0으로 읽힌 결과는 원인 미확인이며 설계 문서에 기록했다. 한 그루의 프로토타입 교체는 Unity가 거부해 밑동 교체는 전체 배열 재설정(0.08~0.38ms)으로 한다. Play 종료 뒤 원본 에셋과 씬은 변경 없음. 세부는 설계 문서의 실측 표.
+- **상한과 저장.** 32개를 넘기지 않으며 타격으로 풀이 찼을 때 반응이 끝난 실물을 먼저 반환한다. 전부 반응 중이면 새 타격은 받지 못하며 지속 열은 다시 조회한다. 베이기 전의 부분 피해는 현재 실행에서만 이어지고, 저장은 벌목·연소 변화만 기록한다. 낙하·연소 중인 목서는 로드 후 기존 원장에서 이어진다.
+- **측정 중 정지.** 2.0초(숨김 전)와 1.3초(숨김 15프레임 뒤) 정지가 있었다. 반복 3회에서는 숨김 직후 정지가 없어 숨김 비용으로 판정하지 않았다. 앞서 기록된 원인 미상 정지와 함께 Profiler로 분류할 항목이다.
+- **재배치.** 원본 TerrainData를 다시 저작한 뒤 [4km 승격 연결 도구](../../Assets/02.Scripts/Editor/RiverBasinTerrainTreeAuthoring.cs)의 `Apply()`를 실행한다. 같은 위치·수종의 ID를 이어받는다. 이 단계에서는 지형이나 풀 배치 스크립트를 재실행하지 않았다.
+- **구현본 Editor Play 확인.** 날씨 준비, 지형 사본 10장 순서 검증, 초기 활성 실물 0개를 확인했다. `Terrain_1_4`의 금색 목서(X 925 / Z 2332)에 줄기 프록시를 통해 피해를 전달하니 내구도 100→99, 등록 1개, 저장 0개였다. 다음 프레임에 지형 원형 숨김, 지형 줄기 레이 0/4, 플레이어 안정 지지를 확인했다. 벌목 타격은 낙하 레코드를 만들고 보상 확정 뒤 같은 인덱스를 밑동으로 바꿨다. 메모리에서 반응 원장을 내보내고 다시 불러와 밑동 유지와 원본 프로토타입 보존을 확인했다. 근처 목서에 지속 열원을 두자 별도로 승격되고 그을림이 저장됐다.
+- **자동 검증.** Unity 정상 컴파일과 반응형 환경 통합 EditMode 56개가 통과했다. 부분 피해는 실제 저장에서 제외되며 같은 실행에서 재승격하면 이어지고, 벌목은 저장·로드 뒤 한 레코드로 남는 회귀 검사를 포함한다. 에셋 감사에서 ID 6,118개 중복 0건, 표시·승격 프리팹의 LOD 렌더러 24개 메시·재질 일치와 인스턴싱 활성화를 확인했다. 작업 전과 Play 종료 후 원본 TerrainData 12장 SHA-256이 모두 일치했다.
+- **사용자 테스트 대기.** 연못 동쪽에서 목서 타격·낙하·밑동과 자작나무의 이동 충돌을 확인하고, 사당 능선에서 금색·구리색 목서의 피격 전후 수관 색과 LOD 전환을 확인한다. 연쇄 전파, 비에 의한 소화, 실제 저장 슬롯 재진입, 여러 타일 동시 승격 시 프레임 시간도 남아 있다. 원거리 직격 투사체는 플레이어 주변 프록시가 있는 범위에서 미승격 나무를 맞힐 수 있다. 불이 꺼져 살아남은 나무의 그을림은 다음 승격 때 다시 표시된다.
+
 ### 4km 숲 연못 동쪽 식생 적용
 
 2026-11-21 **제작 씬 반영 및 정적 검사 통과.** 약 126m 숲길의 시작은 X 988 / Z 2320, 연못 조망은 X 880 / Z 2257이다. [환경 에셋 카탈로그](../asset-catalog/tree.html)에서 확인한 Dreamscape EastLands 목서, Toon Golden Valley 자작나무·너도밤나무·어린 나무와 Farmlands 어린 활엽수의 검증 배치를 [RiverBasin4km 제작 씬](../../Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Preview/RiverBasin4km.unity)에 옮겼다. 연못 측 자작나무 21그루, 숲 내부 목서와 너도밤나무, 밝은 틈의 어린 나무 44그루를 포함해 TerrainTree 219그루와 프리팹 관목 26개를 배치했다.
@@ -16,6 +91,20 @@
 - `Terrain_1_4`에 0.5m 셀, 풀 65,277개, 풀 표시 90m, 나무 표시 340m 및 빌보드 기준 95m를 적용했다. 길 중심이 읽히도록 검증본 도색을 경로 주변 409개 표본에 섞었다. 타일 가장자리의 재질 가중치는 기존 제작 데이터를 유지했다.
 - 검증 씬에서 1080p 가상 패드 왕복 시 지지 표본 1,482개 모두 안정이었다. 연못 앞 회전 캡처에서 캐릭터와 호안이 보였다. [검증 씬 왕복 로그](../../Tools/RiverBasinWorld/Rebuild/ForestPilot_Review_PlayMode.txt) · [연못 방향](../../Tools/RiverBasinWorld/Rebuild/ForestPilot_Review_Orbit2.png)
 - 제작 씬을 다시 열어 Terrain 및 TerrainCollider 64쌍, Missing Script 0건, 대상 타일 전체 높이 일치, 동쪽 경계 높이차 0m를 확인했다. [제작 씬 에셋 검사](../../Tools/RiverBasinWorld/Rebuild/ForestPilot_Assets.txt)
+- **제작 씬 Editor Play 통과.** B1 기본 시작점에서 로드한 뒤 검증 입력으로만 숲길 시작점에 이동했다. 가상 패드로 126m 구간을 왕복해 안정 지지 888/888을 확인했다. 두 방향에서 낮은 풀 사이의 길이 읽혔고 연못 앞과 숲 내부에서 카메라를 회전한 캡처에 캐릭터가 보였다. [숲길 진입](../../Tools/RiverBasinWorld/Rebuild/ForestPilot_Production_Start.png) · [역방향](../../Tools/RiverBasinWorld/Rebuild/ForestPilot_Production_MidBack.png) · [연못이 열리는 장면](../../Tools/RiverBasinWorld/Rebuild/ForestPilot_Production_Orbit3.png) · [수관 아래 회전](../../Tools/RiverBasinWorld/Rebuild/ForestPilot_Canopy_Orbit3.png) · [왕복 로그](../../Tools/RiverBasinWorld/Rebuild/ForestPilot_Production_PlayMode.txt)
+- **상주 타일 경계 Editor Play 통과.** X 1008 / Z 2329에서 X 1040 / Z 2344까지 왕복해 X 1024를 양방향으로 넘었다. 안정 지지 197/197. 서쪽을 바라본 두 경계 캡처에서 가까운 풀과 수관의 갑작스러운 누락이 관찰되지 않았다. 이 경로는 `Terrain_1_4`와 `Terrain_2_4`가 모두 상주한 제작 씬이다. [동쪽으로 통과](../../Tools/RiverBasinWorld/Rebuild/ForestPilot_Boundary_CrossEast.png) · [서쪽으로 복귀](../../Tools/RiverBasinWorld/Rebuild/ForestPilot_Boundary_CrossWest.png) · [경계 로그](../../Tools/RiverBasinWorld/Rebuild/ForestPilot_Boundary_PlayMode.txt)
+
+**1080p Editor 성능 목표 미달.** RTX 3060 Ti, D3D11, PC 품질·렌더 스케일 1, VSync 1에서 워밍업 후 같은 카메라와 가상 패드 경로로 한 번씩 왕복했다. 캡처 없이 `FrameTimingManager`의 유효 CPU/GPU 표본을 집계했다. CPU는 프레임 전체 시간이다.
+
+| 설정 | CPU p95 진행 / 복귀 | GPU p95 진행 / 복귀 |
+|---|---:|---:|
+| 저장값 · 풀 90m, 표시 밀도 100%, 나무 340m | 39.27 / 41.88ms | 21.33 / 20.30ms |
+| 비교값 · 풀 70m, 표시 밀도 75%, 나무 280m | 39.84 / 44.84ms | 22.29 / 21.34ms |
+| 진단 · 대상 타일 풀·수목과 관목 숨김 | 35.10 / 41.99ms | 19.39 / 22.23ms |
+
+나무 빌보드 기준은 두 표시 설정에서 95m였다. 거리·밀도 축소는 CPU·GPU p95를 줄이지 못했다. 식생 숨김도 16.7ms를 넘어 이 구간 식생만 줄여서 목표를 달성할 근거는 부족하다. 서부 숲의 다음 길 주변 배치는 풀 0.5m 셀과 현재 표시 밀도·거리, 나무 표시 340m·빌보드 95m를 기준으로 시작한다. 범위를 넓힐 때는 16.7ms 목표와 청크 경계 재검증을 근거로 밀도·거리를 확정한다. 모든 Play 확인 뒤 Console 오류 0건이었고, 진단값을 복원하고 편집 모드로 돌아왔다. [저장값 계측](../../Tools/RiverBasinWorld/Rebuild/ForestPilot_BenchA_PlayMode.txt) · [거리·밀도 축소 계측](../../Tools/RiverBasinWorld/Rebuild/ForestPilot_BenchB_PlayMode.txt) · [식생 숨김 비교](../../Tools/RiverBasinWorld/Rebuild/ForestPilot_BenchNoVegetation_PlayMode.txt)
+
+실제 입력으로 길과 캐릭터 실루엣을 확인하는 미술 인수는 사용자 테스트 대기다. 이 월드의 청크 로드·해제 및 Player 계측은 미수행이다. 다음 본선 제작 순서는 호수 마을과 B3 → B1 → 성채 연결이다. [본선 제작 방침](#4km-다음-제작-방침)
 
 ### 4km 서부 숲 식생 검증
 

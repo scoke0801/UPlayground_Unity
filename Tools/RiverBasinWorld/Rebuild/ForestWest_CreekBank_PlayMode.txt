@@ -1,0 +1,8 @@
+ForestWest_CreekBank 1920x1080 NVIDIA GeForce RTX 3060 Ti Direct3D11 quality=PC vSync=1 Unity 6000.3.21f1
+Start (775.00, 75.19, 1880.00) route=775/1880 > 768/1960 > 764/2030 > 766/2090 > 800/2140 > 766/2090 > 764/2030 > 768/1960 > 775/1880
+Arrival (798.63, 85.01, 2137.91)
+outbound CPU n=1666 p50=23.54 p95=36.08 max=303.58 GPU n=1655 p50=19.50 p95=31.06 max=169.53 grounded 1666/1666
+return CPU n=1483 p50=24.28 p95=42.10 max=8876.80 GPU n=1453 p50=19.68 p95=32.61 max=2981.23 grounded 1483/1483
+stuck=0 maxStep=0.50 worstCPU=8876.8 at (766.4, 95.1, 1994.7)
+Return (774.78, 75.21, 1882.35)
+ROUNDTRIP

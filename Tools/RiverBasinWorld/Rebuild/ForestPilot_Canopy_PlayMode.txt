@@ -1,0 +1,13 @@
+ForestPilot_Canopy 1920x1080 NVIDIA GeForce RTX 3060 Ti Direct3D11 terrains=64 distance/density=90/340/1 quality=PC vSync=1 targetFPS=60 Unity 6000.3.21f1
+Start at (936.00, 101.37, 2289.67) cam (940.36, 103.75, 2291.73) euler (14.00, 244.74, 0.00)
+MidOut at (936.00, 101.37, 2289.67) cam (940.36, 103.75, 2291.73) euler (14.00, 244.74, 0.00)
+outbound wall n=7 p50=28.93 p95=30.26 max=30.26 CPU n=7 p50=29.14 p95=32.42 max=32.42 GPU n=7 p50=16.79 p95=19.66 max=19.66 main n=7 p50=13.04 p95=16.52 max=16.52 render n=7 p50=3.36 p95=4.17 max=4.17 grounded 7/7 maxOffset=0.0002516544 X1024 crossings=0
+Arrival at (933.74, 101.56, 2288.35) cam (938.09, 103.86, 2290.41) euler (14.00, 244.74, 0.00)
+Orbit1 at (933.26, 101.59, 2288.07) cam (936.30, 103.93, 2284.33) euler (14.00, 320.91, 0.00)
+Orbit2 at (933.26, 101.59, 2288.07) cam (928.92, 103.92, 2286.01) euler (14.00, 64.57, 0.00)
+Orbit3 at (933.26, 101.59, 2288.07) cam (931.61, 103.93, 2292.61) euler (14.00, 160.05, 0.00)
+Orbit4 at (933.26, 101.59, 2288.07) cam (938.09, 103.93, 2287.95) euler (14.00, 271.50, 0.00)
+MidBack at (933.26, 101.59, 2288.07) cam (929.46, 103.93, 2285.12) euler (14.00, 52.22, 0.00)
+return wall n=6 p50=59.38 p95=3279.88 max=3279.88 CPU n=6 p50=42.88 p95=3278.15 max=3278.15 GPU n=5 p50=20.25 p95=1115.45 max=1115.45 main n=6 p50=19.23 p95=2901.21 max=2901.21 render n=6 p50=5.06 p95=39.31 max=39.31 grounded 6/6 maxOffset=0.000545915 X1024 crossings=0
+Return at (935.43, 101.43, 2289.34) cam (931.63, 103.93, 2286.39) euler (14.00, 52.22, 0.00)
+ROUNDTRIP

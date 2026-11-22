@@ -1,0 +1,56 @@
+// RiverBasin4km 북부 폭포 Play 프로브 (Play 진입 후 Unity MCP execute_code로 실행, C# 6)
+// 인자: north-falls-probe-run.txt → name=<기록 이름> / pts=x,z;x,z;... / loop=0|1 (1이면 마지막 점 도착 후 역순 복귀)
+// 가상 Gamepad 왼쪽 스틱을 카메라 기준으로 넣어 실제 입력·KCC·수영 전이를 그대로 쓴다. 시작 위치만 도구로 옮긴다.
+// 2초·60프레임 동안 0.4m 미만 전진하면 막힘. 수영 프레임, 수영 중 도착 여부, 최저 발 높이, 접지 비율을 남긴다. 결과: NorthFalls_<name>_PlayMode.txt
+var cfg = System.IO.File.ReadAllText("Tools/RiverBasinWorld/Rebuild/north-falls-probe-run.txt");
+string name = "probe"; bool loop = false; var pts = new System.Collections.Generic.List<Vector2>();
+foreach (var line in cfg.Split('\n')) { var kv = line.Trim().Split('='); if (kv.Length != 2) continue;
+    if (kv[0] == "name") name = kv[1].Trim();
+    if (kv[0] == "loop") loop = kv[1].Trim() == "1";
+    if (kv[0] == "pts") foreach (var s in kv[1].Split(';')) { var xy = s.Split(','); pts.Add(new Vector2(float.Parse(xy[0]), float.Parse(xy[1]))); } }
+if (!EditorApplication.isPlaying) return "Play 모드가 아니다";
+var actor = UnityEngine.Object.FindFirstObjectByType<UPlayGround.PlayerActor>();
+var motor = actor.GetComponent<KinematicCharacterController.KinematicCharacterMotor>();
+var move = actor.GetComponent<UPlayGround.MovementController.PlayerMovementController>();
+System.Func<float, float, float> GroundY = (x, z) => { foreach (var t in Terrain.activeTerrains) { var o = t.transform.position; if (x >= o.x && x < o.x + 512 && z >= o.z && z < o.z + 512) return t.SampleHeight(new Vector3(x, 0, z)) + o.y; } return 0; };
+var route = new System.Collections.Generic.List<Vector2>(pts); if (loop) for (int i = pts.Count - 2; i >= 0; i--) route.Add(pts[i]);
+var start = new Vector3(pts[0].x, GroundY(pts[0].x, pts[0].y) + 0.15f, pts[0].y);
+motor.SetPositionAndRotation(start, Quaternion.LookRotation(new Vector3(pts[1].x - pts[0].x, 0, pts[1].y - pts[0].y).normalized));
+var pad = UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Gamepad>();
+var log = new System.Text.StringBuilder();
+log.AppendLine("NorthFalls_" + name + " " + Screen.width + "x" + Screen.height + " Unity " + Application.unityVersion + " loop=" + loop);
+log.AppendLine("Start " + start + " route=" + string.Join(" > ", route.ConvertAll(v => v.x.ToString("F0") + "/" + v.y.ToString("F0")).ToArray()));
+float t0 = Time.realtimeSinceStartup; int wp = 1, lastCheckF = 0, stuck = 0, swimFrames = 0, groundFrames = 0, samples = 0, swimEntries = 0; bool wasSwim = false;
+float lowest = float.MaxValue, highest = float.MinValue; Vector3 lastCheck = start; float lastCheckT = t0;
+EditorApplication.CallbackFunction tick = null;
+tick = () => {
+    if (!EditorApplication.isPlaying || motor == null) { EditorApplication.update -= tick; return; }
+    float now = Time.realtimeSinceStartup; var pos = motor.TransientPosition; var cam = Camera.main;
+    if (now - t0 < 3f) { UnityEngine.InputSystem.InputSystem.QueueStateEvent(pad, new UnityEngine.InputSystem.LowLevel.GamepadState()); lastCheckT = now; return; }
+    var target = route[wp]; var dir = new Vector3(target.x - pos.x, 0, target.y - pos.z);
+    bool timeout = now - t0 > 120f;
+    if (dir.magnitude < 2.0f || timeout || now - lastCheckT > 2f && Time.frameCount - lastCheckF > 60 && (pos - lastCheck).magnitude < 0.4f) {
+        if (dir.magnitude >= 2.0f) { stuck++; log.AppendLine("STUCK near " + pos.ToString("F1") + " target " + target + " swim=" + move.IsSwimming + " state=" + move.CurrentState.GetType().Name); }
+        else log.AppendLine("Reached " + target + " at " + pos.ToString("F2") + " swim=" + move.IsSwimming + " t=" + (now - t0).ToString("F1"));
+        wp++; lastCheck = pos; lastCheckT = now; lastCheckF = Time.frameCount;
+        if (wp >= route.Count || timeout) {
+            UnityEngine.InputSystem.InputSystem.QueueStateEvent(pad, new UnityEngine.InputSystem.LowLevel.GamepadState());
+            EditorApplication.update -= tick; UnityEngine.InputSystem.InputSystem.RemoveDevice(pad);
+            log.AppendLine("samples=" + samples + " grounded=" + groundFrames + " swimFrames=" + swimFrames + " swimEntries=" + swimEntries + " swimAtEnd=" + move.IsSwimming + " stuck=" + stuck + " timeout=" + timeout);
+            log.AppendLine("feetLowest=" + lowest.ToString("F2") + " feetHighest=" + highest.ToString("F2") + " end=" + pos.ToString("F2") + " state=" + move.CurrentState.GetType().Name);
+            log.AppendLine(stuck == 0 && !timeout ? "PASS" : "FAIL");
+            System.IO.File.WriteAllText("Tools/RiverBasinWorld/Rebuild/NorthFalls_" + name + "_PlayMode.txt", log.ToString());
+            return;
+        }
+        target = route[wp]; dir = new Vector3(target.x - pos.x, 0, target.y - pos.z);
+    }
+    if ((pos - lastCheck).magnitude >= 0.4f) { lastCheck = pos; lastCheckT = now; lastCheckF = Time.frameCount; }
+    var f = cam.transform.forward; f.y = 0; f.Normalize(); var r = cam.transform.right; r.y = 0; r.Normalize(); dir.Normalize();
+    var st = new UnityEngine.InputSystem.LowLevel.GamepadState(); st.leftStick = new Vector2(Vector3.Dot(dir, r), Vector3.Dot(dir, f)).normalized;
+    UnityEngine.InputSystem.InputSystem.QueueStateEvent(pad, st);
+    samples++; bool swim = move.IsSwimming; if (swim) swimFrames++; if (swim && !wasSwim) { swimEntries++; log.AppendLine("SwimEnter " + pos.ToString("F2")); } if (!swim && wasSwim) log.AppendLine("SwimExit " + pos.ToString("F2")); wasSwim = swim;
+    if (motor.GroundingStatus.IsStableOnGround) groundFrames++;
+    lowest = Mathf.Min(lowest, pos.y); highest = Mathf.Max(highest, pos.y);
+};
+EditorApplication.update += tick;
+return "probe started " + name + " points=" + route.Count;

@@ -1,0 +1,51 @@
+// 2단 폭포 지형 조형. Terrain_5_6 한 장 안에서만 높이를 바꾸고 WorldBuilder Sculpt 캡처로 지형 명령 스택(AddDelta)에 기록한다.
+// MODE = "dry"는 변경량만 보고한다. "apply"는 BeginSculpt → 네이티브 높이 기록 → CaptureSculpt를 수행하고, 실패하면 RevertUncaptured로 되돌린다.
+// 중복 적용 방지: 이미 Sculpt 명령이 이 영역을 소유하면(립 표본이 목표와 같으면) 거절한다.
+const string MODE = "apply";
+if (EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling) throw new Exception("Edit Mode 대기 상태가 필요합니다.");
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (scene.name != "RiverBasin4km") throw new Exception("대상 씬 불일치");
+var def = AssetDatabase.LoadAssetAtPath<UPlayGround.WorldBuilder.Data.WorldDefinition>("Assets/10.Datas/WorldBuilder/6effd90b68ea4b3d8f8caa5197fcfe34_Authoring.asset");
+var grid = new Terrain[8, 8]; Terrain tile = null;
+foreach (var t in Terrain.activeTerrains) { var parts = t.name.Split('_'); grid[int.Parse(parts[2]), int.Parse(parts[1])] = t; if (t.name == "Terrain_5_6") tile = t; }
+var data = tile.terrainData; var origin = tile.transform.position; int res = data.heightmapResolution; float step = data.size.x / (res - 1);
+int ax = Mathf.FloorToInt((RegionMin.x - origin.x) / step), az = Mathf.FloorToInt((RegionMin.y - origin.z) / step);
+int bx = Mathf.CeilToInt((RegionMax.x - origin.x) / step), bz = Mathf.CeilToInt((RegionMax.y - origin.z) / step);
+if (ax < 1 || az < 1 || bx > res - 2 || bz > res - 2) throw new Exception("영역이 타일 경계에 닿습니다.");
+var before = data.GetHeights(ax, az, bx - ax + 1, bz - az + 1);
+var after = (float[,])before.Clone();
+int changed = 0; float maxCut = 0f, maxFill = 0f;
+for (int z = 0; z < before.GetLength(0); z++)
+for (int x = 0; x < before.GetLength(1); x++)
+{
+    var p = new Vector3(origin.x + (ax + x) * step, 0f, origin.z + (az + z) * step);
+    var sq = ToSQ(p); float w = Influence(sq.x, sq.y); if (w <= 0f) continue;
+    float old = before[z, x] * data.size.y + origin.y;
+    float next = Mathf.Lerp(old, TargetHeight(sq.x, sq.y, old, p), w);
+    if (Mathf.Abs(next - old) < 0.002f) continue;
+    changed++; maxCut = Mathf.Max(maxCut, old - next); maxFill = Mathf.Max(maxFill, next - old);
+    after[z, x] = (next - origin.y) / data.size.y;
+}
+var lipProbe = At(-6f, 0f); float lipNow = tile.SampleHeight(lipProbe) + origin.y;
+string summary = "changed=" + changed + " maxCut=" + maxCut.ToString("F2") + " maxFill=" + maxFill.ToString("F2") + " lipPoolBedNow=" + lipNow.ToString("F2") + " rect=" + ax + "," + az + "," + (bx - ax + 1) + "x" + (bz - az + 1);
+if (MODE != "apply") return "DRY " + summary;
+if (Mathf.Abs(lipNow - (LipLevel - 0.6f)) < 0.3f) throw new Exception("이미 조형된 지형입니다. 중복 적용 금지. " + summary);
+using (var session = new UPlayGround.WorldBuilder.Editor.WorldTerrainAuthoringSession(def, grid))
+{
+    session.BeginSculpt();
+    try
+    {
+        data.SetHeights(ax, az, after);
+        session.CaptureSculpt();
+    }
+    catch (Exception e)
+    {
+        session.RevertUncaptured();
+        throw new Exception("Sculpt 캡처 실패, 되돌림: " + e.Message, e);
+    }
+}
+tile.GetComponent<TerrainCollider>().terrainData = data;
+EditorUtility.SetDirty(data); EditorUtility.SetDirty(def);
+UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene); AssetDatabase.SaveAssets();
+float verify = tile.SampleHeight(lipProbe) + origin.y;
+return "APPLIED " + summary + " operations=" + def.Operations.Count + " lipPoolBedAfter=" + verify.ToString("F2");

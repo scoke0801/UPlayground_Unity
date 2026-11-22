@@ -1,0 +1,7 @@
+ForestWest_BenchTreeDist same spot (1000,2450) west, grass 90m
+tree 340m CPU p50=30.88 p95=52.21 GPU p50=23.85 p95=39.55 n=148
+tree 260m CPU p50=27.47 p95=63.97 GPU p50=23.22 p95=37.55 n=152
+tree 200m CPU p50=23.96 p95=37.56 GPU p50=20.84 p95=29.89 n=189
+tree 140m CPU p50=26.99 p95=35.63 GPU p50=23.55 p95=32.70 n=178
+tree 340m CPU p50=27.36 p95=37.61 GPU p50=24.52 p95=31.24 n=176
+restored 340

@@ -1,0 +1,13 @@
+NorthFalls_PoolCross 1920x1080 Unity 6000.3.21f1 loop=True
+Start (2865.20, 141.79, 3400.30) route=2865/3400 > 2842/3406 > 2819/3398 > 2842/3406 > 2865/3400
+SwimEnter (2851.91, 134.70, 3403.59)
+Reached (2841.80, 3406.10) at (2843.71, 134.52, 3405.63) swim=True t=7.9
+SwimExit (2829.02, 135.19, 3401.31)
+Reached (2818.70, 3398.00) at (2820.54, 139.52, 3398.59) swim=False t=14.4
+SwimEnter (2830.16, 134.84, 3401.99)
+Reached (2841.80, 3406.10) at (2839.97, 134.69, 3405.45) swim=True t=19.3
+SwimExit (2852.81, 135.19, 3403.08)
+Reached (2865.20, 3400.30) at (2863.32, 141.59, 3400.72) swim=False t=25.4
+samples=3667 grounded=1318 swimFrames=2337 swimEntries=2 swimAtEnd=False stuck=0 timeout=False
+feetLowest=134.52 feetHighest=141.66 end=(2863.32, 141.59, 3400.72) state=PlayerGroundMoveState
+PASS

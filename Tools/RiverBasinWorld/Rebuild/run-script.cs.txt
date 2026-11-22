@@ -1,0 +1,19 @@
+// Rebuild 폴더의 *.cs.txt 본문을 Editor 안에서 CodeDom으로 컴파일해 실행하는 실행기 (Unity MCP execute_code 본문, compiler=codedom)
+// - 본문을 MCP 요청에 직접 붙이는 대신 파일을 그대로 읽어 실행하므로, 기록 파일과 실행 내용이 항상 같다.
+// - 아래 SCRIPT 경로만 바꿔 쓴다. 본문은 메서드 본문 형식(return 문자열)이어야 한다.
+// - mcs가 출력의 BOM을 빈 오류로 보고하므로 ErrorNumber가 있는 항목만 오류로 본다.
+const string SCRIPT = "Tools/RiverBasinWorld/Rebuild/forest-west-grass.cs.txt";
+var body = System.IO.File.ReadAllText(SCRIPT);
+var src = "using UnityEngine; using UnityEditor; public static class RebuildRunner { public static object Run() {\n" + body + "\n} }";
+var prov = new Microsoft.CSharp.CSharpCodeProvider();
+var cp = new System.CodeDom.Compiler.CompilerParameters(); cp.GenerateInMemory = false; cp.OutputAssembly = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "RebuildRunner_" + System.DateTime.Now.Ticks + ".dll");
+string[] want = { "UnityEngine.CoreModule", "UnityEngine.TerrainModule", "UnityEngine.PhysicsModule", "UnityEditor.CoreModule", "System.Core", "UnityEngine.SharedInternalsModule", "Assembly-CSharp", "Assembly-CSharp-Editor" };
+foreach (var asm in System.AppDomain.CurrentDomain.GetAssemblies()) { try { if (asm.IsDynamic) continue; var n = asm.GetName().Name; if (System.Array.IndexOf(want, n) >= 0 && !string.IsNullOrEmpty(asm.Location)) cp.ReferencedAssemblies.Add(asm.Location); } catch {} }
+cp.ReferencedAssemblies.Add(EditorApplication.applicationContentsPath + "/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/netstandard.dll");
+var res = prov.CompileAssemblyFromSource(cp, src);
+var sb = new System.Text.StringBuilder(); foreach (System.CodeDom.Compiler.CompilerError e in res.Errors) if (!e.IsWarning && !string.IsNullOrEmpty(e.ErrorNumber)) sb.AppendLine((e.Line - 1) + ": " + e.ErrorNumber + " " + e.ErrorText);
+if (sb.Length > 0) return sb.ToString();
+var a = System.Reflection.Assembly.Load(System.IO.File.ReadAllBytes(cp.OutputAssembly));
+var sw = System.Diagnostics.Stopwatch.StartNew();
+var r = a.GetType("RebuildRunner").GetMethod("Run").Invoke(null, null);
+return r + "\nelapsed=" + sw.Elapsed.TotalSeconds.ToString("F1") + "s";

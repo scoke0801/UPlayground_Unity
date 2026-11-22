@@ -1,0 +1,291 @@
+// RiverBasin4km 서부 가을 숲 지면 식생(Terrain Detail) 재배치 (Unity MCP execute_code 본문, C# 6 / CodeDom)
+// - 인자: 같은 폴더의 forest-west-grass-run.txt (mode=dry|apply, scale=전체 밀도 배율)
+// - 나무 배치와 분리했다. 그늘은 현재 지형 TreeInstance와 "ForestWest 반응형 수목" 루트의 GameObject 수목에서 읽는다.
+//   나무를 다시 배치했으면 이 스크립트를 다시 실행한다.
+// - 전역 좌표 기반 결정적 생성. 높이·alphamap·나무는 쓰지 않는다. Terrain Detail 층과 프로토타입만 바꾼다.
+// - 파일럿 상자(X 826~1024 / Z 2172~2412)도 같은 규칙으로 다시 만든다(옛 균일 풀과의 이음새 방지).
+//
+// 자연스러움 규칙(이전 판의 인공적 패턴 원인과 대응)
+//   1) 수관 원마다 밀도가 0/1로 끊김 → 수관 그늘을 연속값으로 만들고 2회 블러 + 잡음
+//   2) 길 가장자리 감쇠 폭이 어디서나 같음 → 길 거리와 감쇠 폭을 잡음으로 흔듦
+//   3) 모든 칸이 같은 3종 비율 → 저주파 영역 잡음으로 군락 유형(무성한 풀밭/성긴 풀/숲 바닥/건조 능선/물가)을 고르고
+//      유형마다 다른 종·색·키·밀도, 중주파 잡음으로 포기(덩어리), 칸당 0~2개
+var run = System.IO.File.ReadAllText("Tools/RiverBasinWorld/Rebuild/forest-west-grass-run.txt");
+string mode = "dry"; float gScale = 1f;
+foreach (var line in run.Split('\n')) {
+    var kv = line.Trim().Split('='); if (kv.Length != 2) continue;
+    if (kv[0] == "mode") mode = kv[1].Trim();
+    if (kv[0] == "scale") gScale = float.Parse(kv[1], System.Globalization.CultureInfo.InvariantCulture);
+}
+const int SEED = 631348;
+const float GX0 = 380, GZ0 = 1540, GX1 = 1520, GZ1 = 3330;
+var sb = new System.Text.StringBuilder();
+
+// ── 지형 캐시 ──
+var terr = new System.Collections.Generic.Dictionary<int, Terrain>();
+var hts = new System.Collections.Generic.Dictionary<int, float[,]>();
+foreach (var t in Terrain.activeTerrains) { var p = t.transform.position; terr[Mathf.RoundToInt(p.x / 512f) * 100 + Mathf.RoundToInt(p.z / 512f)] = t; }
+System.Func<int, int, float[,]> H = (tx, tz) => { int k = tx * 100 + tz; float[,] a; if (!hts.TryGetValue(k, out a)) { var d = terr[k].terrainData; a = d.GetHeights(0, 0, d.heightmapResolution, d.heightmapResolution); hts[k] = a; } return a; };
+System.Func<float, float, float> HeightAt = (x, z) => {
+    int tx = Mathf.Clamp(Mathf.FloorToInt(x / 512f), 0, 7), tz = Mathf.Clamp(Mathf.FloorToInt(z / 512f), 0, 7);
+    var a = H(tx, tz); float u = (x - tx * 512f), v = (z - tz * 512f);
+    int i = Mathf.Clamp((int)u, 0, 511), j = Mathf.Clamp((int)v, 0, 511); float fu = Mathf.Clamp01(u - i), fv = Mathf.Clamp01(v - j);
+    return Mathf.Lerp(Mathf.Lerp(a[j, i], a[j, i + 1], fu), Mathf.Lerp(a[j + 1, i], a[j + 1, i + 1], fu), fv) * 800f - 32f;
+};
+System.Func<float, float, float> SlopeAt = (x, z) => { float dx = HeightAt(x + 1, z) - HeightAt(x - 1, z), dz = HeightAt(x, z + 1) - HeightAt(x, z - 1); return Mathf.Atan(Mathf.Sqrt(dx * dx + dz * dz) * 0.5f) * Mathf.Rad2Deg; };
+
+// ── 수면 격자(3m)와 물가 거리 ── (forest-west-populate와 같은 방식)
+const float WC = 3f; int wnx = (int)((GX1 - GX0) / WC) + 2, wnz = (int)((GZ1 - GZ0) / WC) + 2;
+var water = new float[wnx, wnz];
+var tmpCols = new System.Collections.Generic.List<MeshCollider>();
+var wroot = GameObject.Find("RiverBasin 수면");
+foreach (Transform c in wroot.transform) {
+    var r = c.GetComponent<MeshRenderer>(); var mf = c.GetComponent<MeshFilter>(); if (r == null || mf == null) continue;
+    var b = r.bounds; if (b.max.x < GX0 || b.min.x > GX1 || b.max.z < GZ0 || b.min.z > GZ1) continue;
+    var mc = c.gameObject.AddComponent<MeshCollider>(); mc.sharedMesh = mf.sharedMesh; tmpCols.Add(mc);
+}
+Physics.SyncTransforms();
+try {
+    for (int i = 0; i < wnx; i++) for (int j = 0; j < wnz; j++) {
+        float x = GX0 + i * WC, z = GZ0 + j * WC; float best = -999f;
+        var ray = new Ray(new Vector3(x, 900f, z), Vector3.down); RaycastHit hit;
+        foreach (var mc in tmpCols) { var b = mc.bounds; if (x < b.min.x || x > b.max.x || z < b.min.z || z > b.max.z) continue; if (mc.Raycast(ray, out hit, 1000f)) best = Mathf.Max(best, hit.point.y); }
+        water[i, j] = best;
+    }
+} finally { foreach (var mc in tmpCols) UnityEngine.Object.DestroyImmediate(mc); }
+System.Func<float, float, float> WaterAt = (x, z) => {
+    int i = Mathf.Clamp((int)((x - GX0) / WC), 0, wnx - 2), j = Mathf.Clamp((int)((z - GZ0) / WC), 0, wnz - 2);
+    return Mathf.Max(Mathf.Max(water[i, j], water[i + 1, j]), Mathf.Max(water[i, j + 1], water[i + 1, j + 1]));
+};
+var wdist = new float[wnx, wnz];
+for (int i = 0; i < wnx; i++) for (int j = 0; j < wnz; j++) wdist[i, j] = 999f;
+for (int i = 0; i < wnx; i++) for (int j = 0; j < wnz; j++) {
+    float x = GX0 + i * WC, z = GZ0 + j * WC;
+    if (water[i, j] > HeightAt(x, z) - 0.05f) {
+        for (int a = -10; a <= 10; a++) for (int c2 = -10; c2 <= 10; c2++) {
+            int ii = i + a, jj = j + c2; if (ii < 0 || jj < 0 || ii >= wnx || jj >= wnz) continue;
+            float dd = Mathf.Sqrt(a * a + c2 * c2) * WC; if (dd < wdist[ii, jj]) wdist[ii, jj] = dd;
+        }
+    }
+}
+System.Func<float, float, float> WaterDist = (x, z) => { int i = Mathf.Clamp(Mathf.RoundToInt((x - GX0) / WC), 0, wnx - 1), j = Mathf.Clamp(Mathf.RoundToInt((z - GZ0) / WC), 0, wnz - 1); return wdist[i, j]; };
+
+// ── 동선 ── (forest-west-populate와 같은 경로)
+var routes = new System.Collections.Generic.List<Vector4>();
+System.Action<float[]> AddPath = (pts) => { for (int i = 0; i + 3 < pts.Length; i += 2) routes.Add(new Vector4(pts[i], pts[i + 1], pts[i + 2], pts[i + 3])); };
+AddPath(new float[] { 1820, 2920, 1620, 2790, 1466, 2560, 1340, 2340, 1310, 2060, 1100, 1900, 1030, 1612, 1098, 1438 });
+AddPath(new float[] { 1820, 2920, 1670, 3038, 1520, 3094, 1280, 3256 });
+AddPath(new float[] { 988, 2320, 880, 2257 });
+System.Func<float, float, float> RouteDist = (x, z) => {
+    float best = 999f;
+    foreach (var s in routes) {
+        float abx = s.z - s.x, abz = s.w - s.y, apx = x - s.x, apz = z - s.y;
+        float tt = Mathf.Clamp01((apx * abx + apz * abz) / (abx * abx + abz * abz));
+        float ddx = apx - abx * tt, ddz = apz - abz * tt; float d2 = ddx * ddx + ddz * ddz; if (d2 < best * best) best = Mathf.Sqrt(d2);
+    }
+    return best;
+};
+System.Func<float, float, float, float, float, float, float> Ell = (x, z, cx, cz, rx, rz) => Mathf.Sqrt(((x - cx) / rx) * ((x - cx) / rx) + ((z - cz) / rz) * ((z - cz) / rz));
+System.Func<float, float, float, float, float, float, float> SegD = (x, z, ax, az, bx, bz) => {
+    float abx = bx - ax, abz = bz - az; float tt = Mathf.Clamp01(((x - ax) * abx + (z - az) * abz) / (abx * abx + abz * abz));
+    float dx = x - ax - abx * tt, dz = z - az - abz * tt; return Mathf.Sqrt(dx * dx + dz * dz);
+};
+System.Func<float, float, float> Mask = (x, z) => {
+    float n = (Mathf.PerlinNoise(x * 0.011f + 13.1f, z * 0.011f + 7.7f) - 0.5f) * 60f;
+    float dx = Mathf.Max(440f - x, x - 1450f), dz = Mathf.Max(1600f - z, z - 2900f);
+    float m = Mathf.Clamp01(1f - (Mathf.Max(dx, dz) + n) / 50f);
+    float rd = Mathf.Min(SegD(x, z, 1300, 2860, 1360, 3060), SegD(x, z, 1360, 3060, 1280, 3220)) + n * 0.6f;
+    m = Mathf.Max(m, Mathf.Clamp01(1f - (rd - 90f) / 50f));
+    float kd = Mathf.Min(SegD(x, z, 1520, 3094, 1400, 3170), SegD(x, z, 1400, 3170, 1280, 3256)) + n * 0.5f;
+    m = Mathf.Max(m, Mathf.Clamp01(1f - (kd - 45f) / 30f) * Mathf.Clamp01((1515f - x) / 70f));
+    return m;
+};
+System.Func<float, float, bool> Reserved = (x, z) => Ell(x, z, 1310, 2060, 61 * 1.15f, 50 * 1.15f) < 1f || Ell(x, z, 1280, 3256, 49 * 1.2f, 42 * 1.2f) < 1f;
+
+// ── 잡음 ──
+System.Func<float, float, float, float, float> Fbm = (x, z, f, o) =>
+    (Mathf.PerlinNoise(x * f + o, z * f + o * 0.7f) * 0.55f + Mathf.PerlinNoise(x * f * 2.1f + o * 1.3f, z * f * 2.1f - o) * 0.30f + Mathf.PerlinNoise(x * f * 4.3f - o, z * f * 4.3f + o * 1.9f) * 0.15f);
+System.Func<float, float, float, float> Smooth = (a, b, v) => { float t = Mathf.Clamp01((v - a) / (b - a)); return t * t * (3f - 2f * t); };
+uint hseed = (uint)SEED;
+System.Func<int, int, int, float> Hash = (ix, iz, salt) => { uint h = (uint)ix * 374761393u + (uint)iz * 668265263u + (uint)salt * 2246822519u + hseed; h = (h ^ (h >> 13)) * 1274126177u; h ^= h >> 16; return (h & 0xFFFFFF) / 16777216f; };
+
+// ── 2m 격자 필드(저주파 값은 격자에서 쌍선형 보간) ──
+const float CC = 2f; int cnx = (int)((GX1 - GX0) / CC) + 2, cnz = (int)((GZ1 - GZ0) / CC) + 2;
+var fMask = new float[cnx, cnz]; var fMacro = new float[cnx, cnz]; var fLush = new float[cnx, cnz]; var fSilver = new float[cnx, cnz]; var fFlower = new float[cnx, cnz]; var fBare = new float[cnx, cnz];
+for (int i = 0; i < cnx; i++) for (int j = 0; j < cnz; j++) {
+    float x = GX0 + i * CC, z = GZ0 + j * CC;
+    // 영역 경계가 둥근 얼룩이 되지 않도록 도메인 왜곡
+    float wx = x + (Mathf.PerlinNoise(x * 0.018f + 3.3f, z * 0.018f + 9.1f) - 0.5f) * 40f, wz = z + (Mathf.PerlinNoise(x * 0.018f + 41.7f, z * 0.018f + 17.2f) - 0.5f) * 40f;
+    fMask[i, j] = Mask(x, z);
+    fMacro[i, j] = Fbm(wx, wz, 1f / 75f, 211.7f);   // 지역 생장 세기
+    fLush[i, j] = Fbm(wx, wz, 1f / 30f, 57.3f);     // 무성한 풀밭 얼룩
+    fSilver[i, j] = Fbm(wx, wz, 1f / 38f, 903.1f);  // 억새 군락
+    fFlower[i, j] = Fbm(wx, wz, 1f / 20f, 377.9f);  // 들꽃 군락
+    fBare[i, j] = Fbm(wx, wz, 1f / 16f, 615.5f);    // 숲 바닥 맨땅·낙엽 얼룩
+}
+System.Func<float[,], float, float, float> Bi = (f, x, z) => {
+    float u = (x - GX0) / CC, v = (z - GZ0) / CC; int i = Mathf.Clamp((int)u, 0, cnx - 2), j = Mathf.Clamp((int)v, 0, cnz - 2); float fu = Mathf.Clamp01(u - i), fv = Mathf.Clamp01(v - j);
+    return Mathf.Lerp(Mathf.Lerp(f[i, j], f[i + 1, j], fu), Mathf.Lerp(f[i, j + 1], f[i + 1, j + 1], fu), fv);
+};
+
+// ── 수관 그늘(연속값): 실제 배치된 나무에서 계산 ──
+var crownCache = new System.Collections.Generic.Dictionary<GameObject, float>();
+System.Func<GameObject, float> CrownR = (go) => {
+    float r; if (crownCache.TryGetValue(go, out r)) return r;
+    var lg = go.GetComponentInChildren<LODGroup>(true); Renderer[] rs = null;
+    if (lg != null) { var lods = lg.GetLODs(); if (lods.Length > 0) rs = lods[0].renderers; }
+    if (rs == null || rs.Length == 0) rs = go.GetComponentsInChildren<Renderer>(false);
+    float ext = 0f; foreach (var rr in rs) { if (rr == null) continue; var mf = rr.GetComponent<MeshFilter>(); if (mf == null || mf.sharedMesh == null) continue; var mb = mf.sharedMesh.bounds; var s = rr.transform.lossyScale; ext = Mathf.Max(ext, Mathf.Max(Mathf.Abs(mb.max.x * s.x), Mathf.Abs(mb.min.x * s.x), Mathf.Abs(mb.max.z * s.z), Mathf.Abs(mb.min.z * s.z))); }
+    r = Mathf.Max(0.8f, ext * 0.85f); crownCache[go] = r; return r;
+};
+var shade = new float[cnx, cnz];
+System.Action<float, float, float> Stamp = (px, pz, r) => {
+    float R = r * 1.3f;
+    int i0 = Mathf.Max(0, (int)((px - R - GX0) / CC)), i1 = Mathf.Min(cnx - 1, (int)((px + R - GX0) / CC) + 1);
+    int j0 = Mathf.Max(0, (int)((pz - R - GZ0) / CC)), j1 = Mathf.Min(cnz - 1, (int)((pz + R - GZ0) / CC) + 1);
+    for (int i = i0; i <= i1; i++) for (int j = j0; j <= j1; j++) {
+        float dx = GX0 + i * CC - px, dz = GZ0 + j * CC - pz; float d = Mathf.Sqrt(dx * dx + dz * dz);
+        float s = 1f - Smooth(r * 0.45f, R, d); if (s > shade[i, j]) shade[i, j] = s;
+    }
+};
+int treeN = 0;
+for (int tx = 0; tx <= 2; tx++) for (int tz = 3; tz <= 6; tz++) {
+    var t = terr[tx * 100 + tz]; var d = t.terrainData; var o = t.transform.position; var protos = d.treePrototypes;
+    foreach (var ti in d.treeInstances) {
+        var go = protos[ti.prototypeIndex].prefab; float r = CrownR(go) * ti.widthScale; if (r < 1.2f) continue; // 묘목·관목은 그늘에서 제외
+        Stamp(o.x + ti.position.x * 512f, o.z + ti.position.z * 512f, r); treeN++;
+    }
+}
+var rtRoot = GameObject.Find("ForestWest 반응형 수목");
+if (rtRoot != null) foreach (Transform c in rtRoot.transform) {
+    var src = PrefabUtility.GetCorrespondingObjectFromSource(c.gameObject); float r = (src != null ? CrownR(src) : 4f) * c.localScale.x; if (r < 1.2f) continue;
+    Stamp(c.position.x, c.position.z, r); treeN++;
+}
+// 2회 박스 블러(반경 2칸 = 4m)
+for (int pass = 0; pass < 2; pass++) {
+    var tmp = new float[cnx, cnz];
+    for (int i = 0; i < cnx; i++) for (int j = 0; j < cnz; j++) { float s = 0; int n = 0; for (int a = -2; a <= 2; a++) { int ii = i + a; if (ii < 0 || ii >= cnx) continue; s += shade[ii, j]; n++; } tmp[i, j] = s / n; }
+    for (int i = 0; i < cnx; i++) for (int j = 0; j < cnz; j++) { float s = 0; int n = 0; for (int a = -2; a <= 2; a++) { int jj = j + a; if (jj < 0 || jj >= cnz) continue; s += tmp[i, jj]; n++; } shade[i, j] = s / n; }
+}
+
+// ── 프로토타입 ──
+string R3 = "Assets/03.Prefabs/Environment/RiverBasinWorld/VisualR3/", FW = "Assets/03.Prefabs/Environment/RiverBasinWorld/ForestWest/";
+string[] dPaths = {
+    FW + "PF_FW_SmallGrass_01_Autumn_Detail.prefab", // 0 낮은 가을 풀(B1 재질보다 밑동을 밝혀 지면과 이음)
+    FW + "PF_FW_SmallGrass_03_Autumn_Detail.prefab", // 1 낮은~중간 가을 풀
+    FW + "PF_FW_MediumGrass_02_Autumn_Detail.prefab",// 2 중간 가을 풀
+    FW + "PF_FW_TallGrass_02_Autumn_Detail.prefab",// 3 키 큰 황갈색 풀(무성한 풀밭)
+    FW + "PF_FW_MediumGrass_02_Lush_Detail.prefab",// 4 짙은 녹색 풀(물가·습한 얼룩)
+    FW + "PF_FW_SmallGrass_01_Shade_Detail.prefab",// 5 어두운 숲 바닥 풀
+    FW + "PF_FW_SmallGrass_03_Dry_Detail.prefab",  // 6 마른 황토색 풀(능선·양지 사면)
+    FW + "PF_FW_Silvergrass_03_Detail.prefab",     // 7 억새 포기
+    FW + "PF_FW_FlowersPatch_01_Detail.prefab",    // 8 들꽃 군락(TGV)
+    FW + "PF_FW_FlowersPatch_03_Detail.prefab",    // 9 들꽃 군락 2(TGV)
+    FW + "PF_FW_LeafPatch_01_Detail.prefab"        // 10 낙엽 더미(숲 바닥 맨땅 얼룩)
+};
+// 폭 min,max / 높이 min,max
+float[,] dSize = { { 0.68f, 1.04f, 0.47f, 0.80f }, { 0.75f, 1.20f, 0.68f, 1.02f }, { 0.49f, 0.76f, 0.50f, 0.86f }, { 0.40f, 0.58f, 0.34f, 0.52f }, { 0.50f, 0.80f, 0.55f, 0.95f },
+                   { 0.60f, 0.95f, 0.40f, 0.70f }, { 0.70f, 1.10f, 0.60f, 0.95f }, { 0.50f, 0.72f, 0.45f, 0.66f }, { 0.80f, 1.25f, 0.75f, 1.15f }, { 0.80f, 1.20f, 0.70f, 1.05f }, { 0.60f, 1.00f, 0.80f, 1.20f } };
+const int NP = 11;
+var dProtos = new DetailPrototype[NP];
+for (int k = 0; k < NP; k++) {
+    var g = AssetDatabase.LoadAssetAtPath<GameObject>(dPaths[k]); if (g == null) return "프로토타입 없음: " + dPaths[k];
+    var dp = new DetailPrototype(); dp.prototype = g; dp.usePrototypeMesh = true; dp.useInstancing = true; dp.renderMode = DetailRenderMode.VertexLit;
+    dp.minWidth = dSize[k, 0]; dp.maxWidth = dSize[k, 1]; dp.minHeight = dSize[k, 2]; dp.maxHeight = dSize[k, 3];
+    dp.noiseSpread = 0.6f; dp.alignToGround = 0.7f; dp.density = 1f; dp.healthyColor = Color.white; dp.dryColor = Color.white; dp.useDensityScaling = true;
+    dProtos[k] = dp;
+}
+
+// ── 칸 판정 ──
+// 반환: 층 인덱스(-1 없음), cnt에 개수, cat에 유형(통계)
+long[] perLayer = new long[NP]; long[] perCat = new long[6]; long cellsTotal = 0, instTotal = 0, oldInstTotal = 0;
+string[] catName = { "물가", "숲바닥", "무성", "건조", "보통", "포켓" };
+for (int tx = 0; tx <= 2; tx++) for (int tz = 3; tz <= 6; tz++) {
+    var t = terr[tx * 100 + tz]; var d = t.terrainData; var o = t.transform.position;
+    // 이전 총량(예산 비교용)
+    for (int L = 0; L < d.detailPrototypes.Length; L++) {
+        var old = d.GetDetailLayer(0, 0, d.detailWidth, d.detailHeight, L); float cs = 512f / d.detailWidth;
+        for (int j = 0; j < d.detailHeight; j++) for (int i = 0; i < d.detailWidth; i++) { float x = o.x + (i + 0.5f) * cs, z = o.z + (j + 0.5f) * cs; if (x >= GX0 && x < GX1 && z >= GZ0 && z < GZ1) oldInstTotal += old[j, i]; }
+    }
+    var layers = new int[NP][,]; for (int L = 0; L < NP; L++) layers[L] = new int[1024, 1024];
+    // 이 타일이 숲 경계 밖이면 기존 풀 유지(아래 apply에서도 건너뜀)
+    if (o.x + 512f <= GX0 || o.x >= GX1 || o.z + 512f <= GZ0 || o.z >= GZ1) continue;
+    for (int j = 0; j < 1024; j++) for (int i = 0; i < 1024; i++) {
+        float x = o.x + (i + 0.5f) * 0.5f, z = o.z + (j + 0.5f) * 0.5f;
+        if (x < GX0 || x >= GX1 || z < GZ0 || z >= GZ1) continue;
+        float m = Bi(fMask, x, z); if (m <= 0.02f) continue;
+        float h = HeightAt(x, z); if (WaterAt(x, z) > h - 0.08f) continue;
+        // 길 가장자리: 거리와 감쇠 폭을 잡음으로 흔든다
+        float en = Mathf.PerlinNoise(x * 0.13f + 7.1f, z * 0.13f + 2.9f);
+        float rd = RouteDist(x, z) + (en - 0.5f) * 1.6f; if (rd < 2.25f) continue;
+        float edge = Smooth(2.25f, 2.25f + 1.2f + en * 3.5f, rd);
+        float sl = SlopeAt(x, z); if (sl > 40f) continue;
+        int ix = Mathf.FloorToInt(x * 2f), iz = Mathf.FloorToInt(z * 2f);
+        float sh = Bi(shade, x, z); sh = Mathf.Clamp01(sh + (Hash(ix >> 3, iz >> 3, 21) - 0.5f) * 0.25f);
+        float macro = Bi(fMacro, x, z), lush = Bi(fLush, x, z), wd = WaterDist(x, z) + (en - 0.5f) * 8f;
+        float clump = Mathf.PerlinNoise(x * 0.23f + 91.3f, z * 0.23f + 12.7f); // 약 4m 포기
+        float u = Hash(ix, iz, 11), u2 = Hash(ix, iz, 12), u3 = Hash(ix, iz, 13);
+        float vigor = Mathf.Lerp(0.30f, 1.05f, Smooth(0.30f, 0.70f, macro));
+        float tuft = Mathf.Lerp(0.30f, 1.45f, Smooth(0.25f, 0.75f, clump));
+        int L0 = -1, cnt = 1, cat = 4; float dens;
+        bool ridge = z > 2720f + (en - 0.5f) * 40f;
+        if (wd < 10f) {                                     // 물가: 짙은 녹색 위주, 촘촘
+            cat = 0; dens = 0.85f * tuft * Mathf.Lerp(1f, 0.55f, sh) * Smooth(1.5f, 4f, wd);
+            L0 = u2 < 0.55f ? 4 : (u2 < 0.80f ? 0 : (u2 < 0.92f ? 3 : 1));
+        } else if (sh > 0.68f) {                            // 숲 바닥: 포기 단위로 뭉치고 맨땅 얼룩이 섞임
+            cat = 1; float bare = Smooth(0.48f, 0.70f, Bi(fBare, x, z));
+            dens = Mathf.Lerp(0.80f, 0.34f, Smooth(0.68f, 1.0f, sh)) * (1f - 0.75f * bare) * Mathf.Lerp(0.20f, 1.55f, Smooth(0.30f, 0.72f, clump));
+            L0 = u2 < 0.50f ? 5 : (u2 < 0.85f ? 0 : 1);
+            // 맨땅 얼룩에는 풀 대신 낙엽 더미를 드문드문(더미 하나가 약 2.5m)
+            if (bare > 0.3f && u3 < 0.014f * bare * m) { L0 = 10; cnt = 1; dens = 1f; u = 0f; }
+        } else if (lush > 0.53f) {                          // 무성한 풀밭: 키 큰 풀 섞임, 칸당 최대 2
+            cat = 2; dens = Mathf.Lerp(0.80f, 1.15f, Smooth(0.53f, 0.72f, lush)) * tuft * (1f - 0.5f * sh);
+            L0 = u2 < 0.40f ? 3 : (u2 < 0.70f ? 2 : (u2 < 0.88f ? 1 : 4));
+            if (u < dens * 0.30f) cnt = 2;
+        } else if (ridge || sl > 18f) {                     // 건조한 능선·양지 사면: 마른 풀, 성김
+            cat = 3; dens = 0.55f * vigor * tuft * (1f - 0.7f * sh);
+            L0 = u2 < 0.55f ? 6 : (u2 < 0.85f ? 0 : 2);
+        } else {                                            // 보통 숲 틈: 지역 생장 세기로 성김~무성
+            cat = 4; dens = 0.70f * vigor * tuft * (1f - 0.75f * sh);
+            L0 = u2 < 0.55f ? 0 : (u2 < 0.85f ? 1 : 2);
+        }
+        dens *= m * edge * gScale;
+        if (Reserved(x, z)) dens *= 0.5f;
+        // 포켓: 억새 군락·들꽃 군락(그늘이 옅은 곳)
+        if (sh < 0.45f && wd > 6f) {
+            float sv = Bi(fSilver, x, z), fl = Bi(fFlower, x, z);
+            if (sv > 0.66f && clump > 0.5f && u3 < 0.10f * Smooth(0.64f, 0.74f, sv) * m) { L0 = 7; cnt = 1; dens = 1f; cat = 5; u = 0f; }
+            else if (fl > 0.64f && u3 > 0.80f && u3 < 0.80f + 0.16f * Smooth(0.64f, 0.74f, fl) * m * edge) { L0 = (ridge || cat == 3 || Hash(ix >> 4, iz >> 4, 31) < 0.6f) ? 8 : 9; cnt = 1; dens = 1f; cat = 5; u = 0f; }
+        }
+        if (u >= dens) continue;
+        layers[L0][j, i] = cnt; perLayer[L0] += cnt; perCat[cat] += cnt; cellsTotal++; instTotal += cnt;
+    }
+    if (mode == "apply") {
+        // 숲 경계(GX0..GX1, GZ0..GZ1) 밖 칸은 기존 층에서 같은 프로토타입이면 옮겨 보존
+        var oldProtos = d.detailPrototypes; var oldLayers = new int[oldProtos.Length][,];
+        for (int L = 0; L < oldProtos.Length; L++) oldLayers[L] = d.GetDetailLayer(0, 0, d.detailWidth, d.detailHeight, L);
+        bool partial = o.x < GX0 || o.x + 512f > GX1 || o.z < GZ0 || o.z + 512f > GZ1;
+        if (partial && d.detailWidth == 1024) {
+            for (int L = 0; L < oldProtos.Length; L++) {
+                int nl = -1; for (int k = 0; k < NP; k++) if (dProtos[k].prototype == oldProtos[L].prototype) { nl = k; break; }
+                if (nl < 0 && oldProtos[L].prototype != null) { // 이전 판의 B1 풀은 같은 메시의 숲 재질판으로 옮긴다
+                    string on = oldProtos[L].prototype.name;
+                    if (on == "PF_B1_SmallGrass_01_Detail") nl = 0; else if (on == "PF_B1_SmallGrass_03_Detail") nl = 1; else if (on == "PF_B1_MediumGrass_02_Detail") nl = 2;
+                }
+                if (nl < 0) continue;
+                for (int j = 0; j < 1024; j++) for (int i = 0; i < 1024; i++) { float x = o.x + (i + 0.5f) * 0.5f, z = o.z + (j + 0.5f) * 0.5f; if (x >= GX0 && x < GX1 && z >= GZ0 && z < GZ1) continue; layers[nl][j, i] = oldLayers[L][j, i]; }
+            }
+        }
+        d.SetDetailScatterMode(DetailScatterMode.InstanceCountMode);
+        d.detailPrototypes = dProtos; d.SetDetailResolution(1024, 32);
+        for (int L = 0; L < NP; L++) d.SetDetailLayer(0, 0, L, layers[L]);
+        t.detailObjectDistance = 90f; t.detailObjectDensity = 1f;
+        EditorUtility.SetDirty(d); EditorUtility.SetDirty(t);
+    }
+}
+sb.AppendLine("mode=" + mode + " scale=" + gScale + " shadeTrees=" + treeN);
+sb.AppendLine("instances new=" + instTotal + " old=" + oldInstTotal + " ratio=" + (oldInstTotal > 0 ? (instTotal / (double)oldInstTotal).ToString("F3") : "-") + " cells=" + cellsTotal);
+var pl = new System.Collections.Generic.List<string>(); for (int k = 0; k < NP; k++) pl.Add(k + ":" + perLayer[k]); sb.AppendLine("perLayer " + string.Join(" ", pl.ToArray()));
+var pc = new System.Collections.Generic.List<string>(); for (int k = 0; k < 6; k++) pc.Add(catName[k] + ":" + perCat[k]); sb.AppendLine("perCat " + string.Join(" ", pc.ToArray()));
+if (mode == "apply") { AssetDatabase.SaveAssets(); UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(UnityEngine.SceneManagement.SceneManager.GetActiveScene()); }
+return sb.ToString();

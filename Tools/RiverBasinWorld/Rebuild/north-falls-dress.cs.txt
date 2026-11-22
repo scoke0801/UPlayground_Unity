@@ -1,0 +1,82 @@
+// 북부 폭포 암반·식생 배치. 월드에서 이미 쓰는 Polyart EastLands 계열(바위·절벽·목서·갈대)만 쓴다.
+// 낙구·상단 폭포 양끝의 사각 윤곽과 지형 모서리를 큰 바위로 덮고, 바위는 크기의 30~50%를 땅에 묻는다(선돌처럼 세우지 않는다).
+// 서쪽 물가(q>0, s 12~32)는 웅덩이에서 걸어 나오는 출구라 비워 둔다. 재실행하면 기존 「암반」「식생」을 지우고 같은 결과로 다시 만든다.
+const string MODE = "apply";
+const string Stones = "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/";
+const string Visual = "Assets/03.Prefabs/Environment/RiverBasinWorld/VisualR1/";
+var root = GameObject.Find("북부 폭포"); if (root == null) throw new Exception("water 단계를 먼저 실행하세요.");
+var tile = Terrain.activeTerrains.First(t => t.name == "Terrain_5_6"); float ty = tile.transform.position.y;
+// prefab, s, q, 목표 수평 크기(m, 0이면 원래 크기), 방향(도, 하류 기준), 묻는 비율[, 윗면 높이]
+// 윗면 높이가 양수면 월드 Y, 음수면 중심 지면에서의 깊이다. 8번째 값(아랫면 Y)이 있으면 높이를 최대 2.2배까지 늘여 절벽 아래 물속까지 닿게 한다. 절벽 모서리에서는 가장 낮은 접지점이 웅덩이 바닥이라 묻는 비율만으로는 낙구 옆을 덮지 못했다.
+var rocks = new object[][] {
+    new object[] { Stones + "Cliffs/PF_EastLands_BigBoulder_01.prefab", 1.2f, 10.4f, 11f, 30f, 0.35f, LipLevel + 3.2f, PoolLevel - 1.5f },
+    new object[] { Stones + "Cliffs/PF_EastLands_BigBoulder_02.prefab", 1.0f, -11.2f, 11f, 205f, 0.35f, LipLevel + 2.6f, PoolLevel - 1.5f },
+    new object[] { Stones + "Cliffs/PF_EastLands_Cliff_02.prefab", 3.5f, 19.5f, 10f, 260f, 0.45f, -4.5f },
+    new object[] { Stones + "Cliffs/PF_EastLands_Cliff_02.prefab", 3.0f, -19.5f, 10f, 95f, 0.45f, -4.0f },
+    new object[] { Stones + "Cliffs/PF_EastLands_MedBoulder_02.prefab", -9f, 11f, 6f, 70f, 0.4f },
+    new object[] { Stones + "Cliffs/PF_EastLands_MedBoulder_05.prefab", -10f, -11f, 6f, 150f, 0.4f },
+    new object[] { Stones + "Cliffs/PF_EastLands_MedBoulder_01.prefab", -18.8f, 6.0f, 6f, 15f, 0.35f, HeadLevel + 1.2f },
+    new object[] { Stones + "Cliffs/PF_EastLands_MedBoulder_03.prefab", -18.6f, -6.0f, 6f, 200f, 0.35f, HeadLevel + 1.0f },
+    new object[] { Stones + "Cliffs/PF_EastLands_Cliff_03.prefab", -31.5f, 0f, 12f, 180f, 0.5f, HeadLevel + 4.5f },
+    new object[] { Stones + "Cliffs/PF_EastLands_MedBoulder_04.prefab", -26f, 4.6f, 4f, 40f, 0.4f },
+    new object[] { Stones + "Cliffs/PF_EastLands_MedBoulder_02.prefab", -25.5f, -4.4f, 3.6f, 300f, 0.4f },
+    new object[] { Stones + "Cliffs/PF_EastLands_MedBoulder_04.prefab", 8f, -11.2f, 4.5f, 120f, 0.5f, PoolLevel + 1.6f },
+    new object[] { Stones + "PF_EastLands_RiverRock_Cluster_01.prefab", 30f, -12.5f, 4f, 10f, 0.3f },
+    new object[] { Stones + "PF_EastLands_RiverRock_Cluster_02.prefab", 37f, 13f, 4f, 250f, 0.3f },
+    new object[] { Visual + "PF_EastLands_RiverRock_01_Gold_17.prefab", 14f, -14.6f, 2.4f, 60f, 0.3f },
+    new object[] { Visual + "PF_EastLands_RiverRock_03_Gold_14.prefab", 22f, -14f, 1.8f, 0f, 0.3f },
+    new object[] { Visual + "PF_EastLands_RiverRock_02_Gold_16.prefab", 5f, 9.8f, 2.6f, 90f, 0.45f, PoolLevel + 0.9f },
+    // 웅덩이 출구 여울: 수면이 본류 쪽으로 꺾이는 s≈49에 반쯤 잠긴 강돌을 둬 수면 경사가 자연 지형으로 읽히게 한다.
+    new object[] { Visual + "PF_EastLands_RiverRock_04_Gold_15.prefab", 49f, -8f, 1.6f, 30f, 0.5f, PoolLevel + 0.2f },
+    new object[] { Visual + "PF_EastLands_RiverRock_03_Gold_20.prefab", 50f, -2.5f, 1.3f, 140f, 0.5f, PoolLevel + 0.1f },
+    new object[] { Visual + "PF_EastLands_RiverRock_01_Gold_18.prefab", 48.5f, 2.2f, 1.5f, 260f, 0.5f, PoolLevel + 0.3f } };
+var plants = new object[][] {
+    new object[] { Visual + "PF_EastLands_Osmanthus_02_Gold_10.prefab", -2f, 21f, 0f, 20f, 0.3f },
+    new object[] { Visual + "PF_EastLands_Osmanthus_01_Copper_4.prefab", 9f, -23f, 0f, 140f, 0.3f },
+    new object[] { Visual + "PF_EastLands_Osmanthus_03_Gold_11.prefab", -13f, -16.5f, 0f, 75f, 0.3f },
+    new object[] { Visual + "PF_EastLands_Osmanthus_02_Copper_6.prefab", 20f, -21f, 0f, 230f, 0.3f },
+    new object[] { Visual + "PF_EastLands_Osmanthus_01_Gold_1.prefab", 31f, 21f, 0f, 300f, 0.3f },
+    new object[] { Visual + "PF_EastLands_Osmanthus_Bush_01_Copper_23.prefab", 3f, 16.5f, 0f, 0f, 0.15f },
+    new object[] { Visual + "PF_EastLands_Osmanthus_Bush_02_Green_25.prefab", 12f, -18f, 0f, 90f, 0.15f },
+    new object[] { Visual + "PF_EastLands_Osmanthus_Bush_03_Green_24.prefab", -6f, -14f, 0f, 180f, 0.15f },
+    new object[] { Visual + "PF_EastLands_Osmanthus_Bush_01_Copper_23.prefab", -15f, 12f, 0f, 45f, 0.15f },
+    new object[] { Visual + "Reeds_01_Green_28.prefab", 38f, 10.5f, 0f, 0f, 0.05f },
+    new object[] { Visual + "Reeds_03_Green_30.prefab", 40f, -10.5f, 0f, 120f, 0.05f },
+    new object[] { Visual + "Reeds_02_Green_29.prefab", 33f, -11.8f, 0f, 240f, 0.05f } };
+if (MODE != "apply") return "DRY rocks=" + rocks.Length + " plants=" + plants.Length;
+foreach (var n in new[] { "암반", "식생" }) { var old = root.transform.Find(n); if (old != null) Undo.DestroyObjectImmediate(old.gameObject); }
+Func<string, object[][], int> Place = (groupName, list) =>
+{
+    var group = new GameObject(groupName); Undo.RegisterCreatedObjectUndo(group, "북부 폭포 꾸미기"); group.transform.SetParent(root.transform, false);
+    int count = 0;
+    foreach (var e in list)
+    {
+        // 구매 팩 하위 폴더 구성이 달라도 같은 이름의 원본을 찾는다. 이름이 겹치면 모호성 오류로 멈춘다.
+        string path = (string)e[0];
+        if (AssetDatabase.LoadAssetAtPath<GameObject>(path) == null)
+        {
+            string file = System.IO.Path.GetFileName(path);
+            var hits = AssetDatabase.FindAssets(System.IO.Path.GetFileNameWithoutExtension(file) + " t:Prefab", new[] { Stones.TrimEnd('/') }).Select(AssetDatabase.GUIDToAssetPath).Where(p => System.IO.Path.GetFileName(p) == file).ToArray();
+            if (hits.Length != 1) throw new Exception("프리팹 경로 " + file + " 후보 " + hits.Length + "개");
+            path = hits[0];
+        }
+        var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+        float s = (float)e[1], q = (float)e[2], size = (float)e[3], yaw = (float)e[4], bury = (float)e[5];
+        var go = (GameObject)PrefabUtility.InstantiatePrefab(prefab, group.transform);
+        var pos = At(s, q); pos.y = tile.SampleHeight(pos) + ty;
+        go.transform.SetPositionAndRotation(pos, Quaternion.LookRotation(F) * Quaternion.Euler(0f, yaw, 0f));
+        var renderers = go.GetComponentsInChildren<Renderer>(); var b = renderers[0].bounds; foreach (var r in renderers) b.Encapsulate(r.bounds);
+        if (size > 0f) { go.transform.localScale *= size / Mathf.Max(b.size.x, b.size.z); b = renderers[0].bounds; foreach (var r in renderers) b.Encapsulate(r.bounds); }
+        // 경사면에서는 가장 낮은 접지점 기준으로 묻어 한쪽이 뜨지 않게 한다.
+        float low = Mathf.Min(Mathf.Min(tile.SampleHeight(new Vector3(b.min.x, 0f, b.min.z)), tile.SampleHeight(new Vector3(b.max.x, 0f, b.min.z))), Mathf.Min(tile.SampleHeight(new Vector3(b.min.x, 0f, b.max.z)), tile.SampleHeight(new Vector3(b.max.x, 0f, b.max.z)))) + ty;
+        float ground = Mathf.Min(low, pos.y);
+        if (e.Length > 7) { float stretch = Mathf.Clamp(((float)e[6] - (float)e[7]) / b.size.y, 1f, 2.2f); var sc = go.transform.localScale; go.transform.localScale = new Vector3(sc.x, sc.y * stretch, sc.z); b = renderers[0].bounds; foreach (var r in renderers) b.Encapsulate(r.bounds); }
+        if (e.Length > 6) { float top = (float)e[6]; if (top < 0f) top = pos.y + b.size.y + top; go.transform.position += Vector3.up * (top - b.max.y); }
+        else go.transform.position += Vector3.up * (ground - b.min.y - b.size.y * bury);
+        go.name = prefab.name + "_" + (count + 1); count++;
+    }
+    return count;
+};
+int placedRocks = Place("암반", rocks), placedPlants = Place("식생", plants);
+UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(root.scene);
+return "DRESSED rocks=" + placedRocks + " plants=" + placedPlants;

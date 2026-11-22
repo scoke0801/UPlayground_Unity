@@ -1,0 +1,38 @@
+// 북부 폭포 되돌리기. 이 작업이 추가한 Sculpt 명령(AddDelta, 소유자 없음, 폭포 영역 안)을 지형 명령 스택에서 지우고 지형을 재평가한다.
+// 「북부 폭포」 계층과 NorthFalls 폴더의 생성 메시·재질을 지우고, 본류 머리 메시를 원본 WaterJoined 자산으로 되돌린다. alphamap은 paint 단계 백업으로 복원한다.
+// 제작 반복과 롤백 모두 이 단계를 쓴다. 다른 지형 명령·구매 원본·숲 작업은 건드리지 않는다.
+const string MODE = "apply";
+const string Dir = "Assets/10.Datas/World/RiverBasinWorld/NorthFalls";
+var def = AssetDatabase.LoadAssetAtPath<UPlayGround.WorldBuilder.Data.WorldDefinition>("Assets/10.Datas/WorldBuilder/6effd90b68ea4b3d8f8caa5197fcfe34_Authoring.asset");
+var grid = new Terrain[8, 8]; Terrain tile = null;
+foreach (var t in Terrain.activeTerrains) { var parts = t.name.Split('_'); grid[int.Parse(parts[2]), int.Parse(parts[1])] = t; if (t.name == "Terrain_5_6") tile = t; }
+var profileGrid = def.Profile.CreateGrid(); int found = -1; var log = new System.Text.StringBuilder();
+for (int i = 0; i < def.Operations.Count; i++)
+{
+    var record = def.Operations[i]; var core = record.ToCore(def.SourceRevision); var b = core.Bounds;
+    log.Append("op" + i + " " + core.Kind + " owner=" + record.ownerPlanGuid + " rect=" + b.X + "," + b.Z + "," + b.Width + "x" + b.Height + "; ");
+    // 폭포 영역(월드 X 2798~2888 / Z 3352~3462, 1m 표본)을 벗어나지 않는 소유자 없는 AddDelta만 대상이다.
+    if (core.Kind == UPlayGround.WorldBuilder.Core.TerrainOperationKind.AddDelta && string.IsNullOrEmpty(record.ownerPlanGuid)
+        && b.X >= 2790 && b.Z >= 3344 && b.X + b.Width <= 2896 && b.Z + b.Height <= 3470) found = i;
+}
+if (MODE != "apply") return "DRY target=" + found + " " + log;
+if (found >= 0) using (var session = new UPlayGround.WorldBuilder.Editor.WorldTerrainAuthoringSession(def, grid)) session.ReplaceOperation(found, null);
+var root = GameObject.Find("북부 폭포"); if (root != null) Undo.DestroyObjectImmediate(root);
+var river = GameObject.Find("RiverBasin 수면/Water_5_6").GetComponent<MeshFilter>();
+river.sharedMesh = AssetDatabase.LoadAssetAtPath<Mesh>("Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/WaterJoined/Water_5_6.asset");
+int deleted = 0;
+if (AssetDatabase.IsValidFolder(Dir)) foreach (var guid in AssetDatabase.FindAssets("", new[] { Dir }))
+{
+    string path = AssetDatabase.GUIDToAssetPath(guid);
+    if (path.EndsWith(".asset") || path.EndsWith(".mat")) { if (AssetDatabase.DeleteAsset(path)) deleted++; }
+}
+string backup = "output/RiverBasinWorld/NorthFalls/backup/alpha_5_6.bin"; string alpha = "no-backup";
+if (System.IO.File.Exists(backup))
+    using (var reader = new System.IO.BinaryReader(System.IO.File.OpenRead(backup)))
+    {
+        int ax = reader.ReadInt32(), az = reader.ReadInt32(), w = reader.ReadInt32(), h = reader.ReadInt32(), layers = reader.ReadInt32();
+        var basis = new float[h, w, layers]; for (int z = 0; z < h; z++) for (int x = 0; x < w; x++) for (int k = 0; k < layers; k++) basis[z, x, k] = reader.ReadSingle();
+        tile.terrainData.SetAlphamaps(ax, az, basis); EditorUtility.SetDirty(tile.terrainData); alpha = "restored";
+    }
+UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(tile.gameObject.scene); AssetDatabase.SaveAssets();
+return "RESET removedOp=" + found + " deletedAssets=" + deleted + " alpha=" + alpha + " opsNow=" + def.Operations.Count;

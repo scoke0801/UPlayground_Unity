@@ -1,0 +1,8 @@
+ForestWest_Bench at (1000.00, 111.13, 2450.00) facing west 1920x1080 forestTiles=10
+all CPU p50=25.43 p95=80.26 GPU p50=21.49 p95=33.26 n=153
+noGrass CPU p50=35.69 p95=96.88 GPU p50=16.51 p95=40.93 n=112
+noTrees CPU p50=20.67 p95=36.12 GPU p50=14.93 p95=22.59 n=219
+none CPU p50=18.25 p95=30.60 GPU p50=10.97 p95=16.70 n=293
+all2 CPU p50=30.33 p95=74.95 GPU p50=21.30 p95=42.21 n=135
+hitches: dt=0.91@noTrees t=18.0 | dt=0.32@all2 t=39.7
+restored 90/340

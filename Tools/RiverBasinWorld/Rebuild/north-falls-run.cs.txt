@@ -1,0 +1,27 @@
+// 북부 폭포 단계 실행기 (Unity MCP execute_code 본문, compiler=codedom).
+// STEPS의 각 본문 앞에 north-falls-shape.cs.txt를 붙여 차례로 컴파일·실행한다. FORCE_DRY=true면 각 단계의 MODE를 "dry"로 바꾼다.
+// 제작 순서: terrain → paint → water → trim → dress → fx → capture. 되돌리기는 STEPS = { "north-falls-reset" }. 기본은 dry이며 실제 적용은 FORCE_DRY=false로 바꾼다.
+// terrain·reset은 지형 명령 재평가로 약 1분 걸려 MCP 응답이 끊길 수 있다. 그때는 명령을 반복하지 말고 명령 수(def.Operations.Count)로 적용 여부를 확인한 뒤 한 단계씩 실행한다.
+string[] STEPS = { "north-falls-terrain", "north-falls-paint", "north-falls-water", "north-falls-trim", "north-falls-dress", "north-falls-fx", "north-falls-capture" };
+const bool FORCE_DRY = true;
+var shape = System.IO.File.ReadAllText("Tools/RiverBasinWorld/Rebuild/north-falls-shape.cs.txt");
+string[] want = { "UnityEngine.CoreModule", "UnityEngine.TerrainModule", "UnityEngine.TerrainPhysicsModule", "UnityEngine.PhysicsModule", "UnityEngine.ParticleSystemModule", "UnityEngine.AudioModule", "UnityEngine.AnimationModule", "UnityEditor.CoreModule", "System.Core", "UnityEngine.SharedInternalsModule", "UnityEngine.ImageConversionModule",
+    "Unity.RenderPipelines.Universal.Runtime", "Unity.RenderPipelines.Core.Runtime", "Assembly-CSharp", "Assembly-CSharp-Editor", "UPlayGround.Actor", "UPlayGround.Core", "UPlayGround.Data", "UPlayGround.Contracts", "WorldBuilder.Core", "WorldBuilder.Data", "WorldBuilder.Editor", "WorldBuilder.Runtime" };
+var output = new System.Text.StringBuilder();
+foreach (var step in STEPS)
+{
+    var body = System.IO.File.ReadAllText("Tools/RiverBasinWorld/Rebuild/" + step + ".cs.txt");
+    if (FORCE_DRY) body = body.Replace("const string MODE = \"apply\";", "const string MODE = \"dry\";");
+    var src = "using System; using System.Collections.Generic; using System.Linq; using UnityEngine; using UnityEditor;\npublic static class NorthFallsRunner { public static object Run() {\n" + shape + "\n" + body + "\n} }";
+    var prov = new Microsoft.CSharp.CSharpCodeProvider();
+    var cp = new System.CodeDom.Compiler.CompilerParameters(); cp.GenerateInMemory = false; cp.OutputAssembly = System.IO.Path.Combine(System.IO.Path.GetTempPath(), "NorthFallsRunner_" + System.DateTime.Now.Ticks + ".dll");
+    foreach (var asm in System.AppDomain.CurrentDomain.GetAssemblies()) { try { if (asm.IsDynamic) continue; var n = asm.GetName().Name; if (System.Array.IndexOf(want, n) >= 0 && !string.IsNullOrEmpty(asm.Location)) cp.ReferencedAssemblies.Add(asm.Location); } catch {} }
+    cp.ReferencedAssemblies.Add(EditorApplication.applicationContentsPath + "/MonoBleedingEdge/lib/mono/4.7.1-api/Facades/netstandard.dll");
+    var res = prov.CompileAssemblyFromSource(cp, src);
+    var errors = new System.Text.StringBuilder(); foreach (System.CodeDom.Compiler.CompilerError e in res.Errors) if (!e.IsWarning && !string.IsNullOrEmpty(e.ErrorNumber)) errors.AppendLine((e.Line - 2) + ": " + e.ErrorNumber + " " + e.ErrorText);
+    if (errors.Length > 0) { output.AppendLine(step + " COMPILE " + errors); break; }
+    var a = System.Reflection.Assembly.Load(System.IO.File.ReadAllBytes(cp.OutputAssembly)); var sw = System.Diagnostics.Stopwatch.StartNew();
+    try { output.AppendLine(step + ": " + a.GetType("NorthFallsRunner").GetMethod("Run").Invoke(null, null) + " (" + sw.Elapsed.TotalSeconds.ToString("F1") + "s)"); }
+    catch (System.Reflection.TargetInvocationException e) { output.AppendLine(step + " ERROR " + e.InnerException); break; }
+}
+return output.ToString();

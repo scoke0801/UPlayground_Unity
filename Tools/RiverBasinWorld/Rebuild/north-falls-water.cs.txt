@@ -1,0 +1,104 @@
+// 2단 폭포 수면·낙수 메시와 수면 등록. 루트 「북부 폭포」를 새로 만들고, 기존 본류 머리(Water_5_6)는 원본 자산을 두고 잘라낸 파생 메시로 교체한다.
+// 수면은 기존 본류와 같은 Surface.mat, 낙수는 호수 폭포 R3에서 검증한 Lake Wide Fall 재질 복제본을 쓴다(강 합성 값은 Surface.mat에서 복사).
+const string MODE = "apply";
+const string Dir = "Assets/10.Datas/World/RiverBasinWorld/NorthFalls";
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (scene.name != "RiverBasin4km") throw new Exception("대상 씬 불일치");
+if (GameObject.Find("북부 폭포") != null) throw new Exception("이미 배치됨. 중복 적용 금지");
+var tile = Terrain.activeTerrains.First(t => t.name == "Terrain_5_6"); float ty = tile.transform.position.y;
+Func<float, float, float> Ground = (x, z) => tile.SampleHeight(new Vector3(x, 0f, z)) + ty;
+var river = GameObject.Find("RiverBasin 수면/Water_5_6"); var riverFilter = river.GetComponent<MeshFilter>();
+var surfaceMaterial = river.GetComponent<MeshRenderer>().sharedMaterial;
+var b1Surface = GameObject.Find("WorldBuilder Water").GetComponentsInChildren<UPlayGround.Components.FootstepWaterSurface>(true).First();
+// 1m 격자 수면: 구역 안에서 모서리 중 하나라도 지형이 수위 아래인 칸만 남긴다(가장자리는 지형 아래로 묻혀 얕은 물 페이드로 사라진다).
+Func<string, float, float, float, Func<float, float, float>, Mesh> Grid = (name, sMin, sMax, level, halfAt) =>
+{
+    var verts = new List<Vector3>(); var uv = new List<Vector2>(); var tris = new List<int>(); var index = new Dictionary<long, int>();
+    Func<int, int, int> V = (ix, iz) => { long key = ((long)ix << 32) ^ (uint)iz; int i; if (index.TryGetValue(key, out i)) return i; i = verts.Count; verts.Add(new Vector3(ix, level, iz)); uv.Add(new Vector2(ix / 6f, iz / 6f)); index[key] = i; return i; };
+    for (int iz = (int)RegionMin.y; iz < (int)RegionMax.y; iz++)
+    for (int ix = (int)RegionMin.x; ix < (int)RegionMax.x; ix++)
+    {
+        var c = new Vector3(ix + 0.5f, 0f, iz + 0.5f); var sq = ToSQ(c);
+        if (Mathf.Abs(sq.y) > halfAt(sq.x, sq.y) + 4f) continue;
+        // 네 모서리가 모두 구역 안이어야 한다. 낙구 너머로 걸친 칸은 절벽 위 허공에 수면 판을 남긴다.
+        float s0 = ToSQ(new Vector3(ix, 0f, iz)).x, s1 = ToSQ(new Vector3(ix + 1, 0f, iz)).x, s2 = ToSQ(new Vector3(ix, 0f, iz + 1)).x, s3 = ToSQ(new Vector3(ix + 1, 0f, iz + 1)).x;
+        if (Mathf.Min(Mathf.Min(s0, s1), Mathf.Min(s2, s3)) < sMin || Mathf.Max(Mathf.Max(s0, s1), Mathf.Max(s2, s3)) > sMax) continue;
+        float low = Mathf.Min(Mathf.Min(Ground(ix, iz), Ground(ix + 1, iz)), Mathf.Min(Ground(ix, iz + 1), Ground(ix + 1, iz + 1)));
+        if (low > level - 0.02f) continue;
+        int a = V(ix, iz), b = V(ix + 1, iz), d = V(ix, iz + 1), e = V(ix + 1, iz + 1);
+        tris.AddRange(new[] { a, d, b, b, d, e });
+    }
+    var mesh = new Mesh { name = name }; mesh.SetVertices(verts); mesh.SetUVs(0, uv); mesh.SetTriangles(tris, 0); mesh.RecalculateNormals(); mesh.RecalculateTangents(); mesh.RecalculateBounds();
+    return mesh;
+};
+// 낙구 접근부는 상류 수면을 8mm 위에서 따라가다 중력 곡선으로 떨어진다. 양면 두께를 가진 낙수 체적(호수 폭포 R3 방식).
+Func<string, float, float, float, float, float, float, float, Mesh> Fall = (name, lipS, approach, lipY, landY, half0, half1, throwLength) =>
+{
+    var v = new List<Vector3>(); var uv = new List<Vector2>(); var color = new List<Color>(); var triangles = new List<int>();
+    const int Rows = 90, Cols = 48; int skin = (Rows + 1) * (Cols + 1); float drop = lipY - landY;
+    for (int side = 0; side < 2; side++)
+    for (int row = 0; row <= Rows; row++)
+    {
+        float a = row / (float)Rows, s, y, flow, transition, thickness; Vector3 tangent;
+        if (a < 0.22f) { float t = a / 0.22f; s = Mathf.Lerp(lipS - approach, lipS, t); y = lipY + 0.008f - 0.1f * Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0.6f, 1f, t)); flow = t * 0.16f; transition = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(0f, 0.68f, t)); thickness = 0f; tangent = F; }
+        else { float k = (a - 0.22f) / 0.78f; s = lipS + throwLength * k; y = lipY - 0.092f - (drop * 0.1f) * k - (drop * 0.9f - 0.092f + 0.05f) * k * k; flow = Mathf.Lerp(0.16f, 1f, k); transition = 1f; thickness = 0.14f * Mathf.Sin(k * Mathf.PI); tangent = (F * throwLength - Vector3.up * (drop * 0.1f + 2f * drop * 0.9f * k)).normalized; }
+        var normal = Vector3.Cross(tangent, R).normalized; float half = Mathf.Lerp(half0, half1, Mathf.InverseLerp(0.22f, 1f, a));
+        for (int col = 0; col <= Cols; col++)
+        {
+            float u = col / (float)Cols, k = Mathf.InverseLerp(0.22f, 1f, a);
+            float ripple = (Mathf.PerlinNoise(u * 6.3f + 3f, k * 4.1f) - 0.5f) * 0.22f * k;
+            var p = O + F * (s + ripple) + R * ((u * 2f - 1f) * half); p.y = y + (Mathf.PerlinNoise(u * 5.4f, 4f) - 0.5f) * 0.24f * Mathf.Sin(a * Mathf.PI);
+            p += normal * thickness * (side == 0 ? 0.5f : -0.5f);
+            v.Add(p); uv.Add(new Vector2(Mathf.Lerp(0.015f, 0.985f, u), flow)); color.Add(new Color(transition, 0f, 0f, 1f));
+        }
+    }
+    for (int side = 0; side < 2; side++) for (int row = 0; row < Rows; row++) for (int col = 0; col < Cols; col++)
+    { int a = side * skin + row * (Cols + 1) + col, b = a + Cols + 1; if (side == 0) triangles.AddRange(new[] { a, b, a + 1, a + 1, b, b + 1 }); else triangles.AddRange(new[] { a, a + 1, b, a + 1, b + 1, b }); }
+    foreach (int col in new[] { 0, Cols }) for (int row = 0; row < Rows; row++) { int a = row * (Cols + 1) + col, b = a + Cols + 1; triangles.AddRange(new[] { a, a + skin, b, b, a + skin, b + skin }); }
+    var mesh = new Mesh { name = name }; mesh.SetVertices(v); mesh.SetUVs(0, uv); mesh.SetColors(color); mesh.SetTriangles(triangles, 0); mesh.RecalculateNormals(); mesh.RecalculateTangents(); mesh.RecalculateBounds();
+    return mesh;
+};
+var head = Grid("NorthFalls_Head", -29f, UpperLipS + 0.2f, HeadLevel, (s, q) => UpperHalf(s));
+var lip = Grid("NorthFalls_LipPool", -18.5f, 0.6f, LipLevel, (s, q) => UpperHalf(s));
+var poolMesh = Grid("NorthFalls_PlungePool", 1.0f, PoolGridEndS, PoolLevel, (s, q) => PoolHalf(s, q));
+var main = Fall("NorthFalls_MainFall", MainLipS, 4.8f, LipLevel, PoolLevel - 0.05f, 6.5f, 7.0f, 4.0f);
+var upperMesh = Fall("NorthFalls_UpperFall", UpperLipS, 3.2f, HeadLevel, LipLevel - 0.05f, 3.1f, 3.4f, 2.2f);
+// 본류 머리 파생 메시 자리만 만든다. 실제 잘라내기는 north-falls-trim.cs.txt가 원본 WaterJoined 자산에서 계산한다(원본은 수정하지 않는다).
+var src = riverFilter.sharedMesh;
+string report = "head=" + head.triangles.Length / 3 + " lip=" + lip.triangles.Length / 3 + " pool=" + poolMesh.triangles.Length / 3 + " poolBounds=" + poolMesh.bounds;
+if (MODE != "apply") return "DRY " + report;
+if (!AssetDatabase.IsValidFolder(Dir)) AssetDatabase.CreateFolder("Assets/10.Datas/World/RiverBasinWorld", "NorthFalls");
+var trimmed = UnityEngine.Object.Instantiate(src); trimmed.name = "Water_5_6_NorthFallsTrim";
+foreach (var m in new[] { head, lip, poolMesh, main, upperMesh, trimmed }) AssetDatabase.CreateAsset(m, Dir + "/" + m.name + ".asset");
+var fallMaterial = new Material(AssetDatabase.LoadAssetAtPath<Material>("Assets/10.Datas/World/OpenWorld/LakeWaterfall/R3/Fall.mat")); fallMaterial.name = "NorthFalls_Fall";
+foreach (string p in new[] { "ShallowColor", "DeepColor", "FoamColor" }) fallMaterial.SetColor("_River" + p, surfaceMaterial.GetColor("_" + p));
+fallMaterial.SetVector("_RiverWaveVelocity", surfaceMaterial.GetVector("_WaveVelocity"));
+var sourceProperties = new[] { "DepthDistance", "Absorption", "SurfaceOpacity", "EdgeDistance", "WaveScale", "WaveStrength", "ReflectionStrength", "RefractionStrength", "FoamWidth", "FoamStrength", "FoamScale", "FoamSpeed", "WeatherWindResponse" };
+var targetProperties = new[] { "DepthDistance", "Absorption", "Opacity", "EdgeDistance", "WaveScale", "WaveStrength", "Reflection", "Refraction", "FoamWidth", "FoamStrength", "FoamScale", "FoamSpeed", "WindResponse" };
+for (int i = 0; i < sourceProperties.Length; i++) fallMaterial.SetFloat("_River" + targetProperties[i], surfaceMaterial.GetFloat("_" + sourceProperties[i]));
+fallMaterial.SetColor("_RiverUnderwaterColor", surfaceMaterial.GetColor("_UnderwaterColor")); fallMaterial.SetFloat("_RiverUnderwaterOpacity", surfaceMaterial.GetFloat("_UnderwaterOpacity"));
+fallMaterial.SetColor("_ShallowColor", surfaceMaterial.GetColor("_ShallowColor"));
+// 호수 폭포의 청록은 이 강의 렌더 색(탁한 초록)과 어긋난다. 촬영 비교로 몸통·거품 색을 강 쪽으로 맞추고 양끝을 부드럽게 흐린다.
+fallMaterial.SetColor("_DeepColor", new Color(0.13f, 0.29f, 0.25f, 1f)); fallMaterial.SetColor("_FoamColor", new Color(0.82f, 0.88f, 0.84f, 1f)); fallMaterial.SetFloat("_SideFade", 0.09f);
+AssetDatabase.CreateAsset(fallMaterial, Dir + "/NorthFalls_Fall.mat");
+var root = new GameObject("북부 폭포"); Undo.RegisterCreatedObjectUndo(root, "북부 폭포 배치");
+Func<string, Transform, GameObject> Child = (n, parent) => { var go = new GameObject(n); go.transform.SetParent(parent, false); return go; };
+var waterRoot = Child("수면", root.transform); var fallRoot = Child("낙수", root.transform);
+Func<string, Mesh, Material, Transform, GameObject> Render = (n, mesh, mat, parent) =>
+{ var go = Child(n, parent); go.AddComponent<MeshFilter>().sharedMesh = mesh; var r = go.AddComponent<MeshRenderer>(); r.sharedMaterial = mat; r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off; return go; };
+Func<GameObject, float, UPlayGround.Components.FootstepWaterSurface> Register = (go, depth) =>
+{
+    var surface = go.AddComponent<UPlayGround.Components.FootstepWaterSurface>(); surface.surfaceMesh = go.GetComponent<MeshFilter>(); surface.profile = b1Surface.profile;
+    var bounds = go.GetComponent<MeshFilter>().sharedMesh.bounds; bounds.Expand(new Vector3(0f, depth * 2f + 6f, 0f)); surface.useVolumeBounds = true; surface.volumeBounds = bounds; surface.RefreshMesh(); return surface;
+};
+var headSurface = Register(Render("상류 샘물", head, surfaceMaterial, waterRoot.transform), 1f);
+var lipSurface = Register(Render("립 웅덩이", lip, surfaceMaterial, waterRoot.transform), 1.2f);
+var poolSurface = Register(Render("낙수 웅덩이", poolMesh, surfaceMaterial, waterRoot.transform), 4.5f);
+var mainFall = Render("본 폭포", main, fallMaterial, fallRoot.transform); var upperFall = Render("상단 폭포", upperMesh, fallMaterial, fallRoot.transform);
+var mainImpact = Child("본 폭포 입수 지점", root.transform); mainImpact.transform.position = At(MainLipS + 4.0f, 0f) + Vector3.up * PoolLevel;
+var upperImpact = Child("상단 폭포 입수 지점", root.transform); upperImpact.transform.position = At(UpperLipS + 2.2f, 0f) + Vector3.up * LipLevel;
+var mainLink = mainFall.AddComponent<UPlayGround.Gameplay.World.WaterfallLink>(); mainLink.source = lipSurface; mainLink.target = poolSurface; mainLink.impact = mainImpact.transform;
+var upperLink = upperFall.AddComponent<UPlayGround.Gameplay.World.WaterfallLink>(); upperLink.source = headSurface; upperLink.target = lipSurface; upperLink.impact = upperImpact.transform;
+Undo.RecordObject(riverFilter, "본류 머리 잘라내기"); riverFilter.sharedMesh = trimmed;
+UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene); AssetDatabase.SaveAssets();
+return "APPLIED " + report + " originalRiverMesh=" + AssetDatabase.GetAssetPath(src);

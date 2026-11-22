@@ -1,0 +1,9 @@
+NorthFalls_Downstream 1920x1080 Unity 6000.3.21f1 loop=False
+Start (2841.80, 132.31, 3406.10) route=2842/3406 > 2841/3372 > 2855/3357
+SwimEnter (2841.80, 132.17, 3406.10)
+SwimExit (2841.28, 135.19, 3375.35)
+Reached (2841.20, 3372.10) at (2841.25, 135.16, 3374.04) swim=False t=13.6
+Reached (2854.70, 3357.00) at (2853.49, 133.76, 3358.49) swim=False t=16.7
+samples=2301 grounded=578 swimFrames=1710 swimEntries=1 swimAtEnd=False stuck=0 timeout=False
+feetLowest=132.17 feetHighest=135.19 end=(2853.49, 133.76, 3358.49) state=PlayerGroundMoveState
+PASS

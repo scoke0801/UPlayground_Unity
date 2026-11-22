@@ -1,0 +1,7 @@
+ForestPilot_BenchA 1920x1080 NVIDIA GeForce RTX 3060 Ti Direct3D11 terrains=64 distance/density=90/340/1 quality=PC vSync=1 targetFPS=60 Unity 6000.3.21f1
+Start at (988.00, 95.78, 2320.00) cam (992.35, 98.44, 2322.05) euler (14.00, 244.74, 0.00)
+outbound wall n=666 p50=29.46 p95=38.77 max=135.99 CPU n=666 p50=29.32 p95=39.27 max=125.25 GPU n=657 p50=16.37 p95=21.33 max=94.32 main n=666 p50=13.29 p95=17.33 max=30.24 render n=666 p50=3.68 p95=5.08 max=23.08 grounded 666/666 maxOffset=0.003936649 X1024 crossings=0
+Arrival at (880.68, 95.20, 2257.40) cam (885.03, 97.76, 2259.45) euler (14.00, 244.74, 0.00)
+return wall n=655 p50=31.07 p95=42.00 max=154.45 CPU n=655 p50=30.94 p95=41.88 max=153.99 GPU n=651 p50=14.42 p95=20.30 max=37.47 main n=655 p50=14.69 p95=19.04 max=127.23 render n=655 p50=3.70 p95=5.33 max=10.29 grounded 655/655 maxOffset=0.005087565 X1024 crossings=0
+Return at (987.33, 95.85, 2319.61) cam (983.54, 98.46, 2316.64) euler (14.00, 51.88, 0.00)
+ROUNDTRIP

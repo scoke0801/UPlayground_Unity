@@ -1,0 +1,24 @@
+// 본류 머리(Water_5_6) 잘라내기. 원본 WaterJoined 자산에서 매번 다시 계산해 파생 자산 Water_5_6_NorthFallsTrim에 덮어쓴다(재실행해도 누적되지 않는다).
+// 세 꼭짓점이 모두 낙수 웅덩이 격자 칸 안에 있는 삼각형만 지운다. 경계에 걸친 삼각형은 남겨 구멍 대신 같은 높이·같은 재질의 좁은 겹침을 허용한다.
+const string MODE = "apply";
+const string Original = "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/WaterJoined/Water_5_6.asset";
+const string TrimPath = "Assets/10.Datas/World/RiverBasinWorld/NorthFalls/Water_5_6_NorthFallsTrim.asset";
+var river = GameObject.Find("RiverBasin 수면/Water_5_6"); var filter = river.GetComponent<MeshFilter>();
+var poolMesh = GameObject.Find("북부 폭포/수면/낙수 웅덩이").GetComponent<MeshFilter>().sharedMesh;
+var cells = new Dictionary<long, bool>(); var pv = poolMesh.vertices; var pt = poolMesh.triangles;
+for (int i = 0; i < pt.Length; i += 6) { var c = (pv[pt[i]] + pv[pt[i + 5]]) * 0.5f; cells[((long)Mathf.FloorToInt(c.x) << 32) ^ (uint)Mathf.FloorToInt(c.z)] = true; }
+Func<Vector3, bool> Covered = p => cells.ContainsKey(((long)Mathf.FloorToInt(p.x) << 32) ^ (uint)Mathf.FloorToInt(p.z));
+var src = AssetDatabase.LoadAssetAtPath<Mesh>(Original); var rv = src.vertices; var rt = src.triangles; var keep = new List<int>(); int removed = 0; var tf = river.transform;
+for (int i = 0; i < rt.Length; i += 3)
+{
+    if (Covered(tf.TransformPoint(rv[rt[i]])) && Covered(tf.TransformPoint(rv[rt[i + 1]])) && Covered(tf.TransformPoint(rv[rt[i + 2]]))) { removed++; continue; }
+    keep.Add(rt[i]); keep.Add(rt[i + 1]); keep.Add(rt[i + 2]);
+}
+if (MODE != "apply") return "DRY removed=" + removed + "/" + rt.Length / 3;
+var trimmed = AssetDatabase.LoadAssetAtPath<Mesh>(TrimPath);
+trimmed.Clear(); trimmed.vertices = rv; trimmed.normals = src.normals; trimmed.uv = src.uv; if (src.uv2.Length == rv.Length) trimmed.uv2 = src.uv2;
+if (src.tangents.Length == rv.Length) trimmed.tangents = src.tangents; if (src.colors.Length == rv.Length) trimmed.colors = src.colors;
+trimmed.SetTriangles(keep, 0); trimmed.RecalculateBounds(); EditorUtility.SetDirty(trimmed);
+if (filter.sharedMesh != trimmed) { Undo.RecordObject(filter, "본류 머리 잘라내기"); filter.sharedMesh = trimmed; }
+UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(river.scene); AssetDatabase.SaveAssets();
+return "TRIMMED removed=" + removed + "/" + rt.Length / 3;

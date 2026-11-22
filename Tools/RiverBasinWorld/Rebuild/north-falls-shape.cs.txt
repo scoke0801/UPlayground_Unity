@@ -1,0 +1,75 @@
+// 북부 본류 상류 끝 2단 폭포의 공용 형상 정의. north-falls-run.cs.txt가 각 단계 본문 앞에 붙여 실행한다.
+// 좌표: s = 낙구(립)에서 하류(+)·상류(-) 거리, q = 횡단 거리(+는 서쪽). 단위 m, Y는 월드 높이.
+// 상류 바위 틈 샘 → 상단 폭포(약 9.4m) → 얕은 립 웅덩이 → 본 폭포(약 11.2m) → 낙수 웅덩이 → 기존 본류 머리(수위 136.04).
+var O = new Vector3(2844f, 0f, 3418f);
+var F = new Vector3(-0.08f, 0f, -1f).normalized;
+var R = new Vector3(F.z, 0f, -F.x);
+const float PoolLevel = 136.04f, LipLevel = 147.2f, HeadLevel = 156.6f;
+const float UpperLipS = -19.3f, MainLipS = 0.8f;
+Func<float[,], float, float> Tab = (t, s) =>
+{
+    int n = t.GetLength(0); if (s <= t[0, 0]) return t[0, 1];
+    for (int i = 1; i < n; i++) if (s <= t[i, 0]) return Mathf.Lerp(t[i - 1, 1], t[i, 1], Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(t[i - 1, 0], t[i, 0], s)));
+    return t[n - 1, 1];
+};
+// 하류 웅덩이와 본류는 좌우 대칭을 피하도록 완만하게 굽힌다.
+Func<float, float> Bend = s => s > 2f ? 1.6f * Mathf.Sin((s - 2f) * 0.085f) : 0f;
+Func<float, float, Vector3> At = (s, q) => O + F * s + R * (q + Bend(s));
+Func<Vector3, Vector2> ToSQ = p => { var d = p - O; d.y = 0f; float s = Vector3.Dot(d, F); return new Vector2(s, Vector3.Dot(d, R) - Bend(s)); };
+// 립 웅덩이는 둥글게 넓어졌다가 낙구 폭(반폭 6.6m)으로 모인다. 낙수 메시 양끝은 암반이 덮는다.
+var upperHalf = new float[,] { { -28f, 1.6f }, { -24f, 3.0f }, { -19.3f, 3.2f }, { -18f, 4.2f }, { -14f, 6.0f }, { -8f, 8.5f }, { -3f, 8.0f }, { 0f, 6.6f }, { 0.8f, 6.6f } };
+// 하류 끝(s 44~56)은 기존 본류의 실제 양안에 맞춘다: 본류 수면은 서쪽 둑이 q≈+5, 동쪽이 q≈-14까지다(정점 실측).
+// 웅덩이를 대칭으로 넓게 깎았을 때 본류가 덮지 않는 서쪽에 물 없는 오목한 땅이 드러났다.
+var poolHalf = new float[,] { { 1.5f, 7.5f }, { 4f, 10.5f }, { 10f, 13f }, { 20f, 13.5f }, { 30f, 12f }, { 40f, 11f }, { 46f, 12.5f }, { 56f, 13f } };
+// s 46~48에서 본류가 덮지 않는 서쪽(q > +3)은 마른 자갈 둑으로 올린다. 깎아 두면 수면 없는 구덩이가 출구 앞에 드러났다.
+var poolHalfWest = new float[,] { { 1.5f, 8.4f }, { 4f, 11.8f }, { 10f, 14.6f }, { 20f, 15.1f }, { 30f, 13.4f }, { 38f, 11.5f }, { 43f, 7.5f }, { 46f, 4.0f }, { 48f, 3.0f }, { 56f, 3.5f } };
+var poolDepth = new float[,] { { 1.5f, 3.2f }, { 4f, 4.2f }, { 10f, 4.0f }, { 18f, 3.4f }, { 28f, 2.2f }, { 36f, 1.3f }, { 44f, 0.9f }, { 56f, 0.9f } };
+Func<float, float> UpperHalf = s => Tab(upperHalf, s);
+Func<float, float, float> PoolHalf = (s, q) => q > 0f ? Tab(poolHalfWest, s) : Tab(poolHalf, s);
+Func<float, float> UpperWater = s => s < UpperLipS ? HeadLevel : LipLevel;
+// 기존 본류 머리는 s≈46까지 136.04로 평평하고 그 하류는 약 0.09m/m로 내려간다(Water_5_6 정점 실측).
+// 웅덩이 하류 하상은 이 실제 수면에서 깊이를 빼야 한다. 평평한 136.04 기준으로 깎았을 때 수심 0의 투명한 띠와 수면 턱이 생겼다.
+const float PoolEndS = 46f, PoolGridEndS = 48f;
+// 웅덩이 수면 격자는 본류가 아직 136.04로 평평한 s 48까지 덮어 두 수면 사이 빈틈을 없앤다.
+Func<float, float> PoolSurface = s => s <= PoolEndS ? PoolLevel : PoolLevel - (s - PoolEndS) * 0.09f;
+// 낙구 절벽선은 가운데가 립 바로 아래, 양옆은 하류로 휘어 웅덩이를 감싸는 반원형 벽이 된다.
+Func<float, float> CliffLine = q => 1.2f + 2.2f * Mathf.Pow(Mathf.Abs(q) / 12f, 2f) + (Mathf.PerlinNoise(q * 0.21f + 3.1f, 7.7f) - 0.5f) * 1.0f;
+Func<float, float> UpperBed = s =>
+{
+    if (s <= UpperLipS) return HeadLevel - 0.35f;
+    if (s < -17.6f) return Mathf.Lerp(HeadLevel - 0.35f, LipLevel - 0.9f, Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(UpperLipS, -17.6f, s)));
+    if (s < -15f) return LipLevel - 0.9f;
+    if (s < -1.5f) return Mathf.Lerp(LipLevel - 0.9f, LipLevel - 0.6f, Mathf.InverseLerp(-15f, -12f, s));
+    return Mathf.Lerp(LipLevel - 0.6f, LipLevel - 0.25f, Mathf.InverseLerp(-1.5f, MainLipS, s));
+};
+// existing: 작업 전 지형 높이. 반환값은 목표 높이(전역 가중은 호출부가 적용).
+Func<float, float, float, Vector3, float> UpperHeight = (s, q, existing, p) =>
+{
+    float half = UpperHalf(s), water = UpperWater(s), a = Mathf.Abs(q);
+    // 수직 슬롯처럼 보이지 않도록 벽은 약 40°로 눕히고 9m에 걸쳐 원래 사면으로 돌아간다.
+    float target = a <= half ? Mathf.Lerp(UpperBed(s), water + 0.05f, Mathf.Pow(a / half, 3f)) : water + 0.3f + (a - half) * 0.85f;
+    target += (Mathf.PerlinNoise(p.x * 0.31f, p.z * 0.31f) - 0.5f) * (a <= half ? 0.12f : 0.7f);
+    return Mathf.Lerp(target, existing, Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(half, half + 9f, a)));
+};
+Func<float, float, float, Vector3, float> PoolHeight = (s, q, existing, p) =>
+{
+    float half = PoolHalf(s, q), depth = Tab(poolDepth, s), a = Mathf.Abs(q);
+    bool beach = q > 0f && s > 12f && s < 32f;
+    float under = beach ? 0.30f : 0.50f, above = beach ? 0.32f : 0.55f;
+    float surface = PoolSurface(s);
+    float target = a < half ? surface - depth * Mathf.Clamp01((half - a) / (depth / under)) : surface + (a - half) * above;
+    target += (Mathf.PerlinNoise(p.x * 0.27f + 11f, p.z * 0.27f) - 0.5f) * (a < half ? 0.15f : 0.45f);
+    return Mathf.Lerp(target, existing, Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(half, half + 10f, a)));
+};
+// 상류 샘 끝·하류 본류 합류·좌우 바깥에서 원래 지형으로 돌아가는 전역 가중.
+Func<float, float, float> Influence = (s, q) =>
+    Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(-33f, -29f, s)) * (1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(48f, 57f, s)))
+    * (1f - Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(23f, 28f, Mathf.Abs(q))));
+Func<float, float, float, Vector3, float> TargetHeight = (s, q, existing, p) =>
+{
+    float cliff = CliffLine(q);
+    float upper = UpperHeight(Mathf.Min(s, MainLipS), q, existing, p), pool = PoolHeight(Mathf.Max(s, 1.5f), q, existing, p);
+    float k = Mathf.SmoothStep(0f, 1f, Mathf.InverseLerp(cliff - 0.45f, cliff + 0.45f, s));
+    return Mathf.Lerp(upper, pool, k);
+};
+var RegionMin = new Vector2(2798f, 3352f); var RegionMax = new Vector2(2888f, 3462f);

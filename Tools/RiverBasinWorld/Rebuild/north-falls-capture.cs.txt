@@ -1,0 +1,35 @@
+// 북부 폭포 검수 촬영. 깊이·불투명 텍스처를 켠 임시 URP 카메라로 찍고 씬은 바꾸지 않는다. PREFIX를 바꿔 회차별로 남긴다.
+const string MODE = "apply";
+const string PREFIX = "v2";
+string outDir = "output/RiverBasinWorld/NorthFalls"; System.IO.Directory.CreateDirectory(outDir);
+var go = new GameObject("NorthFallsReviewCamera") { hideFlags = HideFlags.HideAndDontSave };
+var camera = go.AddComponent<Camera>(); camera.enabled = false; camera.fieldOfView = 58f; camera.farClipPlane = 3000f; camera.nearClipPlane = 0.08f;
+var extra = go.AddComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>(); extra.requiresDepthTexture = true; extra.requiresColorTexture = true;
+var shots = new[] {
+    new[] { new Vector3(2790f, 178f, 3245f), new Vector3(2844f, 146f, 3405f) },
+    new[] { new Vector3(2839f, 139.5f, 3372f), new Vector3(2844f, 143f, 3418f) },
+    new[] { new Vector3(2814f, 144f, 3396f), new Vector3(2843f, 142f, 3414f) },
+    new[] { new Vector3(2858f, 160f, 3433f), new Vector3(2844f, 146f, 3417f) },
+    new[] { new Vector3(2843f, 151f, 3418f), new Vector3(2846f, 155f, 3440f) },
+    new[] { new Vector3(2846f, 214f, 3392f), new Vector3(2844f, 140f, 3404f) },
+    new[] { new Vector3(2841f, 134.8f, 3395f), new Vector3(2844f, 140f, 3416f) } };
+var names = new[] { "vista", "front", "side", "lip", "upper", "overhead", "underwater" };
+var root = GameObject.Find("북부 폭포");
+if (root != null) foreach (var particle in root.GetComponentsInChildren<ParticleSystem>()) particle.Simulate(3f, true, true, true);
+try
+{
+    for (int i = 0; i < shots.Length; i++)
+    {
+        camera.transform.position = shots[i][0]; camera.transform.LookAt(shots[i][1]);
+        var rt = RenderTexture.GetTemporary(1600, 900, 24); var previous = RenderTexture.active;
+        try
+        {
+            camera.targetTexture = rt; camera.Render(); RenderTexture.active = rt;
+            var texture = new Texture2D(1600, 900, TextureFormat.RGB24, false); texture.ReadPixels(new Rect(0, 0, 1600, 900), 0, 0); texture.Apply();
+            System.IO.File.WriteAllBytes(outDir + "/" + PREFIX + "-" + names[i] + ".png", texture.EncodeToPNG()); UnityEngine.Object.DestroyImmediate(texture);
+        }
+        finally { camera.targetTexture = null; RenderTexture.active = previous; RenderTexture.ReleaseTemporary(rt); }
+    }
+}
+finally { UnityEngine.Object.DestroyImmediate(go); }
+return "CAPTURED " + string.Join(",", names);

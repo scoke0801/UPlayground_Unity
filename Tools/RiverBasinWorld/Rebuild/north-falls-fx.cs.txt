@@ -1,0 +1,75 @@
+// 북부 폭포 물보라·미스트·소리. 입자는 호수 폭포에서 검증한 기존 RiverBasinWorld 씬의 「낙수 물보라」「낙수 안개」를 복제한다(원본 씬은 저장하지 않고 닫는다).
+// 소리는 B1 강바닥 루프와 구분되는 저역 중심 굉음을 결정적 난수로 합성한 12초 루프(끝 1초를 처음에 교차 혼합)다. 청감 인수는 사용자 확인 대상이다.
+// 재실행하면 기존 「물보라와 소리」를 지우고 다시 만든다. 음원 파일은 이미 있으면 그대로 쓴다.
+const string MODE = "apply";
+const string ClipPath = "Assets/10.Datas/World/RiverBasinWorld/NorthFalls/NorthFalls_Roar_Loop.wav";
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+var root = GameObject.Find("북부 폭포"); if (root == null) throw new Exception("water 단계를 먼저 실행하세요.");
+if (MODE != "apply") return "DRY";
+if (!System.IO.File.Exists(ClipPath))
+{
+    const int Rate = 44100, Seconds = 12, Fade = Rate; int total = Rate * Seconds + Fade;
+    var raw = new float[total]; var random = new System.Random(3418);
+    float low = 0f, mid = 0f, slow = 0f, slowTarget = 0f;
+    for (int i = 0; i < total; i++)
+    {
+        float white = (float)(random.NextDouble() * 2.0 - 1.0);
+        low += 0.02f * (white - low); mid += 0.25f * (white - mid);
+        if (i % 4410 == 0) slowTarget = (float)random.NextDouble();
+        slow += 0.00004f * (slowTarget - slow);
+        // 저역 굉음 + 중역 물살. 느린 진폭 흔들림은 ±12%로 제한해 반복감을 줄인다.
+        raw[i] = (low * 3.2f + (mid - low) * 0.55f + white * 0.04f) * (0.88f + 0.24f * slow);
+    }
+    var loop = new float[Rate * Seconds];
+    for (int i = 0; i < loop.Length; i++) loop[i] = raw[i];
+    for (int i = 0; i < Fade; i++) { float t = i / (float)Fade; loop[i] = raw[i] * t + raw[Rate * Seconds + i] * (1f - t); }
+    float peak = 0f; foreach (float v in loop) peak = Mathf.Max(peak, Mathf.Abs(v)); float gain = 0.5f / peak;
+    using (var stream = new System.IO.MemoryStream()) using (var writer = new System.IO.BinaryWriter(stream))
+    {
+        int bytes = loop.Length * 2;
+        writer.Write(System.Text.Encoding.ASCII.GetBytes("RIFF")); writer.Write(36 + bytes); writer.Write(System.Text.Encoding.ASCII.GetBytes("WAVEfmt "));
+        writer.Write(16); writer.Write((short)1); writer.Write((short)1); writer.Write(Rate); writer.Write(Rate * 2); writer.Write((short)2); writer.Write((short)16);
+        writer.Write(System.Text.Encoding.ASCII.GetBytes("data")); writer.Write(bytes);
+        foreach (float v in loop) writer.Write((short)Mathf.Clamp(Mathf.RoundToInt(v * gain * 32767f), -32768, 32767));
+        System.IO.File.WriteAllBytes(ClipPath, stream.ToArray());
+    }
+    AssetDatabase.ImportAsset(ClipPath);
+    var importer = (AudioImporter)AssetImporter.GetAtPath(ClipPath); var settings = importer.defaultSampleSettings;
+    settings.loadType = AudioClipLoadType.DecompressOnLoad; settings.compressionFormat = AudioCompressionFormat.Vorbis; settings.quality = 1f;
+    importer.defaultSampleSettings = settings; importer.SaveAndReimport();
+}
+var clip = AssetDatabase.LoadAssetAtPath<AudioClip>(ClipPath);
+var oldFx = root.transform.Find("물보라와 소리"); if (oldFx != null) Undo.DestroyObjectImmediate(oldFx.gameObject);
+var fx = new GameObject("물보라와 소리"); Undo.RegisterCreatedObjectUndo(fx, "북부 폭포 연출"); fx.transform.SetParent(root.transform, false);
+GameObject splash = null, mist = null;
+var original = UnityEditor.SceneManagement.EditorSceneManager.OpenScene("Assets/01.Scenes/Ingame/Worlds/RiverBasinWorld.unity", UnityEditor.SceneManagement.OpenSceneMode.Additive);
+try
+{
+    var objects = original.GetRootGameObjects().SelectMany(g => g.GetComponentsInChildren<Transform>(true)).ToArray();
+    splash = UnityEngine.Object.Instantiate(objects.First(t => t.name == "낙수 물보라").gameObject); mist = UnityEngine.Object.Instantiate(objects.First(t => t.name == "낙수 안개").gameObject);
+    UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(splash, scene); UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(mist, scene);
+}
+finally { UnityEditor.SceneManagement.EditorSceneManager.CloseScene(original, true); UnityEngine.SceneManagement.SceneManager.SetActiveScene(scene); }
+Func<GameObject, string, Vector3, Vector3, GameObject> Spawn = (source, name, position, scale) =>
+{ var go = UnityEngine.Object.Instantiate(source, fx.transform); go.name = name; go.transform.position = position; go.transform.rotation = Quaternion.LookRotation(F); go.transform.localScale = scale; return go; };
+var mainImpact = At(MainLipS + 4.0f, 0f) + Vector3.up * (PoolLevel + 0.15f);
+for (int i = 0; i < 3; i++) Spawn(splash, "본 폭포 물보라 " + (i + 1), mainImpact + R * ((i - 1) * 4.4f), Vector3.one * 1.05f);
+var mainMist = Spawn(mist, "본 폭포 미스트", mainImpact + F * 1.2f + Vector3.up * 0.8f, new Vector3(2.4f, 1.0f, 1.4f));
+foreach (float k in new[] { 0.5f, 0.78f })
+    Spawn(mist, "본 폭포 낙하 미스트", At(MainLipS + 4.0f * k, 0f) + Vector3.up * (LipLevel - 11.2f * k * k - 0.2f), new Vector3(1.5f, 0.35f, 0.35f));
+var upperImpact = At(UpperLipS + 2.2f, 0f) + Vector3.up * (LipLevel + 0.1f);
+for (int i = 0; i < 2; i++) Spawn(splash, "상단 폭포 물보라 " + (i + 1), upperImpact + R * ((i - 0.5f) * 2.6f), Vector3.one * 0.6f);
+var upperMist = Spawn(mist, "상단 폭포 미스트", upperImpact + Vector3.up * 0.6f, new Vector3(1.0f, 0.6f, 0.8f));
+UnityEngine.Object.DestroyImmediate(splash); UnityEngine.Object.DestroyImmediate(mist);
+Func<string, Vector3, float, float, float, AudioSource> Sound = (name, position, volume, near, far) =>
+{
+    var go = new GameObject(name); go.transform.SetParent(fx.transform, false); go.transform.position = position; var a = go.AddComponent<AudioSource>();
+    a.clip = clip; a.loop = true; a.playOnAwake = true; a.spatialBlend = 1f; a.volume = volume; a.minDistance = near; a.maxDistance = far; a.rolloffMode = AudioRolloffMode.Linear; a.dopplerLevel = 0f; return a;
+};
+// 본 폭포는 멀리서도 방향을 알려 주도록 110m까지 들리게 한다. 상단 폭포는 높은 음역 대신 낮은 음량·짧은 거리로 겹침만 더한다.
+Sound("본 폭포 소리", mainImpact + Vector3.up * 1.5f, 0.55f, 10f, 110f);
+var upperSound = Sound("상단 폭포 소리", upperImpact + Vector3.up * 1f, 0.3f, 5f, 45f); upperSound.pitch = 1.12f;
+var links = root.GetComponentsInChildren<UPlayGround.Gameplay.World.WaterfallLink>(true);
+foreach (var link in links) link.mist = (link.name == "본 폭포" ? mainMist : upperMist).GetComponentInChildren<ParticleSystem>();
+UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene); AssetDatabase.SaveAssets();
+return "FX particles=" + fx.GetComponentsInChildren<ParticleSystem>(true).Length + " sounds=2 clip=" + clip.length + "s links=" + links.Length;

@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="Unity 6 URP 툰 안개 시스템의 설계, 구현 계약, 단계별 작업 지시와 검증 기준.">
+  <title>Unity 툰 안개 시스템 설계 및 구현 지시서</title>
+  <style>
+:root { --paper:#f7f6f2; --panel:#ffffff; --ink:#1d2c34; --muted:#5b6a71; --line:#dce3df; --green:#096e61; --green-soft:#eaf4ef; --purple:#6e5799; --purple-soft:#f1edf7; --code:#182a31; }
+* { box-sizing:border-box; }
+html { scroll-behavior:smooth; scroll-padding-top:30px; }
+body { margin:0; background:var(--paper); color:var(--ink); font-family:"Noto Sans CJK KR","Noto Sans KR","Apple SD Gothic Neo","Malgun Gothic",Arial,sans-serif; font-size:16px; line-height:1.8; word-break:keep-all; overflow-wrap:anywhere; }
+button,a { -webkit-tap-highlight-color:transparent; }
+a { color:var(--green); text-decoration-thickness:1px; text-underline-offset:3px; }
+a:hover { color:#034f46; }
+button { font:inherit; cursor:pointer; }
+button:focus-visible,a:focus-visible,summary:focus-visible,[tabindex]:focus-visible { outline:3px solid #9474c4; outline-offset:4px; }
+.masthead { max-width:1440px; margin:0 auto; padding:54px 54px 36px; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:40px; border-bottom:1px solid var(--line); }
+.eyebrow { display:flex; align-items:center; gap:10px; color:var(--green); font-size:12px; font-weight:800; letter-spacing:.11em; text-transform:uppercase; }
+.eyebrow::before { content:""; width:9px; height:9px; background:var(--green); border-radius:3px; }
+h1 { font-size:40px; line-height:1.38; letter-spacing:-.045em; margin:17px 0 16px; max-width:980px; }
+.header-description { color:var(--muted); margin:0; font-size:15px; max-width:870px; }
+.header-meta { display:flex; flex-wrap:wrap; gap:8px; margin-top:22px; }
+.meta-chip { border:1px solid #cedbd4; border-radius:30px; font-size:12px; font-weight:650; padding:3px 11px; color:#426055; background:#f9fcfa; }
+.header-tools { display:flex; flex-direction:column; gap:10px; align-self:center; min-width:164px; }
+.action { border:1px solid #b6cec2; border-radius:9px; padding:10px 16px; line-height:1.4; font-size:13px; font-weight:700; background:#fff; color:#285046; }
+.action.primary { background:var(--green); color:#fff; border-color:var(--green); }
+.action:hover { filter:brightness(.96); }
+.action:disabled { opacity:.5; cursor:default; }
+.copy-status { min-height:20px; font-size:12px; color:var(--green); text-align:center; }
+.page-layout { max-width:1440px; margin:0 auto; display:grid; grid-template-columns:260px minmax(0,1fr); gap:48px; padding:34px 54px 76px; }
+.desktop-toc { position:sticky; top:24px; align-self:start; max-height:calc(100vh - 48px); overflow-y:auto; padding:7px 12px 12px 0; scrollbar-width:thin; }
+.toc-label { color:var(--muted); font-weight:800; font-size:11px; letter-spacing:.12em; text-transform:uppercase; margin-bottom:15px; }
+.toc-list { list-style:none; padding:0; margin:0; }
+.toc-list li { margin:0 0 4px; padding:0; }
+.toc-list a { display:block; padding:7px 11px; color:#596a71; font-size:12.5px; line-height:1.55; text-decoration:none; border-left:2px solid transparent; border-radius:0 6px 6px 0; }
+.toc-list a:hover,.toc-list a.active { background:#e9f0eb; border-color:var(--green); color:#174e41; }
+.toc-note { margin-top:20px; border-top:1px solid var(--line); padding:16px 11px 0; font-size:11px; color:#7c878a; line-height:1.7; }
+.mobile-toc { display:none; }
+main { min-width:0; max-width:1050px; }
+.document-intro { background:#eaf3ed; border:1px solid #d0dfd5; border-radius:13px; padding:24px 28px; margin:0 0 35px; }
+.document-intro p:first-child { margin-top:0; }
+.document-intro p:last-child { margin-bottom:0; }
+.doc-section { margin-top:44px; padding-top:31px; border-top:1px solid var(--line); scroll-margin-top:25px; }
+.doc-section:first-of-type { margin-top:0; padding-top:4px; border-top:0; }
+h2 { color:#173c35; font-size:27px; line-height:1.48; letter-spacing:-.035em; margin:0 0 22px; }
+h3 { font-size:20px; line-height:1.55; letter-spacing:-.025em; margin:32px 0 13px; }
+h4 { font-size:16px; line-height:1.6; margin:25px 0 10px; color:#405951; }
+p { margin:12px 0 17px; }
+strong { font-weight:750; }
+ul,ol { padding-left:1.5em; margin:14px 0 20px; }
+li { padding-left:.2em; margin:7px 0; }
+li::marker { color:var(--green); font-weight:700; }
+code { font-family:"SFMono-Regular",Consolas,"Liberation Mono","Noto Sans Mono CJK KR",monospace; font-size:.86em; background:#eaf0ec; padding:2px 5px; border-radius:4px; overflow-wrap:anywhere; word-break:normal; }
+.code-block { margin:20px 0 25px; border:1px solid #1c353e; border-radius:10px; overflow:hidden; background:var(--code); color:#e7f1ef; }
+.code-toolbar { display:flex; justify-content:space-between; align-items:center; padding:8px 15px; background:#223840; border-bottom:1px solid #35505a; color:#a8c5bf; font-size:11px; letter-spacing:.06em; }
+.copy-code { padding:3px 9px; border:1px solid #546d73; border-radius:5px; background:transparent; color:#d6e8e2; font-size:11px; }
+.copy-code:hover { background:#344d54; }
+pre { margin:0; padding:18px 20px 22px; max-width:100%; overflow:auto; white-space:pre; line-height:1.7; tab-size:4; }
+pre code { font-size:12.5px; background:none; padding:0; border-radius:0; color:inherit; white-space:pre; overflow-wrap:normal; }
+.table-scroll { max-width:100%; overflow-x:auto; margin:20px 0 27px; border:1px solid #d4ded7; border-radius:10px; background:#fff; }
+table { width:100%; border-collapse:collapse; text-align:left; font-size:13px; line-height:1.75; }
+th { padding:13px 15px; background:#eaf0eb; color:#244a3d; font-weight:800; vertical-align:top; border-bottom:1px solid #cad9ce; min-width:95px; }
+td { padding:12px 15px; border-bottom:1px solid #e5eae6; vertical-align:top; min-width:105px; }
+tr:last-child td { border-bottom:0; }
+tbody tr:nth-child(even) { background:#fbfcfa; }
+td:first-child { color:#2f4d42; font-weight:650; }
+td code { background:#eff3f0; font-size:.9em; }
+.color-value { display:inline-flex; align-items:center; gap:4px; white-space:nowrap; }
+.color-dot { width:12px; height:12px; flex:0 0 12px; border-radius:3px; border:1px solid #0002; print-color-adjust:exact; -webkit-print-color-adjust:exact; }
+.callout { border-left:4px solid #8972ab; border-radius:0 8px 8px 0; background:var(--purple-soft); padding:16px 21px; margin:20px 0 25px; color:#493c5d; font-size:14px; line-height:1.8; }
+.callout code { background:#e7e0ef; }
+hr { border:0; border-top:1px solid var(--line); margin:35px 0; }
+.diagram { margin:25px 0 30px; padding:25px; border:1px solid #cbdcd3; border-radius:13px; background:#fdfefc; }
+.diagram-label { color:#597266; font-size:11px; font-weight:800; letter-spacing:.05em; margin:0 0 22px; }
+.diagram figcaption { font-size:12px; line-height:1.75; color:#67766f; margin:22px 0 0; padding-top:15px; border-top:1px solid #e2e8e1; }
+.source-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; }
+.output-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:15px; }
+.diagram-card { text-align:center; border:1px solid #d5e1d7; background:#f6f9f5; border-radius:9px; padding:15px 12px; }
+.diagram-card strong { display:block; font-size:15px; line-height:1.6; }
+.diagram-card small { display:block; font-size:11.5px; color:#60726b; line-height:1.7; margin-top:4px; }
+.node-tag { display:block; color:#597b6c; font-size:10px; margin-bottom:4px; }
+.diagram-card.resolver { margin:0 9%; border-color:#91b3a2; background:#e9f3ec; }
+.diagram-card.evaluator { margin:0 9%; border-color:#c1b1d6; background:#f3eff8; }
+.diagram-card.evaluator .node-tag { color:#7b639a; }
+.diagram-card.output { background:#fff; }
+.flow-arrow { height:30px; text-align:center; color:#7f9e90; font-size:21px; line-height:30px; }
+.render-stages { list-style:none; margin:0; padding:0; }
+.render-stages li { position:relative; display:grid; grid-template-columns:36px minmax(0,1fr); gap:15px; margin:0 0 12px; padding:17px 20px; border:1px solid #dce5de; border-radius:9px; background:#fafcf8; }
+.render-stages li:not(:last-child)::after { position:absolute; left:37px; bottom:-16px; content:"↓"; font-size:14px; color:#99ada1; z-index:1; line-height:19px; }
+.render-stages li:last-child { margin-bottom:0; }
+.stage-number { width:30px; height:30px; border-radius:50%; background:#e8eee6; color:#5b7e69; font-size:11px; font-weight:800; text-align:center; line-height:30px; }
+.render-stages strong { display:block; font-size:14px; }
+.render-stages small { display:block; font-size:12px; line-height:1.75; color:#65776d; margin-top:3px; }
+.render-stages .fog-stage { border-color:#97bca9; background:#e9f5ee; }
+.fog-stage .stage-number { background:var(--green); color:white; }
+.stage-badge { display:inline-block; font-size:10px; color:#287857; margin-bottom:4px; font-family:Consolas,monospace; }
+.fog-stage code { display:inline-block; margin-top:9px; padding:4px 9px; font-size:12px; background:#daebe0; }
+.svg-scroll { overflow-x:auto; max-width:100%; }
+.svg-scroll svg { display:block; width:100%; min-width:600px; height:auto; font-family:inherit; }
+.svg-title { fill:#244a40; font-size:16px; font-weight:700; }
+.svg-small { fill:#65766d; font-size:14px; }
+footer { max-width:1440px; margin:0 auto; border-top:1px solid var(--line); padding:23px 54px 34px; color:#7b8780; font-size:12px; display:flex; justify-content:space-between; gap:20px; }
+.back-to-top { text-decoration:none; color:#677b6d; }
+@media (min-width:1650px) { .masthead,.page-layout,footer { max-width:1550px; } .page-layout { grid-template-columns:275px minmax(0,1fr); gap:60px; } }
+@media (max-width:1080px) { .masthead { padding:35px 30px 30px; gap:24px; } h1 { font-size:34px; } .page-layout { grid-template-columns:210px minmax(0,1fr); gap:28px; padding:29px 30px 60px; } .toc-list a { font-size:11.5px; } .diagram { padding:20px; } footer { padding-left:30px; padding-right:30px; } }
+@media (max-width:820px) { body { font-size:15px; } .masthead { display:block; padding:28px 22px 25px; } h1 { font-size:31px; } .header-tools { flex-direction:row; align-items:center; flex-wrap:wrap; gap:8px; margin-top:22px; min-width:0; } .copy-status { text-align:left; font-size:11px; min-height:0; } .action { font-size:12px; padding:9px 13px; } .desktop-toc { display:none; } .mobile-toc { display:block; margin:23px 22px 0; background:#edf2ec; border:1px solid #d7e1d7; border-radius:10px; padding:12px 15px; } .mobile-toc summary { font-size:13px; color:#395a48; font-weight:750; cursor:pointer; } .mobile-toc .toc-list { margin-top:14px; columns:2; column-gap:18px; } .mobile-toc .toc-list li { break-inside:avoid; } .page-layout { display:block; padding:24px 22px 50px; } .document-intro { padding:20px; } h2 { font-size:24px; } h3 { font-size:19px; } .table-scroll table { font-size:12.5px; } td,th { padding:11px 12px; } footer { padding:20px 22px 28px; } }
+@media (max-width:480px) { .masthead { padding-top:24px; } h1 { font-size:28px; line-height:1.43; } .header-description { font-size:13px; } .eyebrow { font-size:10px; letter-spacing:.06em; } .header-meta { gap:5px; } .meta-chip { font-size:10px; padding:3px 8px; } .mobile-toc .toc-list { columns:1; } .doc-section { padding-top:26px; margin-top:35px; } h2 { font-size:22px; } h3 { font-size:18px; } .source-grid { grid-template-columns:1fr; gap:8px; } .source-grid .diagram-card { display:grid; grid-template-columns:80px minmax(0,1fr); gap:2px 8px; text-align:left; padding:12px; } .source-grid .node-tag { grid-row:1 / 3; align-self:center; margin:0; } .source-grid .diagram-card small { margin-top:0; } .output-grid { grid-template-columns:1fr; gap:8px; } .diagram { padding:17px; } .diagram-card.resolver,.diagram-card.evaluator { margin:0; } .render-stages li { padding:14px 12px; grid-template-columns:28px minmax(0,1fr); gap:10px; } .render-stages li:not(:last-child)::after { left:23px; } .stage-number { width:26px; height:26px; line-height:26px; } .stage-badge { font-size:9px; overflow-wrap:anywhere; } .render-stages strong { font-size:13px; } .render-stages small { font-size:11px; } .callout { padding:14px 16px; font-size:13px; } pre { padding:15px; } footer { display:block; } .back-to-top { display:block; margin-top:8px; } }
+@media print { @page { size:A4; margin:16mm 15mm; } html { scroll-behavior:auto; } body { background:white; color:#111; font-size:9.5pt; line-height:1.6; } .masthead { display:block; padding:0 0 18px; max-width:none; } h1 { font-size:25pt; max-width:none; } .eyebrow { font-size:8pt; } .header-description { font-size:9pt; } .meta-chip { font-size:7.5pt; } .header-tools,.desktop-toc,.mobile-toc,.copy-code,.back-to-top { display:none!important; } .page-layout { display:block; max-width:none; padding:18px 0 0; } main { max-width:none; } .document-intro { padding:15px; margin:0 0 20px; } .doc-section { margin-top:25px; padding-top:21px; } h2 { font-size:17pt; break-after:avoid; } h3 { font-size:12pt; break-after:avoid; } h4 { break-after:avoid; } p,li { orphans:3; widows:3; } .callout,.diagram { break-inside:avoid; } .diagram { padding:15px; } .table-scroll { overflow:visible; border-radius:0; } table { font-size:8pt; table-layout:auto; } td,th { min-width:0; padding:7px 8px; overflow-wrap:anywhere; } tr { break-inside:avoid; } thead { display:table-header-group; } .code-block { border-color:#b7c1bd; background:#f5f7f5; color:#142c25; } .code-toolbar { background:#e4eae5; color:#35513f; border-bottom:1px solid #c7d0c8; } pre { white-space:pre-wrap; overflow:visible; padding:12px; } pre code { font-size:8pt; white-space:pre-wrap; overflow-wrap:anywhere; } .svg-scroll { overflow:visible; } .svg-scroll svg { min-width:0; } footer { padding:15px 0 0; max-width:none; font-size:8pt; margin-top:25px; } a { color:#075e48; } .source-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } .output-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+</style>
+</head>
+<body id="top">
+<header class="masthead">
+  <div>
+    <div class="eyebrow">Unity 6 · URP · Technical Design</div>
+    <h1>Unity 툰 안개 시스템 설계 및 구현 지시서</h1>
+    <p class="header-description">거리 그라데이션, 높이 안개, 국소 안개를 하나의 계산 규칙으로 연결하는 구현 설계와 Claude·Codex 작업 지침.</p>
+    <div class="header-meta"><span class="meta-chip">설계 v1.0</span><span class="meta-chip">2026.11.21</span><span class="meta-chip">RenderGraph 기반</span><span class="meta-chip">검증 기준 포함</span></div>
+  </div>
+  <div class="header-tools">
+    <button class="action primary" id="copy-prompt" type="button">작업 요청 복사</button>
+    <button class="action" id="print-document" type="button">인쇄 / PDF</button>
+    <span class="copy-status" id="copy-status" role="status" aria-live="polite"></span>
+  </div>
+</header>
+<details class="mobile-toc"><summary>문서 목차 · 19개 항목</summary><ul class="toc-list"><li><a href="#section-01">01 구현 목표와 결정 사항</a></li><li><a href="#section-02">02 구현 범위와 지원 조건</a></li><li><a href="#section-03">03 아트 기준과 레퍼런스 활용</a></li><li><a href="#section-04">04 전체 구조와 책임 분리</a></li><li><a href="#section-05">05 렌더링 순서와 RenderGraph 계약</a></li><li><a href="#section-06">06 공통 수학과 색 합성 규칙</a></li><li><a href="#section-07">07 Local Fog의 공간 계산</a></li><li><a href="#section-08">08 재질별 안개 소유권과 외곽선</a></li><li><a href="#section-09">09 물과 굴절 재질의 통합</a></li><li><a href="#section-10">10 데이터 스키마와 기본값</a></li><li><a href="#section-11">11 지역 전환과 전투 가시성</a></li><li><a href="#section-12">12 일곱 지역의 초기 프리셋</a></li><li><a href="#section-13">13 품질 단계와 성능 예산</a></li><li><a href="#section-14">14 편집 도구와 진단 기능</a></li><li><a href="#section-15">15 단계별 구현 작업과 완료 조건</a></li><li><a href="#section-16">16 검증 매트릭스와 인수 기준</a></li><li><a href="#section-17">17 Claude와 Codex에 전달할 작업 요청</a></li><li><a href="#section-18">18 납품 파일과 자주 발생하는 실패</a></li><li><a href="#section-19">19 근거 자료와 버전 적용 원칙</a></li></ul></details>
+<div class="page-layout">
+  <nav class="desktop-toc" aria-label="문서 목차"><div class="toc-label">Contents</div><ul class="toc-list"><li><a href="#section-01">01 구현 목표와 결정 사항</a></li><li><a href="#section-02">02 구현 범위와 지원 조건</a></li><li><a href="#section-03">03 아트 기준과 레퍼런스 활용</a></li><li><a href="#section-04">04 전체 구조와 책임 분리</a></li><li><a href="#section-05">05 렌더링 순서와 RenderGraph 계약</a></li><li><a href="#section-06">06 공통 수학과 색 합성 규칙</a></li><li><a href="#section-07">07 Local Fog의 공간 계산</a></li><li><a href="#section-08">08 재질별 안개 소유권과 외곽선</a></li><li><a href="#section-09">09 물과 굴절 재질의 통합</a></li><li><a href="#section-10">10 데이터 스키마와 기본값</a></li><li><a href="#section-11">11 지역 전환과 전투 가시성</a></li><li><a href="#section-12">12 일곱 지역의 초기 프리셋</a></li><li><a href="#section-13">13 품질 단계와 성능 예산</a></li><li><a href="#section-14">14 편집 도구와 진단 기능</a></li><li><a href="#section-15">15 단계별 구현 작업과 완료 조건</a></li><li><a href="#section-16">16 검증 매트릭스와 인수 기준</a></li><li><a href="#section-17">17 Claude와 Codex에 전달할 작업 요청</a></li><li><a href="#section-18">18 납품 파일과 자주 발생하는 실패</a></li><li><a href="#section-19">19 근거 자료와 버전 적용 원칙</a></li></ul><div class="toc-note">설계서의 순서대로 구현하고<br>각 단계의 완료 조건을 확인합니다.</div></nav>
+  <main><div class="document-intro">
+<p>Unity 6 URP · 툰 TPS 액션 프로젝트 · Claude / Codex 전달용</p>
+<p><strong>문서 버전 1.0 · 작성일 2026-11-21 · 상태: 구현 착수용 설계</strong></p>
+<p>거리별 색상 그라데이션, 월드 높이 안개, 지역 한정 안개를 하나의 계산 규칙으로 통합한다. 불투명 장면에는 깊이 기반 화면 합성을 적용하고, 반투명 재질에는 같은 HLSL 함수를 연결한다. 지역 프리셋과 날씨 데이터만 바꾸어 숲·고산·마을의 분위기를 조절할 수 있게 한다.</p>
+<p>기준 환경은 대화에서 공유된 <strong>Unity 6000.0.60f1 / URP / 기존 캐릭터 툰 셰이더 / 경량 환경 툰 셰이더</strong>다. 실제 프로젝트 파일은 이번 문서 작성 과정에서 열지 않았다. 설치된 URP 버전, 렌더러, 셰이더의 실제 동작은 단계 0에서 확인한다. 본문의 수치 예산과 프리셋은 시작 설정이며 실측 결과가 아니다.</p>
+<aside class="callout">전달 방법: 이 HTML 또는 동봉한 전체 텍스트를 구현할 프로젝트와 함께 Claude·Codex에 제공하고, 17장의 작업 요청을 실행하게 한다. 기본 범위는 단계 0~8이다. 선택 확장은 별도로 표시했다. 두 AI가 함께 작업하면 같은 파일을 동시에 수정하지 않고 단계별 담당과 검토자를 나눈다.</aside>
+</div>
+<section class="doc-section" id="section-01"><h2>01 구현 목표와 결정 사항</h2>
+<h3>원하는 화면</h3>
+<p>근거리 캐릭터의 얼굴, 의상 명암 단계, 무기 동작은 읽을 수 있어야 한다. 중거리의 나무와 건물은 지역의 안개색으로 조금씩 묶이고, 먼 산은 하늘색과 어울리는 실루엣으로 남아야 한다. 물가와 계곡에는 공간적으로 모여 있는 안개를 배치하되, 카메라가 밖에 있을 때도 안개 덩어리가 보여야 한다.</p>
+<p>안개는 원래 장면의 대비를 낮추므로 모든 거리에서 툰 명암을 완전히 보존한다고 약속하지 않는다. 근거리 보호 거리, 밀도, 최대 불투명도와 색 팔레트로 가시성을 조절한다. 조명 계산이나 툰 램프 자체를 다시 작성하는 작업은 이 시스템의 역할이 아니다.</p>
+<h3>확정할 기본 방향</h3>
+<div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">항목</th><th scope="col">기본 결정</th><th scope="col">이유</th></tr></thead><tbody><tr><td>렌더링 기반</td><td>URP RenderGraph 네이티브 Renderer Feature</td><td>Unity 6 프로젝트의 실제 렌더 경로와 연결</td></tr><tr><td>화면 합성 시점</td><td>BeforeRenderingTransparents</td><td>불투명 장면과 투명 표면의 거리 계산을 분리</td></tr><tr><td>기본 화면 합성</td><td>깊이만 샘플하고 현재 컬러 attachment에 GPU 블렌딩</td><td>기본 안개에 불필요한 화면 컬러 복사를 요구하지 않음</td></tr><tr><td>밀도 계산</td><td>거리 + 높이 적분 + Box/Sphere 교차 구간 적분</td><td>카메라 이동과 안개 영역 출입에 일관된 결과</td></tr><tr><td>색 표현</td><td>거리 Gradient + Height Tint + Local Tint</td><td>애니메이션풍 팔레트 제어</td></tr><tr><td>투명 재질</td><td>공통 FogEvaluation.hlsl 연결</td><td>재질 자신의 표면 거리로 안개 처리</td></tr><tr><td>지역/날씨</td><td>ScriptableObject 프로필 + 런타임 Resolver</td><td>일반적인 아트 확장은 데이터 편집으로 완료</td></tr><tr><td>기본 품질</td><td>전체 해상도, 시간 누적 없음, 저주파 국소 Noise</td><td>구현과 검증을 단순하게 시작</td></tr><tr><td>라이브러리</td><td>URP/Core와 기존 프로젝트 의존성 사용</td><td>외부 안개 에셋 도입을 필수 조건으로 만들지 않음</td></tr></tbody></table></div>
+<p>Unity의 문서상 BeforeRenderingTransparents는 하늘 이후, 투명 오브젝트 이전이다. RecordRenderGraph에서 리소스와 패스를 선언하는 구조를 따른다. 아래의 실제 합성 방식과 모듈 분리는 이 프로젝트용 설계 결정이다. <a href="https://docs.unity3d.com/6000.0/Documentation/Manual/urp/renderer-features/renderer-feature-full-screen-pass.html" target="_blank" rel="noopener noreferrer">S01</a> · <a href="https://docs.unity3d.com/6000.0/Documentation/Manual/urp/render-graph-write-render-pass.html" target="_blank" rel="noopener noreferrer">S02</a></p>
+</section>
+<section class="doc-section" id="section-02"><h2>02 구현 범위와 지원 조건</h2>
+<h3>이번 작업의 필수 범위</h3>
+<div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">기능</th><th scope="col">완료 기준</th></tr></thead><tbody><tr><td>Distance Gradient Fog</td><td>거리 변화에 따라 색과 밀도가 안정적으로 변화</td></tr><tr><td>Height Fog</td><td>월드 고도 기반 밀도를 시선 구간 전체에서 적분</td></tr><tr><td>Local Fog</td><td>회전 Box와 Sphere/타원체, 외부 관찰·내부 진입 모두 지원</td></tr><tr><td>Feather와 Noise</td><td>볼륨 경계 완화, 월드 좌표의 저주파 이동 Noise</td></tr><tr><td>지역 프리셋</td><td>우거진 숲, 가을 숲, 메마른 지역, 평야·성, 고산, 강가 마을, 호수 마을</td></tr><tr><td>시간·날씨 입력</td><td>다른 시스템이 없어도 테스트 슬라이더로 조절 가능한 데이터 입력</td></tr><tr><td>재질 연결</td><td>Opaque, Alpha Clip, Straight Alpha, Premultiplied, Additive 샘플</td></tr><tr><td>기존 셰이더 연동</td><td>실제 캐릭터·환경·외곽선·물 사용 여부 조사 후 필요한 어댑터</td></tr><tr><td>편집 도구</td><td>Inspector, 볼륨 Gizmo, 진단 보기, 샘플 씬</td></tr><tr><td>안정성</td><td>여러 카메라, 씬 교체, 리소스 정리, 비활성 상태 보장</td></tr><tr><td>검증</td><td>수학 테스트, 대표 장면 비교, 실제 빌드 및 프로파일 기록</td></tr></tbody></table></div>
+<h3>조건부 작업과 후속 확장</h3>
+<div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">항목</th><th scope="col">처리 방침</th></tr></thead><tbody><tr><td>기존 굴절 물 셰이더</td><td>현재 프로젝트에서 사용하면 필수 통합 대상으로 승격. 9장 기준으로 어댑터 구현</td></tr><tr><td>미세한 지면 안개 카드</td><td>샘플 연출로 1종 제공 가능. 실제 부피 밀도와 다른 보조 VFX로 취급</td></tr><tr><td>지형 표면 자동 추종</td><td>v1 범위 밖. Height Fog는 고정 월드 높이 기준. 경사는 Local Volume 배치로 대응</td></tr><tr><td>광원·그림자에 반응하는 빛줄기</td><td>후속 모듈. v1에서 실제 volumetric lighting이라고 표현하지 않음</td></tr><tr><td>플레이어가 밀어내는 유체 안개</td><td>후속 모듈. 기본 시스템에 유체 시뮬레이션을 추가하지 않음</td></tr><tr><td>반해상도·시간 누적·Compute</td><td>실측 병목이 확인된 경우 별도 변경안으로 도입</td></tr><tr><td>모바일·XR·콘솔</td><td>현재 프로젝트의 필수 타깃이면 단계 0에서 계획에 포함. 검증 없이 지원 완료로 표기하지 않음</td></tr><tr><td>Deferred 및 3D Camera Stack</td><td>실제 사용 중이면 검증 대상. 기본 검증 경로는 현 프로젝트의 Forward 또는 Forward+</td></tr><tr><td>직교 카메라</td><td>미니맵은 기본 제외. 필요할 때 픽셀별 광선 원점을 사용하는 별도 경로</td></tr></tbody></table></div>
+<p><strong>우선 검증 환경:</strong> Windows PC, 원근 Game Camera, 기존 Linear Color Space, 현재 그래픽 API와 MSAA 설정. Linear가 아니라면 전역 Color Space를 임의로 바꾸지 말고 색 변환 경로를 별도 기록한다. 목표 GPU가 없으면 에디터 개발 장비를 임시 측정 장비로 기록하고 최소 사양 달성 여부는 미확정으로 둔다.</p>
+</section>
+<section class="doc-section" id="section-03"><h2>03 아트 기준과 레퍼런스 활용</h2>
+<p>Flat Kit은 거리·높이의 색상 Gradient를 편집하는 안개 사례다. Harry Alisavakis의 Firewatch 스타일 글은 색상 램프 기반 안개를 직접 재현한 구현 사례다. 이 문서에서는 이들을 <strong>색 설계와 조절 방식의 참고</strong>로 사용한다. 원작 게임이나 특정 에셋의 내부 구현과 동일한 시스템을 만든다는 의미는 아니다. <a href="https://flatkit.dustyroom.com/fog/" target="_blank" rel="noopener noreferrer">S07</a> · <a href="https://halisavakis.com/my-take-on-shaders-firewatch-multi-colored-fog/" target="_blank" rel="noopener noreferrer">S08</a></p>
+<h3>아트 작업 규칙</h3>
+<ul><li>한 지역의 Distance·Height·Local 색은 같은 계열을 공유한다. 강한 보색 안개를 여러 겹 겹치는 장면은 별도 검토한다.</li><li>밀도는 연속적으로 유지한다. 툰 느낌을 강화할 때는 색상 램프의 구간을 조절하며 투과율을 계단식으로 양자화하지 않는다.</li><li>하늘의 지평선 색과 원거리 Gradient 끝 색을 맞춘다. Sky PreserveGlobal이 기본이므로 하늘에 전역 Distance/Height 안개가 자동으로 깔린다고 가정하지 않는다. 하늘 앞의 Local Volume은 정상 평가한다.</li><li>기획자가 지역색을 바꿀 때 셰이더 소스를 수정하지 않아야 한다. 프로필, Gradient, Volume 배치만으로 작업한다.</li><li>안개는 카메라 Far Clip 밖의 물체, LOD 팝, Streaming 누락을 고쳐 주지 않는다. 가림을 이용하더라도 해당 시스템의 검증은 별도로 유지한다.</li></ul>
+</section>
+<section class="doc-section" id="section-04"><h2>04 전체 구조와 책임 분리</h2>
+
+<figure class="diagram architecture" aria-labelledby="architecture-caption">
+  <div class="diagram-label">시스템 구조</div>
+  <div class="source-grid">
+    <div class="diagram-card source"><span class="node-tag">기본 환경</span><strong>FogProfile</strong><small>색상 · 거리 · 높이</small></div>
+    <div class="diagram-card source"><span class="node-tag">지역</span><strong>FogRegion</strong><small>위치 · 경계 · 우선순위</small></div>
+    <div class="diagram-card source"><span class="node-tag">외부 입력</span><strong>WeatherInput</strong><small>시간대 · 날씨 · 전투</small></div>
+  </div>
+  <div class="flow-arrow" aria-hidden="true">↓</div>
+  <div class="diagram-card resolver"><span class="node-tag">카메라별 해석</span><strong>FogResolver</strong><small>카메라별 불변 상태 생성 · 지역 전환 혼합</small></div>
+  <div class="flow-arrow" aria-hidden="true">↓</div>
+  <div class="diagram-card evaluator"><span class="node-tag">공통 계산</span><strong>FogEvaluation.hlsl</strong><small>같은 광선 · 같은 밀도 · 같은 투과율</small></div>
+  <div class="flow-arrow" aria-hidden="true">↓</div>
+  <div class="output-grid">
+    <div class="diagram-card output"><span class="node-tag">불투명 경로</span><strong>Fullscreen 합성</strong><small>깊이에서 위치 복원<br>현재 색상에 하드웨어 블렌드</small></div>
+    <div class="diagram-card output"><span class="node-tag">투명 경로</span><strong>Material 연동</strong><small>자신의 표면 위치 사용<br>블렌드 방식별 안개 적용</small></div>
+  </div>
+  <figcaption id="architecture-caption">설정 해석은 CPU에서, 안개 계산은 공통 HLSL에서 수행한다. 두 렌더 경로는 같은 카메라 상태를 사용한다.</figcaption>
+</figure>
+<h3>런타임 구성</h3>
+<div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">구성 요소</th><th scope="col">책임</th><th scope="col">하지 않는 일</th></tr></thead><tbody><tr><td>ToonFogProfile</td><td>밀도·색·높이·가시성의 원본 데이터</td><td>런타임 공유 Asset 값 변경</td></tr><tr><td>ToonFogRegion</td><td>위치에 따른 환경 프로필 선택 가중치</td><td>실제 시선상의 안개 부피 계산</td></tr><tr><td>ToonFogLocalVolume</td><td>실제 밀도가 존재하는 Box/Sphere 공간</td><td>카메라 전체 환경 프리셋 교체</td></tr><tr><td>ToonFogWorld</td><td>등록 목록, 외부 날씨 입력, 기본 프로필 관리</td><td>렌더 패스 직접 실행</td></tr><tr><td>ToonFogResolver</td><td>카메라별 최종 값과 Local 목록 확정</td><td>프로젝트 전투·날씨 시스템 직접 참조</td></tr><tr><td>ToonFogCameraState</td><td>프레임 동안 바뀌지 않는 카메라 상태</td><td>다른 카메라의 배열 공유 및 덮어쓰기</td></tr><tr><td>ToonFogRendererFeature</td><td>Setup, Composite, Reset 패스 예약</td><td>새로운 Gameplay Manager 역할</td></tr><tr><td>FogEvaluation.hlsl</td><td>거리·높이·Local 적분과 T/S 반환</td><td>조명, 그림자, 툰 명암 단계 계산</td></tr><tr><td>FogMaterialAdapters.hlsl</td><td>재질 블렌드 모드별 결과 적용</td><td>굴절 배경을 무조건 다시 fog 처리</td></tr><tr><td>ToonFogDiagnostics</td><td>상태·비용·적용 경로 설명</td><td>매 프레임 전체 씬 검색</td></tr></tbody></table></div>
+<p><strong>Region과 Local Volume은 반드시 다른 컴포넌트로 만든다.</strong> Region은 플레이어가 숲에 진입했을 때 화면 전체의 환경값을 바꾸는 영역이다. Local Volume은 플레이어가 밖에 있어도 시선이 통과하면 보이는 안개 부피다. v1에서는 먼 숲과 사막의 전역 안개색을 픽셀별 바이옴 지도처럼 각각 평가하지 않는다. 그 요구는 후속 공간 팔레트 시스템의 범위다.</p>
+<h3>권장 파일 배치</h3>
+<p>아래 경로는 프로젝트에 기존 규칙이 없을 때의 기본안이다. 기존 폴더·namespace·asmdef 규칙을 먼저 따른다.</p>
+<div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">경로</th><th scope="col">파일과 역할</th></tr></thead><tbody><tr><td>Assets/Project/Rendering/ToonFog/Runtime/Data</td><td>ToonFogProfile.cs, ToonFogQualitySettings.cs, ToonFogFrameSettings.cs</td></tr><tr><td>Assets/Project/Rendering/ToonFog/Runtime/World</td><td>ToonFogWorld.cs, ToonFogRegion.cs, ToonFogLocalVolume.cs, ToonFogResolver.cs</td></tr><tr><td>Assets/Project/Rendering/ToonFog/Runtime/Rendering</td><td>ToonFogRendererFeature.cs, ToonFogGlobalsPass.cs, ToonFogCompositePass.cs, ToonFogResetPass.cs</td></tr><tr><td>Assets/Project/Rendering/ToonFog/Runtime/Integration</td><td>IToonFogEnvironmentSource.cs, ToonFogCameraPolicy.cs, ToonFogReadabilityInput.cs</td></tr><tr><td>Assets/Project/Rendering/ToonFog/Shaders</td><td>ToonFogComposite.shader, FogEvaluation.hlsl, FogIntegration.hlsl, FogMaterialAdapters.hlsl</td></tr><tr><td>Assets/Project/Rendering/ToonFog/Editor</td><td>Profile/Region/Local Inspector, Gizmo, 진단 도구</td></tr><tr><td>Assets/Project/Rendering/ToonFog/Samples</td><td>샘플 씬, 7종 지역 프로필, 비교용 머티리얼</td></tr><tr><td>Assets/Project/Rendering/ToonFog/Tests</td><td>독립 수학 검증과 핵심 통합 테스트</td></tr><tr><td>Docs/Rendering/ToonFog</td><td>Integration.md, MaterialCoverage.md, Validation.md, Performance.md, TaskStatus.md</td></tr></tbody></table></div>
+<p>Runtime에는 UnityEditor 참조를 넣지 않는다. Editor와 Tests는 별도 assembly로 분리한다. 새로운 패키지나 외부 에셋은 필수로 추가하지 않는다. 기존 Addressables를 사용한다면 프로필 공급 어댑터만 연결하고 안개 수학·렌더 코어에 Addressables 의존성을 넣지 않는다.</p>
+</section>
+<section class="doc-section" id="section-05"><h2>05 렌더링 순서와 RenderGraph 계약</h2>
+
+<figure class="diagram rendering" aria-labelledby="rendering-caption">
+  <div class="diagram-label">프레임의 렌더 순서</div>
+  <ol class="render-stages">
+    <li><span class="stage-number">01</span><div><strong>URP 불투명 렌더링</strong><small>Opaque · Alpha Clip · 안개 이전에 그리는 외곽선</small></div></li>
+    <li><span class="stage-number">02</span><div><strong>Skybox</strong><small>Global Distance/Height 제외 · Local Fog는 적용</small></div></li>
+    <li class="fog-stage"><span class="stage-number">03</span><div><span class="stage-badge">BeforeRenderingTransparents</span><strong>ToonFogComposite</strong><small>Depth → 위치 복원 → (S, 1−T)<br>현재 color attachment에 블렌드 · camera color 샘플 없음</small><code>C_out = S + T × C_scene</code></div></li>
+    <li><span class="stage-number">04</span><div><strong>투명 Material 렌더링</strong><small>자신의 월드 위치로 공통 안개 함수 평가</small></div></li>
+    <li><span class="stage-number">05</span><div><strong>후처리와 화면 UI</strong><small>톤매핑 등 후처리 이후 Screen Space Overlay UI</small></div></li>
+  </ol>
+  <figcaption id="rendering-caption">UI 순서는 Screen Space Overlay 기준이다. 월드 UI와 추가 카메라의 적용 여부는 별도로 지정한다.</figcaption>
+</figure>
+<h3>기본 패스 순서</h3>
+<div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">순서</th><th scope="col">처리</th><th scope="col">핵심 계약</th></tr></thead><tbody><tr><td>1</td><td>FogGlobalsSetup</td><td>첫 안개 대응 재질이 그려지기 전에 카메라 상태 게시</td></tr><tr><td>2</td><td>Opaque와 Alpha Clip</td><td>기존 툰·지형·식생 렌더링. 기본 셰이더 안개와 중복되지 않게 관리</td></tr><tr><td>3</td><td>Skybox</td><td>기존 하늘 유지</td></tr><tr><td>4</td><td>ToonFogComposite</td><td>BeforeRenderingTransparents에서 깊이 기반 안개 합성</td></tr><tr><td>5</td><td>조건부 FoggedOpaqueCapture</td><td>굴절 물이 요구할 때만 안개 적용 배경 복사</td></tr><tr><td>6</td><td>Transparent</td><td>표면 자신의 월드 위치와 같은 FogEvaluation 사용</td></tr><tr><td>7</td><td>Post Processing / UI</td><td>기존 후처리 유지. Screen Space Overlay UI에는 안개 미적용</td></tr><tr><td>8</td><td>FogGlobalsReset</td><td>해당 카메라 종료 전에 비활성 전역 상태 게시</td></tr></tbody></table></div>
+<h3>컬러를 샘플하지 않는 기본 합성</h3>
+<p>공통 함수가 투과율 T와 Linear RGB 안개 기여 S를 반환한다. 원하는 결과는 <code>C_out = T × C_scene + S</code>다. 전체 화면 삼각형에서 다음 상태와 출력을 사용한다.</p>
+<div class="code-block"><div class="code-toolbar"><span>hlsl</span><button type="button" class="copy-code" data-copy="code-1">복사</button></div><pre><code id="code-1">// 합성 계약 예시. 전체 Unity 셰이더 파일이 아님.
+Blend One OneMinusSrcAlpha
+ColorMask RGB
+ZWrite Off
+ZTest Always
+Cull Off
+
+// Fragment output
+return float4(fog.scattering, 1.0 - fog.transmittance);</code></pre></div>
+<p>이때 컬러 attachment의 기존 값은 GPU 블렌딩이 읽는다. 셰이더는 Camera Color를 텍스처로 샘플하지 않는다. 카메라 alpha는 ColorMask RGB로 보존한다. 공식 Core RP API는 블렌딩에 따른 attachment의 암묵적 읽기를 설명한다. 이를 이용해 위 합성식을 구성한 것이 본 설계다. <a href="https://docs.unity.cn/Packages/com.unity.render-pipelines.core@17.0/api/UnityEngine.Rendering.RenderGraphModule.IRasterRenderGraphBuilder.html" target="_blank" rel="noopener noreferrer">S03</a></p>
+<h3>Composite 패스의 리소스 선언</h3>
+<ul><li>카메라 깊이는 <code>ConfigureInput(ScriptableRenderPassInput.Depth)</code>로 요청한다. 실제 요청 위치와 생성 타이밍은 설치 패키지의 API에 맞춘다.</li><li><code>RecordRenderGraph</code>에서 현재 프레임의 <code>cameraDepthTexture</code>에 읽기 의존성을 선언한다.</li><li>현재 <code>activeColorTexture</code>는 <code>SetRenderAttachment(..., AccessFlags.ReadWrite)</code>로 사용한다.</li><li>동일 Camera Color에 샘플링용 <code>UseTexture</code>를 추가하지 않는다. attachment blending과 텍스처 피드백 루프를 혼동하지 않는다.</li><li>기존 장면색을 유지해야 하므로 <code>WriteAll</code>, Discard, Clear를 사용하지 않는다.</li><li>깊이 테스트나 stencil이 필요 없는 기본 경로에서는 Depth Attachment를 별도로 바인딩하지 않는다.</li><li>LUT와 Noise는 실제 읽는 리소스만 선언한다. 기본 경로에 Normals, Motion Vectors, Opaque Color를 요구하지 않는다.</li><li>TextureHandle은 현재 프레임의 그래프 안에서만 사용한다. 다음 프레임이나 다른 카메라 상태에 보관하지 않는다.</li></ul>
+<p>기본 합성은 Camera Color 샘플이 필요 없으므로 단순히 backbuffer라는 이유만으로 패스를 건너뛰지 않는다. 반대로 물의 배경 캡처처럼 컬러 샘플이 필요한 확장은 읽을 수 있는 intermediate target을 확보하고 별도 복사 대상으로 처리해야 한다. 카메라 컬러를 임의의 단일 샘플 텍스처로 교체하여 이후 투명 렌더링의 MSAA Depth와 불일치시키지 않는다.</p>
+<h3>글로벌 상태와 여러 카메라</h3>
+<p>Setup과 Composite를 분리한다. <code>SetGlobalTextureAfterPass</code>로 설정한 텍스처는 그 패스가 끝난 후 새 값으로 보이므로, 같은 패스의 Draw에서 새 글로벌 텍스처를 읽는 구조를 만들지 않는다. Setup/Reset에서 전역 값을 바꾼다면 <code>AllowGlobalStateModification(true)</code>와 설치 패키지의 글로벌 리소스 선언 규칙을 따른다. 이 옵션은 그래프 순서와 culling에 영향을 주므로 필요한 작은 패스에만 사용한다. <a href="https://docs.unity.cn/Packages/com.unity.render-pipelines.core@17.0/api/UnityEngine.Rendering.RenderGraphModule.IBaseRenderGraphBuilder.html" target="_blank" rel="noopener noreferrer">S04</a></p>
+<p>합성 패스는 필요한 글로벌 텍스처를 <code>UseGlobalTexture</code>로 선언하고, 재질에서 읽는 텍스처도 공식 게시 경로로 제공한다. 전역값 이름은 프로젝트 전용 접두어를 사용하고 Material Properties나 UnityPerMaterial에 같은 이름을 선언하여 가리지 않는다. <a href="https://docs.unity3d.com/6000.0/Documentation/Manual/urp/render-graph-create-global-texture.html" target="_blank" rel="noopener noreferrer">S13</a></p>
+<p>카메라별 스냅샷은 숫자·행렬·Local Volume 목록·LUT 참조가 프레임 실행 중 바뀌지 않아야 한다. 기록 중 공유 Material이나 배열을 덮어써 마지막 카메라의 데이터가 모든 패스에 적용되는 구조를 금지한다. 풀링된 데이터는 해당 그래프 실행이 끝나기 전에 재사용하지 않는다.</p>
+<p>안개가 비활성일 때도 전역 <code>Enabled=0</code>, <code>LocalVolumeCount=0</code>, 중립값을 게시한다. 실제 합성 Draw만 생략한다. Renderer Feature 비활성화·파괴·도메인 리로드에서도 전역 상태를 정리한다. 다음 미니맵이나 다른 Renderer의 카메라가 이전 안개를 물려받아서는 안 된다.</p>
+<p>필요한 깊이·shader·프로필·렌더 경로가 없어 Composite를 실행할 수 없으면 해당 카메라 전체를 중립으로 처리한다. 글로벌 게시 전에 유효성을 확인하거나 실패 확인 후 Transparent 이전에 Enabled=0을 게시한다. 불투명 합성만 건너뛰고 투명 adapter는 활성으로 남기는 부분 실패를 허용하지 않는다. 개별 invalid Local Volume은 그 볼륨만 제외한다.</p>
+<h3>깊이 복원과 특수 카메라</h3>
+<p><code>SampleSceneDepth</code>, <code>ComputeWorldSpacePosition</code>, 현재 카메라의 inverse VP 및 URP 화면 스케일 규칙을 기준으로 월드 위치를 복원한다. Reversed Z와 플랫폼 NDC 범위를 처리하고, <code>Screen.width/height</code>만으로 UV를 만들지 않는다. 이 부분은 Unity 공식 예제의 개념을 따르되 현재 설치 버전의 helper를 최종 기준으로 삼는다. <a href="https://docs.unity3d.com/6000.0/Documentation/Manual/urp/writing-shaders-urp-reconstruct-world-position.html" target="_blank" rel="noopener noreferrer">S05</a></p>
+<div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">카메라</th><th scope="col">기본 정책</th></tr></thead><tbody><tr><td>원근 Base Game Camera</td><td>전체 기능 활성</td></tr><tr><td>Scene View</td><td>Inspector 옵션으로 활성. 해당 Scene View 카메라별 상태 사용</td></tr><tr><td>UI Overlay Camera</td><td>Composite 제외, 중립 상태. Base 장면에 이중 합성하지 않음</td></tr><tr><td>3D Overlay Camera</td><td>명시적 어댑터가 없으면 지원 대상에서 제외하고 진단</td></tr><tr><td>Reflection / Preview / 미니맵</td><td>기본 비활성</td></tr><tr><td>직교 카메라</td><td>기본 비활성. 필요 시 픽셀별 near-plane 원점으로 구현</td></tr></tbody></table></div>
+<p>하늘의 clear depth는 지형 위치로 복원하지 않는다. v1의 SkyPolicy는 PreserveGlobal이다. 하늘 픽셀에서는 Distance/Height를 제외하고, view ray를 maxEvaluationDistance까지 연장한 유한 구간의 Local Fog만 평가한다. 따라서 Local이 없는 하늘은 출력 <code>(0,0,0,0)</code>으로 그대로 남고 하늘 앞 Local 부피는 보인다. view direction은 현재 inverse VP에서 구하되 Far Clip 길이를 안개 평가 거리로 사용하지 않는다. 지평선 전용 전역 색 혼합은 선택 확장이다.</p>
+</section>
+<section class="doc-section" id="section-06"><h2>06 공통 수학과 색 합성 규칙</h2>
+<h3>단위와 반환값</h3>
+<p><code>1 Unity unit = 1 m</code>를 기본으로 한다. 프로젝트 스케일이 다르면 단계 0에서 명시적인 단위 변환을 확정한다. 거리·높이·교차 계산은 float, CPU 검증 기준은 double을 사용한다.</p>
+<div class="code-block"><div class="code-toolbar"><span>hlsl</span><button type="button" class="copy-code" data-copy="code-2">복사</button></div><pre><code id="code-2">struct ToonFogResult
+{
+    float transmittance; // T: [0, 1]
+    float3 scattering;  // S: linear RGB
+};
+
+// 개념 인터페이스. 실제 데이터 전달은 설치 URP에 맞춘다.
+ToonFogResult EvaluateToonFog(float3 rayOriginWS,
+                              float3 rayEndPositionWS,
+                              uint layerMask);
+// Geometry/Transparent: Distance | Height | Local
+// Clear-depth Sky: Local, ray end = origin + viewDir * maxEvaluationDistance</code></pre></div>
+<p>기본 광학량은 <code>tau = ∫ sigma(ray(t)) dt</code>, <code>T = exp(-tau)</code>다. sigma의 단위는 1/m이고 tau는 무차원이다. 밀도 0 또는 비활성 상태는 반드시 <code>T=1, S=0</code>이다. 광선 구간의 투과율이 곱으로 결합되는 성질은 검증 기준으로 사용한다. <a href="https://pbr-book.org/4ed/Volume_Scattering/Transmittance" target="_blank" rel="noopener noreferrer">S11</a></p>
+<h3>공통 적분 구간</h3>
+<div class="code-block"><div class="code-toolbar"><span>text</span><button type="button" class="copy-code" data-copy="code-3">복사</button></div><pre><code id="code-3">d  = length(surfacePositionWS - rayOriginWS)
+dir = (surfacePositionWS - rayOriginWS) / d   // d≈0은 즉시 중립 반환
+t0 = min(max(nearClearDistance, 0), d)
+t1 = min(d, maxEvaluationDistance)
+if t1 &lt;= t0: return (T=1, S=0)
+segmentStart = rayOriginWS + dir * t0
+segmentLength = t1 - t0</code></pre></div>
+<p><code>nearClearDistance</code>는 전투 가시성을 위한 아트 제어이며 거리·높이·Local에 공통 적용한다. 첫 구간의 길이만 빼고 높이 적분의 시작 위치를 옮기지 않는 실수를 금지한다. 지역 밀도 함수는 카메라 위치가 아니라 월드 좌표에 고정한다.</p>
+<h3>밀도 배율의 소유권</h3>
+<p>수식의 density는 최종 프레임 값이다. Resolver에서 아래 값을 한 번 계산한 뒤 셰이더는 같은 배율을 다시 곱하지 않는다. Local의 authored weight와 슬롯 전환 fade도 이 단계에서 합친다.</p>
+<div class="code-block"><div class="code-toolbar"><span>text</span><button type="button" class="copy-code" data-copy="code-4">복사</button></div><pre><code id="code-4">commonDensityMultiplier = environmentDensityMultiplier * combatDensityMultiplier
+effectiveDistanceDensity = resolvedDistanceDensity * commonDensityMultiplier
+effectiveHeightDensity   = resolvedHeightDensity * commonDensityMultiplier
+effectiveLocalDensity[i] = authoredLocalDensity[i]
+                         * resolvedLocalDensityMultiplier
+                         * authoredLocalWeight[i] * slotFadeWeight[i]
+                         * commonDensityMultiplier</code></pre></div>
+<p>환경 밀도 배율 0이면 Local을 포함한 모든 기여가 0이다. 고정 연출 안개만 날씨 영향을 받지 않는 기능은 v1에 넣지 않는다. 색은 Region 혼합까지 먼저 끝내고, 최종 <code>fogColor</code>에 환경 TintMultiplier를 한 번 곱한다. <code>useRegionTint=true</code>의 Local은 날씨 tint를 아직 곱하지 않은 resolved heightTint를 사용한다.</p>
+<h3>거리 안개</h3>
+<p><code>tauDistance = distanceDensity × segmentLength</code>를 기본으로 한다. 색은 <code>u = saturate((d - colorNear) / max(colorFar - colorNear, epsilon))</code>에서 Gradient LUT를 샘플한다. <code>colorFar</code>는 색 변화가 끝나는 거리이며 안개 밀도가 종료되는 거리가 아니다. 밀도는 maxEvaluationDistance까지 계속 누적된다.</p>
+<p>최종 색과 opacity를 임의 Gradient Alpha 하나로 동시에 제어하지 않는다. v1 Gradient는 RGB 색 제어에 사용하고 Alpha는 1로 고정한다. 밀도·보호 거리·최대 opacity를 별도로 노출하여 거리 증가에 따른 투과율 감소를 예측할 수 있게 한다.</p>
+<h3>높이 안개의 밀도</h3>
+<div class="code-block"><div class="code-toolbar"><span>text</span><button type="button" class="copy-code" data-copy="code-5">복사</button></div><pre><code id="code-5">sigmaHeight(y) = heightDensity × exp(-max(y - baseHeight, 0) / heightScale)</code></pre></div>
+<p>기준 고도 아래에서는 밀도를 일정하게 유지하고, 위에서는 지수적으로 감소시킨다. Unity Core의 공개 Height Fog 코드도 균질 구간과 지수 구간을 구분한다. 아래 안정적 적분식은 본 설계에서 사용할 계산 계약이며 공개 master helper를 그대로 복사하라는 지시가 아니다. <a href="https://github.com/Unity-Technologies/Graphics/blob/master/Packages/com.unity.render-pipelines.core/ShaderLibrary/VolumeRendering.hlsl" target="_blank" rel="noopener noreferrer">S09</a></p>
+<p>시선이 baseHeight를 통과하면 교차점에서 구간을 분리한다. 기준 아래 길이 Lb의 tau는 <code>heightDensity × Lb</code>다. 기준 위 길이 La의 양 끝 높이가 ya, yb라면 다음 식을 사용한다.</p>
+<div class="code-block"><div class="code-toolbar"><span>text</span><button type="button" class="copy-code" data-copy="code-6">복사</button></div><pre><code id="code-6">q = abs(yb - ya) / heightScale
+Phi(q) = 1 - q/2 + q*q/6 - q*q*q/24         if q &lt; 0.001
+Phi(q) = (1 - exp(-q)) / q                   otherwise
+
+tauAbove = heightDensity
+         * exp(-(min(ya, yb) - baseHeight) / heightScale)
+         * La * Phi(q)
+
+tauHeight = tauBelow + tauAbove</code></pre></div>
+<p>위 식은 수평 시선에서 <code>밀도 × 길이</code>로 수렴하고, 높은 곳에서 낮은 곳을 볼 때도 양의 큰 지수 때문에 발산하지 않는다. <code>heightScale &gt;= 0.01m</code>를 보장한다. NaN/Inf 입력은 Inspector와 런타임 경계에서 거부하고 진단한다. 0 근처의 dir.y를 부호 없이 고정 epsilon으로 바꾸어 상하 시선 결과를 뒤틀지 않는다.</p>
+<p><strong>표면의 y값만으로 안개 강도를 계산해서는 안 된다.</strong> 카메라부터 물체까지 통과한 높이 분포가 결과를 결정한다. 고산 지대에서 계곡 안개를 내려다보는 장면이 필수 확인 장면이다.</p>
+<h3>여러 밀도와 색의 결합</h3>
+<div class="code-block"><div class="code-toolbar"><span>text</span><button type="button" class="copy-code" data-copy="code-7">복사</button></div><pre><code id="code-7">tau = tauDistance + tauHeight + sum(tauLocal[i])
+
+weightedColor = tauDistance * distanceColor
+              + tauHeight * heightTint
+              + sum(tauLocal[i] * localTint[i])
+
+if tau &lt;= epsilon: return (1, 0)
+fogColor = weightedColor / tau
+fogColor *= environmentTintMultiplier  // Linear RGB, exactly once
+rawOpacity = 1 - exp(-min(tau, 80))
+opacity = min(rawOpacity, maxOpacity)
+T = 1 - opacity
+S = opacity * fogColor</code></pre></div>
+<p>MaxOpacity는 최종 합성에 한 번 적용한다. T만 제한하고 S를 원래 값으로 두어 화면이 과하게 밝아지는 처리를 금지한다. 부동소수점 차이로 생긴 아주 작은 음수 tau는 0으로 보정하되, 잘못된 음수 density 입력을 정상 입력처럼 숨기지 않는다.</p>
+<p>이 색 혼합은 <strong>스타일용 근사</strong>다. 같은 밀도의 붉은 안개와 푸른 안개를 앞뒤로 바꾸어도 가중 합이 같으면 결과색이 같다. 서로 다른 색 매질의 앞뒤 순서, 광원 산란, 그림자를 정확하게 재현하지 않는다. v1의 팔레트 규칙과 지원 한계에 이 성질을 남긴다.</p>
+<h3>Gradient LUT와 색 공간</h3>
+<ul><li>프로필 Gradient를 256×1 LUT로 bake한다. Wrap Clamp, Filter Bilinear, Mip Off를 기본으로 한다.</li><li>GPU에서 읽는 LUT는 Linear RGB다. 선형 저장 포맷과 sRGB flag를 명확히 관리한다.</li><li>Inspector의 색 저장 방식과 Gradient 평가 방식이 어디서 선형 변환되는지 한 곳에 고정한다. 이중 Gamma 변환을 금지한다.</li><li>다른 개수의 Gradient Key를 직접 보간하지 않고 같은 u의 bake된 색을 보간한다.</li><li>프로필 변경 시 원본 LUT를 갱신한다. 런타임 지역 보간은 재사용 버퍼와 카메라별 LUT로 수행한다.</li><li>매 프레임 Texture2D를 새로 만들거나 Material을 복제하지 않는다. 동일 상태이면 LUT 업로드도 생략한다.</li></ul>
+</section>
+<section class="doc-section" id="section-07"><h2>07 Local Fog의 공간 계산</h2>
+
+<figure class="diagram localray" aria-labelledby="localray-caption">
+  <div class="diagram-label">국소 안개는 광선이 통과한 길이로 계산</div>
+  <div class="svg-scroll">
+    <svg viewBox="0 0 900 270" role="img" aria-labelledby="localray-title localray-desc" xmlns="http://www.w3.org/2000/svg">
+      <title id="localray-title">카메라와 대상이 모두 안개 바깥에 있는 경우</title>
+      <desc id="localray-desc">왼쪽 카메라 C에서 오른쪽 대상 P까지의 광선이 가운데 박스 안개를 통과한다. 입사 지점 a부터 출사 지점 b까지의 길이만 밀도 적분에 기여한다.</desc>
+      <defs>
+        <marker id="ray-arrow" markerWidth="8" markerHeight="8" refX="6.5" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#263d47"/></marker>
+        <linearGradient id="fog-box-fill" x1="0" x2="1"><stop offset="0" stop-color="#eef7f3"/><stop offset=".5" stop-color="#c8e5dc"/><stop offset="1" stop-color="#eef7f3"/></linearGradient>
+      </defs>
+      <rect x="290" y="38" width="320" height="160" rx="16" fill="url(#fog-box-fill)" stroke="#468879" stroke-width="2" stroke-dasharray="7 5"/>
+      <text x="450" y="73" text-anchor="middle" class="svg-title">Box / Sphere Local Fog</text>
+      <line x1="95" y1="128" x2="802" y2="128" stroke="#263d47" stroke-width="3" marker-end="url(#ray-arrow)"/>
+      <line x1="290" y1="128" x2="610" y2="128" stroke="#0b776b" stroke-width="8"/>
+      <circle cx="100" cy="128" r="12" fill="#263d47"/>
+      <rect x="793" y="116" width="24" height="24" rx="5" fill="#6f59a3"/>
+      <circle cx="290" cy="128" r="7" fill="#0b776b"/>
+      <circle cx="610" cy="128" r="7" fill="#0b776b"/>
+      <text x="100" y="94" text-anchor="middle" class="svg-title">카메라 C</text>
+      <text x="805" y="94" text-anchor="middle" class="svg-title">대상 P</text>
+      <text x="100" y="166" text-anchor="middle" class="svg-small">안개 바깥</text>
+      <text x="805" y="166" text-anchor="middle" class="svg-small">안개 바깥</text>
+      <text x="290" y="161" text-anchor="middle" class="svg-small">입사 a</text>
+      <text x="610" y="161" text-anchor="middle" class="svg-small">출사 b</text>
+      <path d="M290 216 L290 225 L610 225 L610 216" fill="none" stroke="#0b776b" stroke-width="2"/>
+      <text x="450" y="252" text-anchor="middle" class="svg-title">광학 두께 τ ∝ 통과 길이 (b − a)</text>
+    </svg>
+  </div>
+  <figcaption id="localray-caption">대상 P의 포함 여부만 검사하면 이 안개가 사라진다. 카메라부터 표면까지의 선분과 볼륨의 교차 구간을 적분해야 한다.</figcaption>
+</figure>
+<h3>교차 구간을 먼저 구한다</h3>
+<p>카메라 C와 표면 P가 모두 안개 영역 밖이어도 그 사이의 선분이 안개를 통과하면 안개가 보여야 한다. 화면 픽셀의 표면 위치가 Box/Sphere 안에 있는지만 검사하는 구현은 허용하지 않는다.</p>
+<ol><li>월드 단위의 정규화된 시선 방향을 구한다.</li><li>카메라 광선과 Volume의 진입 a, 이탈 b 거리를 계산한다.</li><li>a를 t0 이상, b를 t1 이하로 잘라 실제 적분 구간을 구한다.</li><li>b가 a보다 작거나 같으면 기여량 0이다.</li><li>균일 밀도라면 <code>tauLocal = density × (b-a)</code>를 정확히 계산한다.</li><li>경계 완화 또는 Noise를 쓸 때만 교차 구간을 N개로 나누어 midpoint 적분한다.</li></ol>
+<p>벽이 안개 앞을 막으면 깊이에서 얻은 t1이 진입점보다 짧아져 안개 기여가 0이 되어야 한다. 카메라가 볼륨 안에 있으면 음수 진입점을 공통 t0까지 자른다.</p>
+<h3>변환과 교차의 계약</h3>
+<div class="code-block"><div class="code-toolbar"><span>text</span><button type="button" class="copy-code" data-copy="code-8">복사</button></div><pre><code id="code-8">originLocal    = worldToLocal * float4(originWorld, 1)
+directionLocal = worldToLocal * float4(directionWorld, 0)
+// directionLocal은 다시 normalize하지 않는다.
+// 교차식의 t가 월드 미터를 유지하도록 한다.</code></pre></div>
+<p>Box는 canonical <code>[-1,1]</code> 범위를 사용하고 slab test의 축 평행 분기를 구현한다. Sphere는 canonical 반지름 1을 사용한다. 비균일 스케일된 Sphere는 타원체로 취급한다. 스케일 0 또는 역행렬을 만들 수 없는 변환은 사용하지 않고 Inspector 오류로 표시한다. 비균일 스케일과 회전이 있어도 월드 길이 기준 밀도가 유지되어야 한다.</p>
+<h3>경계와 Noise</h3>
+<p><code>edgeFeather01</code>은 각 로컬 반축에 대한 경계 폭 비율이다. 기본값은 0.15, 범위는 0~0.49다. 미터 단위와 혼동하지 않도록 Inspector에 설명한다. Box는 각 축의 경계 mask 중 최솟값, Sphere는 <code>1-length(localPosition)</code>을 기반으로 smoothstep mask를 만든다. Feather=0이며 Noise가 꺼져 있으면 균일 밀도 해석식을 사용한다.</p>
+<div class="code-block"><div class="code-toolbar"><span>text</span><button type="button" class="copy-code" data-copy="code-9">복사</button></div><pre><code id="code-9">sampleT = a + (j + 0.5) * (b-a)/N
+sampleWS = rayOriginWS + rayDirWS * sampleT
+mask = ShapeFeather(sampleLocal)
+noise = SampleNoise(sampleWS.xz * frequency + windXZ * time * frequency)
+multiplier = lerp(1, 2 * noise, noiseAmount)
+tauLocal += density * mask * multiplier * (b-a)/N</code></pre></div>
+<p>Noise는 World/Quality Settings가 소유한 공통 1장의 저주파 단일 채널 반복 텍스처다. v1은 Local별 다른 텍스처 override를 지원하지 않으며 amount/frequency/wind만 다르게 설정한다. 동적 루프 내 샘플은 explicit LOD 0을 사용하고 기본 텍스처는 Linear, Repeat, Bilinear, Mip Off로 둔다. 위 식은 평균 0.5의 Noise를 기준으로 평균 밀도 변화를 줄이는 시작안이다. NoiseAmount=0이면 Noise 배율은 1로 복귀하고 Feather mask는 유지된다. 유효 wind는 Local wind와 외부 환경 wind를 더한 값이며 한 번만 적용한다. 기본 Noise 좌표는 world XZ라 높이 방향으로 같은 패턴이 이어진다. 완전한 3D Noise나 Texture2DArray는 별도 품질 확장이다.</p>
+<p>전체 카메라 거리를 몇 번만 샘플링하지 않고 각 볼륨 교차 구간을 샘플링한다. 얇은 안개가 샘플 간격 사이로 완전히 빠지는 문제를 줄이기 위해서다. 적은 샘플 수에서 고주파 Noise를 허용하면 이동 중 줄무늬가 보일 수 있으므로 기본 preset의 주파수를 낮게 제한한다.</p>
+<h3>등록, 선택과 상한</h3>
+<p>Local Volume은 OnEnable/OnDisable에서 등록·해제한다. 카메라 후보는 월드 Bounds와 Frustum, maxEvaluationDistance를 이용해 선별한다. 카메라가 볼륨 내부인 경우와 큰 볼륨이 시선을 가로지르는 경우를 포함해야 하며, 볼륨 중심 거리만으로 컬링하지 않는다.</p>
+<p>선택 순서는 <code>priority → 예상 화면 영향 → stableId</code>다. 기존 선택에 hysteresis를 적용한다. 상한을 넘는 교체 시 기존 slot을 0으로 fade-out한 뒤 새 볼륨을 fade-in한다. 퇴장 중인 slot도 상한에 포함하며 품질 설정의 최대 슬롯 수를 몰래 초과하지 않는다. 기본 전환 시간은 0.2초이며 변경 가능하게 한다.</p>
+<p>Inspector/진단 화면에 등록 수, 후보 수, 활성 수, 상한 때문에 제외된 수를 표시한다. Streaming Scene이 해제되면 Transform 참조를 유지하지 않는다. 필요한 퇴장 보간은 마지막 값의 POD 스냅샷으로 끝낸다.</p>
+</section>
+<section class="doc-section" id="section-08"><h2>08 재질별 안개 소유권과 외곽선</h2>
+<h3>중복 안개를 방지하는 표</h3>
+<p>단계 0에서 실제 사용 중인 대표 Material을 조사하여 <code>MaterialCoverage.md</code>에 아래 형태로 기록한다. shader 이름, render queue, ZWrite, Alpha Clip, 안개 처리 함수, outline 방식까지 남긴다.</p>
+<div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">재질 유형</th><th scope="col">안개 담당</th><th scope="col">점검 사항</th></tr></thead><tbody><tr><td>불투명 캐릭터</td><td>Fullscreen</td><td>캐릭터 셰이더의 기존 fog와 중복되지 않음</td></tr><tr><td>지형·불투명 건물</td><td>Fullscreen</td><td>DepthOnly 및 실제 깊이 기록 정상</td></tr><tr><td>Alpha Clip 식생</td><td>Fullscreen</td><td>Color/Depth의 clip, 바람 변형, LOD 일치</td></tr><tr><td>Straight Alpha</td><td>재질 공통 함수</td><td>자신의 world position 사용</td></tr><tr><td>Premultiplied Alpha</td><td>전용 공통 함수</td><td>alpha가 곱해진 RGB에 맞는 계산</td></tr><tr><td>Additive VFX</td><td>투과율만 적용</td><td>fog color를 입자마다 더하지 않음</td></tr><tr><td>굴절 물·유리</td><td>별도 어댑터</td><td>배경 캡처 시점과 중복 fog 확인</td></tr><tr><td>Screen Space Overlay UI</td><td>미적용</td><td>HUD·메뉴 색상 유지</td></tr><tr><td>World Space UI</td><td>명시적 선택</td><td>세계 일부인지 가독성 UI인지 기획 기준 적용</td></tr></tbody></table></div>
+<p>기존 &#x27;일툰&#x27; 셰이더의 정확한 제품명과 버전을 확인한다. lilToon을 사용한다면 설치된 버전의 공식 커스터마이즈 방식을 조사한다. 이름을 iToon으로 임의 확정하거나 다른 에셋의 API를 섞지 않는다. 불투명 재질은 정상적인 깊이가 있으면 기본적으로 Fullscreen 경로를 활용할 수 있지만 투명·외곽선까지 자동 호환된다는 의미는 아니다. <a href="https://github.com/lilxyzw/lilToon" target="_blank" rel="noopener noreferrer">S10</a></p>
+<h3>투명 블렌드 모드별 공식</h3>
+<p>배경은 이미 Fullscreen 안개가 적용되어 있다고 가정한다. 표면 자체의 위치까지 계산한 T와 S를 사용한다.</p>
+<div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">블렌드 모드</th><th scope="col">셰이더가 출력할 RGB</th><th scope="col">Alpha</th></tr></thead><tbody><tr><td>Straight, SrcAlpha/OneMinusSrcAlpha</td><td><code>T*C + S</code></td><td>원래 alpha 유지</td></tr><tr><td>Premultiplied, One/OneMinusSrcAlpha</td><td><code>T*Cp + alpha*S</code></td><td>원래 alpha 유지</td></tr><tr><td>Additive, One/One</td><td><code>T*E</code></td><td>기존 계약 유지</td></tr><tr><td>Additive, SrcAlpha/One</td><td><code>T*E</code> 후 기존 alpha blend</td><td>기존 계약 유지</td></tr><tr><td>Multiply·특수 모드</td><td>전용 식 도출 후 어댑터</td><td>자동 처리하지 않음</td></tr></tbody></table></div>
+<p>Cp는 이미 alpha가 곱해진 색이다. Straight 식을 Premultiplied에 그대로 쓰면 거의 투명한 영역에 안개색이 남는다. Additive에 S를 더하면 입자 사각형과 중첩 개수가 밝기에 드러난다. Straight/Premultiplied는 alpha=0일 때 화면을 바꾸지 않아야 한다. SrcAlpha/One은 기존 alpha 계약을 유지하고, One/One은 alpha 대신 E=0일 때 기여가 없는지 확인한다. E에 이미 alpha가 곱해졌는지도 확인하여 두 번 곱하지 않는다. 이 식은 일반적인 블렌드 연산에 본 설계의 T/S를 적용해 도출한 규칙이다. <a href="https://docs.unity3d.com/6000.0/Documentation/Manual/writing-shader-blending-modes.html" target="_blank" rel="noopener noreferrer">S12</a></p>
+<p>재질 어댑터는 기존 <code>MixFog</code>나 에셋 자체 fog 호출을 함께 실행하지 않는다. 기존 Built-in Fog를 끄는 조치는 먼저 영향 재질을 확인하고 프로젝트 초기화/렌더 설정의 한 곳에서 소유하게 한다. Renderer Feature의 OnEnable/OnDisable이 RenderSettings를 반복 변경하여 다른 시스템과 경쟁하지 않도록 한다.</p>
+<h3>외곽선 정책</h3>
+<div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">외곽선 방식</th><th scope="col">가능한 문제</th><th scope="col">통합 방법</th></tr></thead><tbody><tr><td>안개 전에 그리는 Inverted Hull</td><td>Hull이 깊이를 기록하지 않으면 메시 밖 픽셀은 배경 깊이를 참조</td><td>실제 깊이 일치 여부 검증. 필요하면 별도 outline 경로 또는 보조 깊이</td></tr><tr><td>안개 후에 그리는 Inverted Hull</td><td>먼 캐릭터의 검은 선만 진하게 남음</td><td>Hull의 world position으로 공통 안개 적용</td></tr><tr><td>Screen-space Outline</td><td>경계의 중앙 픽셀 깊이가 배경일 수 있음</td><td>edge를 만든 foreground 깊이로 선의 안개량 평가</td></tr></tbody></table></div>
+<p>Hull에 무조건 ZWrite On을 켜거나 투명 머티리얼을 Alpha Clip으로 바꾸는 수정은 하지 않는다. 외곽선을 안개 뒤로 이동하는 것은 실제 셰이더가 분리 렌더링을 허용하는지 확인한 뒤 수행한다. 기본 경로가 실패하면 패키지 원본을 덮어쓰기보다 프로젝트 소유 어댑터/공식 확장 지점을 사용한다. 보조 깊이·mask 패스는 필요가 재현된 경우에만 추가하고 비용을 별도 기록한다.</p>
+<p>캐릭터 뒤가 가까운 벽, 먼 산, 하늘일 때 외곽선이 바뀌는지 같은 구도로 비교한다. 화면 전체에 두 번째 안개를 적용해 외곽선을 보정하는 방식은 허용하지 않는다.</p>
+</section>
+<section class="doc-section" id="section-09"><h2>09 물과 굴절 재질의 통합</h2>
+<h3>먼저 확인할 항목</h3>
+<p>물 셰이더가 읽는 Scene Color가 무엇인지, 언제 복사되는지, 반사·수면 색·거품·굴절 배경이 어디서 합쳐지는지 조사한다. <code>_CameraOpaqueTexture</code>가 안개 합성 이전에 만들어지면 물을 통해 안개 없는 배경이 다시 보일 수 있다. 이미 fogged인 배경을 최종 물 RGB와 함께 다시 fog 처리하면 이중 안개가 생긴다.</p>
+<div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">현재 물 구현</th><th scope="col">선택 경로</th></tr></thead><tbody><tr><td>굴절 없는 Alpha 물</td><td>8장의 재질 공통 함수 적용</td></tr><tr><td>Fog 이전 배경을 읽는 굴절 물</td><td>배경 캡처를 Fog 이후로 연결하거나 동등한 보정 어댑터</td></tr><tr><td>이미 Fog 이후 배경을 읽는 물</td><td>배경 성분을 다시 안개 처리하지 않고 표면 성분만 처리</td></tr><tr><td>확장 지점이 없는 외부 물</td><td>프로젝트 소유 adapter/파생 shader로 분리하고 수정 범위 문서화</td></tr></tbody></table></div>
+<h3>권장 어댑터 계약</h3>
+<p>필요한 경우에만 <code>FoggedOpaqueSceneColor</code>를 만든다. Composite 다음, Transparent 이전의 배경을 복사하고 물 어댑터가 이 텍스처를 사용하게 한다. 기본 안개 패스는 계속 컬러 복사 없이 동작한다. Copy의 해상도·MSAA resolve·포맷과 backbuffer 조건은 설치 URP API에 맞춰 처리한다.</p>
+<p>개념적으로 물 표면의 fogged 색을 <code>Wf = Tw*W + Sw</code>, 이미 안개가 적용된 굴절 배경을 Br이라 두면, 한 수면 층의 목표 RGB는 다음과 같다.</p>
+<div class="code-block"><div class="code-toolbar"><span>text</span><button type="button" class="copy-code" data-copy="code-10">복사</button></div><pre><code id="code-10">targetRGB = waterOpacity * Wf + (1 - waterOpacity) * Br</code></pre></div>
+<p>위 targetRGB에 다시 일반적인 alpha-over를 수행하면 배경이 이중 혼합된다. 어댑터는 이 목표색을 실제 blend 상태와 맞춰 구현해야 한다. 한 가지 구현은 waterOpacity를 셰이더 내부 혼합에 사용하고 RGB는 replace 방식으로 출력하는 것이다. 이를 기존 물에 무조건 적용하지 말고 반사·거품·shore fade·sorting 구조에 맞춰 통합한다.</p>
+<p>이 복사본에는 기본적으로 불투명 배경만 포함된다. 물 뒤의 다른 투명 입자까지 굴절되는 기능을 자동으로 보장하지 않는다. 다중 굴절층, 수중 전환, 파도 속 매질 적분은 v1의 일반 공통 함수만으로 해결하지 않는다.</p>
+<p>완료 검증은 물 없는 배경, 물을 통한 배경, 물 표면/거품을 같은 거리에서 비교한다. 안개가 빠지는 밝은 창, 이중 안개 띠, 물 가장자리의 잘못된 alpha가 없어야 한다. 프로젝트에 물이 없으면 최소 비굴절 물 샘플과 어댑터 계약까지 제공하고 실제 에셋 호환 완료로 표시하지 않는다.</p>
+</section>
+<section class="doc-section" id="section-10"><h2>10 데이터 스키마와 기본값</h2>
+<h3>ToonFogProfile</h3>
+<p>아래 기본값은 미터 단위의 보통 밀도 시작안이다. 최종 아트 값은 프로젝트의 실제 크기와 톤 매핑에 맞춰 조절한다.</p>
+<div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">필드</th><th scope="col">형식 / 단위</th><th scope="col">시작값</th><th scope="col">검증·설명</th></tr></thead><tbody><tr><td>enabled</td><td>bool</td><td>true</td><td>프로필 평가 시 밀도 0 상태로 변환 후 보간</td></tr><tr><td>distanceDensity</td><td>float, 1/m</td><td>0.0012</td><td>0 이상</td></tr><tr><td>nearClearDistance</td><td>float, m</td><td>8</td><td>모든 안개 적분의 시작 거리</td></tr><tr><td>maxEvaluationDistance</td><td>float, m</td><td>2000</td><td>시작 거리 이상. 카메라 Far Clip과 별개</td></tr><tr><td>distanceGradient</td><td>Gradient RGB</td><td>지역별</td><td>Alpha=1, bake 필요</td></tr><tr><td>colorNear / colorFar</td><td>float, m</td><td>20 / 500</td><td>far가 near보다 큼</td></tr><tr><td>heightEnabled</td><td>bool</td><td>true</td><td>off는 tauHeight=0</td></tr><tr><td>heightDensity</td><td>float, 1/m</td><td>0.006</td><td>기준 높이 이하 밀도</td></tr><tr><td>baseHeight</td><td>float, world m</td><td>0</td><td>카메라 높이를 더하지 않음</td></tr><tr><td>heightScale</td><td>float, m</td><td>18</td><td>최소 0.01</td></tr><tr><td>heightTint</td><td>Color</td><td>지역별</td><td>Linear 변환 계약 공유</td></tr><tr><td>localDensityMultiplier</td><td>float, 0 이상</td><td>1</td><td>해당 환경에서 Local 밀도에 적용</td></tr><tr><td>maxOpacity</td><td>float, 0..1</td><td>0.90</td><td>최종 합성에 한 번 적용</td></tr><tr><td>regionTransitionSeconds</td><td>float, s</td><td>1.5</td><td>순간이동은 Reset 가능</td></tr><tr><td>skyPolicy</td><td>enum</td><td>PreserveGlobal</td><td>Sky의 Distance/Height 제외, Local은 평가</td></tr></tbody></table></div>
+<h3>ToonFogRegion</h3>
+<div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">필드</th><th scope="col">역할</th></tr></thead><tbody><tr><td>profile</td><td>읽기 전용 원본 프로필</td></tr><tr><td>shape / transform</td><td>Box 또는 Sphere 영역</td></tr><tr><td>priority</td><td>높은 우선순위가 낮은 우선순위 환경 위에 적용</td></tr><tr><td>weight</td><td>0~1, 영역 기여의 상한</td></tr><tr><td>blendDistance</td><td>경계 바깥으로 이어지는 전환 거리, m</td></tr><tr><td>stableId</td><td>같은 priority의 결정적인 순서와 진단용 ID</td></tr><tr><td>anchorPolicy</td><td>Game은 주입된 PlayerAnchor 우선, 없으면 Camera. SceneView는 해당 Camera</td></tr></tbody></table></div>
+<p>Region 내부는 기하 가중치 1, 바깥 거리가 blendDistance에 도달하면 0으로 smoothstep 감쇠한다. Region Sphere는 균일 scale만 허용하며, 비균일 scale은 Inspector 오류로 표시한다. Region Box는 shear 없는 OBB만 지원한다. Box 외부 거리는 회전을 제거한 좌표와 월드 half extent로 계산하여 blendDistance의 미터 단위를 유지한다. 부모의 비균일 scale과 회전으로 생긴 shear도 진단한다. 이 Region의 거리 계산 제한은 Local Volume의 타원체 광선 교차 지원과 구분한다. 임의 Mesh Collider 거리 계산은 추가하지 않는다.</p>
+<h3>ToonFogLocalVolume</h3>
+<div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">필드</th><th scope="col">역할</th></tr></thead><tbody><tr><td>shape</td><td>Box / Sphere. 비균일 Sphere scale은 타원체</td></tr><tr><td>density</td><td>1/m, 0 이상</td></tr><tr><td>tint / useRegionTint</td><td>false는 고유 색, true는 resolved heightTint. 환경 tint는 최종 색에 한 번 적용</td></tr><tr><td>edgeFeather01</td><td>로컬 반축 기준 경계 폭</td></tr><tr><td>noise source</td><td>World/Quality Settings의 공통 Noise 사용. 개별 텍스처 override 없음</td></tr><tr><td>noiseAmount / noiseFrequency</td><td>0~1 / cycles per meter</td></tr><tr><td>windVelocity</td><td>월드 m/s. time과 결합하여 UV 생성</td></tr><tr><td>priority / stableId</td><td>활성 슬롯 선택 규칙</td></tr><tr><td>weight</td><td>제작자가 설정한 0~1 값. 슬롯 fade와 곱해 effective density로 게시</td></tr><tr><td>maxVisibleDistance</td><td>선택적 개별 culling 범위. Bounds 기준</td></tr></tbody></table></div>
+<h3>외부 입력과 프레임 상태</h3>
+<div class="code-block"><div class="code-toolbar"><span>csharp</span><button type="button" class="copy-code" data-copy="code-11">복사</button></div><pre><code id="code-11">// 데이터 계약 예시. 구현 코드와 API 시그니처는 프로젝트 규칙에 맞춰 확정한다.
+public struct FogEnvironmentInput
+{
+    public float DensityMultiplier;  // 기본 1
+    public Color TintMultiplier;     // 기본 white, Linear 계약
+    public Vector2 WindVelocityXZ;   // 기본 (0,0)
+    public float CombatWeight;       // 기본 0, [0,1]
+    public bool ResetTransition;     // teleport / scene initial placement
+}
+
+public interface IToonFogEnvironmentSource
+{
+    bool TryGetInput(Camera camera, out FogEnvironmentInput input);
+}</code></pre></div>
+<p>실제 날씨·전투 시스템이 없어도 기본 공급자와 Inspector 디버그 값으로 동작해야 한다. <code>TimeOfDay</code>와 <code>WeatherType</code> 문자열을 코어 셰이더 분기로 넣지 않는다. 상위 환경 시스템이 시간 곡선과 날씨 프리셋을 평가하여 위 숫자 입력으로 전달한다.</p>
+<p><code>FogEnvironmentInput.Identity</code>를 명시적으로 제공한다. DensityMultiplier=1, TintMultiplier=white, WindVelocityXZ=zero, CombatWeight=0, ResetTransition=false다. 공급자 부재 또는 TryGetInput=false이면 Identity를 사용한다. C# struct의 기본값은 0/검정이므로 <code>default(FogEnvironmentInput)</code>를 중립 입력으로 취급하지 않는다.</p>
+<p><code>ToonFogFrameSettings</code>에는 최종 프로필 숫자, 카메라 위치, 원점 보정값, Local 개수, 고정 크기 Volume 데이터와 LUT 참조를 둔다. Unity API 오브젝트 접근은 메인 스레드에서 끝낸다. 계산이 충분히 작으면 Job System을 억지로 추가하지 않는다.</p>
+</section>
+<section class="doc-section" id="section-11"><h2>11 지역 전환과 전투 가시성</h2>
+<h3>결정적인 혼합 순서</h3>
+<ol><li>Base Profile에서 시작한다.</li><li>현재 anchor와 겹치는 Region의 기하 weight를 계산한다.</li><li>같은 priority끼리 숫자와 LUT 색을 weight 정규화해 합친다.</li><li>그룹 강도 <code>min(1, sum(weight))</code>로 누적 상태에 적용한다. 낮은 priority부터 높은 priority 순이다.</li><li>Weather/Time 입력의 밀도 배율, tint, wind를 적용한다.</li><li>CombatWeight의 읽기 쉬운 화면 설정을 적용한다.</li><li>같은 카메라의 이전 상태에서 목표 상태로 부드럽게 이동한다.</li><li>품질 상한에 맞는 Local 목록과 프레임 스냅샷을 확정한다.</li></ol>
+<p>Profile의 enabled/heightEnabled는 보간 전에 숫자로 바꾼다. enabled=false인 프로필은 distanceDensity, heightDensity, localDensityMultiplier가 0인 상태로 혼합에 참여한다. heightEnabled=false는 해당 heightDensity만 0으로 만든다. 따라서 무안개 지역과 유안개 지역을 연속적으로 섞을 수 있다. 시스템 전체의 즉시 Off는 별도 master switch로 처리한다. 고정 SkyPolicy와 Quality enum, shader keyword는 Region 수치 보간 대상이 아니다.</p>
+<p>프레임 속도에 독립적인 전환은 <code>blend = 1-exp(-deltaTime/transitionSeconds)</code>처럼 정의한다. 목표가 바뀔 때마다 초기 상태를 다시 잡아 끝없이 늦어지는 보간을 피한다. ResetTransition이면 해당 프레임부터 목표 상태를 사용한다. 복수 Region 상한이 필요하면 기본 포함 최대 4개의 프로필 기여를 명시하고 제외 수를 진단한다.</p>
+<h3>전투 가시성의 시작 설정</h3>
+<div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">파라미터</th><th scope="col">탐험</th><th scope="col">전투 가중치 1</th><th scope="col">설명</th></tr></thead><tbody><tr><td>nearClearDistance</td><td>프로필 값, 기본 8m</td><td>기본값에서 12m 방향으로 보간</td><td>가까운 공격 동작 보호</td></tr><tr><td>density multiplier</td><td>1.0</td><td>0.8</td><td>전체 밝기를 급격히 바꾸지 않게 보간</td></tr><tr><td>maxOpacity</td><td>프로필 값, 기본 0.90</td><td>0.85 이하로 제한</td><td>먼 주요 실루엣 가독성 보조</td></tr><tr><td>전환 시간</td><td>1.5s</td><td>진입 0.35s / 복귀 1.0s 시작안</td><td>고정 값이 아니라 데이터</td></tr></tbody></table></div>
+<p>게임플레이 기본 카메라가 FOV를 바꾸거나 가까이 당겨져도 안개 거리는 월드 단위로 유지되어야 한다. 위 설정은 플레이어를 안개에서 완전히 잘라내는 mask가 아니다. 배경과 캐릭터가 따로 떠 보이는 현상을 줄이기 위해 근거리 공통 구간과 밀도로 먼저 해결한다.</p>
+<p>특정 보스만 따로 보호해야 하는 요구가 생기면 depth와 일치하는 가시 픽셀 mask를 후속으로 추가한다. 벽 뒤 보스가 드러나는 X-ray 마스크나 화면 중심의 무조건적인 안개 구멍을 기본 기능에 넣지 않는다.</p>
+<h3>Floating Origin과 Streaming</h3>
+<p>프로젝트가 원점 이동을 사용한다면 baseHeight, Volume 변환, Region anchor, Noise 좌표를 같은 기준으로 갱신한다. 원점 이동 전후에 동일 물체와 동일 Noise 무늬가 같은 위치에 보여야 한다. 기존 원점 이동 시스템이 없으면 이번 안개 구현 때문에 새 월드 좌표 시스템을 만들지 않는다.</p>
+<p>지역 추가/해제는 등록 목록을 통해 반영한다. 씬 변경 후 오래된 Transform이나 Material을 참조하지 않는다. 영구 Manager를 쓴다면 중복 생성 방지와 테스트 씬 종료 시 복원 규칙을 갖춘다.</p>
+</section>
+<section class="doc-section" id="section-12"><h2>12 일곱 지역의 초기 프리셋</h2>
+<p>색상은 <strong>표시용 sRGB Hex</strong>이며 실제 화면은 조명·노출·톤 매핑에 따라 달라진다. 아래 숫자는 1 unit=1m 기준의 아트 튜닝 시작값이다. baseHeight는 임의의 공통 0을 그대로 쓰지 말고 각 지역 바닥·수면 고도로 배치한다.</p>
+<div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">지역</th><th scope="col">거리 Gradient, 근 / 중 / 원</th><th scope="col">거리 density</th><th scope="col">높이 density / scale</th><th scope="col">Local 배치</th></tr></thead><tbody><tr><td>우거진 숲</td><td><span class="color-value"><span class="color-dot" aria-hidden="true" style="background:#527B72"></span><code>#527B72</code></span> / <span class="color-value"><span class="color-dot" aria-hidden="true" style="background:#8FB4AA"></span><code>#8FB4AA</code></span> / <span class="color-value"><span class="color-dot" aria-hidden="true" style="background:#C4D6C7"></span><code>#C4D6C7</code></span></td><td>0.0016</td><td>0.008 / 12m</td><td>숲길 저지대, 통행 방향의 넓은 Box</td></tr><tr><td>가을 숲</td><td><span class="color-value"><span class="color-dot" aria-hidden="true" style="background:#A17B58"></span><code>#A17B58</code></span> / <span class="color-value"><span class="color-dot" aria-hidden="true" style="background:#D7B58A"></span><code>#D7B58A</code></span> / <span class="color-value"><span class="color-dot" aria-hidden="true" style="background:#E9D9B9"></span><code>#E9D9B9</code></span></td><td>0.0012</td><td>0.005 / 14m</td><td>골짜기에 낮은 금빛 안개</td></tr><tr><td>메마른 지역</td><td><span class="color-value"><span class="color-dot" aria-hidden="true" style="background:#AA8B71"></span><code>#AA8B71</code></span> / <span class="color-value"><span class="color-dot" aria-hidden="true" style="background:#CEB99B"></span><code>#CEB99B</code></span> / <span class="color-value"><span class="color-dot" aria-hidden="true" style="background:#E4D6BB"></span><code>#E4D6BB</code></span></td><td>0.0014</td><td>0.002 / 25m</td><td>넓고 낮은 먼지층, 느린 바람</td></tr><tr><td>평야·성 지대</td><td><span class="color-value"><span class="color-dot" aria-hidden="true" style="background:#8EA7AC"></span><code>#8EA7AC</code></span> / <span class="color-value"><span class="color-dot" aria-hidden="true" style="background:#B9CDD0"></span><code>#B9CDD0</code></span> / <span class="color-value"><span class="color-dot" aria-hidden="true" style="background:#DCE5E3"></span><code>#DCE5E3</code></span></td><td>0.0007</td><td>0.002 / 20m</td><td>성 앞 저지대에 제한 배치</td></tr><tr><td>고산 지대</td><td><span class="color-value"><span class="color-dot" aria-hidden="true" style="background:#8198B1"></span><code>#8198B1</code></span> / <span class="color-value"><span class="color-dot" aria-hidden="true" style="background:#B5C9DC"></span><code>#B5C9DC</code></span> / <span class="color-value"><span class="color-dot" aria-hidden="true" style="background:#DFE9F0"></span><code>#DFE9F0</code></span></td><td>0.0009</td><td>0.014 / 40m</td><td>계곡 바닥을 메우는 큰 볼륨</td></tr><tr><td>강가 마을</td><td><span class="color-value"><span class="color-dot" aria-hidden="true" style="background:#739D9D"></span><code>#739D9D</code></span> / <span class="color-value"><span class="color-dot" aria-hidden="true" style="background:#AEC9C6"></span><code>#AEC9C6</code></span> / <span class="color-value"><span class="color-dot" aria-hidden="true" style="background:#DCE6DD"></span><code>#DCE6DD</code></span></td><td>0.0011</td><td>0.007 / 8m</td><td>수면 높이의 길쭉한 Box</td></tr><tr><td>호수 마을</td><td><span class="color-value"><span class="color-dot" aria-hidden="true" style="background:#829EB1"></span><code>#829EB1</code></span> / <span class="color-value"><span class="color-dot" aria-hidden="true" style="background:#BBCCD8"></span><code>#BBCCD8</code></span> / <span class="color-value"><span class="color-dot" aria-hidden="true" style="background:#E4EBEE"></span><code>#E4EBEE</code></span></td><td>0.0010</td><td>0.009 / 10m</td><td>호수 가장자리의 넓은 낮은 안개</td></tr></tbody></table></div>
+<p>공통 시작값은 NearClear 8m, ColorNear 20m, ColorFar 500m, MaxOpacity 0.90이다. 안개가 너무 두꺼우면 먼저 높이 기준과 높이 밀도를 확인한다. 낮은 지역 전체가 baseHeight 아래라면 높이 밀도가 긴 거리 전체에서 일정하게 누적되기 때문이다.</p>
+<h3>배치 가이드</h3>
+<ul><li>우거진 숲: 작은 볼륨을 나무마다 붙이지 않는다. 길과 계곡을 기준으로 큰 덩어리 몇 개를 배치한다.</li><li>가을 숲: 화면 전체를 주황색으로 덮기보다 원거리의 따뜻한 팔레트를 사용한다.</li><li>메마른 지역: 큰 먼지 움직임은 Local Noise와 별도의 소량 카드 VFX로 분담한다.</li><li>평야·성: 성의 랜드마크가 사라지지 않게 거리 밀도를 먼저 낮춘다.</li><li>고산: 산봉우리의 y값만으로 처리하지 않고 시선이 계곡 부피를 통과하는 장면을 확인한다.</li><li>강가·호수: 물 표면의 실제 고도와 Local Volume을 맞추고 굴절 어댑터를 검증한다.</li></ul>
+</section>
+<section class="doc-section" id="section-13"><h2>13 품질 단계와 성능 예산</h2>
+<h3>기본 품질 설정</h3>
+<div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">품질</th><th scope="col">활성 Local 최대</th><th scope="col">교차 구간 샘플 N</th><th scope="col">Noise</th><th scope="col">합성 해상도</th></tr></thead><tbody><tr><td>Low</td><td>2</td><td>2</td><td>Off</td><td>Full</td></tr><tr><td>Medium 기본</td><td>4</td><td>4</td><td>On</td><td>Full</td></tr><tr><td>High</td><td>8</td><td>8</td><td>On</td><td>Full</td></tr></tbody></table></div>
+<p>균일한 Local은 품질과 무관하게 해석식을 사용한다. 샘플 N은 Feather 또는 Noise가 있는 교차 구간에만 적용한다. 볼륨 개수와 샘플 수를 곱한 최악 비용을 점검한다. 예를 들어 QHD 2560×1440에서 4개 볼륨 모두를 4회씩 평가하면 최대 약 5,898만 회의 밀도 평가다. 이는 연산 개수 계산이며 GPU 시간 측정값이 아니다. 화면 패스가 1회라는 이유로 저비용이라고 판단하지 않는다.</p>
+<h3>제안하는 초기 예산</h3>
+<div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">항목</th><th scope="col">목표 시작안</th><th scope="col">측정 범위</th></tr></thead><tbody><tr><td>기준 해상도</td><td>2560×1440, 현재 Render Scale</td><td>실제 target descriptor도 기록</td></tr><tr><td>목표 게임 프레임</td><td>60 fps</td><td>프로젝트 목표가 다르면 단계 0에서 변경</td></tr><tr><td>안개 전체 GPU 증가량</td><td>Medium에서 우선 1.0ms 이내 목표</td><td>안개 때문에 추가된 depth, globals, 합성, 투명 어댑터 포함</td></tr><tr><td>CPU 갱신</td><td>카메라 1대 0.2ms 이내 목표</td><td>후보 선택, 보간, 업로드 준비</td></tr><tr><td>GC</td><td>준비 이후 안정 프레임에서 0 B/frame 목표</td><td>안개 코드에 의해 생긴 할당</td></tr><tr><td>기본 컬러 복사</td><td>0회</td><td>굴절 어댑터는 별도 옵션·비용 기록</td></tr></tbody></table></div>
+<p>이 숫자는 하드웨어가 정해지기 전의 설계 예산이다. 최소 사양에서 달성했다는 뜻이 아니다. 목표를 넘으면 기능을 숨기거나 숫자를 완화해 통과 처리하지 말고 원인을 분리해 보고한다.</p>
+<h3>최적화 순서</h3>
+<ol><li>안개 Off/On의 동일 장면 차이를 측정한다. pass 자체 시간과 프레임 총 증가량을 모두 남긴다.</li><li>불필요한 입력 텍스처, 복사, 중복 카메라 합성을 제거한다.</li><li>후보 Volume 컬링과 균일 밀도 해석식을 확인한다.</li><li>실제 화면을 덮는 Local 수, Noise 샘플 수, 투명 VFX 오버드로를 줄인다.</li><li>조정 후에도 병목이면 해당 장면에 대해 반해상도 밀도 평가와 깊이 기반 업샘플을 별도 설계한다.</li></ol>
+<p>반해상도 경로를 도입할 때 단순 bilinear 업샘플로 캐릭터 주변에 안개 halo가 생기지 않게 해야 한다. 시간 누적은 잔상·카메라 컷·순간이동 reset까지 추가 검증이 필요하므로 기본 경로에 선제 도입하지 않는다.</p>
+<h3>측정 방법</h3>
+<p>빌드 가능한 환경에서는 같은 Development 또는 Release Player 조건을 명시하고 비교한다. VSync/프레임 제한, GPU/CPU, 해상도, 그래픽 API, 품질, 카메라 경로, Local 수, 투명 화면 점유율을 기록한다. 충분히 준비된 구간의 동일 경로를 Off/On으로 수집하여 중앙값과 p95를 비교한다. 기본 측정 길이는 300프레임이며 shader compilation·씬 로딩 프레임은 구분한다.</p>
+<p>처음에는 거리+높이만, 다음 Local 4개, 마지막 투명 VFX가 많은 장면으로 비용 원인을 분리한다. Unity Profiler에서 GPU 시간을 지원하지 않는 환경이면 CPU 시간으로 GPU 시간을 대신 주장하지 않는다. RenderDoc 등 기존 사용 도구가 있다면 활용하되 측정 도구 설치를 임의의 필수 의존성으로 만들지 않는다.</p>
+</section>
+<section class="doc-section" id="section-14"><h2>14 편집 도구와 진단 기능</h2>
+<h3>Inspector</h3>
+<p>Profile은 Distance, Height, Palette, Readability의 네 영역으로 묶는다. 밀도 옆에는 계산된 거리 투과율 예시를 보여 줄 수 있다. 예를 들어 거리 안개만 있을 때 <code>D50 = ln(2)/distanceDensity</code>이며, 이는 보호 구간을 제외한 추가 거리다. 밀도가 0이면 무한대로 표시하고 0으로 나누지 않는다.</p>
+<p>Local Inspector는 shape, density, tint, feather, noise, priority를 노출한다. Gizmo는 실제 부피와 경계 완화 폭을 다른 선으로 표시한다. 색상만으로 활성 여부를 구분하지 않고 텍스트로 Selected/Rejected/Disabled 상태도 보여 준다.</p>
+<h3>필수 디버그 모드</h3>
+<div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">모드</th><th scope="col">확인 내용</th></tr></thead><tbody><tr><td>Final</td><td>최종 결과</td></tr><tr><td>Linear Distance</td><td>깊이 복원과 거리 범위</td></tr><tr><td>World Height</td><td>높이 기준 및 원점 이동</td></tr><tr><td>Transmittance</td><td>T를 흑백으로 표시</td></tr><tr><td>Distance Tau / Height Tau / Local Tau</td><td>밀도 기여 분리</td></tr><tr><td>Local Count / Volume ID</td><td>선택된 볼륨과 겹침</td></tr><tr><td>Camera State</td><td>현재 Camera ID, profile, enabled, local count</td></tr></tbody></table></div>
+<p>디버그는 결과를 명확히 보기 위한 별도 출력 모드로 둔다. 필요하면 RGB overwrite 패스를 사용하고 일반 fog blending 모드와 혼동하지 않는다. 릴리스에서 불필요한 디버그 키워드를 유지하지 않는다. 최종 QA는 디버그를 끈 상태로 수행한다.</p>
+<h3>진단 메시지</h3>
+<ul><li>유효한 Depth Texture가 준비되지 않은 경우: 카메라와 렌더러 이름, 필요한 설정을 1회 경고한다.</li><li>기존 Fog가 동시에 켜진 경우: 추정으로 자동 수정하지 않고 확인한 재질/설정 경로를 보여 준다.</li><li>Local/Region 상한 초과: 잘린 수와 선택 정책을 표시한다.</li><li>지원하지 않는 카메라·렌더 경로: 해당 카메라의 비활성 이유를 표시한다.</li><li>누락 프로필·invalid transform: 중립값으로 안전하게 동작하고 원인을 알려 준다.</li></ul>
+<p>매 프레임 같은 경고를 출력하지 않는다. Inspector 값의 유효성 검사는 Undo와 멀티 오브젝트 편집을 고려한다. <code>OnValidate</code>에서 매번 AssetDatabase 전체를 갱신하거나 렌더러 설정을 자동 변경하지 않는다.</p>
+<h3>리소스 수명</h3>
+<p>Material, LUT Texture, 필요 시 RTHandle과 GPU buffer를 소유자별로 한 번 생성하고 명시적으로 해제한다. Renderer Feature 재생성, 씬 로드·언로드, Enter Play Mode 옵션에서 Domain Reload 비활성, Game/Scene View 동시 사용을 검증한다. 정적 등록 목록은 런타임 초기화 시 정리할 수 있어야 하며 Editor와 Play의 목록이 섞이지 않아야 한다.</p>
+</section>
+<section class="doc-section" id="section-15"><h2>15 단계별 구현 작업과 완료 조건</h2>
+<p>각 단계는 작은 변경 단위로 진행하고, 해당 단계의 실질적인 검증을 통과한 다음 다음 단계로 이동한다. 일반적인 구현 선택은 작업자가 결정하고 계속 진행한다. 실제 접근 권한 부재, 소스 부재, 기존 프로젝트 규칙과의 해결 불가능한 충돌은 구체적인 파일·오류·영향 범위를 보고한다.</p>
+<h3>단계 0 프로젝트 조사와 기준 화면 확보</h3>
+<p><strong>작업:</strong> 프로젝트 지침, AGENTS.md/CLAUDE.md 등 적용 규칙, ProjectVersion.txt, manifest.json, packages-lock.json, 현재 URP/Core 실제 버전을 확인한다. Graphics/Quality의 Render Pipeline Asset, Renderer Data, RenderGraph/Compatibility Mode, 카메라, MSAA, Color Space, 기본 안개, 후처리, renderer feature 순서를 조사한다.</p>
+<p>캐릭터·환경·식생·물·파티클·외곽선의 대표 shader와 material을 선정한다. 현재 코드의 수정 상태와 기존 컴파일 에러를 기록한다. 패키지 버전은 임의 업그레이드하지 않는다. 기존 프로젝트가 Compatibility Mode라면 현재 작업본의 전역 설정을 즉시 바꾸지 않는다. 별도 checkout/프로젝트 복사본에서 URP Graphics의 RenderGraph 설정을 전환하고 테스트 Renderer/Scene으로 네이티브 경로를 검증한다. Renderer Data나 Scene만 바꿔 카메라별 Compatibility Mode를 선택할 수 있다고 가정하지 않는다. 실제 게임 통합에는 기존 Renderer Feature들의 전환 필요 범위도 함께 기록한다.</p>
+<p><strong>산출물:</strong> Integration.md의 환경 표, MaterialCoverage.md 초안, 기존 화면 캡처, 기존 오류 목록, 통합할 Renderer와 샘플 씬 위치.</p>
+<p><strong>완료 조건:</strong> 실제 환경과 이 문서의 전제가 구분되어 있고, 어떤 재질이 어느 안개 경로를 사용할지 정해져 있다. 뒤 단계가 참고할 정확한 설치 API 위치가 기록되어 있다.</p>
+<h3>단계 1 데이터와 수학 코어</h3>
+<p><strong>작업:</strong> Profile/Quality/FrameSettings 구조, 단위 검증, 공통 거리·높이 적분, Box/Sphere 교차, T/S 합성을 구현한다. CPU double 독립 수치 적분을 기준으로 의미 있는 경계 조건 테스트를 작성한다. GPU 구현은 같은 계약을 따르되 테스트 기대값을 GPU 식 그대로 복사하지 않는다.</p>
+<p><strong>산출물:</strong> 데이터 타입, FogEvaluation/FogIntegration, CPU reference와 테스트.</p>
+<p><strong>완료 조건:</strong> 중립성, 수평 높이 적분, 기준 높이 교차, 비균일 스케일 교차 길이, 순수 구간의 투과율 곱 성질이 통과한다.</p>
+<h3>단계 2 불투명 거리 안개와 RenderGraph 연결</h3>
+<p><strong>작업:</strong> GlobalsSetup, Composite, Reset을 구현하고 거리 안개부터 화면에 출력한다. depth request와 resource dependency를 명시한다. GPU attachment blending을 사용하고 카메라 컬러를 복사하지 않는다. 하늘 PreserveGlobal, Base/Overlay 정책과 비활성 중립 상태를 연결한다.</p>
+<p><strong>산출물:</strong> Renderer Feature, Composite shader, 거리별 기준 물체가 놓인 샘플 씬, 프레임 디버거 캡처.</p>
+<p><strong>완료 조건:</strong> 10m/50m/100m/500m 표면에 예상한 거리 안개가 적용된다. Off/0 density에서 원본과 같고, UI·카메라 alpha가 유지된다. 기본 경로에 Fog용 컬러 복사가 없다.</p>
+<h3>단계 3 Gradient와 Height Fog</h3>
+<p><strong>작업:</strong> LUT bake/cache, 거리색/높이색 결합, 월드 높이 적분, 시작 거리 이동을 연결한다. 높은 위치·낮은 위치·수평·위아래 시선과 카메라 FOV 변경 장면을 만든다.</p>
+<p><strong>산출물:</strong> Gradient Inspector, 계곡 샘플, T/Height Tau 진단.</p>
+<p><strong>완료 조건:</strong> 카메라의 고도가 변해도 안개 기준 높이가 카메라를 따라오지 않는다. 거의 수평인 시선에서 띠·발산이 없다. Far Clip 변경이 Color Gradient 좌표를 바꾸지 않는다.</p>
+<h3>단계 4 Local Volume과 경계</h3>
+<p><strong>작업:</strong> Box/Sphere 균일 밀도부터 연결하고, 그다음 Feather·Noise를 붙인다. 등록·컬링·상한·priority·hysteresis를 구현한다. 형태 교차와 구간 clipping은 공통 수학을 사용한다.</p>
+<p><strong>산출물:</strong> Local 컴포넌트, Gizmo, 외부 관찰·내부 진입·벽 가림 샘플, 선택 목록 진단.</p>
+<p><strong>완료 조건:</strong> 표면이 Volume 밖에 있어도 시선이 통과하면 안개가 보인다. 벽 뒤 안개가 앞 벽에 덮이지 않는다. 회전/비균일 스케일에 밀도 단위가 유지되고 상한 교체에 급격한 점멸이 없다.</p>
+<h3>단계 5 실제 셰이더와 투명 연동</h3>
+<p><strong>작업:</strong> Straight/Premult/Additive 공통 helper와 샘플을 만든다. 실제 캐릭터와 식생의 depth/outline을 검증한다. 기존 fog와의 이중 처리 경로를 제거한다. 현재 물이 있다면 9장의 굴절 어댑터를 구현한다. 에셋 소스 원본보다 프로젝트 소유 확장 지점을 사용한다.</p>
+<p><strong>산출물:</strong> 재질 adapter, 업데이트된 MaterialCoverage.md, outline/물 비교 화면.</p>
+<p><strong>완료 조건:</strong> alpha 기반 투명 재질의 alpha=0에 잔색이 없고, Additive는 기존 세기 계약을 유지하면서 fog color에 의한 사각형이 드러나지 않는다. 캐릭터 outline이 배경 깊이에 따라 갑자기 지워지지 않는다. 물 배경의 안개 누락과 이중 fog가 없다. 연결하지 못한 실제 사용 재질을 &#x27;완료&#x27;로 표시하지 않는다.</p>
+<h3>단계 6 Region, 날씨, 전투와 프리셋</h3>
+<p><strong>작업:</strong> Resolver와 외부 입력 interface를 연결한다. Region overlap/priority, 시간 독립 보간, teleport reset, 전투 weight를 구현한다. 기존 시간·날씨 시스템이 있으면 adapter로 연결한다. 7개 프로필과 선택 가능한 데모를 만든다.</p>
+<p><strong>산출물:</strong> 환경 Resolver, 디버그 조절 UI, 7개 프로필, 지역 경계 샘플.</p>
+<p><strong>완료 조건:</strong> 평범한 지역/색/밀도 변경은 데이터 편집으로 가능하다. 카메라가 Region 경계를 흔들며 넘어가도 화면이 점멸하지 않는다. teleport 직후 이전 지역 안개가 오래 남지 않는다.</p>
+<h3>단계 7 성능과 생명주기 정리</h3>
+<p><strong>작업:</strong> Low/Medium/High 경로, 생성·해제, Domain Reload 비활성, Scene View 동시 사용, camera stack을 확인한다. 프로파일링으로 비용을 분리하고 필요한 최적화만 적용한다. 셰이더 스트리핑으로 Player에서 필요한 variant가 빠지지 않는지도 확인한다.</p>
+<p><strong>산출물:</strong> Performance.md, 지원 매트릭스, 리소스 정리 및 경고 코드.</p>
+<p><strong>완료 조건:</strong> 안정 프레임에서 안개 코드의 GC 할당이 없고, 카메라/씬 전환에서 상태 누출이 없다. 실측한 장비와 해상도, pass 비용, 전체 증가량이 구분되어 있다.</p>
+<h3>단계 8 최종 검증과 인수 문서</h3>
+<p><strong>작업:</strong> 16장의 필수 검증을 실행하고, 대표 플레이 장면의 전/후 화면과 실제 Player 빌드 상태를 기록한다. 설치/제거/프리셋 추가/재질 연결 절차를 문서화한다. 코드·샘플·Unity .meta를 포함한다.</p>
+<p><strong>산출물:</strong> Integration.md, MaterialCoverage.md, Validation.md, Performance.md, TaskStatus.md 및 정상 실행 샘플.</p>
+<p><strong>완료 조건:</strong> 실제 게임 카메라에서 사용할 수 있고, 미검증 환경과 알려진 제약이 명확하다. Unity 실행 권한이나 엔진 실행 파일이 없으면 정적 검토까지만 표시하고 에디터/빌드 검증을 수행한 것처럼 쓰지 않는다.</p>
+</section>
+<section class="doc-section" id="section-16"><h2>16 검증 매트릭스와 인수 기준</h2>
+<h3>수학 검증</h3>
+<p>CPU 검증은 double 기반 독립 수치 적분 또는 기하학적으로 계산 가능한 장면을 기준으로 한다. 무작위 입력 테스트는 seed를 고정한다. 기본 허용 오차는 일반 범위의 tau에서 <code>abs(error) &lt;= 1e-5 + 1e-4*abs(reference)</code>이며 GPU의 T 비교는 절대 오차 1e-3을 시작 기준으로 한다. 극단적으로 포화된 영역은 작은 T의 상대 오차보다 유한성·연속성을 우선 확인한다.</p>
+<div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">ID</th><th scope="col">조건</th><th scope="col">기대 결과</th></tr></thead><tbody><tr><td>M01</td><td>Disabled / 모든 density 0 / 0 길이</td><td>T=1, S=0</td></tr><tr><td>M02</td><td>Height만, 기준 아래 수평 100m</td><td>tau=heightDensity*100</td></tr><tr><td>M03</td><td>Height만, 기준 위 수평 및 dir.y≈0</td><td>근처 각도와 연속, NaN/띠 없음</td></tr><tr><td>M04</td><td>기준 고도를 위아래로 통과</td><td>독립 수치 적분과 오차 범위 안에서 일치</td></tr><tr><td>M05</td><td>거리 density=ln(2)/100, 보호 거리 8m, 표면 108m</td><td>다른 밀도 Off, cap 비활성에서 T≈0.5</td></tr><tr><td>M06</td><td>순수 적분 구간을 임의 위치에서 분리</td><td>T(a,c)=T(a,b)*T(b,c)</td></tr><tr><td>M07</td><td>고정된 시선에서 표면 거리 증가</td><td>균일/해석적 밀도의 T가 증가하지 않음</td></tr><tr><td>M08</td><td>Box 밖 카메라와 밖 표면, 중간 관통</td><td>tau=density*교차 길이</td></tr><tr><td>M09</td><td>Sphere 내부 카메라, 접선, 매우 얇은 볼륨</td><td>음수 길이·NaN 없음, 실제 교차 반영</td></tr><tr><td>M10</td><td>회전 Box, 비균일 scale, Sphere→타원체</td><td>월드 미터 기준 길이와 density 유지</td></tr><tr><td>M11</td><td>동일색 매질 중첩</td><td>tau 합산, 중복 S 합산으로 과도 밝기 없음</td></tr><tr><td>M12</td><td>MaxOpacity=0, 중간값, 1</td><td>T와 S가 함께 제한되며 중립성 보존</td></tr><tr><td>M13</td><td>가까운 시작 구간을 제외한 Height</td><td>원점 이동을 반영한 적분과 일치</td></tr><tr><td>M14</td><td>긴 거리, 높은 고도, 최소 HeightScale</td><td>유한한 T/S, 음수 density 입력 검출</td></tr></tbody></table></div>
+<p>M06은 동일한 월드 밀도 함수의 <strong>순수 적분 함수</strong>에서 검사한다. nearClear/maxOpacity를 하위 구간마다 다시 적용하거나 카메라마다 Region 결과를 바꾼 최종 출력에 곱 성질을 요구하지 않는다. 고정 샘플 Noise 적분은 표면 거리가 바뀔 때 샘플 위치도 달라지므로 완벽한 단조성을 보장하지 않는다. Noise 경로는 참조 샘플 수를 높인 결과와 비교하여 허용 가능한 편차와 화면 안정성을 별도로 검증한다.</p>
+<h3>화면과 통합 검증</h3>
+<div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">ID</th><th scope="col">장면 / 조작</th><th scope="col">통과 기준</th></tr></thead><tbody><tr><td>V01</td><td>시간·Noise를 고정한 Off와 중립 On 비교</td><td>최종 RGB 차이 없음 또는 포맷 반올림 범위, alpha 동일</td></tr><tr><td>V02</td><td>가까운 캐릭터, 먼 산, 하늘</td><td>근거리 읽기 가능, 먼 산색 자연스러움, 하늘에 복원 노이즈 없음</td></tr><tr><td>V03</td><td>계곡 위에서 아래/수평/위를 봄</td><td>높이 안개가 카메라에 붙어 움직이지 않음</td></tr><tr><td>V04</td><td>Local 외부 관찰→진입→이탈, 지형/하늘 배경</td><td>경계 점멸·끝점 오류 없음, 하늘 앞 부피도 정상 표시</td></tr><tr><td>V05</td><td>안개 앞의 벽, 뒤의 산</td><td>안개가 앞 벽을 잘못 덮지 않음</td></tr><tr><td>V06</td><td>동일 위치의 불투명 판과 alpha=1 투명 판</td><td>같은 T/S의 결과와 일치</td></tr><tr><td>V07</td><td>alpha 0→1 그라데이션, Premult·Additive</td><td>투명 테두리와 입자 사각형 없음</td></tr><tr><td>V08</td><td>outline 뒤를 벽·산·하늘로 변경</td><td>배경 깊이 때문에 선의 안개가 비정상 변화하지 않음</td></tr><tr><td>V09</td><td>바람 식생, Alpha Clip, LOD 교체</td><td>color/depth 불일치 윤곽과 잔영 없음</td></tr><tr><td>V10</td><td>물 표면과 물을 통한 배경</td><td>안개 누락·이중 안개·shore halo 없음</td></tr><tr><td>V11</td><td>UI HUD, UI Camera Overlay</td><td>HUD가 뿌옇게 변하거나 Base 화면이 두 번 안개 처리되지 않음</td></tr><tr><td>V12</td><td>Game 청록→미니맵 Off→SceneView 다른 설정</td><td>카메라별 값/텍스처가 누출되지 않음</td></tr><tr><td>V13</td><td>MSAA 1x/현재 설정/4x 가능 시</td><td>깊이 가장자리 정렬 확인, 얇은 실루엣 문제 기록</td></tr><tr><td>V14</td><td>Render Scale 0.7/1.0/1.2 가능 시</td><td>거리·높이·UV 정렬 보존</td></tr><tr><td>V15</td><td>탐험·전투 FOV, Lock-on, 카메라 충돌 당김</td><td>월드 거리 기준 유지, 가시성 급변 없음</td></tr><tr><td>V16</td><td>Region overlap, 경계 왕복, Local 상한 교체</td><td>우선순위가 결정적이고 프레임 점멸 없음</td></tr><tr><td>V17</td><td>날씨 급변·teleport·씬 전환</td><td>reset/보간 계약대로 전환</td></tr><tr><td>V18</td><td>Feature On/Off, 재생 진입/종료 반복</td><td>잔여 전역 상태·GPU 리소스 증가 없음</td></tr><tr><td>V19</td><td>환경 공급자 없음/false, 밀도 배율 0, 무안개 Region 경계</td><td>Identity 정상, 배율 0에서 Local 포함 Off, 프로필 경계는 연속</td></tr></tbody></table></div>
+<p>MSAA resolved depth와 per-sample 컬러의 차이로 생기는 가장자리 문제는 실제 화면으로 확인한다. 보편적인 depth 기반 화면 효과만으로 모든 실루엣 문제가 사라진다고 가정하지 않는다. 문제가 보이면 depth/outline 보정 또는 해당 재질 경로 변경을 검토한다.</p>
+<h3>필수 샘플 씬</h3>
+<div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">샘플</th><th scope="col">구성</th></tr></thead><tbody><tr><td>ToonFog_Calibration</td><td>10/50/100/500m 기준 물체, alpha별 판, 색 비교와 중립 토글</td></tr><tr><td>ToonFog_HeightAndVolumes</td><td>계곡 형태, 고도별 카메라, Box/Sphere, 얇은 volume, 벽 가림</td></tr><tr><td>ToonFog_Integration</td><td>실제 캐릭터와 식생, outline, 물, 입자, UI, 게임 카메라</td></tr><tr><td>ToonFog_Regions</td><td>7개 프로필 선택, 경계 이동, 날씨·전투 슬라이더, teleport</td></tr></tbody></table></div>
+<p>파일 수를 줄이기 위해 하나의 씬에 테스트 구역을 나누어도 된다. 중요한 것은 장면 이름보다 재현 가능한 상태와 기준 카메라다. 유료 모델이나 외부 다운로드 없이 Primitive 기반 기본 검증이 가능해야 한다. 실제 프로젝트 자산 비교는 별도 통합 구역에 둔다.</p>
+<h3>최종 인수 기준</h3>
+<ul><li>단계 0~8의 상태와 필수 QA 결과가 기록되어 있다.</li><li>현재 프로젝트에서 C#과 shader 컴파일 오류가 없다. 기존 오류는 신규 오류와 구분되어 있다.</li><li>샘플뿐 아니라 실제 게임 카메라에 연결한 상태가 있다.</li><li>대표 재질별 안개 소유권이 명시되어 있고 중복 경로가 없다.</li><li>일반적인 지역 추가, 색·밀도 변경, 볼륨 배치는 코드 수정 없이 가능하다.</li><li>성능 결과는 장비·해상도·품질·추가 pass 조건과 함께 재현 가능하다.</li><li>실행하지 못한 검증은 Pending으로 남아 있다. 소스 검토만으로 Player/XR/콘솔 호환을 완료 처리하지 않는다.</li></ul>
+</section>
+<section class="doc-section" id="section-17"><h2>17 Claude와 Codex에 전달할 작업 요청</h2>
+<h3>최초 실행 요청</h3>
+<p>아래 요청과 이 문서 전체를 함께 전달한다. 동봉된 텍스트 파일은 요청과 전체 설계를 포함하므로 그 파일 하나로 전달해도 된다.</p>
+<div class="code-block"><div class="code-toolbar"><span>text</span><button type="button" class="copy-code" data-copy="code-12">복사</button></div><pre><code id="code-12" data-agent-request="true">당신은 이 Unity 프로젝트의 렌더링 기능 구현 담당자입니다.
+첨부된 &#x27;Unity 툰 안개 시스템 설계 및 구현 지시서 v1.0&#x27; 전체를 읽고,
+문서의 단계 0~8을 실제 프로젝트에서 순서대로 구현해 주세요.
+설계 설명이나 코드 예시만 제시하는 것으로 끝내지 말고,
+코드, 프로필, 샘플 씬, 셰이더 연결, 검증 기록까지 완성하는 작업입니다.
+
+[프로젝트 기준]
+- 알려진 기준은 Unity 6000.0.60f1 / URP / 툰 TPS 액션 프로젝트입니다.
+- 정확한 Editor/URP/Core 버전, Renderer, 셰이더, 플랫폼은 실제 파일을 우선합니다.
+- 캐릭터의 &#x27;일툰&#x27; 셰이더 이름과 버전을 먼저 확인하세요.
+- 저장소 지침과 기존 코드 규칙, 기존 작업 변경분을 존중하세요.
+
+[필수 구조]
+1. RenderGraph 네이티브 Renderer Feature를 구현합니다.
+2. 불투명 fog는 BeforeRenderingTransparents에서 depth만 읽고,
+   output=(S, 1-T), Blend One OneMinusSrcAlpha, ColorMask RGB로 합성합니다.
+3. 기본 fog에 camera-color copy를 추가하지 않습니다.
+4. 공통 HLSL은 거리, 안정적인 높이 적분, Local 교차 구간을 계산하여 T/S를 반환합니다.
+5. Height를 표면 y만으로, Local을 표면 포함 판정만으로 구현하지 않습니다.
+6. Alpha/Premultiplied/Additive는 각각 지정된 식으로 처리합니다.
+7. 물의 굴절과 외곽선은 실제 shader 구조를 조사하여 전용 연결을 합니다.
+8. Region 프로필 선택과 실제 Local 안개 부피는 다른 컴포넌트로 만듭니다.
+9. 카메라별 설정과 글로벌 상태 수명, Neutral/Reset 경로를 구현합니다.
+10. 7개 지역 프리셋과 편집/진단 도구를 제공합니다.
+
+[진행 방식]
+- 먼저 현재 프로젝트의 환경과 기존 오류를 짧게 정리하고 단계 0을 수행하세요.
+- TaskStatus.md에 단계별 Pending/In Progress/Done/Blocked와 근거를 관리하세요.
+- 각 단계의 의미 있는 검증을 끝낸 다음 다음 단계로 계속 진행하세요.
+- 일반적인 구현 선택은 근거를 기록하고 자율적으로 결정하세요.
+- 현재 버전에서 다른 API가 필요하면 설치된 package 소스와 공식 문서를 확인하세요.
+- Unity/URP 업그레이드, Compatibility Mode 강제 전환,
+  외부 유료 에셋 도입을 기본 해결책으로 삼지 마세요.
+- 패키지 원본을 덮어쓰기보다 프로젝트 소유 확장 경로를 사용하세요.
+- 목표 플랫폼·재질이 실제로 필요한 경우 조건부 통합을 필수 작업에 포함하세요.
+- Unity 실행 환경이 없으면 가능한 소스/정적 검증을 진행하고,
+  실행하지 않은 에디터·빌드·GPU 측정은 Pending으로 남기세요.
+
+[검증과 납품]
+- 16장의 수학/화면 검증과 실제 Player 빌드를 가능한 환경에서 수행하세요.
+- 성능 수치는 측정 장비와 조건을 기록하고 제안 예산과 실측을 구분하세요.
+- Integration.md, MaterialCoverage.md, Validation.md,
+  Performance.md, TaskStatus.md를 갱신하세요.
+- 최종 보고에는 변경 파일, 설치/사용법, 완료한 검증,
+  남은 문제와 재현 방법, 성능 결과를 포함하세요.
+- 마지막에는 직접 실행할 샘플 씬과 게임 씬 적용 위치를 알려 주세요.
+
+지금 단계 0부터 시작하고, 수행 가능한 기본 범위는 끝까지 진행하세요.</code></pre></div>
+<h3>중단 후 이어서 실행</h3>
+<div class="code-block"><div class="code-toolbar"><span>text</span><button type="button" class="copy-code" data-copy="code-13">복사</button></div><pre><code id="code-13">기존 ToonFog 작업을 이어서 진행해 주세요.
+설계서와 Docs/Rendering/ToonFog/TaskStatus.md, 현재 코드와 검증 기록을 먼저 읽고,
+실제로 끝난 작업을 반복하지 마세요. 코드 상태와 문서가 다르면 근거를 확인해 정리하세요.
+마지막으로 완료한 단계 다음부터 단계 8까지 진행하고,
+현재 환경에서 수행하지 못한 검증만 명확하게 Pending으로 남겨 주세요.</code></pre></div>
+<h3>별도 검토자에게 전달</h3>
+<div class="code-block"><div class="code-toolbar"><span>text</span><button type="button" class="copy-code" data-copy="code-14">복사</button></div><pre><code id="code-14">ToonFog 구현을 설계서 v1.0 기준으로 검토해 주세요.
+렌더 그래프의 리소스 의존성, 글로벌 상태 누출, 중복 fog,
+수평 Height 적분, Local world-length 변환, 투명 블렌드,
+물/outline 통합, 실제 성능 측정 범위와 미검증 주장을 우선 확인해 주세요.
+실제로 재현되거나 코드상 근거가 있는 문제만 중요도와 파일 위치를 붙여 보고하세요.
+구현을 전부 다시 작성하지 말고 필요한 최소 수정안을 제시하세요.</code></pre></div>
+<h3>두 AI가 함께 작업하는 경우</h3>
+<div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">순서</th><th scope="col">구현 담당</th><th scope="col">검토 담당</th></tr></thead><tbody><tr><td>단계 0~3</td><td>한 AI가 데이터·수학·Renderer 구현</td><td>다른 AI가 수학과 RenderGraph 계약 검토</td></tr><tr><td>단계 4~6</td><td>담당 파일 범위를 정한 AI</td><td>다른 AI가 실제 재질·지역 전환 검토</td></tr><tr><td>단계 7~8</td><td>한 AI가 통합·측정·인수</td><td>다른 AI가 필수 QA 누락과 허위 완료 여부 검토</td></tr></tbody></table></div>
+<p>한 저장소에서 동시 작업할 때 HLSL, Renderer Feature, Profile의 소유자를 먼저 정한다. 병렬 작업은 sample 제작과 독립 수학 검토처럼 충돌하지 않는 단위로 나눈다. 모델별 능력을 가정해 고정 역할을 강제하지 않는다.</p>
+</section>
+<section class="doc-section" id="section-18"><h2>18 납품 파일과 자주 발생하는 실패</h2>
+<h3>구현 작업이 남겨야 하는 자료</h3>
+<div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">파일</th><th scope="col">포함 내용</th></tr></thead><tbody><tr><td>Integration.md</td><td>실제 Unity/URP/Core, Renderer 설치, 설정 복원, 카메라 정책, 프로필 추가 방법</td></tr><tr><td>MaterialCoverage.md</td><td>재질별 안개 소유권, outline/물 adapter, 연결되지 않은 재질</td></tr><tr><td>Validation.md</td><td>M/V 테스트 결과, 재현 방법, 캡처 위치, Pending 이유</td></tr><tr><td>Performance.md</td><td>장비·API·해상도·품질, Off/On, pass 비용, 총 증가량, GC</td></tr><tr><td>TaskStatus.md</td><td>단계 상태, 마지막 완료 지점, 차이점, 다음 작업</td></tr><tr><td>소스와 Unity .meta</td><td>C#, HLSL, shader, profile, renderer 설정, sample scene</td></tr></tbody></table></div>
+<h3>실패 패턴과 확인 순서</h3>
+<div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">증상</th><th scope="col">먼저 확인할 원인</th></tr></thead><tbody><tr><td>화면이 전부 하얗거나 한 색</td><td>depth 복원, clear-depth 분기, 단위, 과도한 heightDensity</td></tr><tr><td>카메라가 올라가면 안개 층도 올라감</td><td>baseHeight가 camera-relative로 계산됨</td></tr><tr><td>멀리 있는 안개 덩어리가 안 보임</td><td>Local을 surface containment로 구현함</td></tr><tr><td>scale을 바꾸면 밀도가 이상함</td><td>local ray direction을 다시 normalize함</td></tr><tr><td>거의 수평에서 선이 생김</td><td>dir.y 분모 처리, 높이 적분의 수치 불안정</td></tr><tr><td>투명 이펙트가 밝은 사각형으로 보임</td><td>Additive에 scattering을 더함, premult alpha 누락</td></tr><tr><td>물속 배경만 선명함</td><td>Fog 이전 opaque texture를 읽음</td></tr><tr><td>물가에 안개가 두꺼운 띠로 보임</td><td>fogged 배경을 다시 fog 처리함</td></tr><tr><td>캐릭터 outline만 사라짐</td><td>Hull 픽셀이 배경 깊이를 참조함</td></tr><tr><td>먼 외곽선이 지나치게 진함</td><td>Fog 이후 outline에 자체 fog가 없음</td></tr><tr><td>다른 카메라에 색이 남음</td><td>글로벌 reset/neutral 누락, 공유 배열 덮어쓰기</td></tr><tr><td>새 Gradient가 한 카메라 늦게 적용됨</td><td>SetGlobalTextureAfterPass의 시점 오해</td></tr><tr><td>RenderGraph에서 pass가 사라짐</td><td>실제 사용 리소스 의존성 또는 전역 side effect 선언 누락</td></tr><tr><td>Player만 핑크/누락</td><td>shader variant, include 경로, 빌드 stripping</td></tr><tr><td>GPU 비용이 크게 증가</td><td>depth 생성 비용, Local 중첩·샘플 수, 투명 오버드로, 물 복사</td></tr></tbody></table></div>
+<h3>구현 시 피할 관행</h3>
+<ul><li>오래된 튜토리얼의 <code>OnRenderImage</code>, <code>CommandBuffer.Blit</code>, <code>Graphics.Blit</code>를 Unity 6 기본 경로로 가져오지 않는다. Unity는 현재 URP에서 RenderGraph/Blitter 경로를 안내한다. <a href="https://docs.unity3d.com/6000.0/Documentation/Manual/urp/customize/blit-overview.html" target="_blank" rel="noopener noreferrer">S06</a></li><li>작은 공개 저장소가 Unity 6를 표시한다는 이유만으로 현재 버전의 RenderGraph·XR·콘솔 호환을 가정하지 않는다.</li><li>문제를 숨기기 위해 프로젝트 전체를 Compatibility Mode로 바꾸거나 항상 컬러 복사를 강제하지 않는다.</li><li>매 프레임 Material/Texture 생성, 씬 전체 검색, 불필요한 LINQ 할당을 넣지 않는다.</li><li>아직 측정하지 않은 GPU ms, 모바일 지원, 물 셰이더 호환을 완료 결과로 쓰지 않는다.</li><li>정상적인 깊이 기반 화면 효과와 완전한 물리 볼류메트릭 조명 시뮬레이션을 같은 기능으로 설명하지 않는다.</li></ul>
+</section>
+<section class="doc-section" id="section-19"><h2>19 근거 자료와 버전 적용 원칙</h2>
+<p>다음은 기술과 참고 미술 방식을 확인한 1차 자료다. 링크는 2026-11-21 문서 작성 시점에 확인했다. 공식 6000.0 문서가 더 최근 예시나 패키지 설명으로 갱신될 수 있으므로 <strong>실제 프로젝트의 설치된 패키지 소스와 버전별 API를 최종 기준</strong>으로 사용한다. GitHub master는 고정 버전 구현의 증거가 아니다.</p>
+<div class="table-scroll" tabindex="0"><table><thead><tr><th scope="col">ID</th><th scope="col">자료</th><th scope="col">이 문서에서 사용하는 범위</th></tr></thead><tbody><tr><td>S01</td><td><a href="https://docs.unity3d.com/6000.0/Documentation/Manual/urp/renderer-features/renderer-feature-full-screen-pass.html" target="_blank" rel="noopener noreferrer">Unity 6 Full Screen Pass</a></td><td>주입 시점과 입력 텍스처 요구의 개념</td></tr><tr><td>S02</td><td><a href="https://docs.unity3d.com/6000.0/Documentation/Manual/urp/render-graph-write-render-pass.html" target="_blank" rel="noopener noreferrer">Unity 6 RenderGraph 패스 작성</a></td><td>RecordRenderGraph, PassData, 리소스 선언</td></tr><tr><td>S03</td><td><a href="https://docs.unity.cn/Packages/com.unity.render-pipelines.core@17.0/api/UnityEngine.Rendering.RenderGraphModule.IRasterRenderGraphBuilder.html" target="_blank" rel="noopener noreferrer">Core RP 17 IRasterRenderGraphBuilder</a></td><td>blending에 의한 attachment 읽기/쓰기</td></tr><tr><td>S04</td><td><a href="https://docs.unity.cn/Packages/com.unity.render-pipelines.core@17.0/api/UnityEngine.Rendering.RenderGraphModule.IBaseRenderGraphBuilder.html" target="_blank" rel="noopener noreferrer">Core RP 17 IBaseRenderGraphBuilder</a></td><td>global state, culling, texture 게시 시점</td></tr><tr><td>S05</td><td><a href="https://docs.unity3d.com/6000.0/Documentation/Manual/urp/writing-shaders-urp-reconstruct-world-position.html" target="_blank" rel="noopener noreferrer">Unity 6 월드 위치 복원</a></td><td>depth, inverse VP, reversed Z, 화면 스케일</td></tr><tr><td>S06</td><td><a href="https://docs.unity3d.com/6000.0/Documentation/Manual/urp/customize/blit-overview.html" target="_blank" rel="noopener noreferrer">Unity 6 Blit 권장 경로</a></td><td>레거시 Blit 제한과 대체 API</td></tr><tr><td>S07</td><td><a href="https://flatkit.dustyroom.com/fog/" target="_blank" rel="noopener noreferrer">Flat Kit Fog Image Effect</a></td><td>거리/높이 Gradient 편집 사례</td></tr><tr><td>S08</td><td><a href="https://halisavakis.com/my-take-on-shaders-firewatch-multi-colored-fog/" target="_blank" rel="noopener noreferrer">Harry Alisavakis 다색 안개 재현</a></td><td>Firewatch 스타일 색상 램프 참고</td></tr><tr><td>S09</td><td><a href="https://github.com/Unity-Technologies/Graphics/blob/master/Packages/com.unity.render-pipelines.core/ShaderLibrary/VolumeRendering.hlsl" target="_blank" rel="noopener noreferrer">Unity Graphics VolumeRendering.hlsl</a></td><td>기준 고도 아래 균질, 위 지수 감쇠라는 밀도 모델 참고</td></tr><tr><td>S10</td><td><a href="https://github.com/lilxyzw/lilToon" target="_blank" rel="noopener noreferrer">lilToon 공식 저장소</a></td><td>프로젝트에서 실제 사용하는 셰이더와 버전 확인의 출발점</td></tr><tr><td>S11</td><td><a href="https://pbr-book.org/4ed/Volume_Scattering/Transmittance" target="_blank" rel="noopener noreferrer">PBRT 4 Transmittance</a></td><td>광선 투과율, 구간 곱 성질</td></tr><tr><td>S12</td><td><a href="https://docs.unity3d.com/6000.0/Documentation/Manual/writing-shader-blending-modes.html" target="_blank" rel="noopener noreferrer">Unity Shader Blending Modes</a></td><td>Alpha/Premultiplied/Additive 연산</td></tr><tr><td>S13</td><td><a href="https://docs.unity3d.com/6000.0/Documentation/Manual/urp/render-graph-create-global-texture.html" target="_blank" rel="noopener noreferrer">Unity 6 Global Texture</a></td><td>패스 간 글로벌 텍스처 게시·사용 규칙</td></tr></tbody></table></div>
+<p><strong>자료와 설계의 구분:</strong> 모듈명, 단계 구성, 안정적 높이 적분식의 구현 계약, 최대 opacity 정책, Region 혼합 순서, 초기 프리셋과 성능 예산은 이 프로젝트를 위해 제안한 설계다. 참고 에셋의 실제 코드나 성능 측정값을 그대로 옮긴 것이 아니다. 외부 소스를 도입한다면 라이선스와 고정 commit을 확인하고 의존성을 기록한다.</p>
+</section></main>
+</div>
+<footer><span>Unity 툰 안개 시스템 · 설계 v1.0 · 2026-11-21</span><a class="back-to-top" href="#top">문서 맨 위로 ↑</a></footer>
+<script>
+(() => {
+  const status = document.getElementById('copy-status');
+  async function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      try { await navigator.clipboard.writeText(text); return true; } catch (_) {}
+    }
+    const field = document.createElement('textarea');
+    field.value = text;
+    field.style.cssText = 'position:fixed;left:-9999px;top:0';
+    document.body.appendChild(field); field.focus(); field.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (_) {}
+    field.remove(); return ok;
+  }
+  document.querySelectorAll('[data-copy]').forEach(button => {
+    button.addEventListener('click', async () => {
+      const target = document.getElementById(button.dataset.copy);
+      if (!target) return;
+      const ok = await copyText(target.textContent);
+      button.textContent = ok ? '복사됨' : '직접 선택해 복사';
+      setTimeout(() => button.textContent = '복사', 2200);
+    });
+  });
+  const prompt = document.querySelector('[data-agent-request]');
+  const promptButton = document.getElementById('copy-prompt');
+  if (!prompt) { promptButton.disabled = true; promptButton.title = '작업 요청 블록이 없습니다'; }
+  else promptButton.addEventListener('click', async () => {
+    const ok = await copyText(prompt.textContent);
+    status.textContent = ok ? '작업 요청을 복사했습니다.' : '문서의 작업 요청 블록을 직접 복사해 주세요.';
+    if (!ok) prompt.scrollIntoView({behavior:'smooth',block:'center'});
+    setTimeout(() => status.textContent = '', 4500);
+  });
+  document.getElementById('print-document').addEventListener('click', () => window.print());
+  if ('IntersectionObserver' in window) {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        document.querySelectorAll('.desktop-toc a').forEach(link => {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + entry.target.id);
+        });
+      });
+    }, {rootMargin:'-5% 0px -75% 0px',threshold:0});
+    document.querySelectorAll('.doc-section').forEach(section => observer.observe(section));
+  }
+})();
+</script>
+</body>
+</html>

@@ -50,8 +50,9 @@ MonoBehaviour:
   - {fileID: -1646030144068244439}
   - {fileID: 3406277371556846437}
   - {fileID: 986250092344022804}
+  - {fileID: 846524664022677285}
   - {fileID: 4929230025659267829}
-  m_RendererFeatureMap: ad6b866f10d7b46c292c3a154e2028e965db18e23887452f1497dccd3bddaf0d
+  m_RendererFeatureMap: ad6b866f10d7b46c292c3a154e2028e965db18e23887452f1497dccd3bddaf0d25b7ad64b275bf0bf53a9c9797246844
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
@@ -80,6 +81,20 @@ MonoBehaviour:
   m_DepthTextureFormat: 0
   m_AccurateGbufferNormals: 1
   m_IntermediateTextureMode: 0
+--- !u!114 &846524664022677285
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9ada3f04a6c8a9149ad58bba2847b8ac, type: 3}
+  m_Name: Toon Fog
+  m_EditorClassIdentifier: Assembly-CSharp::UPlayGround.Gameplay.World.ToonFog.ToonFogRendererFeature
+  m_Active: 1
+  _shader: {fileID: 4800000, guid: 77869bc89db0ed74eb4ec948eb131761, type: 3}
 --- !u!114 &986250092344022804
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -41,10 +41,12 @@ Shader "UPlayGround/WorldBuilder/Water"
             HLSLPROGRAM
             #pragma vertex Vert
             #pragma fragment Frag
+            #pragma target 4.5
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
             #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Packing.hlsl"
+            #include "../ToonFog/FogMaterialAdapters.hlsl"
             TEXTURE2D(_NormalMap); SAMPLER(sampler_NormalMap);
             float _WaterManaged, _WaterSceneActive;
             CBUFFER_START(UnityPerMaterial)
@@ -79,6 +81,7 @@ Shader "UPlayGround/WorldBuilder/Water"
                 float ripple=.5+.5*sin(v.uv.y*18-_Time.y*2+n0.x*3);
                 float foam=(1-smoothstep(0,max(.001,_FoamWidth),depth))*_FoamStrength*(.65+.35*ripple);
                 color.rgb=lerp(color.rgb*lambert,half3(.85,.94,.91),foam);
+                color.rgb = ToonFogStraight(color.rgb, EvaluateToonFog(GetCameraPositionWS(), v.world, TOON_FOG_ALL));
                 color.a*=saturate(depth/.12); color.a=max(color.a,foam*.8); return color;
             }
             ENDHLSL

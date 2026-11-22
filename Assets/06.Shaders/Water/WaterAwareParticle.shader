@@ -42,7 +42,9 @@ Shader "UPlayGround/Environment/Water Aware Particle"
                 color.a*=saturate((1-dot(delta,delta))*3);
                 color.rgb=_WaterSceneActive>0.5
                     ? WaterApplyTransparent(input.positionWS,color.rgb,input.positionCS.xy/_ScaledScreenParams.xy,false)
-                    : MixFog(color.rgb,input.fog);
+                    : (_UPGToonFogEnabled > 0.5
+                        ? ToonFogStraight(color.rgb, EvaluateToonFog(GetCameraPositionWS(), input.positionWS, TOON_FOG_ALL))
+                        : MixFog(color.rgb,input.fog));
                 return half4(color.rgb*color.a,color.a);
             }
             ENDHLSL

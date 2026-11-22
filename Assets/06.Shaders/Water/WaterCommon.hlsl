@@ -2,6 +2,7 @@
 #define UPLAYGROUND_WATER_COMMON_INCLUDED
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 #include "WaterWaves.hlsl"
+#include "../ToonFog/FogMaterialAdapters.hlsl"
 
 #define WATER_MAX_INTERVALS 32
 #define WATER_NO_BODY 65535u
@@ -260,7 +261,8 @@ float WaterBodyHeight(WaterBody body, float2 samplePosition)
     return -3.4e38;
 }
 
-WaterOptics WaterEvaluateMedium(float3 origin, float3 direction, float minimum, float maximum, inout float airDistance, bool applyAirFog)
+WaterOptics WaterEvaluateMedium(float3 origin, float3 direction, float minimum, float maximum,
+    inout float airDistance, bool applyAirFog, float cameraPathOffset = 0)
 {
     WaterOptics result;
     result.transmission = 1; result.scattering = 0; result.length = 0;
@@ -301,6 +303,15 @@ WaterOptics WaterEvaluateMedium(float3 origin, float3 direction, float minimum, 
             float illumination = max(body.scattering.w, saturate(max(_MainLightColor.r, max(_MainLightColor.g, _MainLightColor.b))));
             scatter = body.scattering.rgb * illumination;
             result.length += length;
+        }
+        else if (_UPGToonFogEnabled > 0.5)
+        {
+            uint layers = applyAirFog ? TOON_FOG_ALL : TOON_FOG_LOCAL;
+            // 굴절 구간도 카메라에서 시작한 보호 거리 안에서는 맑게 유지한다.
+            ToonFogResult fog = EvaluateToonFogRange(origin - direction * cameraPathOffset, direction,
+                cursor + cameraPathOffset, next + cameraPathOffset, layers);
+            result.scattering += result.transmission * fog.scattering;
+            transmission = fog.transmittance;
         }
         else
         {

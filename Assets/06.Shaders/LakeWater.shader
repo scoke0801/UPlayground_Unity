@@ -52,6 +52,9 @@ Shader "UPlayGround/Environment/Lake Water"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareDepthTexture.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DeclareOpaqueTexture.hlsl"
             #include "Water/WaterWaves.hlsl"
+            #include "ToonFog/FogMaterialAdapters.hlsl"
+            TEXTURE2D_X(_UPGToonFogRefraction);
+            float _UPGToonFogRefractionReady;
 
             TEXTURE2D(_NormalMap);
             SAMPLER(sampler_NormalMap);
@@ -161,7 +164,9 @@ Shader "UPlayGround/Environment/Lake Water"
                 opacity = max(opacity, fresnel * _ReflectionStrength);
                 // 아랫면은 바닥 수심으로 페이드하면 사라지므로 별도의 투명도를 사용한다.
                 opacity = isAbove ? saturate(opacity + foam) : _UnderwaterOpacity;
-                if (_RefractionStrength > 0)
+                bool toonFog = _UPGToonFogEnabled > 0.5;
+                ToonFogResult surfaceFog = EvaluateToonFog(GetCameraPositionWS(), input.positionWS, TOON_FOG_ALL);
+                if (_RefractionStrength > 0 && (!toonFog || _UPGToonFogRefractionReady > 0.5 || _WaterSceneActive > 0.5))
                 {
                     float2 offset = TransformWorldToViewDir(normal, true).xy
                         * _RefractionStrength * edge;
@@ -175,14 +180,19 @@ Shader "UPlayGround/Environment/Lake Water"
                     float surfaceDistance = distance(GetCameraPositionWS(), input.positionWS);
                     if (distance(GetCameraPositionWS(), refractedPosition) < surfaceDistance)
                         refractedUV = screenUV;
-                    color = lerp(SampleSceneColor(refractedUV), MixFog(color, input.fogFactor), opacity);
-                    color = lerp(color, MixFog(reflection, input.fogFactor), reflectionWeight);
-                    color += highlight;
+                    float3 background = _UPGToonFogRefractionReady > 0.5
+                        ? SAMPLE_TEXTURE2D_X(_UPGToonFogRefraction, sampler_LinearClamp, refractedUV).rgb
+                        : SampleSceneColor(refractedUV);
+                    float3 waterColor = toonFog ? ToonFogStraight(color, surfaceFog) : MixFog(color, input.fogFactor);
+                    float3 reflectionColor = toonFog ? ToonFogStraight(reflection, surfaceFog) : MixFog(reflection, input.fogFactor);
+                    color = lerp(lerp(background, waterColor, opacity), reflectionColor, reflectionWeight);
+                    color += ToonFogAdditive(highlight, surfaceFog);
                     opacity = 1;
                 }
                 else
                 {
-                    color = MixFog(lerp(color, reflection, reflectionWeight) + highlight, input.fogFactor);
+                    color = lerp(color, reflection, reflectionWeight) + highlight;
+                    color = toonFog ? ToonFogStraight(color, surfaceFog) : MixFog(color, input.fogFactor);
                 }
                 // 원형 UV를 가진 작은 물 고임만 경계를 후퇴시켜 수평 수면을 유지한다.
                 half shore = _ShoreFade > 0

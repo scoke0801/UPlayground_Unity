@@ -1,0 +1,1014 @@
+CLAUDE / CODEX 구현 작업 요청
+Unity 툰 안개 시스템 v1.0 | 2026-11-21
+
+당신은 이 Unity 프로젝트의 렌더링 기능 구현 담당자입니다.
+첨부된 'Unity 툰 안개 시스템 설계 및 구현 지시서 v1.0' 전체를 읽고,
+문서의 단계 0~8을 실제 프로젝트에서 순서대로 구현해 주세요.
+설계 설명이나 코드 예시만 제시하는 것으로 끝내지 말고,
+코드, 프로필, 샘플 씬, 셰이더 연결, 검증 기록까지 완성하는 작업입니다.
+
+[프로젝트 기준]
+- 알려진 기준은 Unity 6000.0.60f1 / URP / 툰 TPS 액션 프로젝트입니다.
+- 정확한 Editor/URP/Core 버전, Renderer, 셰이더, 플랫폼은 실제 파일을 우선합니다.
+- 캐릭터의 '일툰' 셰이더 이름과 버전을 먼저 확인하세요.
+- 저장소 지침과 기존 코드 규칙, 기존 작업 변경분을 존중하세요.
+
+[필수 구조]
+1. RenderGraph 네이티브 Renderer Feature를 구현합니다.
+2. 불투명 fog는 BeforeRenderingTransparents에서 depth만 읽고,
+   output=(S, 1-T), Blend One OneMinusSrcAlpha, ColorMask RGB로 합성합니다.
+3. 기본 fog에 camera-color copy를 추가하지 않습니다.
+4. 공통 HLSL은 거리, 안정적인 높이 적분, Local 교차 구간을 계산하여 T/S를 반환합니다.
+5. Height를 표면 y만으로, Local을 표면 포함 판정만으로 구현하지 않습니다.
+6. Alpha/Premultiplied/Additive는 각각 지정된 식으로 처리합니다.
+7. 물의 굴절과 외곽선은 실제 shader 구조를 조사하여 전용 연결을 합니다.
+8. Region 프로필 선택과 실제 Local 안개 부피는 다른 컴포넌트로 만듭니다.
+9. 카메라별 설정과 글로벌 상태 수명, Neutral/Reset 경로를 구현합니다.
+10. 7개 지역 프리셋과 편집/진단 도구를 제공합니다.
+
+[진행 방식]
+- 먼저 현재 프로젝트의 환경과 기존 오류를 짧게 정리하고 단계 0을 수행하세요.
+- TaskStatus.md에 단계별 Pending/In Progress/Done/Blocked와 근거를 관리하세요.
+- 각 단계의 의미 있는 검증을 끝낸 다음 다음 단계로 계속 진행하세요.
+- 일반적인 구현 선택은 근거를 기록하고 자율적으로 결정하세요.
+- 현재 버전에서 다른 API가 필요하면 설치된 package 소스와 공식 문서를 확인하세요.
+- Unity/URP 업그레이드, Compatibility Mode 강제 전환,
+  외부 유료 에셋 도입을 기본 해결책으로 삼지 마세요.
+- 패키지 원본을 덮어쓰기보다 프로젝트 소유 확장 경로를 사용하세요.
+- 목표 플랫폼·재질이 실제로 필요한 경우 조건부 통합을 필수 작업에 포함하세요.
+- Unity 실행 환경이 없으면 가능한 소스/정적 검증을 진행하고,
+  실행하지 않은 에디터·빌드·GPU 측정은 Pending으로 남기세요.
+
+[검증과 납품]
+- 16장의 수학/화면 검증과 실제 Player 빌드를 가능한 환경에서 수행하세요.
+- 성능 수치는 측정 장비와 조건을 기록하고 제안 예산과 실측을 구분하세요.
+- Integration.md, MaterialCoverage.md, Validation.md,
+  Performance.md, TaskStatus.md를 갱신하세요.
+- 최종 보고에는 변경 파일, 설치/사용법, 완료한 검증,
+  남은 문제와 재현 방법, 성능 결과를 포함하세요.
+- 마지막에는 직접 실행할 샘플 씬과 게임 씬 적용 위치를 알려 주세요.
+
+지금 단계 0부터 시작하고, 수행 가능한 기본 범위는 끝까지 진행하세요.
+
+================ 전체 설계 명세 ================
+
+# Unity 툰 안개 시스템 설계 및 구현 지시서
+
+Unity 6 URP · 툰 TPS 액션 프로젝트 · Claude / Codex 전달용
+
+**문서 버전 1.0 · 작성일 2026-11-21 · 상태: 구현 착수용 설계**
+
+거리별 색상 그라데이션, 월드 높이 안개, 지역 한정 안개를 하나의 계산 규칙으로 통합한다. 불투명 장면에는 깊이 기반 화면 합성을 적용하고, 반투명 재질에는 같은 HLSL 함수를 연결한다. 지역 프리셋과 날씨 데이터만 바꾸어 숲·고산·마을의 분위기를 조절할 수 있게 한다.
+
+기준 환경은 대화에서 공유된 **Unity 6000.0.60f1 / URP / 기존 캐릭터 툰 셰이더 / 경량 환경 툰 셰이더**다. 실제 프로젝트 파일은 이번 문서 작성 과정에서 열지 않았다. 설치된 URP 버전, 렌더러, 셰이더의 실제 동작은 단계 0에서 확인한다. 본문의 수치 예산과 프리셋은 시작 설정이며 실측 결과가 아니다.
+
+> 전달 방법: 이 HTML 또는 동봉한 전체 텍스트를 구현할 프로젝트와 함께 Claude·Codex에 제공하고, 17장의 작업 요청을 실행하게 한다. 기본 범위는 단계 0~8이다. 선택 확장은 별도로 표시했다. 두 AI가 함께 작업하면 같은 파일을 동시에 수정하지 않고 단계별 담당과 검토자를 나눈다.
+
+## 01 구현 목표와 결정 사항
+
+### 원하는 화면
+
+근거리 캐릭터의 얼굴, 의상 명암 단계, 무기 동작은 읽을 수 있어야 한다. 중거리의 나무와 건물은 지역의 안개색으로 조금씩 묶이고, 먼 산은 하늘색과 어울리는 실루엣으로 남아야 한다. 물가와 계곡에는 공간적으로 모여 있는 안개를 배치하되, 카메라가 밖에 있을 때도 안개 덩어리가 보여야 한다.
+
+안개는 원래 장면의 대비를 낮추므로 모든 거리에서 툰 명암을 완전히 보존한다고 약속하지 않는다. 근거리 보호 거리, 밀도, 최대 불투명도와 색 팔레트로 가시성을 조절한다. 조명 계산이나 툰 램프 자체를 다시 작성하는 작업은 이 시스템의 역할이 아니다.
+
+### 확정할 기본 방향
+
+| 항목 | 기본 결정 | 이유 |
+| --- | --- | --- |
+| 렌더링 기반 | URP RenderGraph 네이티브 Renderer Feature | Unity 6 프로젝트의 실제 렌더 경로와 연결 |
+| 화면 합성 시점 | BeforeRenderingTransparents | 불투명 장면과 투명 표면의 거리 계산을 분리 |
+| 기본 화면 합성 | 깊이만 샘플하고 현재 컬러 attachment에 GPU 블렌딩 | 기본 안개에 불필요한 화면 컬러 복사를 요구하지 않음 |
+| 밀도 계산 | 거리 + 높이 적분 + Box/Sphere 교차 구간 적분 | 카메라 이동과 안개 영역 출입에 일관된 결과 |
+| 색 표현 | 거리 Gradient + Height Tint + Local Tint | 애니메이션풍 팔레트 제어 |
+| 투명 재질 | 공통 FogEvaluation.hlsl 연결 | 재질 자신의 표면 거리로 안개 처리 |
+| 지역/날씨 | ScriptableObject 프로필 + 런타임 Resolver | 일반적인 아트 확장은 데이터 편집으로 완료 |
+| 기본 품질 | 전체 해상도, 시간 누적 없음, 저주파 국소 Noise | 구현과 검증을 단순하게 시작 |
+| 라이브러리 | URP/Core와 기존 프로젝트 의존성 사용 | 외부 안개 에셋 도입을 필수 조건으로 만들지 않음 |
+
+Unity의 문서상 BeforeRenderingTransparents는 하늘 이후, 투명 오브젝트 이전이다. RecordRenderGraph에서 리소스와 패스를 선언하는 구조를 따른다. 아래의 실제 합성 방식과 모듈 분리는 이 프로젝트용 설계 결정이다. [S01](https://docs.unity3d.com/6000.0/Documentation/Manual/urp/renderer-features/renderer-feature-full-screen-pass.html) · [S02](https://docs.unity3d.com/6000.0/Documentation/Manual/urp/render-graph-write-render-pass.html)
+
+## 02 구현 범위와 지원 조건
+
+### 이번 작업의 필수 범위
+
+| 기능 | 완료 기준 |
+| --- | --- |
+| Distance Gradient Fog | 거리 변화에 따라 색과 밀도가 안정적으로 변화 |
+| Height Fog | 월드 고도 기반 밀도를 시선 구간 전체에서 적분 |
+| Local Fog | 회전 Box와 Sphere/타원체, 외부 관찰·내부 진입 모두 지원 |
+| Feather와 Noise | 볼륨 경계 완화, 월드 좌표의 저주파 이동 Noise |
+| 지역 프리셋 | 우거진 숲, 가을 숲, 메마른 지역, 평야·성, 고산, 강가 마을, 호수 마을 |
+| 시간·날씨 입력 | 다른 시스템이 없어도 테스트 슬라이더로 조절 가능한 데이터 입력 |
+| 재질 연결 | Opaque, Alpha Clip, Straight Alpha, Premultiplied, Additive 샘플 |
+| 기존 셰이더 연동 | 실제 캐릭터·환경·외곽선·물 사용 여부 조사 후 필요한 어댑터 |
+| 편집 도구 | Inspector, 볼륨 Gizmo, 진단 보기, 샘플 씬 |
+| 안정성 | 여러 카메라, 씬 교체, 리소스 정리, 비활성 상태 보장 |
+| 검증 | 수학 테스트, 대표 장면 비교, 실제 빌드 및 프로파일 기록 |
+
+### 조건부 작업과 후속 확장
+
+| 항목 | 처리 방침 |
+| --- | --- |
+| 기존 굴절 물 셰이더 | 현재 프로젝트에서 사용하면 필수 통합 대상으로 승격. 9장 기준으로 어댑터 구현 |
+| 미세한 지면 안개 카드 | 샘플 연출로 1종 제공 가능. 실제 부피 밀도와 다른 보조 VFX로 취급 |
+| 지형 표면 자동 추종 | v1 범위 밖. Height Fog는 고정 월드 높이 기준. 경사는 Local Volume 배치로 대응 |
+| 광원·그림자에 반응하는 빛줄기 | 후속 모듈. v1에서 실제 volumetric lighting이라고 표현하지 않음 |
+| 플레이어가 밀어내는 유체 안개 | 후속 모듈. 기본 시스템에 유체 시뮬레이션을 추가하지 않음 |
+| 반해상도·시간 누적·Compute | 실측 병목이 확인된 경우 별도 변경안으로 도입 |
+| 모바일·XR·콘솔 | 현재 프로젝트의 필수 타깃이면 단계 0에서 계획에 포함. 검증 없이 지원 완료로 표기하지 않음 |
+| Deferred 및 3D Camera Stack | 실제 사용 중이면 검증 대상. 기본 검증 경로는 현 프로젝트의 Forward 또는 Forward+ |
+| 직교 카메라 | 미니맵은 기본 제외. 필요할 때 픽셀별 광선 원점을 사용하는 별도 경로 |
+
+**우선 검증 환경:** Windows PC, 원근 Game Camera, 기존 Linear Color Space, 현재 그래픽 API와 MSAA 설정. Linear가 아니라면 전역 Color Space를 임의로 바꾸지 말고 색 변환 경로를 별도 기록한다. 목표 GPU가 없으면 에디터 개발 장비를 임시 측정 장비로 기록하고 최소 사양 달성 여부는 미확정으로 둔다.
+
+## 03 아트 기준과 레퍼런스 활용
+
+Flat Kit은 거리·높이의 색상 Gradient를 편집하는 안개 사례다. Harry Alisavakis의 Firewatch 스타일 글은 색상 램프 기반 안개를 직접 재현한 구현 사례다. 이 문서에서는 이들을 **색 설계와 조절 방식의 참고**로 사용한다. 원작 게임이나 특정 에셋의 내부 구현과 동일한 시스템을 만든다는 의미는 아니다. [S07](https://flatkit.dustyroom.com/fog/) · [S08](https://halisavakis.com/my-take-on-shaders-firewatch-multi-colored-fog/)
+
+### 아트 작업 규칙
+
+- 한 지역의 Distance·Height·Local 색은 같은 계열을 공유한다. 강한 보색 안개를 여러 겹 겹치는 장면은 별도 검토한다.
+- 밀도는 연속적으로 유지한다. 툰 느낌을 강화할 때는 색상 램프의 구간을 조절하며 투과율을 계단식으로 양자화하지 않는다.
+- 하늘의 지평선 색과 원거리 Gradient 끝 색을 맞춘다. Sky PreserveGlobal이 기본이므로 하늘에 전역 Distance/Height 안개가 자동으로 깔린다고 가정하지 않는다. 하늘 앞의 Local Volume은 정상 평가한다.
+- 기획자가 지역색을 바꿀 때 셰이더 소스를 수정하지 않아야 한다. 프로필, Gradient, Volume 배치만으로 작업한다.
+- 안개는 카메라 Far Clip 밖의 물체, LOD 팝, Streaming 누락을 고쳐 주지 않는다. 가림을 이용하더라도 해당 시스템의 검증은 별도로 유지한다.
+
+## 04 전체 구조와 책임 분리
+
+[구조 도식 설명] Profile 및 Region/Weather 입력을 FogResolver가 카메라별 불변 상태로 확정한다. 공통 FogEvaluation.hlsl은 불투명 Fullscreen과 투명 Material 경로가 공유한다.
+
+### 런타임 구성
+
+| 구성 요소 | 책임 | 하지 않는 일 |
+| --- | --- | --- |
+| ToonFogProfile | 밀도·색·높이·가시성의 원본 데이터 | 런타임 공유 Asset 값 변경 |
+| ToonFogRegion | 위치에 따른 환경 프로필 선택 가중치 | 실제 시선상의 안개 부피 계산 |
+| ToonFogLocalVolume | 실제 밀도가 존재하는 Box/Sphere 공간 | 카메라 전체 환경 프리셋 교체 |
+| ToonFogWorld | 등록 목록, 외부 날씨 입력, 기본 프로필 관리 | 렌더 패스 직접 실행 |
+| ToonFogResolver | 카메라별 최종 값과 Local 목록 확정 | 프로젝트 전투·날씨 시스템 직접 참조 |
+| ToonFogCameraState | 프레임 동안 바뀌지 않는 카메라 상태 | 다른 카메라의 배열 공유 및 덮어쓰기 |
+| ToonFogRendererFeature | Setup, Composite, Reset 패스 예약 | 새로운 Gameplay Manager 역할 |
+| FogEvaluation.hlsl | 거리·높이·Local 적분과 T/S 반환 | 조명, 그림자, 툰 명암 단계 계산 |
+| FogMaterialAdapters.hlsl | 재질 블렌드 모드별 결과 적용 | 굴절 배경을 무조건 다시 fog 처리 |
+| ToonFogDiagnostics | 상태·비용·적용 경로 설명 | 매 프레임 전체 씬 검색 |
+
+**Region과 Local Volume은 반드시 다른 컴포넌트로 만든다.** Region은 플레이어가 숲에 진입했을 때 화면 전체의 환경값을 바꾸는 영역이다. Local Volume은 플레이어가 밖에 있어도 시선이 통과하면 보이는 안개 부피다. v1에서는 먼 숲과 사막의 전역 안개색을 픽셀별 바이옴 지도처럼 각각 평가하지 않는다. 그 요구는 후속 공간 팔레트 시스템의 범위다.
+
+### 권장 파일 배치
+
+아래 경로는 프로젝트에 기존 규칙이 없을 때의 기본안이다. 기존 폴더·namespace·asmdef 규칙을 먼저 따른다.
+
+| 경로 | 파일과 역할 |
+| --- | --- |
+| Assets/Project/Rendering/ToonFog/Runtime/Data | ToonFogProfile.cs, ToonFogQualitySettings.cs, ToonFogFrameSettings.cs |
+| Assets/Project/Rendering/ToonFog/Runtime/World | ToonFogWorld.cs, ToonFogRegion.cs, ToonFogLocalVolume.cs, ToonFogResolver.cs |
+| Assets/Project/Rendering/ToonFog/Runtime/Rendering | ToonFogRendererFeature.cs, ToonFogGlobalsPass.cs, ToonFogCompositePass.cs, ToonFogResetPass.cs |
+| Assets/Project/Rendering/ToonFog/Runtime/Integration | IToonFogEnvironmentSource.cs, ToonFogCameraPolicy.cs, ToonFogReadabilityInput.cs |
+| Assets/Project/Rendering/ToonFog/Shaders | ToonFogComposite.shader, FogEvaluation.hlsl, FogIntegration.hlsl, FogMaterialAdapters.hlsl |
+| Assets/Project/Rendering/ToonFog/Editor | Profile/Region/Local Inspector, Gizmo, 진단 도구 |
+| Assets/Project/Rendering/ToonFog/Samples | 샘플 씬, 7종 지역 프로필, 비교용 머티리얼 |
+| Assets/Project/Rendering/ToonFog/Tests | 독립 수학 검증과 핵심 통합 테스트 |
+| Docs/Rendering/ToonFog | Integration.md, MaterialCoverage.md, Validation.md, Performance.md, TaskStatus.md |
+
+Runtime에는 UnityEditor 참조를 넣지 않는다. Editor와 Tests는 별도 assembly로 분리한다. 새로운 패키지나 외부 에셋은 필수로 추가하지 않는다. 기존 Addressables를 사용한다면 프로필 공급 어댑터만 연결하고 안개 수학·렌더 코어에 Addressables 의존성을 넣지 않는다.
+
+## 05 렌더링 순서와 RenderGraph 계약
+
+[렌더링 도식 설명] Setup 이후 Opaque/Alpha Clip과 Skybox를 그리고, BeforeRenderingTransparents에서 ToonFogComposite를 실행한다. 하늘은 Global Distance/Height를 제외하고 Local만 평가한다. 물 배경 캡처는 필요할 때 추가한다. 이어 투명 재질이 공통 함수를 적용하고 기존 후처리/UI 및 글로벌 Reset이 이어진다.
+
+### 기본 패스 순서
+
+| 순서 | 처리 | 핵심 계약 |
+| --- | --- | --- |
+| 1 | FogGlobalsSetup | 첫 안개 대응 재질이 그려지기 전에 카메라 상태 게시 |
+| 2 | Opaque와 Alpha Clip | 기존 툰·지형·식생 렌더링. 기본 셰이더 안개와 중복되지 않게 관리 |
+| 3 | Skybox | 기존 하늘 유지 |
+| 4 | ToonFogComposite | BeforeRenderingTransparents에서 깊이 기반 안개 합성 |
+| 5 | 조건부 FoggedOpaqueCapture | 굴절 물이 요구할 때만 안개 적용 배경 복사 |
+| 6 | Transparent | 표면 자신의 월드 위치와 같은 FogEvaluation 사용 |
+| 7 | Post Processing / UI | 기존 후처리 유지. Screen Space Overlay UI에는 안개 미적용 |
+| 8 | FogGlobalsReset | 해당 카메라 종료 전에 비활성 전역 상태 게시 |
+
+### 컬러를 샘플하지 않는 기본 합성
+
+공통 함수가 투과율 T와 Linear RGB 안개 기여 S를 반환한다. 원하는 결과는 `C_out = T × C_scene + S`다. 전체 화면 삼각형에서 다음 상태와 출력을 사용한다.
+
+```hlsl
+// 합성 계약 예시. 전체 Unity 셰이더 파일이 아님.
+Blend One OneMinusSrcAlpha
+ColorMask RGB
+ZWrite Off
+ZTest Always
+Cull Off
+
+// Fragment output
+return float4(fog.scattering, 1.0 - fog.transmittance);
+```
+
+이때 컬러 attachment의 기존 값은 GPU 블렌딩이 읽는다. 셰이더는 Camera Color를 텍스처로 샘플하지 않는다. 카메라 alpha는 ColorMask RGB로 보존한다. 공식 Core RP API는 블렌딩에 따른 attachment의 암묵적 읽기를 설명한다. 이를 이용해 위 합성식을 구성한 것이 본 설계다. [S03](https://docs.unity.cn/Packages/com.unity.render-pipelines.core@17.0/api/UnityEngine.Rendering.RenderGraphModule.IRasterRenderGraphBuilder.html)
+
+### Composite 패스의 리소스 선언
+
+- 카메라 깊이는 `ConfigureInput(ScriptableRenderPassInput.Depth)`로 요청한다. 실제 요청 위치와 생성 타이밍은 설치 패키지의 API에 맞춘다.
+- `RecordRenderGraph`에서 현재 프레임의 `cameraDepthTexture`에 읽기 의존성을 선언한다.
+- 현재 `activeColorTexture`는 `SetRenderAttachment(..., AccessFlags.ReadWrite)`로 사용한다.
+- 동일 Camera Color에 샘플링용 `UseTexture`를 추가하지 않는다. attachment blending과 텍스처 피드백 루프를 혼동하지 않는다.
+- 기존 장면색을 유지해야 하므로 `WriteAll`, Discard, Clear를 사용하지 않는다.
+- 깊이 테스트나 stencil이 필요 없는 기본 경로에서는 Depth Attachment를 별도로 바인딩하지 않는다.
+- LUT와 Noise는 실제 읽는 리소스만 선언한다. 기본 경로에 Normals, Motion Vectors, Opaque Color를 요구하지 않는다.
+- TextureHandle은 현재 프레임의 그래프 안에서만 사용한다. 다음 프레임이나 다른 카메라 상태에 보관하지 않는다.
+
+기본 합성은 Camera Color 샘플이 필요 없으므로 단순히 backbuffer라는 이유만으로 패스를 건너뛰지 않는다. 반대로 물의 배경 캡처처럼 컬러 샘플이 필요한 확장은 읽을 수 있는 intermediate target을 확보하고 별도 복사 대상으로 처리해야 한다. 카메라 컬러를 임의의 단일 샘플 텍스처로 교체하여 이후 투명 렌더링의 MSAA Depth와 불일치시키지 않는다.
+
+### 글로벌 상태와 여러 카메라
+
+Setup과 Composite를 분리한다. `SetGlobalTextureAfterPass`로 설정한 텍스처는 그 패스가 끝난 후 새 값으로 보이므로, 같은 패스의 Draw에서 새 글로벌 텍스처를 읽는 구조를 만들지 않는다. Setup/Reset에서 전역 값을 바꾼다면 `AllowGlobalStateModification(true)`와 설치 패키지의 글로벌 리소스 선언 규칙을 따른다. 이 옵션은 그래프 순서와 culling에 영향을 주므로 필요한 작은 패스에만 사용한다. [S04](https://docs.unity.cn/Packages/com.unity.render-pipelines.core@17.0/api/UnityEngine.Rendering.RenderGraphModule.IBaseRenderGraphBuilder.html)
+
+합성 패스는 필요한 글로벌 텍스처를 `UseGlobalTexture`로 선언하고, 재질에서 읽는 텍스처도 공식 게시 경로로 제공한다. 전역값 이름은 프로젝트 전용 접두어를 사용하고 Material Properties나 UnityPerMaterial에 같은 이름을 선언하여 가리지 않는다. [S13](https://docs.unity3d.com/6000.0/Documentation/Manual/urp/render-graph-create-global-texture.html)
+
+카메라별 스냅샷은 숫자·행렬·Local Volume 목록·LUT 참조가 프레임 실행 중 바뀌지 않아야 한다. 기록 중 공유 Material이나 배열을 덮어써 마지막 카메라의 데이터가 모든 패스에 적용되는 구조를 금지한다. 풀링된 데이터는 해당 그래프 실행이 끝나기 전에 재사용하지 않는다.
+
+안개가 비활성일 때도 전역 `Enabled=0`, `LocalVolumeCount=0`, 중립값을 게시한다. 실제 합성 Draw만 생략한다. Renderer Feature 비활성화·파괴·도메인 리로드에서도 전역 상태를 정리한다. 다음 미니맵이나 다른 Renderer의 카메라가 이전 안개를 물려받아서는 안 된다.
+
+필요한 깊이·shader·프로필·렌더 경로가 없어 Composite를 실행할 수 없으면 해당 카메라 전체를 중립으로 처리한다. 글로벌 게시 전에 유효성을 확인하거나 실패 확인 후 Transparent 이전에 Enabled=0을 게시한다. 불투명 합성만 건너뛰고 투명 adapter는 활성으로 남기는 부분 실패를 허용하지 않는다. 개별 invalid Local Volume은 그 볼륨만 제외한다.
+
+### 깊이 복원과 특수 카메라
+
+`SampleSceneDepth`, `ComputeWorldSpacePosition`, 현재 카메라의 inverse VP 및 URP 화면 스케일 규칙을 기준으로 월드 위치를 복원한다. Reversed Z와 플랫폼 NDC 범위를 처리하고, `Screen.width/height`만으로 UV를 만들지 않는다. 이 부분은 Unity 공식 예제의 개념을 따르되 현재 설치 버전의 helper를 최종 기준으로 삼는다. [S05](https://docs.unity3d.com/6000.0/Documentation/Manual/urp/writing-shaders-urp-reconstruct-world-position.html)
+
+| 카메라 | 기본 정책 |
+| --- | --- |
+| 원근 Base Game Camera | 전체 기능 활성 |
+| Scene View | Inspector 옵션으로 활성. 해당 Scene View 카메라별 상태 사용 |
+| UI Overlay Camera | Composite 제외, 중립 상태. Base 장면에 이중 합성하지 않음 |
+| 3D Overlay Camera | 명시적 어댑터가 없으면 지원 대상에서 제외하고 진단 |
+| Reflection / Preview / 미니맵 | 기본 비활성 |
+| 직교 카메라 | 기본 비활성. 필요 시 픽셀별 near-plane 원점으로 구현 |
+
+하늘의 clear depth는 지형 위치로 복원하지 않는다. v1의 SkyPolicy는 PreserveGlobal이다. 하늘 픽셀에서는 Distance/Height를 제외하고, view ray를 maxEvaluationDistance까지 연장한 유한 구간의 Local Fog만 평가한다. 따라서 Local이 없는 하늘은 출력 `(0,0,0,0)`으로 그대로 남고 하늘 앞 Local 부피는 보인다. view direction은 현재 inverse VP에서 구하되 Far Clip 길이를 안개 평가 거리로 사용하지 않는다. 지평선 전용 전역 색 혼합은 선택 확장이다.
+
+## 06 공통 수학과 색 합성 규칙
+
+### 단위와 반환값
+
+`1 Unity unit = 1 m`를 기본으로 한다. 프로젝트 스케일이 다르면 단계 0에서 명시적인 단위 변환을 확정한다. 거리·높이·교차 계산은 float, CPU 검증 기준은 double을 사용한다.
+
+```hlsl
+struct ToonFogResult
+{
+    float transmittance; // T: [0, 1]
+    float3 scattering;  // S: linear RGB
+};
+
+// 개념 인터페이스. 실제 데이터 전달은 설치 URP에 맞춘다.
+ToonFogResult EvaluateToonFog(float3 rayOriginWS,
+                              float3 rayEndPositionWS,
+                              uint layerMask);
+// Geometry/Transparent: Distance | Height | Local
+// Clear-depth Sky: Local, ray end = origin + viewDir * maxEvaluationDistance
+```
+
+기본 광학량은 `tau = ∫ sigma(ray(t)) dt`, `T = exp(-tau)`다. sigma의 단위는 1/m이고 tau는 무차원이다. 밀도 0 또는 비활성 상태는 반드시 `T=1, S=0`이다. 광선 구간의 투과율이 곱으로 결합되는 성질은 검증 기준으로 사용한다. [S11](https://pbr-book.org/4ed/Volume_Scattering/Transmittance)
+
+### 공통 적분 구간
+
+```text
+d  = length(surfacePositionWS - rayOriginWS)
+dir = (surfacePositionWS - rayOriginWS) / d   // d≈0은 즉시 중립 반환
+t0 = min(max(nearClearDistance, 0), d)
+t1 = min(d, maxEvaluationDistance)
+if t1 <= t0: return (T=1, S=0)
+segmentStart = rayOriginWS + dir * t0
+segmentLength = t1 - t0
+```
+
+`nearClearDistance`는 전투 가시성을 위한 아트 제어이며 거리·높이·Local에 공통 적용한다. 첫 구간의 길이만 빼고 높이 적분의 시작 위치를 옮기지 않는 실수를 금지한다. 지역 밀도 함수는 카메라 위치가 아니라 월드 좌표에 고정한다.
+
+### 밀도 배율의 소유권
+
+수식의 density는 최종 프레임 값이다. Resolver에서 아래 값을 한 번 계산한 뒤 셰이더는 같은 배율을 다시 곱하지 않는다. Local의 authored weight와 슬롯 전환 fade도 이 단계에서 합친다.
+
+```text
+commonDensityMultiplier = environmentDensityMultiplier * combatDensityMultiplier
+effectiveDistanceDensity = resolvedDistanceDensity * commonDensityMultiplier
+effectiveHeightDensity   = resolvedHeightDensity * commonDensityMultiplier
+effectiveLocalDensity[i] = authoredLocalDensity[i]
+                         * resolvedLocalDensityMultiplier
+                         * authoredLocalWeight[i] * slotFadeWeight[i]
+                         * commonDensityMultiplier
+```
+
+환경 밀도 배율 0이면 Local을 포함한 모든 기여가 0이다. 고정 연출 안개만 날씨 영향을 받지 않는 기능은 v1에 넣지 않는다. 색은 Region 혼합까지 먼저 끝내고, 최종 `fogColor`에 환경 TintMultiplier를 한 번 곱한다. `useRegionTint=true`의 Local은 날씨 tint를 아직 곱하지 않은 resolved heightTint를 사용한다.
+
+### 거리 안개
+
+`tauDistance = distanceDensity × segmentLength`를 기본으로 한다. 색은 `u = saturate((d - colorNear) / max(colorFar - colorNear, epsilon))`에서 Gradient LUT를 샘플한다. `colorFar`는 색 변화가 끝나는 거리이며 안개 밀도가 종료되는 거리가 아니다. 밀도는 maxEvaluationDistance까지 계속 누적된다.
+
+최종 색과 opacity를 임의 Gradient Alpha 하나로 동시에 제어하지 않는다. v1 Gradient는 RGB 색 제어에 사용하고 Alpha는 1로 고정한다. 밀도·보호 거리·최대 opacity를 별도로 노출하여 거리 증가에 따른 투과율 감소를 예측할 수 있게 한다.
+
+### 높이 안개의 밀도
+
+```text
+sigmaHeight(y) = heightDensity × exp(-max(y - baseHeight, 0) / heightScale)
+```
+
+기준 고도 아래에서는 밀도를 일정하게 유지하고, 위에서는 지수적으로 감소시킨다. Unity Core의 공개 Height Fog 코드도 균질 구간과 지수 구간을 구분한다. 아래 안정적 적분식은 본 설계에서 사용할 계산 계약이며 공개 master helper를 그대로 복사하라는 지시가 아니다. [S09](https://github.com/Unity-Technologies/Graphics/blob/master/Packages/com.unity.render-pipelines.core/ShaderLibrary/VolumeRendering.hlsl)
+
+시선이 baseHeight를 통과하면 교차점에서 구간을 분리한다. 기준 아래 길이 Lb의 tau는 `heightDensity × Lb`다. 기준 위 길이 La의 양 끝 높이가 ya, yb라면 다음 식을 사용한다.
+
+```text
+q = abs(yb - ya) / heightScale
+Phi(q) = 1 - q/2 + q*q/6 - q*q*q/24         if q < 0.001
+Phi(q) = (1 - exp(-q)) / q                   otherwise
+
+tauAbove = heightDensity
+         * exp(-(min(ya, yb) - baseHeight) / heightScale)
+         * La * Phi(q)
+
+tauHeight = tauBelow + tauAbove
+```
+
+위 식은 수평 시선에서 `밀도 × 길이`로 수렴하고, 높은 곳에서 낮은 곳을 볼 때도 양의 큰 지수 때문에 발산하지 않는다. `heightScale >= 0.01m`를 보장한다. NaN/Inf 입력은 Inspector와 런타임 경계에서 거부하고 진단한다. 0 근처의 dir.y를 부호 없이 고정 epsilon으로 바꾸어 상하 시선 결과를 뒤틀지 않는다.
+
+**표면의 y값만으로 안개 강도를 계산해서는 안 된다.** 카메라부터 물체까지 통과한 높이 분포가 결과를 결정한다. 고산 지대에서 계곡 안개를 내려다보는 장면이 필수 확인 장면이다.
+
+### 여러 밀도와 색의 결합
+
+```text
+tau = tauDistance + tauHeight + sum(tauLocal[i])
+
+weightedColor = tauDistance * distanceColor
+              + tauHeight * heightTint
+              + sum(tauLocal[i] * localTint[i])
+
+if tau <= epsilon: return (1, 0)
+fogColor = weightedColor / tau
+fogColor *= environmentTintMultiplier  // Linear RGB, exactly once
+rawOpacity = 1 - exp(-min(tau, 80))
+opacity = min(rawOpacity, maxOpacity)
+T = 1 - opacity
+S = opacity * fogColor
+```
+
+MaxOpacity는 최종 합성에 한 번 적용한다. T만 제한하고 S를 원래 값으로 두어 화면이 과하게 밝아지는 처리를 금지한다. 부동소수점 차이로 생긴 아주 작은 음수 tau는 0으로 보정하되, 잘못된 음수 density 입력을 정상 입력처럼 숨기지 않는다.
+
+이 색 혼합은 **스타일용 근사**다. 같은 밀도의 붉은 안개와 푸른 안개를 앞뒤로 바꾸어도 가중 합이 같으면 결과색이 같다. 서로 다른 색 매질의 앞뒤 순서, 광원 산란, 그림자를 정확하게 재현하지 않는다. v1의 팔레트 규칙과 지원 한계에 이 성질을 남긴다.
+
+### Gradient LUT와 색 공간
+
+- 프로필 Gradient를 256×1 LUT로 bake한다. Wrap Clamp, Filter Bilinear, Mip Off를 기본으로 한다.
+- GPU에서 읽는 LUT는 Linear RGB다. 선형 저장 포맷과 sRGB flag를 명확히 관리한다.
+- Inspector의 색 저장 방식과 Gradient 평가 방식이 어디서 선형 변환되는지 한 곳에 고정한다. 이중 Gamma 변환을 금지한다.
+- 다른 개수의 Gradient Key를 직접 보간하지 않고 같은 u의 bake된 색을 보간한다.
+- 프로필 변경 시 원본 LUT를 갱신한다. 런타임 지역 보간은 재사용 버퍼와 카메라별 LUT로 수행한다.
+- 매 프레임 Texture2D를 새로 만들거나 Material을 복제하지 않는다. 동일 상태이면 LUT 업로드도 생략한다.
+
+## 07 Local Fog의 공간 계산
+
+[공간 도식 설명] 카메라 C와 대상 P가 모두 Local Volume 밖에 있어도 광선이 a에서 진입하고 b에서 이탈하면 b-a의 교차 구간을 적분한다. 대상의 영역 포함 여부만 검사해서는 안 된다.
+
+### 교차 구간을 먼저 구한다
+
+카메라 C와 표면 P가 모두 안개 영역 밖이어도 그 사이의 선분이 안개를 통과하면 안개가 보여야 한다. 화면 픽셀의 표면 위치가 Box/Sphere 안에 있는지만 검사하는 구현은 허용하지 않는다.
+
+1. 월드 단위의 정규화된 시선 방향을 구한다.
+2. 카메라 광선과 Volume의 진입 a, 이탈 b 거리를 계산한다.
+3. a를 t0 이상, b를 t1 이하로 잘라 실제 적분 구간을 구한다.
+4. b가 a보다 작거나 같으면 기여량 0이다.
+5. 균일 밀도라면 `tauLocal = density × (b-a)`를 정확히 계산한다.
+6. 경계 완화 또는 Noise를 쓸 때만 교차 구간을 N개로 나누어 midpoint 적분한다.
+
+벽이 안개 앞을 막으면 깊이에서 얻은 t1이 진입점보다 짧아져 안개 기여가 0이 되어야 한다. 카메라가 볼륨 안에 있으면 음수 진입점을 공통 t0까지 자른다.
+
+### 변환과 교차의 계약
+
+```text
+originLocal    = worldToLocal * float4(originWorld, 1)
+directionLocal = worldToLocal * float4(directionWorld, 0)
+// directionLocal은 다시 normalize하지 않는다.
+// 교차식의 t가 월드 미터를 유지하도록 한다.
+```
+
+Box는 canonical `[-1,1]` 범위를 사용하고 slab test의 축 평행 분기를 구현한다. Sphere는 canonical 반지름 1을 사용한다. 비균일 스케일된 Sphere는 타원체로 취급한다. 스케일 0 또는 역행렬을 만들 수 없는 변환은 사용하지 않고 Inspector 오류로 표시한다. 비균일 스케일과 회전이 있어도 월드 길이 기준 밀도가 유지되어야 한다.
+
+### 경계와 Noise
+
+`edgeFeather01`은 각 로컬 반축에 대한 경계 폭 비율이다. 기본값은 0.15, 범위는 0~0.49다. 미터 단위와 혼동하지 않도록 Inspector에 설명한다. Box는 각 축의 경계 mask 중 최솟값, Sphere는 `1-length(localPosition)`을 기반으로 smoothstep mask를 만든다. Feather=0이며 Noise가 꺼져 있으면 균일 밀도 해석식을 사용한다.
+
+```text
+sampleT = a + (j + 0.5) * (b-a)/N
+sampleWS = rayOriginWS + rayDirWS * sampleT
+mask = ShapeFeather(sampleLocal)
+noise = SampleNoise(sampleWS.xz * frequency + windXZ * time * frequency)
+multiplier = lerp(1, 2 * noise, noiseAmount)
+tauLocal += density * mask * multiplier * (b-a)/N
+```
+
+Noise는 World/Quality Settings가 소유한 공통 1장의 저주파 단일 채널 반복 텍스처다. v1은 Local별 다른 텍스처 override를 지원하지 않으며 amount/frequency/wind만 다르게 설정한다. 동적 루프 내 샘플은 explicit LOD 0을 사용하고 기본 텍스처는 Linear, Repeat, Bilinear, Mip Off로 둔다. 위 식은 평균 0.5의 Noise를 기준으로 평균 밀도 변화를 줄이는 시작안이다. NoiseAmount=0이면 Noise 배율은 1로 복귀하고 Feather mask는 유지된다. 유효 wind는 Local wind와 외부 환경 wind를 더한 값이며 한 번만 적용한다. 기본 Noise 좌표는 world XZ라 높이 방향으로 같은 패턴이 이어진다. 완전한 3D Noise나 Texture2DArray는 별도 품질 확장이다.
+
+전체 카메라 거리를 몇 번만 샘플링하지 않고 각 볼륨 교차 구간을 샘플링한다. 얇은 안개가 샘플 간격 사이로 완전히 빠지는 문제를 줄이기 위해서다. 적은 샘플 수에서 고주파 Noise를 허용하면 이동 중 줄무늬가 보일 수 있으므로 기본 preset의 주파수를 낮게 제한한다.
+
+### 등록, 선택과 상한
+
+Local Volume은 OnEnable/OnDisable에서 등록·해제한다. 카메라 후보는 월드 Bounds와 Frustum, maxEvaluationDistance를 이용해 선별한다. 카메라가 볼륨 내부인 경우와 큰 볼륨이 시선을 가로지르는 경우를 포함해야 하며, 볼륨 중심 거리만으로 컬링하지 않는다.
+
+선택 순서는 `priority → 예상 화면 영향 → stableId`다. 기존 선택에 hysteresis를 적용한다. 상한을 넘는 교체 시 기존 slot을 0으로 fade-out한 뒤 새 볼륨을 fade-in한다. 퇴장 중인 slot도 상한에 포함하며 품질 설정의 최대 슬롯 수를 몰래 초과하지 않는다. 기본 전환 시간은 0.2초이며 변경 가능하게 한다.
+
+Inspector/진단 화면에 등록 수, 후보 수, 활성 수, 상한 때문에 제외된 수를 표시한다. Streaming Scene이 해제되면 Transform 참조를 유지하지 않는다. 필요한 퇴장 보간은 마지막 값의 POD 스냅샷으로 끝낸다.
+
+## 08 재질별 안개 소유권과 외곽선
+
+### 중복 안개를 방지하는 표
+
+단계 0에서 실제 사용 중인 대표 Material을 조사하여 `MaterialCoverage.md`에 아래 형태로 기록한다. shader 이름, render queue, ZWrite, Alpha Clip, 안개 처리 함수, outline 방식까지 남긴다.
+
+| 재질 유형 | 안개 담당 | 점검 사항 |
+| --- | --- | --- |
+| 불투명 캐릭터 | Fullscreen | 캐릭터 셰이더의 기존 fog와 중복되지 않음 |
+| 지형·불투명 건물 | Fullscreen | DepthOnly 및 실제 깊이 기록 정상 |
+| Alpha Clip 식생 | Fullscreen | Color/Depth의 clip, 바람 변형, LOD 일치 |
+| Straight Alpha | 재질 공통 함수 | 자신의 world position 사용 |
+| Premultiplied Alpha | 전용 공통 함수 | alpha가 곱해진 RGB에 맞는 계산 |
+| Additive VFX | 투과율만 적용 | fog color를 입자마다 더하지 않음 |
+| 굴절 물·유리 | 별도 어댑터 | 배경 캡처 시점과 중복 fog 확인 |
+| Screen Space Overlay UI | 미적용 | HUD·메뉴 색상 유지 |
+| World Space UI | 명시적 선택 | 세계 일부인지 가독성 UI인지 기획 기준 적용 |
+
+기존 '일툰' 셰이더의 정확한 제품명과 버전을 확인한다. lilToon을 사용한다면 설치된 버전의 공식 커스터마이즈 방식을 조사한다. 이름을 iToon으로 임의 확정하거나 다른 에셋의 API를 섞지 않는다. 불투명 재질은 정상적인 깊이가 있으면 기본적으로 Fullscreen 경로를 활용할 수 있지만 투명·외곽선까지 자동 호환된다는 의미는 아니다. [S10](https://github.com/lilxyzw/lilToon)
+
+### 투명 블렌드 모드별 공식
+
+배경은 이미 Fullscreen 안개가 적용되어 있다고 가정한다. 표면 자체의 위치까지 계산한 T와 S를 사용한다.
+
+| 블렌드 모드 | 셰이더가 출력할 RGB | Alpha |
+| --- | --- | --- |
+| Straight, SrcAlpha/OneMinusSrcAlpha | `T*C + S` | 원래 alpha 유지 |
+| Premultiplied, One/OneMinusSrcAlpha | `T*Cp + alpha*S` | 원래 alpha 유지 |
+| Additive, One/One | `T*E` | 기존 계약 유지 |
+| Additive, SrcAlpha/One | `T*E` 후 기존 alpha blend | 기존 계약 유지 |
+| Multiply·특수 모드 | 전용 식 도출 후 어댑터 | 자동 처리하지 않음 |
+
+Cp는 이미 alpha가 곱해진 색이다. Straight 식을 Premultiplied에 그대로 쓰면 거의 투명한 영역에 안개색이 남는다. Additive에 S를 더하면 입자 사각형과 중첩 개수가 밝기에 드러난다. Straight/Premultiplied는 alpha=0일 때 화면을 바꾸지 않아야 한다. SrcAlpha/One은 기존 alpha 계약을 유지하고, One/One은 alpha 대신 E=0일 때 기여가 없는지 확인한다. E에 이미 alpha가 곱해졌는지도 확인하여 두 번 곱하지 않는다. 이 식은 일반적인 블렌드 연산에 본 설계의 T/S를 적용해 도출한 규칙이다. [S12](https://docs.unity3d.com/6000.0/Documentation/Manual/writing-shader-blending-modes.html)
+
+재질 어댑터는 기존 `MixFog`나 에셋 자체 fog 호출을 함께 실행하지 않는다. 기존 Built-in Fog를 끄는 조치는 먼저 영향 재질을 확인하고 프로젝트 초기화/렌더 설정의 한 곳에서 소유하게 한다. Renderer Feature의 OnEnable/OnDisable이 RenderSettings를 반복 변경하여 다른 시스템과 경쟁하지 않도록 한다.
+
+### 외곽선 정책
+
+| 외곽선 방식 | 가능한 문제 | 통합 방법 |
+| --- | --- | --- |
+| 안개 전에 그리는 Inverted Hull | Hull이 깊이를 기록하지 않으면 메시 밖 픽셀은 배경 깊이를 참조 | 실제 깊이 일치 여부 검증. 필요하면 별도 outline 경로 또는 보조 깊이 |
+| 안개 후에 그리는 Inverted Hull | 먼 캐릭터의 검은 선만 진하게 남음 | Hull의 world position으로 공통 안개 적용 |
+| Screen-space Outline | 경계의 중앙 픽셀 깊이가 배경일 수 있음 | edge를 만든 foreground 깊이로 선의 안개량 평가 |
+
+Hull에 무조건 ZWrite On을 켜거나 투명 머티리얼을 Alpha Clip으로 바꾸는 수정은 하지 않는다. 외곽선을 안개 뒤로 이동하는 것은 실제 셰이더가 분리 렌더링을 허용하는지 확인한 뒤 수행한다. 기본 경로가 실패하면 패키지 원본을 덮어쓰기보다 프로젝트 소유 어댑터/공식 확장 지점을 사용한다. 보조 깊이·mask 패스는 필요가 재현된 경우에만 추가하고 비용을 별도 기록한다.
+
+캐릭터 뒤가 가까운 벽, 먼 산, 하늘일 때 외곽선이 바뀌는지 같은 구도로 비교한다. 화면 전체에 두 번째 안개를 적용해 외곽선을 보정하는 방식은 허용하지 않는다.
+
+## 09 물과 굴절 재질의 통합
+
+### 먼저 확인할 항목
+
+물 셰이더가 읽는 Scene Color가 무엇인지, 언제 복사되는지, 반사·수면 색·거품·굴절 배경이 어디서 합쳐지는지 조사한다. `_CameraOpaqueTexture`가 안개 합성 이전에 만들어지면 물을 통해 안개 없는 배경이 다시 보일 수 있다. 이미 fogged인 배경을 최종 물 RGB와 함께 다시 fog 처리하면 이중 안개가 생긴다.
+
+| 현재 물 구현 | 선택 경로 |
+| --- | --- |
+| 굴절 없는 Alpha 물 | 8장의 재질 공통 함수 적용 |
+| Fog 이전 배경을 읽는 굴절 물 | 배경 캡처를 Fog 이후로 연결하거나 동등한 보정 어댑터 |
+| 이미 Fog 이후 배경을 읽는 물 | 배경 성분을 다시 안개 처리하지 않고 표면 성분만 처리 |
+| 확장 지점이 없는 외부 물 | 프로젝트 소유 adapter/파생 shader로 분리하고 수정 범위 문서화 |
+
+### 권장 어댑터 계약
+
+필요한 경우에만 `FoggedOpaqueSceneColor`를 만든다. Composite 다음, Transparent 이전의 배경을 복사하고 물 어댑터가 이 텍스처를 사용하게 한다. 기본 안개 패스는 계속 컬러 복사 없이 동작한다. Copy의 해상도·MSAA resolve·포맷과 backbuffer 조건은 설치 URP API에 맞춰 처리한다.
+
+개념적으로 물 표면의 fogged 색을 `Wf = Tw*W + Sw`, 이미 안개가 적용된 굴절 배경을 Br이라 두면, 한 수면 층의 목표 RGB는 다음과 같다.
+
+```text
+targetRGB = waterOpacity * Wf + (1 - waterOpacity) * Br
+```
+
+위 targetRGB에 다시 일반적인 alpha-over를 수행하면 배경이 이중 혼합된다. 어댑터는 이 목표색을 실제 blend 상태와 맞춰 구현해야 한다. 한 가지 구현은 waterOpacity를 셰이더 내부 혼합에 사용하고 RGB는 replace 방식으로 출력하는 것이다. 이를 기존 물에 무조건 적용하지 말고 반사·거품·shore fade·sorting 구조에 맞춰 통합한다.
+
+이 복사본에는 기본적으로 불투명 배경만 포함된다. 물 뒤의 다른 투명 입자까지 굴절되는 기능을 자동으로 보장하지 않는다. 다중 굴절층, 수중 전환, 파도 속 매질 적분은 v1의 일반 공통 함수만으로 해결하지 않는다.
+
+완료 검증은 물 없는 배경, 물을 통한 배경, 물 표면/거품을 같은 거리에서 비교한다. 안개가 빠지는 밝은 창, 이중 안개 띠, 물 가장자리의 잘못된 alpha가 없어야 한다. 프로젝트에 물이 없으면 최소 비굴절 물 샘플과 어댑터 계약까지 제공하고 실제 에셋 호환 완료로 표시하지 않는다.
+
+## 10 데이터 스키마와 기본값
+
+### ToonFogProfile
+
+아래 기본값은 미터 단위의 보통 밀도 시작안이다. 최종 아트 값은 프로젝트의 실제 크기와 톤 매핑에 맞춰 조절한다.
+
+| 필드 | 형식 / 단위 | 시작값 | 검증·설명 |
+| --- | --- | --- | --- |
+| enabled | bool | true | 프로필 평가 시 밀도 0 상태로 변환 후 보간 |
+| distanceDensity | float, 1/m | 0.0012 | 0 이상 |
+| nearClearDistance | float, m | 8 | 모든 안개 적분의 시작 거리 |
+| maxEvaluationDistance | float, m | 2000 | 시작 거리 이상. 카메라 Far Clip과 별개 |
+| distanceGradient | Gradient RGB | 지역별 | Alpha=1, bake 필요 |
+| colorNear / colorFar | float, m | 20 / 500 | far가 near보다 큼 |
+| heightEnabled | bool | true | off는 tauHeight=0 |
+| heightDensity | float, 1/m | 0.006 | 기준 높이 이하 밀도 |
+| baseHeight | float, world m | 0 | 카메라 높이를 더하지 않음 |
+| heightScale | float, m | 18 | 최소 0.01 |
+| heightTint | Color | 지역별 | Linear 변환 계약 공유 |
+| localDensityMultiplier | float, 0 이상 | 1 | 해당 환경에서 Local 밀도에 적용 |
+| maxOpacity | float, 0..1 | 0.90 | 최종 합성에 한 번 적용 |
+| regionTransitionSeconds | float, s | 1.5 | 순간이동은 Reset 가능 |
+| skyPolicy | enum | PreserveGlobal | Sky의 Distance/Height 제외, Local은 평가 |
+
+### ToonFogRegion
+
+| 필드 | 역할 |
+| --- | --- |
+| profile | 읽기 전용 원본 프로필 |
+| shape / transform | Box 또는 Sphere 영역 |
+| priority | 높은 우선순위가 낮은 우선순위 환경 위에 적용 |
+| weight | 0~1, 영역 기여의 상한 |
+| blendDistance | 경계 바깥으로 이어지는 전환 거리, m |
+| stableId | 같은 priority의 결정적인 순서와 진단용 ID |
+| anchorPolicy | Game은 주입된 PlayerAnchor 우선, 없으면 Camera. SceneView는 해당 Camera |
+
+Region 내부는 기하 가중치 1, 바깥 거리가 blendDistance에 도달하면 0으로 smoothstep 감쇠한다. Region Sphere는 균일 scale만 허용하며, 비균일 scale은 Inspector 오류로 표시한다. Region Box는 shear 없는 OBB만 지원한다. Box 외부 거리는 회전을 제거한 좌표와 월드 half extent로 계산하여 blendDistance의 미터 단위를 유지한다. 부모의 비균일 scale과 회전으로 생긴 shear도 진단한다. 이 Region의 거리 계산 제한은 Local Volume의 타원체 광선 교차 지원과 구분한다. 임의 Mesh Collider 거리 계산은 추가하지 않는다.
+
+### ToonFogLocalVolume
+
+| 필드 | 역할 |
+| --- | --- |
+| shape | Box / Sphere. 비균일 Sphere scale은 타원체 |
+| density | 1/m, 0 이상 |
+| tint / useRegionTint | false는 고유 색, true는 resolved heightTint. 환경 tint는 최종 색에 한 번 적용 |
+| edgeFeather01 | 로컬 반축 기준 경계 폭 |
+| noise source | World/Quality Settings의 공통 Noise 사용. 개별 텍스처 override 없음 |
+| noiseAmount / noiseFrequency | 0~1 / cycles per meter |
+| windVelocity | 월드 m/s. time과 결합하여 UV 생성 |
+| priority / stableId | 활성 슬롯 선택 규칙 |
+| weight | 제작자가 설정한 0~1 값. 슬롯 fade와 곱해 effective density로 게시 |
+| maxVisibleDistance | 선택적 개별 culling 범위. Bounds 기준 |
+
+### 외부 입력과 프레임 상태
+
+```csharp
+// 데이터 계약 예시. 구현 코드와 API 시그니처는 프로젝트 규칙에 맞춰 확정한다.
+public struct FogEnvironmentInput
+{
+    public float DensityMultiplier;  // 기본 1
+    public Color TintMultiplier;     // 기본 white, Linear 계약
+    public Vector2 WindVelocityXZ;   // 기본 (0,0)
+    public float CombatWeight;       // 기본 0, [0,1]
+    public bool ResetTransition;     // teleport / scene initial placement
+}
+
+public interface IToonFogEnvironmentSource
+{
+    bool TryGetInput(Camera camera, out FogEnvironmentInput input);
+}
+```
+
+실제 날씨·전투 시스템이 없어도 기본 공급자와 Inspector 디버그 값으로 동작해야 한다. `TimeOfDay`와 `WeatherType` 문자열을 코어 셰이더 분기로 넣지 않는다. 상위 환경 시스템이 시간 곡선과 날씨 프리셋을 평가하여 위 숫자 입력으로 전달한다.
+
+`FogEnvironmentInput.Identity`를 명시적으로 제공한다. DensityMultiplier=1, TintMultiplier=white, WindVelocityXZ=zero, CombatWeight=0, ResetTransition=false다. 공급자 부재 또는 TryGetInput=false이면 Identity를 사용한다. C# struct의 기본값은 0/검정이므로 `default(FogEnvironmentInput)`를 중립 입력으로 취급하지 않는다.
+
+`ToonFogFrameSettings`에는 최종 프로필 숫자, 카메라 위치, 원점 보정값, Local 개수, 고정 크기 Volume 데이터와 LUT 참조를 둔다. Unity API 오브젝트 접근은 메인 스레드에서 끝낸다. 계산이 충분히 작으면 Job System을 억지로 추가하지 않는다.
+
+## 11 지역 전환과 전투 가시성
+
+### 결정적인 혼합 순서
+
+1. Base Profile에서 시작한다.
+2. 현재 anchor와 겹치는 Region의 기하 weight를 계산한다.
+3. 같은 priority끼리 숫자와 LUT 색을 weight 정규화해 합친다.
+4. 그룹 강도 `min(1, sum(weight))`로 누적 상태에 적용한다. 낮은 priority부터 높은 priority 순이다.
+5. Weather/Time 입력의 밀도 배율, tint, wind를 적용한다.
+6. CombatWeight의 읽기 쉬운 화면 설정을 적용한다.
+7. 같은 카메라의 이전 상태에서 목표 상태로 부드럽게 이동한다.
+8. 품질 상한에 맞는 Local 목록과 프레임 스냅샷을 확정한다.
+
+Profile의 enabled/heightEnabled는 보간 전에 숫자로 바꾼다. enabled=false인 프로필은 distanceDensity, heightDensity, localDensityMultiplier가 0인 상태로 혼합에 참여한다. heightEnabled=false는 해당 heightDensity만 0으로 만든다. 따라서 무안개 지역과 유안개 지역을 연속적으로 섞을 수 있다. 시스템 전체의 즉시 Off는 별도 master switch로 처리한다. 고정 SkyPolicy와 Quality enum, shader keyword는 Region 수치 보간 대상이 아니다.
+
+프레임 속도에 독립적인 전환은 `blend = 1-exp(-deltaTime/transitionSeconds)`처럼 정의한다. 목표가 바뀔 때마다 초기 상태를 다시 잡아 끝없이 늦어지는 보간을 피한다. ResetTransition이면 해당 프레임부터 목표 상태를 사용한다. 복수 Region 상한이 필요하면 기본 포함 최대 4개의 프로필 기여를 명시하고 제외 수를 진단한다.
+
+### 전투 가시성의 시작 설정
+
+| 파라미터 | 탐험 | 전투 가중치 1 | 설명 |
+| --- | --- | --- | --- |
+| nearClearDistance | 프로필 값, 기본 8m | 기본값에서 12m 방향으로 보간 | 가까운 공격 동작 보호 |
+| density multiplier | 1.0 | 0.8 | 전체 밝기를 급격히 바꾸지 않게 보간 |
+| maxOpacity | 프로필 값, 기본 0.90 | 0.85 이하로 제한 | 먼 주요 실루엣 가독성 보조 |
+| 전환 시간 | 1.5s | 진입 0.35s / 복귀 1.0s 시작안 | 고정 값이 아니라 데이터 |
+
+게임플레이 기본 카메라가 FOV를 바꾸거나 가까이 당겨져도 안개 거리는 월드 단위로 유지되어야 한다. 위 설정은 플레이어를 안개에서 완전히 잘라내는 mask가 아니다. 배경과 캐릭터가 따로 떠 보이는 현상을 줄이기 위해 근거리 공통 구간과 밀도로 먼저 해결한다.
+
+특정 보스만 따로 보호해야 하는 요구가 생기면 depth와 일치하는 가시 픽셀 mask를 후속으로 추가한다. 벽 뒤 보스가 드러나는 X-ray 마스크나 화면 중심의 무조건적인 안개 구멍을 기본 기능에 넣지 않는다.
+
+### Floating Origin과 Streaming
+
+프로젝트가 원점 이동을 사용한다면 baseHeight, Volume 변환, Region anchor, Noise 좌표를 같은 기준으로 갱신한다. 원점 이동 전후에 동일 물체와 동일 Noise 무늬가 같은 위치에 보여야 한다. 기존 원점 이동 시스템이 없으면 이번 안개 구현 때문에 새 월드 좌표 시스템을 만들지 않는다.
+
+지역 추가/해제는 등록 목록을 통해 반영한다. 씬 변경 후 오래된 Transform이나 Material을 참조하지 않는다. 영구 Manager를 쓴다면 중복 생성 방지와 테스트 씬 종료 시 복원 규칙을 갖춘다.
+
+## 12 일곱 지역의 초기 프리셋
+
+색상은 **표시용 sRGB Hex**이며 실제 화면은 조명·노출·톤 매핑에 따라 달라진다. 아래 숫자는 1 unit=1m 기준의 아트 튜닝 시작값이다. baseHeight는 임의의 공통 0을 그대로 쓰지 말고 각 지역 바닥·수면 고도로 배치한다.
+
+| 지역 | 거리 Gradient, 근 / 중 / 원 | 거리 density | 높이 density / scale | Local 배치 |
+| --- | --- | --- | --- | --- |
+| 우거진 숲 | #527B72 / #8FB4AA / #C4D6C7 | 0.0016 | 0.008 / 12m | 숲길 저지대, 통행 방향의 넓은 Box |
+| 가을 숲 | #A17B58 / #D7B58A / #E9D9B9 | 0.0012 | 0.005 / 14m | 골짜기에 낮은 금빛 안개 |
+| 메마른 지역 | #AA8B71 / #CEB99B / #E4D6BB | 0.0014 | 0.002 / 25m | 넓고 낮은 먼지층, 느린 바람 |
+| 평야·성 지대 | #8EA7AC / #B9CDD0 / #DCE5E3 | 0.0007 | 0.002 / 20m | 성 앞 저지대에 제한 배치 |
+| 고산 지대 | #8198B1 / #B5C9DC / #DFE9F0 | 0.0009 | 0.014 / 40m | 계곡 바닥을 메우는 큰 볼륨 |
+| 강가 마을 | #739D9D / #AEC9C6 / #DCE6DD | 0.0011 | 0.007 / 8m | 수면 높이의 길쭉한 Box |
+| 호수 마을 | #829EB1 / #BBCCD8 / #E4EBEE | 0.0010 | 0.009 / 10m | 호수 가장자리의 넓은 낮은 안개 |
+
+공통 시작값은 NearClear 8m, ColorNear 20m, ColorFar 500m, MaxOpacity 0.90이다. 안개가 너무 두꺼우면 먼저 높이 기준과 높이 밀도를 확인한다. 낮은 지역 전체가 baseHeight 아래라면 높이 밀도가 긴 거리 전체에서 일정하게 누적되기 때문이다.
+
+### 배치 가이드
+
+- 우거진 숲: 작은 볼륨을 나무마다 붙이지 않는다. 길과 계곡을 기준으로 큰 덩어리 몇 개를 배치한다.
+- 가을 숲: 화면 전체를 주황색으로 덮기보다 원거리의 따뜻한 팔레트를 사용한다.
+- 메마른 지역: 큰 먼지 움직임은 Local Noise와 별도의 소량 카드 VFX로 분담한다.
+- 평야·성: 성의 랜드마크가 사라지지 않게 거리 밀도를 먼저 낮춘다.
+- 고산: 산봉우리의 y값만으로 처리하지 않고 시선이 계곡 부피를 통과하는 장면을 확인한다.
+- 강가·호수: 물 표면의 실제 고도와 Local Volume을 맞추고 굴절 어댑터를 검증한다.
+
+## 13 품질 단계와 성능 예산
+
+### 기본 품질 설정
+
+| 품질 | 활성 Local 최대 | 교차 구간 샘플 N | Noise | 합성 해상도 |
+| --- | --- | --- | --- | --- |
+| Low | 2 | 2 | Off | Full |
+| Medium 기본 | 4 | 4 | On | Full |
+| High | 8 | 8 | On | Full |
+
+균일한 Local은 품질과 무관하게 해석식을 사용한다. 샘플 N은 Feather 또는 Noise가 있는 교차 구간에만 적용한다. 볼륨 개수와 샘플 수를 곱한 최악 비용을 점검한다. 예를 들어 QHD 2560×1440에서 4개 볼륨 모두를 4회씩 평가하면 최대 약 5,898만 회의 밀도 평가다. 이는 연산 개수 계산이며 GPU 시간 측정값이 아니다. 화면 패스가 1회라는 이유로 저비용이라고 판단하지 않는다.
+
+### 제안하는 초기 예산
+
+| 항목 | 목표 시작안 | 측정 범위 |
+| --- | --- | --- |
+| 기준 해상도 | 2560×1440, 현재 Render Scale | 실제 target descriptor도 기록 |
+| 목표 게임 프레임 | 60 fps | 프로젝트 목표가 다르면 단계 0에서 변경 |
+| 안개 전체 GPU 증가량 | Medium에서 우선 1.0ms 이내 목표 | 안개 때문에 추가된 depth, globals, 합성, 투명 어댑터 포함 |
+| CPU 갱신 | 카메라 1대 0.2ms 이내 목표 | 후보 선택, 보간, 업로드 준비 |
+| GC | 준비 이후 안정 프레임에서 0 B/frame 목표 | 안개 코드에 의해 생긴 할당 |
+| 기본 컬러 복사 | 0회 | 굴절 어댑터는 별도 옵션·비용 기록 |
+
+이 숫자는 하드웨어가 정해지기 전의 설계 예산이다. 최소 사양에서 달성했다는 뜻이 아니다. 목표를 넘으면 기능을 숨기거나 숫자를 완화해 통과 처리하지 말고 원인을 분리해 보고한다.
+
+### 최적화 순서
+
+1. 안개 Off/On의 동일 장면 차이를 측정한다. pass 자체 시간과 프레임 총 증가량을 모두 남긴다.
+2. 불필요한 입력 텍스처, 복사, 중복 카메라 합성을 제거한다.
+3. 후보 Volume 컬링과 균일 밀도 해석식을 확인한다.
+4. 실제 화면을 덮는 Local 수, Noise 샘플 수, 투명 VFX 오버드로를 줄인다.
+5. 조정 후에도 병목이면 해당 장면에 대해 반해상도 밀도 평가와 깊이 기반 업샘플을 별도 설계한다.
+
+반해상도 경로를 도입할 때 단순 bilinear 업샘플로 캐릭터 주변에 안개 halo가 생기지 않게 해야 한다. 시간 누적은 잔상·카메라 컷·순간이동 reset까지 추가 검증이 필요하므로 기본 경로에 선제 도입하지 않는다.
+
+### 측정 방법
+
+빌드 가능한 환경에서는 같은 Development 또는 Release Player 조건을 명시하고 비교한다. VSync/프레임 제한, GPU/CPU, 해상도, 그래픽 API, 품질, 카메라 경로, Local 수, 투명 화면 점유율을 기록한다. 충분히 준비된 구간의 동일 경로를 Off/On으로 수집하여 중앙값과 p95를 비교한다. 기본 측정 길이는 300프레임이며 shader compilation·씬 로딩 프레임은 구분한다.
+
+처음에는 거리+높이만, 다음 Local 4개, 마지막 투명 VFX가 많은 장면으로 비용 원인을 분리한다. Unity Profiler에서 GPU 시간을 지원하지 않는 환경이면 CPU 시간으로 GPU 시간을 대신 주장하지 않는다. RenderDoc 등 기존 사용 도구가 있다면 활용하되 측정 도구 설치를 임의의 필수 의존성으로 만들지 않는다.
+
+## 14 편집 도구와 진단 기능
+
+### Inspector
+
+Profile은 Distance, Height, Palette, Readability의 네 영역으로 묶는다. 밀도 옆에는 계산된 거리 투과율 예시를 보여 줄 수 있다. 예를 들어 거리 안개만 있을 때 `D50 = ln(2)/distanceDensity`이며, 이는 보호 구간을 제외한 추가 거리다. 밀도가 0이면 무한대로 표시하고 0으로 나누지 않는다.
+
+Local Inspector는 shape, density, tint, feather, noise, priority를 노출한다. Gizmo는 실제 부피와 경계 완화 폭을 다른 선으로 표시한다. 색상만으로 활성 여부를 구분하지 않고 텍스트로 Selected/Rejected/Disabled 상태도 보여 준다.
+
+### 필수 디버그 모드
+
+| 모드 | 확인 내용 |
+| --- | --- |
+| Final | 최종 결과 |
+| Linear Distance | 깊이 복원과 거리 범위 |
+| World Height | 높이 기준 및 원점 이동 |
+| Transmittance | T를 흑백으로 표시 |
+| Distance Tau / Height Tau / Local Tau | 밀도 기여 분리 |
+| Local Count / Volume ID | 선택된 볼륨과 겹침 |
+| Camera State | 현재 Camera ID, profile, enabled, local count |
+
+디버그는 결과를 명확히 보기 위한 별도 출력 모드로 둔다. 필요하면 RGB overwrite 패스를 사용하고 일반 fog blending 모드와 혼동하지 않는다. 릴리스에서 불필요한 디버그 키워드를 유지하지 않는다. 최종 QA는 디버그를 끈 상태로 수행한다.
+
+### 진단 메시지
+
+- 유효한 Depth Texture가 준비되지 않은 경우: 카메라와 렌더러 이름, 필요한 설정을 1회 경고한다.
+- 기존 Fog가 동시에 켜진 경우: 추정으로 자동 수정하지 않고 확인한 재질/설정 경로를 보여 준다.
+- Local/Region 상한 초과: 잘린 수와 선택 정책을 표시한다.
+- 지원하지 않는 카메라·렌더 경로: 해당 카메라의 비활성 이유를 표시한다.
+- 누락 프로필·invalid transform: 중립값으로 안전하게 동작하고 원인을 알려 준다.
+
+매 프레임 같은 경고를 출력하지 않는다. Inspector 값의 유효성 검사는 Undo와 멀티 오브젝트 편집을 고려한다. `OnValidate`에서 매번 AssetDatabase 전체를 갱신하거나 렌더러 설정을 자동 변경하지 않는다.
+
+### 리소스 수명
+
+Material, LUT Texture, 필요 시 RTHandle과 GPU buffer를 소유자별로 한 번 생성하고 명시적으로 해제한다. Renderer Feature 재생성, 씬 로드·언로드, Enter Play Mode 옵션에서 Domain Reload 비활성, Game/Scene View 동시 사용을 검증한다. 정적 등록 목록은 런타임 초기화 시 정리할 수 있어야 하며 Editor와 Play의 목록이 섞이지 않아야 한다.
+
+## 15 단계별 구현 작업과 완료 조건
+
+각 단계는 작은 변경 단위로 진행하고, 해당 단계의 실질적인 검증을 통과한 다음 다음 단계로 이동한다. 일반적인 구현 선택은 작업자가 결정하고 계속 진행한다. 실제 접근 권한 부재, 소스 부재, 기존 프로젝트 규칙과의 해결 불가능한 충돌은 구체적인 파일·오류·영향 범위를 보고한다.
+
+### 단계 0 프로젝트 조사와 기준 화면 확보
+
+**작업:** 프로젝트 지침, AGENTS.md/CLAUDE.md 등 적용 규칙, ProjectVersion.txt, manifest.json, packages-lock.json, 현재 URP/Core 실제 버전을 확인한다. Graphics/Quality의 Render Pipeline Asset, Renderer Data, RenderGraph/Compatibility Mode, 카메라, MSAA, Color Space, 기본 안개, 후처리, renderer feature 순서를 조사한다.
+
+캐릭터·환경·식생·물·파티클·외곽선의 대표 shader와 material을 선정한다. 현재 코드의 수정 상태와 기존 컴파일 에러를 기록한다. 패키지 버전은 임의 업그레이드하지 않는다. 기존 프로젝트가 Compatibility Mode라면 현재 작업본의 전역 설정을 즉시 바꾸지 않는다. 별도 checkout/프로젝트 복사본에서 URP Graphics의 RenderGraph 설정을 전환하고 테스트 Renderer/Scene으로 네이티브 경로를 검증한다. Renderer Data나 Scene만 바꿔 카메라별 Compatibility Mode를 선택할 수 있다고 가정하지 않는다. 실제 게임 통합에는 기존 Renderer Feature들의 전환 필요 범위도 함께 기록한다.
+
+**산출물:** Integration.md의 환경 표, MaterialCoverage.md 초안, 기존 화면 캡처, 기존 오류 목록, 통합할 Renderer와 샘플 씬 위치.
+
+**완료 조건:** 실제 환경과 이 문서의 전제가 구분되어 있고, 어떤 재질이 어느 안개 경로를 사용할지 정해져 있다. 뒤 단계가 참고할 정확한 설치 API 위치가 기록되어 있다.
+
+### 단계 1 데이터와 수학 코어
+
+**작업:** Profile/Quality/FrameSettings 구조, 단위 검증, 공통 거리·높이 적분, Box/Sphere 교차, T/S 합성을 구현한다. CPU double 독립 수치 적분을 기준으로 의미 있는 경계 조건 테스트를 작성한다. GPU 구현은 같은 계약을 따르되 테스트 기대값을 GPU 식 그대로 복사하지 않는다.
+
+**산출물:** 데이터 타입, FogEvaluation/FogIntegration, CPU reference와 테스트.
+
+**완료 조건:** 중립성, 수평 높이 적분, 기준 높이 교차, 비균일 스케일 교차 길이, 순수 구간의 투과율 곱 성질이 통과한다.
+
+### 단계 2 불투명 거리 안개와 RenderGraph 연결
+
+**작업:** GlobalsSetup, Composite, Reset을 구현하고 거리 안개부터 화면에 출력한다. depth request와 resource dependency를 명시한다. GPU attachment blending을 사용하고 카메라 컬러를 복사하지 않는다. 하늘 PreserveGlobal, Base/Overlay 정책과 비활성 중립 상태를 연결한다.
+
+**산출물:** Renderer Feature, Composite shader, 거리별 기준 물체가 놓인 샘플 씬, 프레임 디버거 캡처.
+
+**완료 조건:** 10m/50m/100m/500m 표면에 예상한 거리 안개가 적용된다. Off/0 density에서 원본과 같고, UI·카메라 alpha가 유지된다. 기본 경로에 Fog용 컬러 복사가 없다.
+
+### 단계 3 Gradient와 Height Fog
+
+**작업:** LUT bake/cache, 거리색/높이색 결합, 월드 높이 적분, 시작 거리 이동을 연결한다. 높은 위치·낮은 위치·수평·위아래 시선과 카메라 FOV 변경 장면을 만든다.
+
+**산출물:** Gradient Inspector, 계곡 샘플, T/Height Tau 진단.
+
+**완료 조건:** 카메라의 고도가 변해도 안개 기준 높이가 카메라를 따라오지 않는다. 거의 수평인 시선에서 띠·발산이 없다. Far Clip 변경이 Color Gradient 좌표를 바꾸지 않는다.
+
+### 단계 4 Local Volume과 경계
+
+**작업:** Box/Sphere 균일 밀도부터 연결하고, 그다음 Feather·Noise를 붙인다. 등록·컬링·상한·priority·hysteresis를 구현한다. 형태 교차와 구간 clipping은 공통 수학을 사용한다.
+
+**산출물:** Local 컴포넌트, Gizmo, 외부 관찰·내부 진입·벽 가림 샘플, 선택 목록 진단.
+
+**완료 조건:** 표면이 Volume 밖에 있어도 시선이 통과하면 안개가 보인다. 벽 뒤 안개가 앞 벽에 덮이지 않는다. 회전/비균일 스케일에 밀도 단위가 유지되고 상한 교체에 급격한 점멸이 없다.
+
+### 단계 5 실제 셰이더와 투명 연동
+
+**작업:** Straight/Premult/Additive 공통 helper와 샘플을 만든다. 실제 캐릭터와 식생의 depth/outline을 검증한다. 기존 fog와의 이중 처리 경로를 제거한다. 현재 물이 있다면 9장의 굴절 어댑터를 구현한다. 에셋 소스 원본보다 프로젝트 소유 확장 지점을 사용한다.
+
+**산출물:** 재질 adapter, 업데이트된 MaterialCoverage.md, outline/물 비교 화면.
+
+**완료 조건:** alpha 기반 투명 재질의 alpha=0에 잔색이 없고, Additive는 기존 세기 계약을 유지하면서 fog color에 의한 사각형이 드러나지 않는다. 캐릭터 outline이 배경 깊이에 따라 갑자기 지워지지 않는다. 물 배경의 안개 누락과 이중 fog가 없다. 연결하지 못한 실제 사용 재질을 '완료'로 표시하지 않는다.
+
+### 단계 6 Region, 날씨, 전투와 프리셋
+
+**작업:** Resolver와 외부 입력 interface를 연결한다. Region overlap/priority, 시간 독립 보간, teleport reset, 전투 weight를 구현한다. 기존 시간·날씨 시스템이 있으면 adapter로 연결한다. 7개 프로필과 선택 가능한 데모를 만든다.
+
+**산출물:** 환경 Resolver, 디버그 조절 UI, 7개 프로필, 지역 경계 샘플.
+
+**완료 조건:** 평범한 지역/색/밀도 변경은 데이터 편집으로 가능하다. 카메라가 Region 경계를 흔들며 넘어가도 화면이 점멸하지 않는다. teleport 직후 이전 지역 안개가 오래 남지 않는다.
+
+### 단계 7 성능과 생명주기 정리
+
+**작업:** Low/Medium/High 경로, 생성·해제, Domain Reload 비활성, Scene View 동시 사용, camera stack을 확인한다. 프로파일링으로 비용을 분리하고 필요한 최적화만 적용한다. 셰이더 스트리핑으로 Player에서 필요한 variant가 빠지지 않는지도 확인한다.
+
+**산출물:** Performance.md, 지원 매트릭스, 리소스 정리 및 경고 코드.
+
+**완료 조건:** 안정 프레임에서 안개 코드의 GC 할당이 없고, 카메라/씬 전환에서 상태 누출이 없다. 실측한 장비와 해상도, pass 비용, 전체 증가량이 구분되어 있다.
+
+### 단계 8 최종 검증과 인수 문서
+
+**작업:** 16장의 필수 검증을 실행하고, 대표 플레이 장면의 전/후 화면과 실제 Player 빌드 상태를 기록한다. 설치/제거/프리셋 추가/재질 연결 절차를 문서화한다. 코드·샘플·Unity .meta를 포함한다.
+
+**산출물:** Integration.md, MaterialCoverage.md, Validation.md, Performance.md, TaskStatus.md 및 정상 실행 샘플.
+
+**완료 조건:** 실제 게임 카메라에서 사용할 수 있고, 미검증 환경과 알려진 제약이 명확하다. Unity 실행 권한이나 엔진 실행 파일이 없으면 정적 검토까지만 표시하고 에디터/빌드 검증을 수행한 것처럼 쓰지 않는다.
+
+## 16 검증 매트릭스와 인수 기준
+
+### 수학 검증
+
+CPU 검증은 double 기반 독립 수치 적분 또는 기하학적으로 계산 가능한 장면을 기준으로 한다. 무작위 입력 테스트는 seed를 고정한다. 기본 허용 오차는 일반 범위의 tau에서 `abs(error) <= 1e-5 + 1e-4*abs(reference)`이며 GPU의 T 비교는 절대 오차 1e-3을 시작 기준으로 한다. 극단적으로 포화된 영역은 작은 T의 상대 오차보다 유한성·연속성을 우선 확인한다.
+
+| ID | 조건 | 기대 결과 |
+| --- | --- | --- |
+| M01 | Disabled / 모든 density 0 / 0 길이 | T=1, S=0 |
+| M02 | Height만, 기준 아래 수평 100m | tau=heightDensity*100 |
+| M03 | Height만, 기준 위 수평 및 dir.y≈0 | 근처 각도와 연속, NaN/띠 없음 |
+| M04 | 기준 고도를 위아래로 통과 | 독립 수치 적분과 오차 범위 안에서 일치 |
+| M05 | 거리 density=ln(2)/100, 보호 거리 8m, 표면 108m | 다른 밀도 Off, cap 비활성에서 T≈0.5 |
+| M06 | 순수 적분 구간을 임의 위치에서 분리 | T(a,c)=T(a,b)*T(b,c) |
+| M07 | 고정된 시선에서 표면 거리 증가 | 균일/해석적 밀도의 T가 증가하지 않음 |
+| M08 | Box 밖 카메라와 밖 표면, 중간 관통 | tau=density*교차 길이 |
+| M09 | Sphere 내부 카메라, 접선, 매우 얇은 볼륨 | 음수 길이·NaN 없음, 실제 교차 반영 |
+| M10 | 회전 Box, 비균일 scale, Sphere→타원체 | 월드 미터 기준 길이와 density 유지 |
+| M11 | 동일색 매질 중첩 | tau 합산, 중복 S 합산으로 과도 밝기 없음 |
+| M12 | MaxOpacity=0, 중간값, 1 | T와 S가 함께 제한되며 중립성 보존 |
+| M13 | 가까운 시작 구간을 제외한 Height | 원점 이동을 반영한 적분과 일치 |
+| M14 | 긴 거리, 높은 고도, 최소 HeightScale | 유한한 T/S, 음수 density 입력 검출 |
+
+M06은 동일한 월드 밀도 함수의 **순수 적분 함수**에서 검사한다. nearClear/maxOpacity를 하위 구간마다 다시 적용하거나 카메라마다 Region 결과를 바꾼 최종 출력에 곱 성질을 요구하지 않는다. 고정 샘플 Noise 적분은 표면 거리가 바뀔 때 샘플 위치도 달라지므로 완벽한 단조성을 보장하지 않는다. Noise 경로는 참조 샘플 수를 높인 결과와 비교하여 허용 가능한 편차와 화면 안정성을 별도로 검증한다.
+
+### 화면과 통합 검증
+
+| ID | 장면 / 조작 | 통과 기준 |
+| --- | --- | --- |
+| V01 | 시간·Noise를 고정한 Off와 중립 On 비교 | 최종 RGB 차이 없음 또는 포맷 반올림 범위, alpha 동일 |
+| V02 | 가까운 캐릭터, 먼 산, 하늘 | 근거리 읽기 가능, 먼 산색 자연스러움, 하늘에 복원 노이즈 없음 |
+| V03 | 계곡 위에서 아래/수평/위를 봄 | 높이 안개가 카메라에 붙어 움직이지 않음 |
+| V04 | Local 외부 관찰→진입→이탈, 지형/하늘 배경 | 경계 점멸·끝점 오류 없음, 하늘 앞 부피도 정상 표시 |
+| V05 | 안개 앞의 벽, 뒤의 산 | 안개가 앞 벽을 잘못 덮지 않음 |
+| V06 | 동일 위치의 불투명 판과 alpha=1 투명 판 | 같은 T/S의 결과와 일치 |
+| V07 | alpha 0→1 그라데이션, Premult·Additive | 투명 테두리와 입자 사각형 없음 |
+| V08 | outline 뒤를 벽·산·하늘로 변경 | 배경 깊이 때문에 선의 안개가 비정상 변화하지 않음 |
+| V09 | 바람 식생, Alpha Clip, LOD 교체 | color/depth 불일치 윤곽과 잔영 없음 |
+| V10 | 물 표면과 물을 통한 배경 | 안개 누락·이중 안개·shore halo 없음 |
+| V11 | UI HUD, UI Camera Overlay | HUD가 뿌옇게 변하거나 Base 화면이 두 번 안개 처리되지 않음 |
+| V12 | Game 청록→미니맵 Off→SceneView 다른 설정 | 카메라별 값/텍스처가 누출되지 않음 |
+| V13 | MSAA 1x/현재 설정/4x 가능 시 | 깊이 가장자리 정렬 확인, 얇은 실루엣 문제 기록 |
+| V14 | Render Scale 0.7/1.0/1.2 가능 시 | 거리·높이·UV 정렬 보존 |
+| V15 | 탐험·전투 FOV, Lock-on, 카메라 충돌 당김 | 월드 거리 기준 유지, 가시성 급변 없음 |
+| V16 | Region overlap, 경계 왕복, Local 상한 교체 | 우선순위가 결정적이고 프레임 점멸 없음 |
+| V17 | 날씨 급변·teleport·씬 전환 | reset/보간 계약대로 전환 |
+| V18 | Feature On/Off, 재생 진입/종료 반복 | 잔여 전역 상태·GPU 리소스 증가 없음 |
+| V19 | 환경 공급자 없음/false, 밀도 배율 0, 무안개 Region 경계 | Identity 정상, 배율 0에서 Local 포함 Off, 프로필 경계는 연속 |
+
+MSAA resolved depth와 per-sample 컬러의 차이로 생기는 가장자리 문제는 실제 화면으로 확인한다. 보편적인 depth 기반 화면 효과만으로 모든 실루엣 문제가 사라진다고 가정하지 않는다. 문제가 보이면 depth/outline 보정 또는 해당 재질 경로 변경을 검토한다.
+
+### 필수 샘플 씬
+
+| 샘플 | 구성 |
+| --- | --- |
+| ToonFog_Calibration | 10/50/100/500m 기준 물체, alpha별 판, 색 비교와 중립 토글 |
+| ToonFog_HeightAndVolumes | 계곡 형태, 고도별 카메라, Box/Sphere, 얇은 volume, 벽 가림 |
+| ToonFog_Integration | 실제 캐릭터와 식생, outline, 물, 입자, UI, 게임 카메라 |
+| ToonFog_Regions | 7개 프로필 선택, 경계 이동, 날씨·전투 슬라이더, teleport |
+
+파일 수를 줄이기 위해 하나의 씬에 테스트 구역을 나누어도 된다. 중요한 것은 장면 이름보다 재현 가능한 상태와 기준 카메라다. 유료 모델이나 외부 다운로드 없이 Primitive 기반 기본 검증이 가능해야 한다. 실제 프로젝트 자산 비교는 별도 통합 구역에 둔다.
+
+### 최종 인수 기준
+
+- 단계 0~8의 상태와 필수 QA 결과가 기록되어 있다.
+- 현재 프로젝트에서 C#과 shader 컴파일 오류가 없다. 기존 오류는 신규 오류와 구분되어 있다.
+- 샘플뿐 아니라 실제 게임 카메라에 연결한 상태가 있다.
+- 대표 재질별 안개 소유권이 명시되어 있고 중복 경로가 없다.
+- 일반적인 지역 추가, 색·밀도 변경, 볼륨 배치는 코드 수정 없이 가능하다.
+- 성능 결과는 장비·해상도·품질·추가 pass 조건과 함께 재현 가능하다.
+- 실행하지 못한 검증은 Pending으로 남아 있다. 소스 검토만으로 Player/XR/콘솔 호환을 완료 처리하지 않는다.
+
+## 17 Claude와 Codex에 전달할 작업 요청
+
+### 최초 실행 요청
+
+아래 요청과 이 문서 전체를 함께 전달한다. 동봉된 텍스트 파일은 요청과 전체 설계를 포함하므로 그 파일 하나로 전달해도 된다.
+
+```text
+당신은 이 Unity 프로젝트의 렌더링 기능 구현 담당자입니다.
+첨부된 'Unity 툰 안개 시스템 설계 및 구현 지시서 v1.0' 전체를 읽고,
+문서의 단계 0~8을 실제 프로젝트에서 순서대로 구현해 주세요.
+설계 설명이나 코드 예시만 제시하는 것으로 끝내지 말고,
+코드, 프로필, 샘플 씬, 셰이더 연결, 검증 기록까지 완성하는 작업입니다.
+
+[프로젝트 기준]
+- 알려진 기준은 Unity 6000.0.60f1 / URP / 툰 TPS 액션 프로젝트입니다.
+- 정확한 Editor/URP/Core 버전, Renderer, 셰이더, 플랫폼은 실제 파일을 우선합니다.
+- 캐릭터의 '일툰' 셰이더 이름과 버전을 먼저 확인하세요.
+- 저장소 지침과 기존 코드 규칙, 기존 작업 변경분을 존중하세요.
+
+[필수 구조]
+1. RenderGraph 네이티브 Renderer Feature를 구현합니다.
+2. 불투명 fog는 BeforeRenderingTransparents에서 depth만 읽고,
+   output=(S, 1-T), Blend One OneMinusSrcAlpha, ColorMask RGB로 합성합니다.
+3. 기본 fog에 camera-color copy를 추가하지 않습니다.
+4. 공통 HLSL은 거리, 안정적인 높이 적분, Local 교차 구간을 계산하여 T/S를 반환합니다.
+5. Height를 표면 y만으로, Local을 표면 포함 판정만으로 구현하지 않습니다.
+6. Alpha/Premultiplied/Additive는 각각 지정된 식으로 처리합니다.
+7. 물의 굴절과 외곽선은 실제 shader 구조를 조사하여 전용 연결을 합니다.
+8. Region 프로필 선택과 실제 Local 안개 부피는 다른 컴포넌트로 만듭니다.
+9. 카메라별 설정과 글로벌 상태 수명, Neutral/Reset 경로를 구현합니다.
+10. 7개 지역 프리셋과 편집/진단 도구를 제공합니다.
+
+[진행 방식]
+- 먼저 현재 프로젝트의 환경과 기존 오류를 짧게 정리하고 단계 0을 수행하세요.
+- TaskStatus.md에 단계별 Pending/In Progress/Done/Blocked와 근거를 관리하세요.
+- 각 단계의 의미 있는 검증을 끝낸 다음 다음 단계로 계속 진행하세요.
+- 일반적인 구현 선택은 근거를 기록하고 자율적으로 결정하세요.
+- 현재 버전에서 다른 API가 필요하면 설치된 package 소스와 공식 문서를 확인하세요.
+- Unity/URP 업그레이드, Compatibility Mode 강제 전환,
+  외부 유료 에셋 도입을 기본 해결책으로 삼지 마세요.
+- 패키지 원본을 덮어쓰기보다 프로젝트 소유 확장 경로를 사용하세요.
+- 목표 플랫폼·재질이 실제로 필요한 경우 조건부 통합을 필수 작업에 포함하세요.
+- Unity 실행 환경이 없으면 가능한 소스/정적 검증을 진행하고,
+  실행하지 않은 에디터·빌드·GPU 측정은 Pending으로 남기세요.
+
+[검증과 납품]
+- 16장의 수학/화면 검증과 실제 Player 빌드를 가능한 환경에서 수행하세요.
+- 성능 수치는 측정 장비와 조건을 기록하고 제안 예산과 실측을 구분하세요.
+- Integration.md, MaterialCoverage.md, Validation.md,
+  Performance.md, TaskStatus.md를 갱신하세요.
+- 최종 보고에는 변경 파일, 설치/사용법, 완료한 검증,
+  남은 문제와 재현 방법, 성능 결과를 포함하세요.
+- 마지막에는 직접 실행할 샘플 씬과 게임 씬 적용 위치를 알려 주세요.
+
+지금 단계 0부터 시작하고, 수행 가능한 기본 범위는 끝까지 진행하세요.
+```
+
+### 중단 후 이어서 실행
+
+```text
+기존 ToonFog 작업을 이어서 진행해 주세요.
+설계서와 Docs/Rendering/ToonFog/TaskStatus.md, 현재 코드와 검증 기록을 먼저 읽고,
+실제로 끝난 작업을 반복하지 마세요. 코드 상태와 문서가 다르면 근거를 확인해 정리하세요.
+마지막으로 완료한 단계 다음부터 단계 8까지 진행하고,
+현재 환경에서 수행하지 못한 검증만 명확하게 Pending으로 남겨 주세요.
+```
+
+### 별도 검토자에게 전달
+
+```text
+ToonFog 구현을 설계서 v1.0 기준으로 검토해 주세요.
+렌더 그래프의 리소스 의존성, 글로벌 상태 누출, 중복 fog,
+수평 Height 적분, Local world-length 변환, 투명 블렌드,
+물/outline 통합, 실제 성능 측정 범위와 미검증 주장을 우선 확인해 주세요.
+실제로 재현되거나 코드상 근거가 있는 문제만 중요도와 파일 위치를 붙여 보고하세요.
+구현을 전부 다시 작성하지 말고 필요한 최소 수정안을 제시하세요.
+```
+
+### 두 AI가 함께 작업하는 경우
+
+| 순서 | 구현 담당 | 검토 담당 |
+| --- | --- | --- |
+| 단계 0~3 | 한 AI가 데이터·수학·Renderer 구현 | 다른 AI가 수학과 RenderGraph 계약 검토 |
+| 단계 4~6 | 담당 파일 범위를 정한 AI | 다른 AI가 실제 재질·지역 전환 검토 |
+| 단계 7~8 | 한 AI가 통합·측정·인수 | 다른 AI가 필수 QA 누락과 허위 완료 여부 검토 |
+
+한 저장소에서 동시 작업할 때 HLSL, Renderer Feature, Profile의 소유자를 먼저 정한다. 병렬 작업은 sample 제작과 독립 수학 검토처럼 충돌하지 않는 단위로 나눈다. 모델별 능력을 가정해 고정 역할을 강제하지 않는다.
+
+## 18 납품 파일과 자주 발생하는 실패
+
+### 구현 작업이 남겨야 하는 자료
+
+| 파일 | 포함 내용 |
+| --- | --- |
+| Integration.md | 실제 Unity/URP/Core, Renderer 설치, 설정 복원, 카메라 정책, 프로필 추가 방법 |
+| MaterialCoverage.md | 재질별 안개 소유권, outline/물 adapter, 연결되지 않은 재질 |
+| Validation.md | M/V 테스트 결과, 재현 방법, 캡처 위치, Pending 이유 |
+| Performance.md | 장비·API·해상도·품질, Off/On, pass 비용, 총 증가량, GC |
+| TaskStatus.md | 단계 상태, 마지막 완료 지점, 차이점, 다음 작업 |
+| 소스와 Unity .meta | C#, HLSL, shader, profile, renderer 설정, sample scene |
+
+### 실패 패턴과 확인 순서
+
+| 증상 | 먼저 확인할 원인 |
+| --- | --- |
+| 화면이 전부 하얗거나 한 색 | depth 복원, clear-depth 분기, 단위, 과도한 heightDensity |
+| 카메라가 올라가면 안개 층도 올라감 | baseHeight가 camera-relative로 계산됨 |
+| 멀리 있는 안개 덩어리가 안 보임 | Local을 surface containment로 구현함 |
+| scale을 바꾸면 밀도가 이상함 | local ray direction을 다시 normalize함 |
+| 거의 수평에서 선이 생김 | dir.y 분모 처리, 높이 적분의 수치 불안정 |
+| 투명 이펙트가 밝은 사각형으로 보임 | Additive에 scattering을 더함, premult alpha 누락 |
+| 물속 배경만 선명함 | Fog 이전 opaque texture를 읽음 |
+| 물가에 안개가 두꺼운 띠로 보임 | fogged 배경을 다시 fog 처리함 |
+| 캐릭터 outline만 사라짐 | Hull 픽셀이 배경 깊이를 참조함 |
+| 먼 외곽선이 지나치게 진함 | Fog 이후 outline에 자체 fog가 없음 |
+| 다른 카메라에 색이 남음 | 글로벌 reset/neutral 누락, 공유 배열 덮어쓰기 |
+| 새 Gradient가 한 카메라 늦게 적용됨 | SetGlobalTextureAfterPass의 시점 오해 |
+| RenderGraph에서 pass가 사라짐 | 실제 사용 리소스 의존성 또는 전역 side effect 선언 누락 |
+| Player만 핑크/누락 | shader variant, include 경로, 빌드 stripping |
+| GPU 비용이 크게 증가 | depth 생성 비용, Local 중첩·샘플 수, 투명 오버드로, 물 복사 |
+
+### 구현 시 피할 관행
+
+- 오래된 튜토리얼의 `OnRenderImage`, `CommandBuffer.Blit`, `Graphics.Blit`를 Unity 6 기본 경로로 가져오지 않는다. Unity는 현재 URP에서 RenderGraph/Blitter 경로를 안내한다. [S06](https://docs.unity3d.com/6000.0/Documentation/Manual/urp/customize/blit-overview.html)
+- 작은 공개 저장소가 Unity 6를 표시한다는 이유만으로 현재 버전의 RenderGraph·XR·콘솔 호환을 가정하지 않는다.
+- 문제를 숨기기 위해 프로젝트 전체를 Compatibility Mode로 바꾸거나 항상 컬러 복사를 강제하지 않는다.
+- 매 프레임 Material/Texture 생성, 씬 전체 검색, 불필요한 LINQ 할당을 넣지 않는다.
+- 아직 측정하지 않은 GPU ms, 모바일 지원, 물 셰이더 호환을 완료 결과로 쓰지 않는다.
+- 정상적인 깊이 기반 화면 효과와 완전한 물리 볼류메트릭 조명 시뮬레이션을 같은 기능으로 설명하지 않는다.
+
+## 19 근거 자료와 버전 적용 원칙
+
+다음은 기술과 참고 미술 방식을 확인한 1차 자료다. 링크는 2026-11-21 문서 작성 시점에 확인했다. 공식 6000.0 문서가 더 최근 예시나 패키지 설명으로 갱신될 수 있으므로 **실제 프로젝트의 설치된 패키지 소스와 버전별 API를 최종 기준**으로 사용한다. GitHub master는 고정 버전 구현의 증거가 아니다.
+
+| ID | 자료 | 이 문서에서 사용하는 범위 |
+| --- | --- | --- |
+| S01 | [Unity 6 Full Screen Pass](https://docs.unity3d.com/6000.0/Documentation/Manual/urp/renderer-features/renderer-feature-full-screen-pass.html) | 주입 시점과 입력 텍스처 요구의 개념 |
+| S02 | [Unity 6 RenderGraph 패스 작성](https://docs.unity3d.com/6000.0/Documentation/Manual/urp/render-graph-write-render-pass.html) | RecordRenderGraph, PassData, 리소스 선언 |
+| S03 | [Core RP 17 IRasterRenderGraphBuilder](https://docs.unity.cn/Packages/com.unity.render-pipelines.core@17.0/api/UnityEngine.Rendering.RenderGraphModule.IRasterRenderGraphBuilder.html) | blending에 의한 attachment 읽기/쓰기 |
+| S04 | [Core RP 17 IBaseRenderGraphBuilder](https://docs.unity.cn/Packages/com.unity.render-pipelines.core@17.0/api/UnityEngine.Rendering.RenderGraphModule.IBaseRenderGraphBuilder.html) | global state, culling, texture 게시 시점 |
+| S05 | [Unity 6 월드 위치 복원](https://docs.unity3d.com/6000.0/Documentation/Manual/urp/writing-shaders-urp-reconstruct-world-position.html) | depth, inverse VP, reversed Z, 화면 스케일 |
+| S06 | [Unity 6 Blit 권장 경로](https://docs.unity3d.com/6000.0/Documentation/Manual/urp/customize/blit-overview.html) | 레거시 Blit 제한과 대체 API |
+| S07 | [Flat Kit Fog Image Effect](https://flatkit.dustyroom.com/fog/) | 거리/높이 Gradient 편집 사례 |
+| S08 | [Harry Alisavakis 다색 안개 재현](https://halisavakis.com/my-take-on-shaders-firewatch-multi-colored-fog/) | Firewatch 스타일 색상 램프 참고 |
+| S09 | [Unity Graphics VolumeRendering.hlsl](https://github.com/Unity-Technologies/Graphics/blob/master/Packages/com.unity.render-pipelines.core/ShaderLibrary/VolumeRendering.hlsl) | 기준 고도 아래 균질, 위 지수 감쇠라는 밀도 모델 참고 |
+| S10 | [lilToon 공식 저장소](https://github.com/lilxyzw/lilToon) | 프로젝트에서 실제 사용하는 셰이더와 버전 확인의 출발점 |
+| S11 | [PBRT 4 Transmittance](https://pbr-book.org/4ed/Volume_Scattering/Transmittance) | 광선 투과율, 구간 곱 성질 |
+| S12 | [Unity Shader Blending Modes](https://docs.unity3d.com/6000.0/Documentation/Manual/writing-shader-blending-modes.html) | Alpha/Premultiplied/Additive 연산 |
+| S13 | [Unity 6 Global Texture](https://docs.unity3d.com/6000.0/Documentation/Manual/urp/render-graph-create-global-texture.html) | 패스 간 글로벌 텍스처 게시·사용 규칙 |
+
+**자료와 설계의 구분:** 모듈명, 단계 구성, 안정적 높이 적분식의 구현 계약, 최대 opacity 정책, Region 혼합 순서, 초기 프리셋과 성능 예산은 이 프로젝트를 위해 제안한 설계다. 참고 에셋의 실제 코드나 성능 측정값을 그대로 옮긴 것이 아니다. 외부 소스를 도입한다면 라이선스와 고정 commit을 확인하고 의존성을 기록한다.
+

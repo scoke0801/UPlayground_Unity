@@ -58,6 +58,11 @@ Shader "Hidden/UPlayGround/WaterSceneResolve"
                 #endif
                 hit.position = ComputeWorldSpacePosition(uv, WaterDeviceDepth(raw), UNITY_MATRIX_I_VP);
                 hit.distance = max(0, dot(hit.position - ray.origin, ray.direction));
+                if (hit.sky && _UPGToonFogEnabled > 0.5)
+                {
+                    hit.distance = max(hit.distance, _UPGToonFogDistance.z);
+                    hit.position = ray.origin + ray.direction * hit.distance;
+                }
                 return hit;
             }
 
@@ -183,7 +188,8 @@ Shader "Hidden/UPlayGround/WaterSceneResolve"
                 WaterOptics front = WaterEvaluateMedium(ray.origin, ray.direction, 0, surfaceDistance, airDistance, true);
                 float3 toBackground = refracted.position - surfacePosition;
                 float backgroundDistance = length(toBackground);
-                WaterOptics back = WaterEvaluateMedium(surfacePosition, toBackground / max(backgroundDistance, 0.00001), 0, backgroundDistance, airDistance, !refracted.sky);
+                WaterOptics back = WaterEvaluateMedium(surfacePosition, toBackground / max(backgroundDistance, 0.00001),
+                    0, backgroundDistance, airDistance, !refracted.sky, surfaceDistance);
                 float3 background = SAMPLE_TEXTURE2D_X_LOD(_BlitTexture, sampler_LinearClamp, refractedUV, 0).rgb;
                 background = AddWaterCaustics(background, refracted.position, back.endBody, refracted.sky);
                 float3 transmitted = WaterApplyOptics(background, back);
@@ -220,7 +226,15 @@ Shader "Hidden/UPlayGround/WaterSceneResolve"
                 colorAtSurface = lerp(colorAtSurface, body.foam.rgb * light, saturate(foam));
                 float3 color = WaterApplyOptics(colorAtSurface, front);
                 // 지형과 만나는 끝은 원래 지면색으로 이어져 불투명한 절단선이 남지 않는다.
-                if (above) color = lerp(original.rgb, color, smoothstep(0, max(body.style2.z, 0.001), waterDepth));
+                if (above)
+                {
+                    float shore = smoothstep(0, max(body.style2.z, 0.001), waterDepth);
+                    float3 shoreBackground = original.rgb;
+                    [branch] if (_UPGToonFogEnabled > 0.5 && shore < 1)
+                        shoreBackground = ToonFogStraight(shoreBackground, EvaluateToonFog(ray.origin,
+                            opaque.position, opaque.sky ? TOON_FOG_LOCAL : TOON_FOG_ALL));
+                    color = lerp(shoreBackground, color, shore);
+                }
                 front.length += back.length;
                 front.overflow |= back.overflow;
                 return half4(DebugWater(color, surface, front), original.a);

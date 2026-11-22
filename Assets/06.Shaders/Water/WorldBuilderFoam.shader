@@ -18,18 +18,21 @@ Shader "UPlayGround/WorldBuilder/Foam"
             HLSLPROGRAM
             #pragma vertex Vert
             #pragma fragment Frag
+            #pragma target 4.5
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "../ToonFog/FogMaterialAdapters.hlsl"
             CBUFFER_START(UnityPerMaterial)
                 half4 _BaseColor;
                 float _EdgeSoftness;
                 float _FlowSpeed;
             CBUFFER_END
             struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; };
-            struct Varyings { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; };
+            struct Varyings { float4 positionCS : SV_POSITION; float2 uv : TEXCOORD0; float3 positionWS : TEXCOORD1; };
             Varyings Vert(Attributes input)
             {
                 Varyings output;
-                output.positionCS = TransformObjectToHClip(input.positionOS.xyz);
+                output.positionWS = TransformObjectToWorld(input.positionOS.xyz);
+                output.positionCS = TransformWorldToHClip(output.positionWS);
                 output.uv = input.uv;
                 return output;
             }
@@ -40,7 +43,9 @@ Shader "UPlayGround/WorldBuilder/Foam"
                 float edge = 1 - smoothstep(1 - _EdgeSoftness, 1, length(p));
                 float pattern = 0.72 + 0.18 * sin(p.x * 21 + sin(p.y * 13) + _Time.y * _FlowSpeed)
                     + 0.1 * sin(p.y * 29 - _Time.y * _FlowSpeed * 1.3);
-                return half4(_BaseColor.rgb, _BaseColor.a * edge * pattern);
+                float3 color = ToonFogStraight(_BaseColor.rgb,
+                    EvaluateToonFog(GetCameraPositionWS(), input.positionWS, TOON_FOG_ALL));
+                return half4(color, _BaseColor.a * edge * pattern);
             }
             ENDHLSL
         }

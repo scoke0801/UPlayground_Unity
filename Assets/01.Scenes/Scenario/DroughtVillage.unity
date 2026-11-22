@@ -881818,6 +881818,73 @@ Transform:
   - {fileID: 644069980}
   m_Father: {fileID: 989094190}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2079899901
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2079899902}
+  - component: {fileID: 2079899903}
+  - component: {fileID: 2079899904}
+  m_Layer: 0
+  m_Name: Toon Fog World
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2079899902
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2079899901}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2079899903
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2079899901}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe3238fa77d8ee64d9e4ebbf8f84178e, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::UPlayGround.Gameplay.World.ToonFog.ToonFogWorld
+  fogEnabled: 1
+  profile: {fileID: 11400000, guid: 386026acd58c414086a5ea715344c2b7, type: 2}
+  quality: {fileID: 11400000, guid: c94365ed5c073cc4f8ec7abbbd1c18fc, type: 2}
+  playerAnchor: {fileID: 0}
+  environmentSource: {fileID: 2079899904}
+  captureLegacyRefraction: 0
+  showInSceneView: 1
+  diagnostics: 0
+--- !u!114 &2079899904
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2079899901}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ae145f6e9451b4468cc238129167338, type: 3}
+  m_Name:
+  m_EditorClassIdentifier: Assembly-CSharp::UPlayGround.Gameplay.World.ToonFog.ToonFogWeatherAdapter
+  _weather: {fileID: 524186717}
+  _quality: {fileID: 11400000, guid: c94365ed5c073cc4f8ec7abbbd1c18fc, type: 2}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -881830,3 +881897,4 @@ SceneRoots:
   - {fileID: 990382077}
   - {fileID: 1603971265}
   - {fileID: 193742202}
+  - {fileID: 2079899902}

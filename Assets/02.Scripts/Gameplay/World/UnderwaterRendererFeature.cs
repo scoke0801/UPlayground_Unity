@@ -275,6 +275,7 @@ namespace UPlayGround.Gameplay.World
                     builder.UseTexture(data.Source);
                     builder.UseTexture(data.Depth);
                     builder.UseTexture(info);
+                    frameData.GetOrCreate<ToonFog.ToonFogRendererFeature.FrameData>().UseTextures(builder);
                     if (resources.mainShadowsTexture.IsValid()) builder.UseTexture(resources.mainShadowsTexture);
                     builder.SetRenderAttachment(destination, 0);
                     builder.AllowGlobalStateModification(true);

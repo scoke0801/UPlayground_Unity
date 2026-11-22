@@ -70,7 +70,7 @@ GAS HitPhase 환경 payload → 플레이어/잔상/몬스터 AttackData → 불
 - 같은 중앙 tick에서 셀의 비/차폐·전파를 계산한다. Terrain 전체를 자기 Collider로 제외하지 않으므로 지형에 의한 화염 차폐를 유지한다. 공용 source의 owner와 차폐 제외 계층을 분리한다.
 - 런타임 TerrainData를 복제하고 TerrainCollider도 같은 복제본으로 연결한다. 원본 Detail 밀도를 셀별로 보관하고 연료 비율(표현용 8bit coverage) 변화 때만 해당 영역의 밀도를 재작성한다. 젖음/그을림/연소는 Terrain별 RGBA 상태 마스크를 기존 Reactive Toon에 전달한다. 마스크는 프레임/로드 커밋 후 한 번 업로드한다. 프로토타입별 재질/숨김 mesh 객체만 만들며 셀별 재질은 없다. 열/비 샘플은 interactionHeight의 중간 높이에 두어 지면에서 시작하는 자기 차폐를 피한다. 전파 반경/rate는 셀 중심 간격과 연소 시간에 맞는 별도 프로필을 명시한다.
 - 저장 ID는 Terrain SceneEntityId + detail + 전역 셀 좌표다. persistenceSignature는 저작 원본 revision·partitionVersion·셀 크기·Detail 해상도·선택 레이어·셀 원본 밀도 hash를 포함한다. 재진입은 원본에서 복제 후 기존 저장을 재적용한다. 구획/원본 밀도와 저장이 맞지 않으면 초기화로 덮지 않고 실패시키고 Terrain 원본을 복원한다. 이관 없이 version만 올려 기존 저장을 자동 재사용하지 않는다. 의도적 초기화는 새 저장 슬롯 또는 검수한 저장 이관으로 한다. 언로드/시간 점프는 기존 SuspendDomain 정책이다.
-- Terrain Tree는 읽기 전용으로 보존하며 GameObject로 자동 전환하지 않는다. 현재 정규 Terrain의 Tree 수는 0이다. 향후 Tree 인계는 원형 인스턴스/내장 충돌을 먼저 비활성화한 뒤 같은 저장 ID·보상 확정 원장으로 실물을 하나만 생성해야 한다. 이 인계 구현과 검증은 현재 범위 밖이다.
+- Terrain Tree 원본 에셋은 읽기 전용으로 유지한다. 명시적인 배치 ID 표가 있는 수종은 타격·열 입력에서만 기존 반응 원장과 풀링된 실물로 인계한다. 풀·나무는 타일 사본을 공유하고, 원형 숨김과 충돌 재지정은 타일당 한 프레임에 한 번 적용한다. 적용 수종과 저장·복구 규칙은 [지형 나무 승격 설계](TERRAIN_TREE_PROMOTION_DESIGN.md)를 따른다.
 
 ### 비용과 인수 경계
 

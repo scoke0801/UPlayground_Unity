@@ -264,7 +264,7 @@ namespace UPlayGround.Combat
             if (_damageableCache.TryGetValue(collider, out IDamageable cached))
             {
                 if (!IsUnityNull(cached))
-                    return cached;
+                    return cached is IEnvironmentHitRedirect redirect ? redirect.HitTarget : cached;
 
                 if (cached is UnityEngine.Object)
                     _damageableCache.Remove(collider);
@@ -279,7 +279,7 @@ namespace UPlayGround.Combat
                 _damageableCache.Clear();
             if (resolved is IEnvironmentColliderFilter filter && !filter.CanReceiveCollider(collider)) resolved = null;
             _damageableCache[collider] = resolved;
-            return resolved;
+            return resolved is IEnvironmentHitRedirect initialRedirect ? initialRedirect.HitTarget : resolved;
         }
 
         private static bool IsUnityNull(IDamageable damageable)

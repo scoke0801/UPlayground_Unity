@@ -89,6 +89,30 @@ namespace UPlayGround.EditorTools.Tests
             return JsonConvert.DeserializeObject<WorldStateSaveData>(JsonConvert.SerializeObject(save));
         }
 
+        [Test]
+        public void PromotedTreeExportsOnlyAfterPermanentChangeAndRestoresTheSameRecord()
+        {
+            _world.UnregisterEnvironment(_target);
+            const string treeId = "terrain-tree-placement";
+            var weather = (EnvironmentController)typeof(ReactiveEnvironmentObject)
+                .GetField("_weather", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(_target);
+            Assert.That(Invoke(_target, "ActivateTerrainTree", treeId, _target, weather, _world), Is.True);
+            Assert.That(_world.ApplyEnvironmentCombatHit(_target, 1), Is.True);
+            Assert.That(SaveCompletion().reactiveEnvironment.Exists(record => record.guid == treeId), Is.False);
+
+            _world.UnregisterEnvironment(_target);
+            Assert.That(Invoke(_target, "ActivateTerrainTree", treeId, _target, weather, _world), Is.True);
+            Assert.That(_target.State.durability, Is.LessThan(_definition.reaction.maxDurability));
+            Assert.That(_world.ApplyEnvironmentCombatHit(_target, _definition.reaction.maxDurability), Is.True);
+            var saved = SaveCompletion();
+            var entry = saved.reactiveEnvironment.Find(record => record.guid == treeId);
+            Assert.That(entry, Is.Not.Null);
+            Assert.That(entry.state.isBroken, Is.True);
+            Invoke(_world, "ImportEnvironment", saved);
+            Assert.That(_target.State.isBroken, Is.True);
+            Assert.That(SaveCompletion().reactiveEnvironment.FindAll(record => record.guid == treeId).Count, Is.EqualTo(1));
+        }
+
         [TestCase(false)]
         [TestCase(true)]
         public void DirectionalClearingSettlesSafelyDisablesNavigationAndRestoresMidFall(bool blockedInitially)
@@ -798,12 +822,12 @@ namespace UPlayGround.EditorTools.Tests
                 Services.Register(bridge);
                 try
                 {
-                    Invoke(projectile,"ApplyEnvironmentCellArea",1f,1f);
-                    Invoke(projectile,"ApplyEnvironmentCellArea",1f,1f);
+                    Invoke(projectile,"ApplyEnvironmentCellArea",1f,null,1f);
+                    Invoke(projectile,"ApplyEnvironmentCellArea",1f,null,1f);
                     var cooldowns = (Dictionary<IDamageable,float>)projectile.GetType().GetField("_areaCooldowns",BindingFlags.Instance|BindingFlags.NonPublic).GetValue(projectile);
                     Assert.That(cooldowns.Count,Is.EqualTo(1));
                     cooldowns.Clear();
-                    Invoke(projectile,"ApplyEnvironmentCellArea",1f,1f);
+                    Invoke(projectile,"ApplyEnvironmentCellArea",1f,null,1f);
                     var pending = new WorldStateSaveData(); Invoke(_world,"ExportEnvironment",pending);
                     Assert.That(pending.reactiveEnvironment.Find(record => record.guid == "terrain-guid:detail:0:0").pendingHeat,Is.EqualTo(1));
                 }

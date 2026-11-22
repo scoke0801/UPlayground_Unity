@@ -824,13 +824,13 @@ namespace UPlayGround
                 _areaCooldowns[damageable] = Mathf.Max(0.01f, cooldown);
                 ApplyPlayerFeedback(result, areaAttack);
             }
-            ApplyEnvironmentCellArea(radius, cooldown);
+            ApplyEnvironmentCellArea(radius, falloff, cooldown);
         }
 
-        private void ApplyEnvironmentCellArea(float radius, float cooldown)
+        private void ApplyEnvironmentCellArea(float radius, AnimationCurve falloff, float cooldown)
         {
-            if (_attackData == null || _attackData.environment.heatImpulse == 0 && _attackData.environment.waterImpulse == 0
-                || !UPlayGround.Manager.Services.TryGet<IEnvironmentCellHitService>(out var environment)) return;
+            if (_attackData == null || !UPlayGround.Manager.Services.TryGet<IEnvironmentCellHitService>(out var environment)) return;
+            bool hasElements = _attackData.environment.heatImpulse > 0 || _attackData.environment.waterImpulse > 0;
             _environmentCellHits.Clear(); _environmentCollected.Clear();
             var owner = _owner != null ? _owner.transform : _request.owner != null ? _request.owner.transform : transform;
             var shape = CombatHitboxShape.Sphere(transform.position, radius);
@@ -841,6 +841,28 @@ namespace UPlayGround
             foreach (var hit in _environmentCellHits)
             {
                 if (_areaCooldowns.ContainsKey(hit.Damageable) || !CanDeliver(hit.Damageable)) continue;
+                if (hit.Damageable is IEnvironmentStructureHit)
+                {
+                    int maxHits = _definition.GetBehavior<AreaTickProjectileBehavior>()?.maxHitsPerTarget ?? 0;
+                    _areaHitCounts.TryGetValue(hit.Damageable, out int hitCount);
+                    if (maxHits > 0 && hitCount >= maxHits) continue;
+                    float distance = Mathf.Clamp01(Vector3.Distance(transform.position, hit.HitPoint) / radius);
+                    float scale = _currentDamageScale * (falloff != null ? falloff.Evaluate(distance) : 1f);
+                    var attack = PlayerAttackController.Copy(_attackData);
+                    attack.damage *= scale;
+                    attack.poiseDamage *= scale;
+                    attack.breakDamage *= scale;
+                    attack.hitPoint = hit.HitPoint;
+                    attack.attackDirection = hit.AttackDirection;
+                    attack.hitTarget = hit.HitObject;
+                    attack.environment = _environmentImpulses.Consume(hit.Damageable, attack.environment);
+                    var result = hit.Damageable.ReceiveHit(HitRequest.FromAttackData(attack));
+                    if (maxHits > 0) _areaHitCounts[hit.Damageable] = hitCount + 1;
+                    _areaCooldowns[hit.Damageable] = Mathf.Max(0.01f, cooldown);
+                    ApplyPlayerFeedback(result, attack);
+                    continue;
+                }
+                if (!hasElements) continue;
                 _environmentCellAttack.environment = _environmentImpulses.Consume(hit.Damageable, _attackData.environment);
                 hit.Damageable.ReceiveHit(HitRequest.FromAttackData(_environmentCellAttack));
                 _areaCooldowns[hit.Damageable] = Mathf.Max(0.01f, cooldown);

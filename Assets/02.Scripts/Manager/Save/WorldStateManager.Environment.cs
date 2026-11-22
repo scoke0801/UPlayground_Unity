@@ -49,6 +49,16 @@ namespace UPlayGround.Manager
         private readonly EnvironmentRainBatch _environmentRain = new();
         private int _environmentRainCapacity;
         private readonly List<TerrainDetailReaction> _detailTerrains = new();
+        private readonly List<TerrainTreePromotion> _treePromotions = new();
+
+        internal void RegisterTreePromotion(TerrainTreePromotion promotion) => _treePromotions.Add(promotion);
+        internal void UnregisterTreePromotion(TerrainTreePromotion promotion) => _treePromotions.Remove(promotion);
+        internal bool TryGetTerrainTreeRecord(string map, string id, out ReactiveEnvironmentSaveEntry record) =>
+            _environmentStates.TryGetValue((map, id), out record);
+
+        private static bool KeepTerrainTreeRecord(ReactiveEnvironmentSaveEntry record) =>
+            record.state.isBroken || record.state.charAmount > 0
+            || record.state.combustion == EnvironmentCombustion.Burning || record.state.combustion == EnvironmentCombustion.Spent;
         /// <summary>셀을 소유하는 Terrain만 한 번 등록한다.</summary>
         public void RegisterDetailTerrain(TerrainDetailReaction terrain)
         { if (!_detailTerrains.Contains(terrain)) _detailTerrains.Add(terrain); }
@@ -63,6 +73,8 @@ namespace UPlayGround.Manager
             foreach (var terrain in _detailTerrains)
                 if (terrain != null && terrain.isActiveAndEnabled && World.RegionOwnership.Resolve(terrain) == map)
                     terrain.CollectHits(shape, ignored, collected, results);
+            foreach (var promotion in _treePromotions)
+                if (promotion != null && promotion.MapId == map) promotion.CollectHits(shape, ignored, collected, results);
         }
         private void FlushEnvironmentMasks()
         {
@@ -179,6 +191,8 @@ namespace UPlayGround.Manager
             }
             catch (ArgumentException error)
             {
+                if (target.PersistenceSignature == TerrainTreePromotion.PersistenceSignature
+                    && !KeepTerrainTreeRecord(record)) _environmentStates.Remove(key);
                 Debug.LogError(error.Message, target?.transform);
                 return false;
             }
@@ -191,6 +205,10 @@ namespace UPlayGround.Manager
             {
                 if (target is ReactiveEnvironmentObject sceneObject) sceneObject.DetachRainPositions(_environmentRain);
                 CaptureEnvironment(binding);
+                if (binding.record.persistenceSignature == TerrainTreePromotion.PersistenceSignature
+                    && !KeepTerrainTreeRecord(binding.record)
+                    && binding.record.state.durability >= target.Definition.reaction.maxDurability)
+                    _environmentStates.Remove((binding.record.mapId, binding.record.guid));
                 ReleaseEnvironmentDefinition(binding);
                 _environmentRainCapacity -= binding.rainSamples;
                 _environmentActiveKeys.Remove((binding.record.mapId, binding.record.guid));
@@ -258,6 +276,8 @@ namespace UPlayGround.Manager
                 {
                     _environmentRemainder -= domainStep;
                     PrepareEnvironmentSources(domainStep);
+                    PromoteTerrainTreesInHeat();
+                    count = _environmentBindings.Count;
                     AdvanceEnvironmentReactions(domainStep, count);
                     // 모든 논리 결과를 계산한 뒤 표현·충돌 전이를 적용한다.
                     for (int i = 0; i < count; i++)
@@ -408,7 +428,9 @@ namespace UPlayGround.Manager
             world.reactiveEnvironmentRemainder = _environmentRemainder;
             foreach (var binding in _environmentBindings) CaptureEnvironment(binding);
             world.reactiveEnvironment = new List<ReactiveEnvironmentSaveEntry>(_environmentStates.Count);
-            foreach (var record in _environmentStates.Values) world.reactiveEnvironment.Add(CloneEnvironmentRecord(record));
+            foreach (var record in _environmentStates.Values)
+                if (record.persistenceSignature != TerrainTreePromotion.PersistenceSignature || KeepTerrainTreeRecord(record))
+                    world.reactiveEnvironment.Add(CloneEnvironmentRecord(record));
         }
 
         private void ImportEnvironment(WorldStateSaveData world)
@@ -471,6 +493,7 @@ namespace UPlayGround.Manager
             int count = bindings.Count;
             for (int i = 0; i < count; i++)
                 if (bindings[i].target != null && bindings[i].target.IsAvailable) bindings[i].target.ApplySnapshot(bindings[i].reaction.State, bindings[i].record.destruction);
+            foreach (var promotion in _treePromotions) if (promotion != null) promotion.RefreshSavedTrees();
             FlushEnvironmentMasks();
         }
 

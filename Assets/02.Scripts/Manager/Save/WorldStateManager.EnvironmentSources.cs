@@ -99,6 +99,19 @@ namespace UPlayGround.Manager
             _environmentSourceRadius = Mathf.Max(_environmentSourceRadius, source.radius);
         }
 
+        private void PromoteTerrainTreesInHeat()
+        {
+            if (_treePromotions.Count == 0) return;
+            foreach (var cell in _environmentSourceCells.Values)
+                foreach (var source in cell)
+                {
+                    if (source.heat <= 0 || source.root == null) continue;
+                    foreach (var promotion in _treePromotions)
+                        if (promotion != null && promotion.MapId == source.map)
+                            promotion.PromoteInHeat(source.position, source.radius, source.layer);
+                }
+        }
+
         private void ApplyEnvironmentSources(EnvironmentBinding binding, float seconds)
         {
             binding.sourceHeat = binding.sourceWater = 0;

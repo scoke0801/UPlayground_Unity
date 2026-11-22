@@ -11,7 +11,7 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
 {
     /// <summary>기존 피격 경계를 환경 상태 작성자에 연결하고 저장된 표현만 적용한다.</summary>
     [DisallowMultipleComponent, RequireComponent(typeof(SceneEntityId))]
-    public sealed class ReactiveEnvironmentObject : MonoBehaviour, IDamageable, IEnvironmentReactionTarget, IReactiveGatheringTarget, IEnvironmentColliderFilter, IEnvironmentRainBatchTarget
+    public sealed class ReactiveEnvironmentObject : MonoBehaviour, IDamageable, IEnvironmentReactionTarget, IReactiveGatheringTarget, IEnvironmentColliderFilter, IEnvironmentRainBatchTarget, IEnvironmentHitRedirect
     {
         [SerializeField] private ReactiveEnvironmentDefinitionSO _definition;
         [SerializeField] private EnvironmentController _weather;
@@ -49,7 +49,9 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
         private Vector3 _impactPoint;
         public bool IsAvailable => this != null;
         public int RainSampleCapacity => _rainSamples != null ? _rainSamples.Length : 0;
-        public string PersistenceSignature => null;
+        public string PersistenceSignature { get; private set; }
+        IDamageable IEnvironmentHitRedirect.HitTarget => _promotedTree ?? (IDamageable)this;
+        private IDamageable _promotedTree;
         public Transform OcclusionRoot => transform;
         /// <summary>명시한 피격 Collider만 전투 검출기에 허용한다.</summary>
         public bool CanReceiveCollider(Collider collider)
@@ -174,7 +176,7 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
                         ? materials[slot].GetColor(BaseColor) : Color.white;
             }
         }
-        private void Start() { _hasStarted = true; Bind(); }
+        private void Start() { _hasStarted = true; if (!_isBound && _promotedTree == null) Bind(); }
         private void OnEnable() { if (_hasStarted) Bind(); }
         private void OnDisable()
         {
@@ -188,8 +190,21 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
             _hasAppliedSnapshot = false;
         }
         private void OnDestroy() => _reactiveSurface?.Release();
+        internal bool ActivateTerrainTree(string id, IDamageable tree, EnvironmentController weather, WorldStateManager world)
+        {
+            _promotedTree = tree;
+            PersistenceSignature = TerrainTreePromotion.PersistenceSignature;
+            _weather = weather;
+            gameObject.SetActive(true);
+            _identity.RuntimeSetGuid(id);
+            _world = world;
+            _isBound = world.RegisterEnvironment(this);
+            return _isBound;
+        }
+
         private void Bind()
         {
+            if (_promotedTree != null) return;
             if (_weather == null && Services.TryGet<UPlayGround.UI.IUIWeatherService>(out var weather))
                 _weather = weather as EnvironmentController;
             _world = WorldStateManager.Instance;

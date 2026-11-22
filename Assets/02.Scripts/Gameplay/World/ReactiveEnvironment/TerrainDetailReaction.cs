@@ -27,7 +27,7 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
         [SerializeField, Min(0.01f)] private float _interactionHeight = 0.5f;
         private Terrain _terrain;
         private TerrainData _original, _runtime;
-        private TerrainCollider _terrainCollider;
+        private ReactiveTerrainData _terrainData;
         private WorldStateManager _world;
         private Texture2D _mask;
         private bool _maskDirty;
@@ -41,7 +41,7 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
         public int DensityWrites { get; private set; }
         public int RuntimeMaterialCount => _materials.Count;
         public Texture2D StateMask => _mask;
-        public TerrainData SourceData => _original != null ? _original : GetComponent<Terrain>().terrainData;
+        public TerrainData SourceData => _terrainData?.Source ?? GetComponent<Terrain>().terrainData;
         public RectInt CellRegion => _cellRegion;
         public int DetailPixelsPerCell => _detailPixelsPerCell;
 
@@ -60,23 +60,19 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
         {
             if (_runtime != null) return;
             _terrain = GetComponent<Terrain>();
-            _original = _terrain.terrainData;
             _world = world;
             string error = ValidateAuthoring();
             if (_world == null || error != null) throw new InvalidOperationException(error ?? "환경 작성자가 없습니다.");
             try
             {
-                _runtime = Instantiate(_original);
-                _runtime.name = _original.name + " (Reactive Runtime)";
-                _runtime.hideFlags = HideFlags.DontSave;
+                _terrainData = ReactiveTerrainData.Acquire(_terrain);
+                _original = _terrainData.Source;
+                _runtime = _terrainData.Runtime;
                 _mask = new Texture2D(_cellRegion.width, _cellRegion.height, TextureFormat.RGBA32, false, true)
                     { filterMode = FilterMode.Point, wrapMode = TextureWrapMode.Clamp, hideFlags = HideFlags.DontSave };
                 var colors = new Color[_cellRegion.width * _cellRegion.height];
                 _mask.SetPixels(colors); _mask.Apply(false);
                 PreparePrototypes();
-                _terrain.terrainData = _runtime;
-                _terrainCollider = GetComponent<TerrainCollider>();
-                if (_terrainCollider != null) _terrainCollider.terrainData = _runtime;
                 _cells = new Cell[_cellRegion.height, _cellRegion.width];
                 string guid = GetComponent<SceneEntityId>().Guid;
                 string signature = _contentRevision + ":" + _partitionVersion + ":" + _detailPixelsPerCell
@@ -259,7 +255,7 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
             }
         }
 
-        private static bool IntersectsCell(in CombatHitboxShape shape, Bounds cell)
+        internal static bool IntersectsCell(in CombatHitboxShape shape, Bounds cell)
         {
             if (shape.Type == CombatHitboxShapeType.Sphere)
                 return (cell.ClosestPoint(shape.Center) - shape.Center).sqrMagnitude <= shape.Radius * shape.Radius;
@@ -331,13 +327,18 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
             if (_cells != null && _world != null)
                 foreach (var cell in _cells) if (cell != null) _world.UnregisterEnvironment(cell);
             _world?.UnregisterDetailTerrain(this);
+            if (_runtime != null && _terrainData != null)
+            {
+                _runtime.detailPrototypes = _original.detailPrototypes;
+                if (_cells != null) foreach (var cell in _cells) cell?.RestoreDensity();
+                _terrainData.Release();
+                _terrainData = null;
+            }
             _cells = null; CellCount = 0;
-            if (_terrain != null && _terrain.terrainData == _runtime) _terrain.terrainData = _original;
-            if (_terrainCollider != null && _terrainCollider.terrainData == _runtime) _terrainCollider.terrainData = _original;
             foreach (var prototype in _prototypes) DestroyOwned(prototype);
             foreach (var material in _materials) DestroyOwned(material);
             _prototypes.Clear(); _materials.Clear();
-            DestroyOwned(_runtime); DestroyOwned(_mask);
+            DestroyOwned(_mask);
             _runtime = null; _mask = null; _maskDirty = false;
         }
 
@@ -451,6 +452,13 @@ namespace UPlayGround.Gameplay.World.ReactiveEnvironment
                 }
             }
             public void FixedTick(float seconds) { }
+            public void RestoreDensity()
+            {
+                if (_coverage == 255) return;
+                int pixels = _owner._detailPixelsPerCell;
+                for (int i = 0; i < _density.Length; i++)
+                    _owner._runtime.SetDetailLayer(_x * pixels, _z * pixels, _owner._detailLayers[i], _density[i]);
+            }
             public CombatResult ReceiveHit(in HitRequest request)
             {
                 bool accepted = IsAlive() && _owner._world.ApplyEnvironmentCombatHit(this, request.Damage, request.EnvironmentHit);

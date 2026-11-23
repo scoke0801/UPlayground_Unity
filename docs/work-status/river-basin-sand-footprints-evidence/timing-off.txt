@@ -1,0 +1,20 @@
+RiverBasin4km 6000.3.21f1 NVIDIA GeForce RTX 3060 Ti Direct3D11
+feature=False start=(3796.00, 50.50, 1773.00) initialAccepted=226 1920x1080
+Waypoint=1 position=(3817.21, 51.38, 1783.14) accepted=0
+Waypoint=2 position=(3839.50, 53.10, 1799.87) accepted=0
+Waypoint=3 position=(3831.33, 54.20, 1809.55) accepted=0
+Waypoint=0 position=(3797.32, 50.55, 1774.39) accepted=0
+Waypoint=1 position=(3817.22, 51.39, 1783.19) accepted=0
+Waypoint=2 position=(3839.43, 53.09, 1799.81) accepted=0
+Waypoint=3 position=(3831.31, 54.20, 1809.55) accepted=0
+Waypoint=0 position=(3797.32, 50.55, 1774.40) accepted=0
+Waypoint=1 position=(3817.23, 51.39, 1783.20) accepted=0
+Waypoint=2 position=(3839.44, 53.09, 1799.82) accepted=0
+Waypoint=3 position=(3831.30, 54.20, 1809.54) accepted=0
+Waypoint=0 position=(3797.31, 50.55, 1774.39) accepted=0
+Waypoint=1 position=(3817.21, 51.39, 1783.19) accepted=0
+Waypoint=2 position=(3839.42, 53.09, 1799.81) accepted=0
+Waypoint=3 position=(3831.05, 54.23, 1809.84) accepted=0
+waypoints=15 elapsed=70.01 grounded=3361/3361 accepted=0 peakDispatches=0 dropped=0 allocatedTextureBytes=0
+ActorFootstep=PlayerModel_Raon (UPlayGround.Components.ActorFootstep) lastSurface=Surface_Sand (UPlayGround.Data.Actor.FootstepSurfaceProfileSO)
+median/p95/max: wall(ms)=16.617/23.960/127.008 n=3361 cpu(ms)=16.605/24.201/126.692 n=3361 gpu(ms)=12.113/15.261/85.340 n=2943 gc(B)=15147.000/23647.000/119947.000 n=3361 wallDispatch6+(ms)=N/A

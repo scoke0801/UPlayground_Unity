@@ -52,7 +52,8 @@ MonoBehaviour:
   - {fileID: 986250092344022804}
   - {fileID: 846524664022677285}
   - {fileID: 4929230025659267829}
-  m_RendererFeatureMap: ad6b866f10d7b46c292c3a154e2028e965db18e23887452f1497dccd3bddaf0d25b7ad64b275bf0bf53a9c9797246844
+  - {fileID: 6739626263239061524}
+  m_RendererFeatureMap: ad6b866f10d7b46c292c3a154e2028e965db18e23887452f1497dccd3bddaf0d25b7ad64b275bf0bf53a9c979724684414f041db60f6875d
   m_UseNativeRenderPass: 1
   xrSystemData: {fileID: 0}
   postProcessData: {fileID: 11400000, guid: 41439944d30ece34e96484bdb6645b55, type: 2}
@@ -138,6 +139,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::UPlayGround.Gameplay.World.UnderwaterRendererFeature
   m_Active: 1
   _shader: {fileID: 4800000, guid: cba409d10f40b054d9e83477aae6869e, type: 3}
+  _showInSceneView: 1
+  _debugView: 0
+--- !u!114 &6739626263239061524
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c8375256d9262f740aee273e4a7210f3, type: 3}
+  m_Name: SandFootprintRendererFeature
+  m_EditorClassIdentifier: Assembly-CSharp::UPlayGround.Gameplay.World.SandFootprintRendererFeature
+  m_Active: 1
 --- !u!114 &7833122117494664109
 MonoBehaviour:
   m_ObjectHideFlags: 0

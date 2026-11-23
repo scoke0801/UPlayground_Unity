@@ -60,7 +60,10 @@ namespace UPlayGround.Tool.Editor
             stone.landing.effect = dust;
             var water = CreateSurface("ShallowWater", "Water", splash, ripple, 0.6f, 0.85f, 1.3f, "_Jump_Light_");
             var settings = LoadOrCreate<FootstepSettingsSO>(Root + "/Raon_FootstepSettings.asset");
-            settings.surfaces = new[] { dirt, grass, stone, water };
+            var sand = AssetDatabase.LoadAssetAtPath<FootstepSurfaceProfileSO>(Root + "/Surface_Sand.asset");
+            var snow = AssetDatabase.LoadAssetAtPath<FootstepSurfaceProfileSO>(Root + "/Surface_Snow.asset");
+            settings.surfaces = new[] { dirt, grass, stone, water }
+                .Concat(new[] { sand, snow }.Where(surface => surface != null)).ToArray();
             settings.fallbackSurface = stone;
             settings.groundLayers = LayerMask.GetMask("Ground");
             if (settings.groundLayers == 0) throw new InvalidOperationException("Ground 레이어가 없습니다.");
@@ -159,29 +162,96 @@ namespace UPlayGround.Tool.Editor
                     contacts.Add("Landing:0");
                     continue;
                 }
-                int samples = Mathf.Max(12, Mathf.CeilToInt(motion.Duration * 60f));
-                var left = new float[samples];
-                var right = new float[samples];
-                Transform leftBone = animator.GetBoneTransform(HumanBodyBones.LeftFoot);
-                Transform rightBone = animator.GetBoneTransform(HumanBodyBones.RightFoot);
-                for (int i = 0; i < samples; i++)
-                {
-                    AnimationMode.BeginSampling();
-                    AnimationMode.SampleAnimationClip(animator.gameObject, motion.motionClip,
-                        motion.ClipStartTime + i * motion.Duration / samples * motion.playbackSpeed);
-                    AnimationMode.EndSampling();
-                    left[i] = leftBone.position.y - animator.transform.position.y;
-                    right[i] = rightBone.position.y - animator.transform.position.y;
-                }
+                SampleFeet(motion, animator, out var left, out var right);
                 AddContacts(motion, left, FootstepEvent.Foot.Left, kind, contacts);
                 AddContacts(motion, right, FootstepEvent.Foot.Right, kind, contacts);
                 if (motion.events.Count(e => e is FootstepEvent) < 2)
                     throw new InvalidOperationException("양발 접촉을 검출하지 못했습니다: " + source);
+                AddReleases(motion, left, FootstepEvent.Foot.Left, kind);
+                AddReleases(motion, right, FootstepEvent.Foot.Right, kind);
                 motion.events.Sort((a, b) => a.startTime.CompareTo(b.startTime));
             }
             record.contacts = contacts.ToArray();
             report.motions.Add(record);
             EditorUtility.SetDirty(asset);
+        }
+
+        private static void SampleFeet(Motion motion, Animator animator, out float[] left, out float[] right)
+        {
+            int samples = Mathf.Max(12, Mathf.CeilToInt(motion.Duration * 60f));
+            left = new float[samples];
+            right = new float[samples];
+            Transform leftBone = animator.GetBoneTransform(HumanBodyBones.LeftFoot);
+            Transform rightBone = animator.GetBoneTransform(HumanBodyBones.RightFoot);
+            for (int i = 0; i < samples; i++)
+            {
+                AnimationMode.BeginSampling();
+                AnimationMode.SampleAnimationClip(animator.gameObject, motion.motionClip,
+                    motion.ClipStartTime + i * motion.Duration / samples * motion.playbackSpeed);
+                AnimationMode.EndSampling();
+                left[i] = leftBone.position.y - animator.transform.position.y;
+                right[i] = rightBone.position.y - animator.transform.position.y;
+            }
+        }
+
+        private static int AddReleases(Motion motion, float[] heights, FootstepEvent.Foot foot, FootstepKind kind)
+        {
+            float min = heights.Min(), max = heights.Max();
+            if (max - min < 0.015f) return 0;
+            float threshold = Mathf.Lerp(min, max, 0.42f);
+            int count = 0;
+            for (int i = 0; i < heights.Length; i++)
+            {
+                int previous = (i + heights.Length - 1) % heights.Length;
+                if (heights[previous] >= threshold || heights[i] < threshold) continue;
+                var release = CreateEvent(i * motion.Duration / heights.Length, foot, kind);
+                release.releaseOnly = true;
+                motion.events.Add(release);
+                count++;
+            }
+            return count;
+        }
+
+        public static int BakeSandReleases()
+        {
+            RequireEditMode();
+            if (AnimationMode.InAnimationMode()) throw new InvalidOperationException("기존 애니메이션 프리뷰를 먼저 닫으세요.");
+            var preview = EditorSceneManager.NewPreviewScene();
+            int count = 0;
+            try
+            {
+                var root = (GameObject)PrefabUtility.InstantiatePrefab(AssetDatabase.LoadAssetAtPath<GameObject>(ModelPath), preview);
+                root.hideFlags = HideFlags.HideAndDontSave;
+                foreach (var behavior in root.GetComponentsInChildren<MonoBehaviour>(true)) behavior.enabled = false;
+                var animator = root.GetComponent<Animator>();
+                AnimationMode.StartAnimationMode();
+                foreach (string guid in AssetDatabase.FindAssets("t:MotionSetAsset", new[] { Root + "/Motions" }))
+                {
+                    var asset = AssetDatabase.LoadAssetAtPath<MotionSetAsset>(AssetDatabase.GUIDToAssetPath(guid));
+                    bool changed = false;
+                    foreach (Motion motion in asset.motionSet.motions)
+                    {
+                        var step = motion.events?.OfType<FootstepEvent>()
+                            .FirstOrDefault(e => e.requireSurfaceProfile && !e.releaseOnly);
+                        if (step == null || step.kind == FootstepKind.Landing || motion.motionClip == null) continue;
+                        motion.events.RemoveAll(e => e is FootstepEvent { requireSurfaceProfile: true, releaseOnly: true });
+                        SampleFeet(motion, animator, out var left, out var right);
+                        count += AddReleases(motion, left, FootstepEvent.Foot.Left, step.kind);
+                        count += AddReleases(motion, right, FootstepEvent.Foot.Right, step.kind);
+                        motion.events.Sort((a, b) => a.startTime.CompareTo(b.startTime));
+                        changed = true;
+                    }
+                    if (!changed) continue;
+                    EditorUtility.SetDirty(asset);
+                    AssetDatabase.SaveAssetIfDirty(asset);
+                }
+            }
+            finally
+            {
+                if (AnimationMode.InAnimationMode()) AnimationMode.StopAnimationMode();
+                EditorSceneManager.ClosePreviewScene(preview);
+            }
+            return count;
         }
 
         private static void AddContacts(Motion motion, float[] heights, FootstepEvent.Foot foot, FootstepKind kind, List<string> contacts)
@@ -218,6 +288,45 @@ namespace UPlayGround.Tool.Editor
             surface.landing = CreateResponse(folder, "Land", effect, secondary, landScale, 0.8f, landingToken);
             EditorUtility.SetDirty(surface);
             return surface;
+        }
+
+        public static FootstepSurfaceProfileSO AuthorSand()
+        {
+            RequireEditMode();
+            var settings = AssetDatabase.LoadAssetAtPath<FootstepSettingsSO>(Root + "/Raon_FootstepSettings.asset");
+            var dirt = AssetDatabase.LoadAssetAtPath<FootstepSurfaceProfileSO>(Root + "/Surface_Dirt.asset");
+            if (settings == null || dirt == null) throw new InvalidOperationException("라온의 지면 효과 데이터가 필요합니다.");
+            var sand = CreateSurface("Sand", "Sand", dirt.walk.effect, null, 0.34f, 0.68f, 1.05f);
+            if (!settings.surfaces.Contains(sand)) settings.surfaces = settings.surfaces.Append(sand).ToArray();
+            settings.sandSoleSize = new Vector2(0.13f, 0.29f);
+            settings.sandAnkleToSole = 0.11f;
+            settings.sandSoleForwardOffset = 0.06f;
+            settings.sandContactGap = 0.07f;
+            settings.sandLandingContactWindow = 0.23f;
+            EditorUtility.SetDirty(settings);
+            RegisterSounds(settings);
+            SaveAuthoredAssets();
+            return sand;
+        }
+
+        public static FootstepSurfaceProfileSO AuthorSnow()
+        {
+            RequireEditMode();
+            var settings = AssetDatabase.LoadAssetAtPath<FootstepSettingsSO>(Root + "/Raon_FootstepSettings.asset");
+            var powder = AssetDatabase.LoadAssetAtPath<GameObject>(Root + "/Effects/FootstepSnowPowder.prefab");
+            if (settings == null || powder == null)
+                throw new InvalidOperationException("라온의 지면 효과 설정과 눈가루 프리팹이 필요합니다.");
+
+            var snow = LoadOrCreate<FootstepSurfaceProfileSO>(Root + "/Surface_Snow.asset");
+            snow.walk = CreateResponse("Snow", "Walk", powder, null, 0.30f, 0.50f, "_Snow_Walk_");
+            snow.run = CreateResponse("Snow", "Run", powder, null, 0.58f, 0.65f, "_Snow_Run_");
+            snow.landing = CreateResponse("Snow", "Land", powder, null, 0.95f, 0.80f, "_Snow_Jump_Land_");
+            if (!settings.surfaces.Contains(snow)) settings.surfaces = settings.surfaces.Append(snow).ToArray();
+            EditorUtility.SetDirty(snow);
+            EditorUtility.SetDirty(settings);
+            RegisterSounds(settings);
+            SaveAuthoredAssets();
+            return snow;
         }
 
         private static FootstepSurfaceProfileSO.Response CreateResponse(string surface, string action, GameObject effect, GameObject secondary, float scale, float volume, string sourceToken = null)

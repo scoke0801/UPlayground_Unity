@@ -18,5 +18,16 @@ namespace UPlayGround.Data.Actor
         [Min(0f)] public float landingStepSuppression = 0.15f;
         [Min(0f)] public float surfaceOffset = 0.015f;
         [Range(1, 8)] public int instancesPerEffect = 4;
+        public Vector2 sandSoleSize;
+        [Min(0f)] public float sandAnkleToSole = 0.11f;
+        public float sandSoleForwardOffset = 0.055f;
+        [Min(0f)] public float sandContactGap = 0.07f;
+        [Min(0f)] public float sandStepContactWindow = 0.18f;
+        [Min(0.01f)] public float locomotionFootSwingDistance = 0.055f;
+        [Min(0f)] public float locomotionFootSettleSpeed = 0.30f;
+        [Min(0.01f)] public float poseFootRelocationDistance = 0.11f;
+        [Min(0.01f)] public float poseFootLiftDistance = 0.085f;
+        [Min(0f)] public float poseFootSettleSpeed = 0.55f;
+        [Min(0f)] public float sandLandingContactWindow = 0.23f;
     }
 }

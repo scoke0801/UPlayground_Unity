@@ -1,0 +1,9 @@
+RiverBasin4km 6000.3.21f1 NVIDIA GeForce RTX 3060 Ti Direct3D11
+feature=True start=(3796.00, 50.50, 1773.00) initialAccepted=0 1920x1080
+Waypoint=1 position=(3817.21, 51.38, 1783.14) accepted=13
+Waypoint=2 position=(3839.50, 53.10, 1799.87) accepted=28
+Waypoint=3 position=(3831.24, 54.21, 1809.65) accepted=34
+reached=True grounded=561/561 accepted=34 peakDispatches=10 dropped=0
+ActorFootstep=PlayerModel_Raon (UPlayGround.Components.ActorFootstep) lastSurface=Surface_Sand (UPlayGround.Data.Actor.FootstepSurfaceProfileSO)
+median/p95/max: wall(ms)=16.737/24.171/73.187 n=561 cpu(ms)=16.574/23.993/72.946 n=561 gpu(ms)=11.428/15.641/21.551 n=452 gc(B)=15803.000/29073.000/95071.000 n=561
+GPU readback slices=9 nonzeroD=2999 nonzeroR=2363

@@ -1,0 +1,3 @@
+정지 4초 요청=0
+체공=True 착지=True 체공 요청=0 착지 이후 요청=2
+접촉 표면=Surface_Sand (UPlayGround.Data.Actor.FootstepSurfaceProfileSO)

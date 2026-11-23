@@ -1,0 +1,3 @@
+Mesh Low requests=2 textureBytes=10650240 GPU=True valid=True
+Terrain Standard requests=2 textureBytes=42271360 GPU=True valid=True
+Terrain Extended requests=2 textureBytes=109905536 GPU=True valid=True

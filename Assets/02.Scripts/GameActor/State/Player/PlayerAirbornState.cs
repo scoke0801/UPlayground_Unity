@@ -316,6 +316,7 @@ namespace UPlayGround.State
             _remainingJumps  = 0;
             _timeSinceLastAbleToJump = 0f;
             
+            UPlayGround.Components.ActorFootstep.HintStableLanding(gameActor.gameObject);
             var state = gameActor.Animator.PlayMotion(UPlayGround.Data.Actor.Animation.MotionTags.Land, 0.2f);
             if (state != null)
             {

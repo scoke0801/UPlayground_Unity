@@ -19,12 +19,13 @@ namespace UPlayGround.Data.Event
         public Foot foot;
         public FootstepKind kind;
         public bool requireSurfaceProfile;
+        public bool releaseOnly;
         public string soundKey = "footstep_default";
         [Range(0f, 1f)] public float volume = 0.5f;
 
         public override string GetDisplayName() => "Footstep";
 
-        public override string GetShortLabel() => $"Foot: {foot}";
+        public override string GetShortLabel() => releaseOnly ? $"Lift: {foot}" : $"Foot: {foot}";
 
         public override bool RequiresPostEvaluation => true;
 
@@ -33,6 +34,11 @@ namespace UPlayGround.Data.Event
             if (target == null)
                 return;
 
+            if (releaseOnly)
+            {
+                ActorFootstep.ReleaseHint(target, foot);
+                return;
+            }
             if (ActorFootstep.TryPlay(target, foot, kind, volume) || requireSurfaceProfile)
                 return;
             if (string.IsNullOrWhiteSpace(soundKey)) return;

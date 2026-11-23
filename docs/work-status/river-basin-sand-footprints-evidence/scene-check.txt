@@ -1,0 +1,1 @@
+RiverBasin4km / mask 128x128 mismatch=0 weight>=0.5 samples=4321 / height seam max=0m / set dressing=14 / Terrain shader variants located and supported

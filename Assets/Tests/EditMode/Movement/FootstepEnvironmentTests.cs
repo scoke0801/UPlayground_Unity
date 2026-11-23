@@ -11,6 +11,90 @@ namespace UPlayGround.Movement.Tests
     public sealed class FootstepEnvironmentTests
     {
         [Test]
+        public void PoseFoot_제자리_발재배치는_멎은_뒤_한번만_허용한다()
+        {
+            var type = typeof(ActorFootstep).GetNestedType("PoseFoot", BindingFlags.NonPublic);
+            object foot = System.Activator.CreateInstance(type);
+            var sample = type.GetMethod("Sample");
+            var plant = type.GetMethod("Plant");
+            bool Ready(Vector3 position, bool trackStride = false, bool strideReady = false) => (bool)sample.Invoke(foot,
+                new object[] { position, Vector3.up, 0.11f, 0.085f, 0.01f, trackStride, strideReady });
+
+            Assert.That(Ready(Vector3.zero), Is.False);
+            Assert.That(Ready(new Vector3(0.06f, 0f, 0f)), Is.False);
+            var newSupport = new Vector3(0.15f, 0f, 0f);
+            Assert.That(Ready(newSupport), Is.False);
+            Assert.That(Ready(newSupport, true), Is.False, "보폭 추적 중에는 일반 정착 판정이 개입하지 않는다.");
+            Assert.That(Ready(newSupport), Is.True, "이동 방향이나 걷기 상태 없이 새 접지를 잡는다.");
+            plant.Invoke(foot, new object[] { newSupport });
+            Assert.That(Ready(newSupport, true, true), Is.False, "전환 중 보폭과 위치 검출이 중복되지 않는다.");
+            Assert.That(Ready(newSupport + Vector3.up * 0.10f), Is.False);
+            Assert.That(Ready(newSupport), Is.False);
+            Assert.That(Ready(newSupport), Is.True, "같은 위치로 발을 다시 내려도 새 접지로 잡는다.");
+        }
+
+        [Test]
+        public void LocomotionFoot_앞으로_내민_발이_멎을_때만_다음_디딤을_허용한다()
+        {
+            var type = typeof(ActorFootstep).GetNestedType("LocomotionFoot", BindingFlags.NonPublic);
+            object foot = System.Activator.CreateInstance(type);
+            var sample = type.GetMethod("Sample");
+            var plant = type.GetMethod("Plant");
+            bool Ready(float position) => (bool)sample.Invoke(foot, new object[] { position, 0.055f, 0.005f });
+
+            Assert.That(Ready(0f), Is.False);
+            Assert.That(Ready(-0.08f), Is.False);
+            Assert.That(Ready(-0.04f), Is.False);
+            Assert.That(Ready(0.02f), Is.False);
+            Assert.That(Ready(0.023f), Is.True);
+            Assert.That(Ready(0.020f), Is.True, "접촉이 늦으면 같은 디딤을 다시 검사한다.");
+            plant.Invoke(foot, null);
+            Assert.That(Ready(0.020f), Is.False, "지지 중인 발은 중복 기록하지 않는다.");
+            Assert.That(Ready(-0.11f), Is.False);
+            Assert.That(Ready(-0.05f), Is.False);
+            Assert.That(Ready(-0.05f), Is.True);
+        }
+
+        [TestCase(0f, 0.13f, 0.13f)]
+        [TestCase(30f, 0.13f, 0.0463f)]
+        [TestCase(30f, -0.15f, -0.0663f)]
+        public void FootprintGap_경사면에_닿은_발바닥_가장자리까지_고려한다(float slope, float gap, float expected)
+        {
+            var method = typeof(ActorFootstep).GetMethod("FootprintGap", BindingFlags.Static | BindingFlags.NonPublic);
+            var normal = Quaternion.AngleAxis(slope, Vector3.right) * Vector3.up;
+            float distance = (float)method.Invoke(null, new object[] { gap, normal, Vector3.forward,
+                Vector3.up, new Vector2(0.13f, 0.29f) });
+            Assert.That(distance, Is.EqualTo(expected).Within(0.0001f));
+        }
+
+        [Test]
+        public void FootprintContact_좌우발을_따로_재시도하고_발을_떼기까지_한번만_찍는다()
+        {
+            var type = typeof(ActorFootstep).GetNestedType("FootContact", BindingFlags.NonPublic);
+            object left = System.Activator.CreateInstance(type);
+            object right = System.Activator.CreateInstance(type);
+            var retry = type.GetMethod("IsPending");
+            var confirm = type.GetMethod("TryConfirm");
+            var release = type.GetMethod("Release");
+            var deadline = type.GetField("PendingUntil");
+            deadline.SetValue(left, 1.18f);
+            deadline.SetValue(right, 1.18f);
+
+            Assert.That(confirm.Invoke(left, new object[] { 10, 0.14f, 0.07f }), Is.False);
+            Assert.That(confirm.Invoke(right, new object[] { 10, 0.02f, 0.07f }), Is.True);
+            Assert.That(retry.Invoke(left, new object[] { 1.10f }), Is.True);
+            Assert.That(confirm.Invoke(left, new object[] { 11, 0.03f, 0.07f }), Is.True);
+            Assert.That(retry.Invoke(left, new object[] { 1.11f }), Is.False);
+            Assert.That(confirm.Invoke(right, new object[] { 11, 0.03f, 0.07f }), Is.False);
+
+            release.Invoke(left, null);
+            Assert.That(confirm.Invoke(left, new object[] { 11, 0.03f, 0.07f }), Is.False);
+            deadline.SetValue(left, 1.38f);
+            Assert.That(retry.Invoke(left, new object[] { 1.40f }), Is.False);
+            Assert.That(confirm.Invoke(left, new object[] { 12, 0.03f, 0.07f }), Is.True);
+        }
+
+        [Test]
         public void Initialize_컨트롤러Awake전에도_모터를_연결한다()
         {
             var root = new GameObject("Footstep initialization test");

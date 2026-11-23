@@ -420,6 +420,7 @@ namespace UPlayGround.Animation
         public virtual void Init(GameActor actor)
         {
             _actor = actor;
+            GetComponent<UPlayGround.Components.ActorFootstep>()?.Initialize(actor);
         }
 
         /// <summary>

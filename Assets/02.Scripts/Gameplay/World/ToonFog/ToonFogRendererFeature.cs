@@ -109,9 +109,21 @@ namespace UPlayGround.Gameplay.World.ToonFog
                 RecordFailure(entry, CameraStatus.LegacyFog);
                 return;
             }
-            if (world.profile == null || !world.profile.IsValid || world.quality == null)
+            Transform anchor = entry.Policy != null && entry.Policy.isActiveAndEnabled ? entry.Policy.anchorOverride : null;
+            if (!entry.Resolver.Resolve(cameraData.camera, world, anchor))
             {
                 RecordFailure(entry, CameraStatus.MissingProfile);
+                return;
+            }
+            var resolver = entry.Resolver;
+            if (world.diagnostics == ToonFogWorld.View.Final
+                && (resolver.Distance.w <= 0 || (resolver.Distance.x <= 0 && resolver.Height.x <= 0 && resolver.LocalCount == 0)))
+            {
+                entry.Diagnostics = new Diagnostics
+                {
+                    Profile = world.profile, Registered = resolver.RegisteredCount,
+                    Candidates = resolver.CandidateCount, Rejected = resolver.RejectedCount, Regions = resolver.RegionCount
+                };
                 return;
             }
             _fog.requiresIntermediateTexture = world.captureLegacyRefraction;
@@ -239,7 +251,7 @@ namespace UPlayGround.Gameplay.World.ToonFog
                     _owner.RecordFailure(entry, CameraStatus.MissingDepthOrColor);
                     return;
                 }
-                if (world == null || !entry.Resolver.Resolve(camera, world, entry.Policy != null ? entry.Policy.anchorOverride : null))
+                if (world == null)
                 {
                     _owner.RecordFailure(entry, CameraStatus.MissingProfile);
                     return;
@@ -255,10 +267,6 @@ namespace UPlayGround.Gameplay.World.ToonFog
                     Registered = resolver.RegisteredCount, Candidates = resolver.CandidateCount, Active = resolver.LocalCount,
                     Rejected = resolver.RejectedCount, Regions = resolver.RegionCount
                 };
-                if (world.diagnostics == ToonFogWorld.View.Final
-                    && (resolver.Distance.w <= 0 || (resolver.Distance.x <= 0 && resolver.Height.x <= 0 && resolver.LocalCount == 0)))
-                    return;
-
                 entry.PaletteHandle ??= RTHandles.Alloc(resolver.Lut);
                 if (entry.NoiseTexture != resolver.Noise || entry.NoiseHandle == null)
                 {

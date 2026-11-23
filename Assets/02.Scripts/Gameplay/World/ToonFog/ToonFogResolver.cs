@@ -99,6 +99,9 @@ namespace UPlayGround.Gameplay.World.ToonFog
         private uint _transitionRevision;
         private double _lastTime;
         private float _combat;
+        private float _environmentDensity;
+        private Color _environmentTint;
+        private Vector2 _environmentWind;
         private int _lastLocalLimit;
 
         internal Vector4 Distance, Height, Colors;
@@ -144,7 +147,11 @@ namespace UPlayGround.Gameplay.World.ToonFog
             _current = ProfileValues.Blend(_current, target, blend);
             UpdatePalette(blend, reset);
 
-            float density = input.DensityMultiplier * Mathf.Lerp(1, quality.combatDensityMultiplier, _combat);
+            _environmentDensity = input.DensityMultiplier <= 0
+                ? 0 : Mathf.Lerp(_environmentDensity, input.DensityMultiplier, blend);
+            _environmentTint = Color.Lerp(_environmentTint, input.TintMultiplier, blend);
+            _environmentWind = Vector2.Lerp(_environmentWind, input.WindVelocityXZ, blend);
+            float density = _environmentDensity * Mathf.Lerp(1, quality.combatDensityMultiplier, _combat);
             Distance = _current.Distance;
             Distance.x *= density;
             Distance.y = Mathf.Lerp(Distance.y, Mathf.Max(Distance.y, quality.combatNearClearDistance), _combat);
@@ -153,8 +160,8 @@ namespace UPlayGround.Gameplay.World.ToonFog
             Height.x *= density;
             Colors = _current.Colors;
             HeightTint = _current.HeightTint;
-            EnvironmentTint = input.TintMultiplier;
-            ResolveLocals(camera, quality, input.WindVelocityXZ, Height.w * density, delta, reset);
+            EnvironmentTint = _environmentTint;
+            ResolveLocals(camera, quality, _environmentWind, Height.w * density, delta, reset);
             return true;
         }
 

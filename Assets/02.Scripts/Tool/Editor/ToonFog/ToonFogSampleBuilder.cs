@@ -21,6 +21,7 @@ namespace UPlayGround.Tool.Editor.ToonFog
         private const string CompositePath = "Assets/06.Shaders/ToonFog/ToonFogComposite.shader";
         private const string RendererPath = "Assets/Settings/PC_Renderer.asset";
         private const string SurfacePath = "Assets/06.Shaders/ToonFog/ToonFogSampleSurface.shader";
+        public static readonly Vector3 SampleOffset = Vector3.right * 20000;
 
         private static readonly (string name, string near, string middle, string far, float distance, float height, float scale, float baseHeight)[] Presets =
         {
@@ -87,6 +88,7 @@ namespace UPlayGround.Tool.Editor.ToonFog
                     MakeView("05 계곡 상단", new Vector3(2286, 38, 5), new Vector3(2300, 1, 49))
                 };
                 controls.SelectView(0);
+                foreach (var root in scene.GetRootGameObjects()) root.transform.position += SampleOffset;
                 if (!EditorSceneManager.SaveScene(scene, ScenePath))
                     throw new InvalidOperationException("툰 안개 샘플 씬을 저장하지 못했습니다.");
             }
@@ -301,6 +303,7 @@ namespace UPlayGround.Tool.Editor.ToonFog
         private static void InstantiateDisplay(GameObject prefab, Scene scene, Vector3 position, Quaternion rotation)
         {
             var instance = (GameObject)PrefabUtility.InstantiatePrefab(prefab, scene);
+            instance.SetActive(true);
             instance.transform.SetPositionAndRotation(position, rotation);
             foreach (var behaviour in instance.GetComponentsInChildren<MonoBehaviour>(true)) behaviour.enabled = false;
             foreach (var animator in instance.GetComponentsInChildren<Animator>(true)) animator.enabled = false;

@@ -16,19 +16,21 @@ Shader "UPlayGround/Rendering/Toon Fog Sample Surface"
         HLSLINCLUDE
         #pragma target 4.5
         #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+        #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Packing.hlsl"
         #include "FogMaterialAdapters.hlsl"
         CBUFFER_START(UnityPerMaterial)
         float4 _BaseColor;
         float _Mode, _AlphaRamp;
         CBUFFER_END
-        struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; };
-        struct Varyings { float4 positionCS : SV_POSITION; float3 positionWS : TEXCOORD0; float2 uv : TEXCOORD1; };
+        struct Attributes { float4 positionOS : POSITION; float2 uv : TEXCOORD0; float3 normalOS : NORMAL; };
+        struct Varyings { float4 positionCS : SV_POSITION; float3 positionWS : TEXCOORD0; float2 uv : TEXCOORD1; float3 normalWS : TEXCOORD2; };
         Varyings Vert(Attributes input)
         {
             Varyings output;
             output.positionWS = TransformObjectToWorld(input.positionOS.xyz);
             output.positionCS = TransformWorldToHClip(output.positionWS);
             output.uv = input.uv;
+            output.normalWS = TransformObjectToWorldNormal(input.normalOS);
             return output;
         }
 
@@ -57,6 +59,18 @@ Shader "UPlayGround/Rendering/Toon Fog Sample Surface"
             ClipSurface(input.uv);
             return 0;
         }
+
+        float4 DepthNormals(Varyings input) : SV_Target
+        {
+            ClipSurface(input.uv);
+            float3 normal = normalize(input.normalWS);
+            #if defined(_GBUFFER_NORMALS_OCT)
+                float2 oct = saturate(PackNormalOctQuadEncode(normal) * 0.5 + 0.5);
+                return float4(PackFloat2To888(oct), 0);
+            #else
+                return float4(normal, 0);
+            #endif
+        }
         ENDHLSL
 
         Pass
@@ -78,6 +92,17 @@ Shader "UPlayGround/Rendering/Toon Fog Sample Surface"
             HLSLPROGRAM
             #pragma vertex Vert
             #pragma fragment Depth
+            ENDHLSL
+        }
+
+        Pass
+        {
+            Tags { "LightMode"="DepthNormalsOnly" }
+            ZWrite On
+            HLSLPROGRAM
+            #pragma vertex Vert
+            #pragma fragment DepthNormals
+            #pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
             ENDHLSL
         }
     }

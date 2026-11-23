@@ -76,7 +76,7 @@ namespace UPlayGround.UI.Tests
         }
 
         [Test]
-        public void 표시할메인퀘스트가있으면_내용패널을표시한다()
+        public void 표시할메인퀘스트가있어도_Show만으로는_내용패널을숨긴다()
         {
             _quest = ScriptableObject.CreateInstance<QuestSO>();
             _quest.questId = "quest_main_visibility_test";
@@ -87,12 +87,61 @@ namespace UPlayGround.UI.Tests
 
             hud.Show();
 
+            Assert.IsFalse(titlePanel.activeSelf);
+            Assert.IsFalse(detailPanel.activeSelf);
+        }
+
+        [Test]
+        public void 표시할메인퀘스트가있으면_Peek호출시_내용패널을표시한다()
+        {
+            _quest = ScriptableObject.CreateInstance<QuestSO>();
+            _quest.questId = "quest_main_visibility_test";
+            _quest.questName = "표시 테스트";
+            _questService.ActiveQuests.Add(new QuestRuntimeData(_quest));
+
+            UI_HUD_Quest hud = CreateHud(out GameObject titlePanel, out GameObject detailPanel);
+
+            hud.Show();
+            bool shown = hud.PeekQuestInfo();
+
+            Assert.IsTrue(shown);
             Assert.IsTrue(titlePanel.activeSelf);
             Assert.IsTrue(detailPanel.activeSelf);
         }
 
         [Test]
-        public void 메인분류퀘스트는_레거시서브접두사여도_내용패널을표시한다()
+        public void 퀘스트가없으면_Peek를해도_아무것도노출하지않는다()
+        {
+            UI_HUD_Quest hud = CreateHud(out GameObject titlePanel, out GameObject detailPanel);
+
+            hud.Show();
+            bool shown = hud.PeekQuestInfo();
+
+            Assert.IsFalse(shown);
+            Assert.IsFalse(titlePanel.activeSelf);
+            Assert.IsFalse(detailPanel.activeSelf);
+        }
+
+        [Test]
+        public void Peek를연속호출해도_내용패널은계속표시된다()
+        {
+            _quest = ScriptableObject.CreateInstance<QuestSO>();
+            _quest.questId = "quest_main_visibility_test";
+            _quest.questName = "표시 테스트";
+            _questService.ActiveQuests.Add(new QuestRuntimeData(_quest));
+
+            UI_HUD_Quest hud = CreateHud(out GameObject titlePanel, out GameObject detailPanel);
+
+            hud.Show();
+            hud.PeekQuestInfo();
+            hud.PeekQuestInfo();
+
+            Assert.IsTrue(titlePanel.activeSelf);
+            Assert.IsTrue(detailPanel.activeSelf);
+        }
+
+        [Test]
+        public void 메인분류퀘스트는_레거시서브접두사여도_Peek시_내용패널을표시한다()
         {
             _quest = ScriptableObject.CreateInstance<QuestSO>();
             _quest.questId = "quest_sub_promoted_main_test";
@@ -103,6 +152,7 @@ namespace UPlayGround.UI.Tests
             UI_HUD_Quest hud = CreateHud(out GameObject titlePanel, out GameObject detailPanel);
 
             hud.Show();
+            hud.PeekQuestInfo();
 
             Assert.IsTrue(titlePanel.activeSelf);
             Assert.IsTrue(detailPanel.activeSelf);

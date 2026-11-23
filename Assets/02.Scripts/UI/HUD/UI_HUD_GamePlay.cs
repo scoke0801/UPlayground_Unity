@@ -6,7 +6,9 @@ using UPlayGround;
 using UPlayGround.Components;
 using UPlayGround.InputDefine;
 using UPlayGround.Data.Path;
+using UPlayGround.Data.UI;
 using UPlayGround.Manager;
+using UPlayGround.UI.Guidance;
 using UPlayGround.UI.InputPrompt;
 
 namespace UPlayGround.UI
@@ -18,12 +20,19 @@ namespace UPlayGround.UI
         private IUIRuntimeService UIMgr => _cachedUIManager != null ? _cachedUIManager : (_cachedUIManager = UISvc.UI);
 
 
-        private const string HudWorldClockKey = "HudWorldClock";
         private const string HudQuickSlotKey = "HudQuickSlot";
         private const string HudWorldMarkerKey = "HudWorldMarker";
         private const string HudBreathWarningKey = "HudBreathWarning";
 
         [SerializeField] Button _menuButton;
+
+        [Tooltip("퀘스트 길안내 연출 프로필. 비워 두면 길안내 입력을 받지 않는다.")]
+        [SerializeField] private GuideProfileSO _guideProfile;
+
+        [Tooltip("탐험 중 미니맵 HUD를 표시한다. 기본은 비표시.")]
+        [SerializeField] private bool _showMinimapHud = false;
+
+        private GuidanceController _guidance;
 
         private IUIInventoryService _quickSlotInventory;
         private PlayerActor _playerActor;
@@ -34,7 +43,6 @@ namespace UPlayGround.UI
         private UI_HUD_Party _hudParty;
         private UI_HUD_Quest _hudQuest;
         private UI_HUD_Skill _hudSkill;
-        private UI_HUD_WorldClock _hudWorldClock;
         private UPlayGround.UI.HUD.Notification.UI_Scene_Notification _notification;
 
         #region UI_Base
@@ -49,7 +57,9 @@ namespace UPlayGround.UI
         {
             _hudPlayerInfo = UIMgr.ShowUI(UIKeyType.HudPlayerInfo)?.GetComponent<UI_HUD_PlayerInfo>();
             bool showExploration = UISvc.Scene?.ShowExplorationHud ?? true;
-            if (showExploration) UIMgr.ShowUI(UIKeyType.Minimap);
+            // 미니맵 HUD는 기본 비표시다. 목표 방향은 월드 마커와 길안내 연출이 맡고, 목표 좌표 소스인
+            // MinimapMarkerRegistry는 HUD와 무관하게 유지된다.
+            if (showExploration && _showMinimapHud) UIMgr.ShowUI(UIKeyType.Minimap);
             else UIMgr.HideUI(UIKeyType.Minimap);
 
             _hudParty = UIMgr.ShowUI(UIKeyType.HudParty)?.GetComponent<UI_HUD_Party>();
@@ -69,13 +79,6 @@ namespace UPlayGround.UI
                     ?.GetComponent<UPlayGround.UI.HUD.Notification.UI_Scene_Notification>();
             }
 
-            // 인게임 시계 (UIKeyType은 자동 생성 enum이라 문자열 키 사용. DB 미등록 시 생략)
-            if (showExploration && UIMgr.GetUIPrefabEntry(HudWorldClockKey) != null)
-            {
-                _hudWorldClock = UIMgr.ShowUI(HudWorldClockKey, CanvasLayer.HUD)
-                    ?.GetComponent<UI_HUD_WorldClock>();
-            }
-
             UIMgr.ShowUI(UIKeyType.OffscreenThreatIndicator);
 
             // 잠수 경고 화면 효과 (UIKeyType은 자동 생성 enum이라 문자열 키 사용. DB 미등록 시 생략)
@@ -86,6 +89,12 @@ namespace UPlayGround.UI
             if (UIMgr.GetUIPrefabEntry(HudWorldMarkerKey) != null)
             {
                 UIMgr.ShowUI(HudWorldMarkerKey, CanvasLayer.HUD);
+            }
+
+            if (_guideProfile != null && _guidance == null)
+            {
+                _guidance = gameObject.AddComponent<GuidanceController>();
+                _guidance.Initialize(_guideProfile);
             }
 
             if (UISvc.Actors != null)
@@ -115,9 +124,12 @@ namespace UPlayGround.UI
                 uiManager.HideUI(UIKeyType.Notification);
                 uiManager.HideUI(UIKeyType.OffscreenThreatIndicator);
                 uiManager.HideUI(HudWorldMarkerKey);
-                uiManager.HideUI(HudWorldClockKey);
                 uiManager.HideUI(HudBreathWarningKey);
             }
+
+            if (_guidance != null)
+                Destroy(_guidance);
+            _guidance = null;
 
             if (_playerCombat != null)
                 _playerCombat.OnChangeCombatState -= OnPlayerCombatStateChanged;
@@ -127,7 +139,6 @@ namespace UPlayGround.UI
             _hudParty = null;
             _hudQuest = null;
             _hudSkill = null;
-            _hudWorldClock = null;
             _notification = null;
         }
 
@@ -145,6 +156,9 @@ namespace UPlayGround.UI
                 null, OnQuickSlotDown, null, null, null, InputLayer.Level_0);
             inputManager.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.QuickSlot_Left,
                 null, OnQuickSlotLeft, null, null, null, InputLayer.Level_0);
+
+            inputManager.RegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Guide,
+                null, OnPerformedGuide, null, null, null, InputLayer.Level_0);
 
             inputManager.RegisterInputEvent(InputMapNames.UI, UIAction.Inventory,
                 null, OnPerformedInventory, null, null, null, InputLayer.Level_0);
@@ -175,6 +189,7 @@ namespace UPlayGround.UI
             inputManager.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.QuickSlot_Down, null, OnQuickSlotDown, null);
             inputManager.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.QuickSlot_Left, null, OnQuickSlotLeft, null);
 
+            inputManager.UnRegisterInputEvent(InputMapNames.PlayerAction, PlayerAction.Guide, null, OnPerformedGuide, null);
             inputManager.UnRegisterInputEvent(InputMapNames.UI, UIAction.Inventory, null, OnPerformedInventory, null);
             inputManager.UnRegisterInputEvent(InputMapNames.UI, UIAction.Map, null, OnPerformedMap, null);
             inputManager.UnRegisterInputEvent(InputMapNames.UI, UIAction.Party, null, OnPerformedParty, null);
@@ -223,6 +238,16 @@ namespace UPlayGround.UI
             }
         }
 
+
+        // 전투 중에는 나비·퀘스트 표시 모두 동작하지 않는다. 퀘스트 표시는 길 유무와 무관하게 수행한다.
+        private void OnPerformedGuide(InputAction.CallbackContext obj)
+        {
+            if (_guidance == null || _guidance.IsBlockedByCombat())
+                return;
+
+            _hudQuest?.PeekQuestInfo();
+            _guidance.TryRequestGuide();
+        }
 
         private void OnPerformedMap(InputAction.CallbackContext obj)
         {

@@ -54,6 +54,8 @@
         public const string QuickSlot_Down = "QuickSlot_Down";
 
         public const string ElementBuff = "ElementBuff";
+
+        public const string Guide = "Guide";
     }
 
     /// <summary>전투 입력별 선입력 유지 시간을 한 곳에서 제공한다.</summary>

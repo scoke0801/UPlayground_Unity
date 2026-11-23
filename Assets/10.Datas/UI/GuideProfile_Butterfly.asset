@@ -1,0 +1,97 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59c48cd9aa1391042b6b47cfcc7cda08, type: 3}
+  m_Name: GuideProfile_Butterfly
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.UI.GuideProfileSO
+  effectKind: 0
+  agentPrefab: {fileID: 4536905340467325800, guid: 722630369fb4a254590a01bbad6b42f5, type: 3}
+  startSfxKey: 
+  cooldown: 1.5
+  combatThreatRadius: 40
+  navMeshSampleDistance: 3
+  smoothSubdivisions: 4
+  repathDistance: 8
+  agentCount: 6
+  duration: 18
+  fadeOutDuration: 2.4
+  gatherDuration: 0.7
+  spawnForwardDistance: 2.5
+  spawnRadius: 1.2
+  spawnHeight: 1.4
+  leadDistanceStart: 3
+  leadDistanceEnd: 26
+  leadSpread: 2
+  distanceScaleReference: 8
+  distanceScaleMax: 2.6
+  maxSpeed: 11
+  catchUpGain: 2.2
+  flightHeight: 1.5
+  flutterAmplitude: 0.25
+  flutterFrequency: 1.8
+  lateralSpread: 0.35
+  arriveRadius: 4
+  arriveOrbitRadius: 1.6
+  arriveOrbitSpeed: 1.6
+  followSharpness: 7
+  streamPrefab: {fileID: 2186672740711396113, guid: fdd211cf9fd6baf4892fd760bd4836fc, type: 3}
+  afterglowPrefab: {fileID: 3393245424610779134, guid: 56a037f97ee7fa940a4f34b3073b69c5, type: 3}
+  streamCount: 64
+  streamLength: 36
+  streamNearOffset: 1
+  streamSpeed: 7
+  streamSpeedVariance: 0.3
+  streamReleaseDuration: 3
+  streamEdgeFadeDistance: 6
+  streamLateralSpread: 0.45
+  streamHeightSpread: 0.3
+  streamFlutterAmplitude: 0.2
+  streamSize: 0.55
+  streamMinScreenFraction: 0.022
+  streamFlapFrequency: 6
+  streamColors:
+    serializedVersion: 2
+    key0: {r: 1, g: 1, b: 0.92, a: 1}
+    key1: {r: 1, g: 0.82, b: 0.45, a: 1}
+    key2: {r: 0, g: 0, b: 0, a: 0}
+    key3: {r: 0, g: 0, b: 0, a: 0}
+    key4: {r: 0, g: 0, b: 0, a: 0}
+    key5: {r: 0, g: 0, b: 0, a: 0}
+    key6: {r: 0, g: 0, b: 0, a: 0}
+    key7: {r: 0, g: 0, b: 0, a: 0}
+    ctime0: 0
+    ctime1: 65535
+    ctime2: 0
+    ctime3: 0
+    ctime4: 0
+    ctime5: 0
+    ctime6: 0
+    ctime7: 0
+    atime0: 0
+    atime1: 65535
+    atime2: 0
+    atime3: 0
+    atime4: 0
+    atime5: 0
+    atime6: 0
+    atime7: 0
+    m_Mode: 0
+    m_ColorSpace: -1
+    m_NumColorKeys: 2
+    m_NumAlphaKeys: 2
+  afterglowRate: 5
+  afterglowLifetime: 2.4
+  afterglowSizeRatio: 0.5
+  afterglowRiseSpeed: 0.15
+  pathRibbonPrefab: {fileID: 8750622642399765720, guid: e0cacee83099f6f47928c05ea5c2e0f7, type: 3}
+  ribbonLength: 36
+  ribbonHeight: 0.3
+  ribbonScrollSpeed: 1.4

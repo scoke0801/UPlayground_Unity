@@ -164,6 +164,9 @@ namespace UPlayGround.UI.EditorTools
             Add(InputMapNames.PlayerAction, "<Gamepad>/rightShoulder",
                 PlayerAction.Dodge,
                 PlayerAction.ElementBuff);
+            Add(InputMapNames.PlayerAction, "<Gamepad>/leftStickPress",
+                PlayerAction.SuperJump,
+                PlayerAction.Guide);
             Add(InputMapNames.PlayerAction, "<Gamepad>/rightTrigger",
                 PlayerAction.Interact,
                 PlayerAction.SkillUltimate);
@@ -249,18 +252,30 @@ namespace UPlayGround.UI.EditorTools
             }
         }
 
+        // 왼쪽 스틱 클릭을 수식키로 쓰는 조합 입력과 그 방아쇠 버튼. 조합이 눌리면 방아쇠 단독 입력은 억제된다.
+        private static string GetLeftStickChordTriggerPath(string actionName)
+        {
+            return actionName switch
+            {
+                PlayerAction.SuperJump => "<Gamepad>/buttonSouth",
+                PlayerAction.Guide => "<Gamepad>/buttonWest",
+                _ => null,
+            };
+        }
+
         private static bool IsSuperJumpChordTrigger(InputActionMap map, InputAction action, int index)
         {
-            if (map.name != InputMapNames.PlayerAction || action.name != PlayerAction.SuperJump || index < 2)
+            string triggerPath = GetLeftStickChordTriggerPath(action.name);
+            if (map.name != InputMapNames.PlayerAction || triggerPath == null || index < 2)
                 return false;
 
-            // 조합 중재기는 왼쪽 스틱 클릭과 A가 함께 눌릴 때 단독 Jump를 억제한다.
+            // 조합 중재기는 왼쪽 스틱 클릭과 방아쇠가 함께 눌릴 때 방아쇠 단독 입력(Jump·Attack)을 억제한다.
             InputBinding trigger = action.bindings[index];
             InputBinding modifier = action.bindings[index - 1];
             InputBinding composite = action.bindings[index - 2];
             return composite.isComposite && composite.path == "OneModifier"
                 && modifier.isPartOfComposite && modifier.name == "Modifier" && modifier.path == "<Gamepad>/leftStickPress"
-                && trigger.isPartOfComposite && trigger.name == "Binding" && trigger.path == "<Gamepad>/buttonSouth";
+                && trigger.isPartOfComposite && trigger.name == "Binding" && trigger.path == triggerPath;
         }
 
         private static void ValidateGlyphData(UIInputContractReport report)

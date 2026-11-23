@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 59c48cd9aa1391042b6b47cfcc7cda08, type: 3}
+  m_Name: GuideProfile_Wind
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.UI.GuideProfileSO
+  effectKind: 1
+  agentPrefab: {fileID: 3890804683414068450, guid: 837583cb15c1d5d4a939e8f131dcc2e7, type: 3}
+  startSfxKey: 
+  cooldown: 1.5
+  combatThreatRadius: 40
+  navMeshSampleDistance: 3
+  smoothSubdivisions: 4
+  repathDistance: 8
+  agentCount: 6
+  duration: 5
+  fadeOutDuration: 0.8
+  gatherDuration: 0.7
+  spawnForwardDistance: 2.5
+  spawnRadius: 1.2
+  spawnHeight: 1.4
+  leadDistanceStart: 4
+  leadDistanceEnd: 22
+  leadSpread: 2.5
+  maxSpeed: 11
+  catchUpGain: 2.2
+  flightHeight: 1.5
+  flutterAmplitude: 0.8
+  flutterFrequency: 1.8
+  lateralSpread: 0.9
+  arriveRadius: 4
+  arriveOrbitRadius: 1.6
+  arriveOrbitSpeed: 1.6
+  followSharpness: 7

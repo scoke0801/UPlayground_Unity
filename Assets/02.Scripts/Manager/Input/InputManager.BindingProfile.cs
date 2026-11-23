@@ -176,6 +176,8 @@ namespace UPlayGround.Manager
                 "대화, 채집, 장치 조작 등 상황에 맞는 행동을 합니다.", InputBindingCategory.Interaction),
             new(InputMapNames.PlayerAction, PlayerAction.Pickup, "아이템 줍기",
                 "가까운 아이템을 하나 줍습니다.", InputBindingCategory.Interaction),
+            new(InputMapNames.PlayerAction, PlayerAction.Guide, "길 안내",
+                "추적 중인 목표까지 가는 길을 보여 줍니다.", InputBindingCategory.Interaction),
 
             new(InputMapNames.PlayerAction, PlayerAction.Equip, "무기 장착",
                 "무기를 뽑거나 집어넣습니다.", InputBindingCategory.System),

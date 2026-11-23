@@ -15,3 +15,4 @@
 |---|---|
 | [INPUT_PROMPT_UI_SYSTEM_DESIGN.md](INPUT_PROMPT_UI_SYSTEM_DESIGN.md) | 입력 키 프롬프트 UI 시스템 설계 문서 |
 | [PARTY_HEAL_REST_POINT_SYSTEM_DESIGN.md](PARTY_HEAL_REST_POINT_SYSTEM_DESIGN.md) | 파티 체력 회복 인터렉션 오브젝트 설계 문서 |
+| [QUEST_PATH_GUIDANCE_DESIGN.md](QUEST_PATH_GUIDANCE_DESIGN.md) | 퀘스트 길안내 연출(나비·교체형) 설계 문서 |

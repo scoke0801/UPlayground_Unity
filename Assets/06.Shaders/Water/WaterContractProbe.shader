@@ -19,7 +19,7 @@ Shader "Hidden/UPlayGround/WaterContractProbe"
             {
                 if (_ProbeMode > 0.5)
                     return float4(WaterHeightOffset(_ProbeOrigin.xz, _ProbeTime, _ProbeWave0, _ProbeWave1), 0, 0, 1);
-                float air = 0;
+                WaterAirState air = (WaterAirState)0;
                 WaterOptics optics = WaterEvaluateMedium(_ProbeOrigin.xyz, normalize(_ProbeDirection.xyz), 0, _ProbeDirection.w, air, _ProbeApplyAir > 0.5);
                 if (_ProbeReportOverflow > 0.5) return float4(optics.length, optics.overflow, 0, 1);
                 return float4(optics.transmission, optics.length);

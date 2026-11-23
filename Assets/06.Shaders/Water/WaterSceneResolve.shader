@@ -148,6 +148,20 @@ Shader "Hidden/UPlayGround/WaterSceneResolve"
                 return color;
             }
 
+            float UnderwaterFresnel(float incidence)
+            {
+                const float waterToAirIOR = 1.333;
+                float refractionSquared = 1 - waterToAirIOR * waterToAirIOR * (1 - incidence * incidence);
+                // 임계각에서 굴절 방향이 사라지면 전반사로 이어진다.
+                if (refractionSquared <= 0) return 1;
+                float refraction = sqrt(refractionSquared);
+                float scaledIncidence = waterToAirIOR * incidence;
+                float scaledRefraction = waterToAirIOR * refraction;
+                float perpendicular = (scaledIncidence - refraction) / (scaledIncidence + refraction);
+                float parallel = (incidence - scaledRefraction) / (incidence + scaledRefraction);
+                return 0.5 * (perpendicular * perpendicular + parallel * parallel);
+            }
+
             half4 Frag(Varyings input) : SV_Target
             {
                 float2 uv = input.texcoord;
@@ -158,10 +172,10 @@ Shader "Hidden/UPlayGround/WaterSceneResolve"
                 surface = RepairWaterNearClip(ray, surface);
                 float eyeScale = max(abs(TransformWorldToViewDir(ray.direction, false).z), 0.00001);
                 float surfaceDistance = surface.x / eyeScale;
-                float airDistance = 0;
+                WaterAirState air = (WaterAirState)0;
                 if (abs(surface.w) < 0.5 || surfaceDistance >= opaque.distance || surfaceDistance < 0)
                 {
-                    WaterOptics optics = WaterEvaluateMedium(ray.origin, ray.direction, 0, opaque.distance, airDistance, !opaque.sky);
+                    WaterOptics optics = WaterEvaluateMedium(ray.origin, ray.direction, 0, opaque.distance, air, !opaque.sky);
                     float3 scene = AddWaterCaustics(original.rgb, opaque.position, optics.endBody, opaque.sky);
                     float3 color = WaterApplyOptics(scene, optics);
                     return half4(DebugWater(color, surface, optics), original.a);
@@ -185,11 +199,11 @@ Shader "Hidden/UPlayGround/WaterSceneResolve"
                     refractedUV = uv;
                     refracted = opaque;
                 }
-                WaterOptics front = WaterEvaluateMedium(ray.origin, ray.direction, 0, surfaceDistance, airDistance, true);
+                WaterOptics front = WaterEvaluateMedium(ray.origin, ray.direction, 0, surfaceDistance, air, true);
                 float3 toBackground = refracted.position - surfacePosition;
                 float backgroundDistance = length(toBackground);
                 WaterOptics back = WaterEvaluateMedium(surfacePosition, toBackground / max(backgroundDistance, 0.00001),
-                    0, backgroundDistance, airDistance, !refracted.sky, surfaceDistance);
+                    0, backgroundDistance, air, !refracted.sky, surfaceDistance);
                 float3 background = SAMPLE_TEXTURE2D_X_LOD(_BlitTexture, sampler_LinearClamp, refractedUV, 0).rgb;
                 background = AddWaterCaustics(background, refracted.position, back.endBody, refracted.sky);
                 float3 transmitted = WaterApplyOptics(background, back);
@@ -204,14 +218,20 @@ Shader "Hidden/UPlayGround/WaterSceneResolve"
                         saturate(body.style1.x) * smoothstep(0, max(body.style1.z, 0.001), waterDepth));
                 float facing = saturate(dot(-ray.direction, normal));
                 float fresnel = 0.02 + 0.98 * pow(1 - facing, 5);
-                if (!above && facing < 0.6614) fresnel = 1;
-                float reflectionWeight = above ? body.style0.y * fresnel : fresnel;
+                float reflectionWeight = body.style0.y * fresnel;
                 float3 reflected;
+                float3 reflectedDirection = reflect(ray.direction, normal);
                 [branch] if (above)
-                    reflected = GlossyEnvironmentReflection(reflect(ray.direction, normal), 1 - body.style0.z, 1);
-                // 수중 반사는 공기 쪽 하늘을 그대로 비추지 않도록 매체의 원거리 방사휘도로 제한한다.
+                    reflected = GlossyEnvironmentReflection(reflectedDirection, 1 - body.style0.z, 1);
                 else
-                    reflected = body.scattering.rgb * max(body.scattering.w, saturate(sun.color.r + sun.color.g + sun.color.b));
+                {
+                    reflectionWeight = UnderwaterFresnel(facing);
+                    // 수평 방향은 먼 물빛이, 하상을 향하는 방향은 얕은 물빛이 더 많이 반사된다.
+                    float towardBed = saturate(-reflectedDirection.y);
+                    float3 reflectedTint = lerp(body.scattering.rgb, max(body.scattering.rgb, body.shallow.rgb), towardBed);
+                    float illumination = max(body.scattering.w, saturate(max(sun.color.r, max(sun.color.g, sun.color.b))));
+                    reflected = reflectedTint * illumination;
+                }
                 reflected *= lerp(float3(1, 1, 1), body.shallow.rgb, 0.2);
                 float3 colorAtSurface = lerp(transmitted, reflected, reflectionWeight);
                 float3 halfway = SafeNormalize(-ray.direction + sun.direction);

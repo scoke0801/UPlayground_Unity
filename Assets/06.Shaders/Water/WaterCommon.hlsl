@@ -28,6 +28,7 @@ float4 _WaterAirFog, _WaterAirFogColor;
 TEXTURE2D_X_FLOAT(_WaterSurfaceInfo);
 
 struct WaterInterval { float start, end; uint body, cell; };
+struct WaterAirState { float legacyDistance, toonOpacity; };
 struct WaterOptics
 {
     float3 transmission, scattering;
@@ -262,7 +263,7 @@ float WaterBodyHeight(WaterBody body, float2 samplePosition)
 }
 
 WaterOptics WaterEvaluateMedium(float3 origin, float3 direction, float minimum, float maximum,
-    inout float airDistance, bool applyAirFog, float cameraPathOffset = 0)
+    inout WaterAirState air, bool applyAirFog, float cameraPathOffset = 0)
 {
     WaterOptics result;
     result.transmission = 1; result.scattering = 0; result.length = 0;
@@ -304,21 +305,29 @@ WaterOptics WaterEvaluateMedium(float3 origin, float3 direction, float minimum, 
             scatter = body.scattering.rgb * illumination;
             result.length += length;
         }
+        #if !defined(UPG_WATER_TRANSPARENT_SURFACE)
         else if (_UPGToonFogEnabled > 0.5)
         {
             uint layers = applyAirFog ? TOON_FOG_ALL : TOON_FOG_LOCAL;
             // 굴절 구간도 카메라에서 시작한 보호 거리 안에서는 맑게 유지한다.
             ToonFogResult fog = EvaluateToonFogRange(origin - direction * cameraPathOffset, direction,
                 cursor + cameraPathOffset, next + cameraPathOffset, layers);
-            result.scattering += result.transmission * fog.scattering;
-            transmission = fog.transmittance;
+            // 수면 앞과 뒤의 공기 구간이 같은 불투명도 상한을 나눠 쓴다.
+            float available = 1 - air.toonOpacity;
+            float intervalOpacity = 1 - fog.transmittance;
+            float consumed = min(available * intervalOpacity, max(0, _UPGToonFogDistance.w - air.toonOpacity));
+            float opacity = consumed / max(available, 1e-7);
+            air.toonOpacity += consumed;
+            result.scattering += result.transmission * fog.scattering * (opacity / max(intervalOpacity, 1e-7));
+            transmission = 1 - opacity;
         }
+        #endif
         else
         {
-            float before = WaterAirTransmission(airDistance);
+            float before = WaterAirTransmission(air.legacyDistance);
             float eyeScale = abs(TransformWorldToViewDir(direction, false).z);
-            airDistance += length * eyeScale;
-            transmission = applyAirFog ? (before > 0.00001 ? WaterAirTransmission(airDistance) / before : 0) : 1;
+            air.legacyDistance += length * eyeScale;
+            transmission = applyAirFog ? (before > 0.00001 ? WaterAirTransmission(air.legacyDistance) / before : 0) : 1;
             scatter = _WaterAirFogColor.rgb;
         }
         result.scattering += result.transmission * (1 - transmission) * scatter;
@@ -362,8 +371,9 @@ float2 WaterStampGradient(float3 position, uint bodyIndex)
 }
 
 // 일반 AlphaBlend는 수면 뒤 다중 투명층을 지원하지 않는다. V1은 가장 가까운 수면 앞 조각만 그린다.
-float3 WaterApplyTransparent(float3 position, float3 color, float2 screenUV, bool additive)
+float3 WaterApplyTransparent(float3 position, float3 color, float2 screenUV, out bool waterPath)
 {
+    waterPath = false;
     if (_WaterSceneActive < 0.5) return color;
     float4 surface = SAMPLE_TEXTURE2D_X_LOD(_WaterSurfaceInfo, sampler_PointClamp, screenUV, 0);
     float eyeDepth = -TransformWorldToView(position).z;
@@ -378,8 +388,9 @@ float3 WaterApplyTransparent(float3 position, float3 color, float2 screenUV, boo
         origin = position - direction * distance;
         ray = direction * distance;
     }
-    float air = 0;
+    WaterAirState air = (WaterAirState)0;
     WaterOptics optics = WaterEvaluateMedium(origin, ray / max(distance, 0.00001), 0, distance, air, true);
-    return color * optics.transmission + (additive ? 0 : optics.scattering);
+    waterPath = optics.length > 0.00001;
+    return WaterApplyOptics(color, optics);
 }
 #endif

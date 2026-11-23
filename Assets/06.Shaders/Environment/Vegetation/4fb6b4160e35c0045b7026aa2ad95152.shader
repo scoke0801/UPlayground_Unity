@@ -262,7 +262,7 @@ Shader "UPlayGround/Environment/Vegetation/4fb6b4160e35c0045b7026aa2ad95152"
 			#pragma multi_compile_fragment _ _DBUFFER_MRT1 _DBUFFER_MRT2 _DBUFFER_MRT3
 			#pragma multi_compile _ _LIGHT_LAYERS
 			#pragma multi_compile_fragment _ _LIGHT_COOKIES
-			#pragma multi_compile _ _FORWARD_PLUS
+			#pragma multi_compile _ _CLUSTER_LIGHT_LOOP
 
 			
 
@@ -327,10 +327,10 @@ Shader "UPlayGround/Environment/Vegetation/4fb6b4160e35c0045b7026aa2ad95152"
 			#define ASE_NEEDS_FRAG_WORLD_POSITION
 			#define ASE_NEEDS_FRAG_SCREEN_POSITION
 			#define ASE_NEEDS_FRAG_POSITION
-			#pragma shader_feature_local _USEGLOBALWINDSETTINGS_ON
-			#pragma shader_feature_local _USEVERTEXCOLOR_ON
-			#pragma shader_feature _USEDITHERING_ON
-			#pragma shader_feature_local _USEGLOBALSETTING_ON
+			#pragma shader_feature_local_vertex _USEGLOBALWINDSETTINGS_ON
+			#pragma shader_feature_local_vertex _USEVERTEXCOLOR_ON
+			#pragma shader_feature_fragment _USEDITHERING_ON
+			#pragma shader_feature_local_fragment _USEGLOBALSETTING_ON
 
 
 			#if defined(ASE_EARLY_Z_DEPTH_OPTIMIZE) && (SHADER_TARGET >= 45)
@@ -901,10 +901,10 @@ ClipVegetationFuel(WorldPosition);
 					#if defined(_ADDITIONAL_LIGHTS)
 						uint meshRenderingLayers = GetMeshRenderingLayer();
 						uint pixelLightCount = GetAdditionalLightsCount();
-						#if USE_FORWARD_PLUS
+						#if USE_CLUSTER_LIGHT_LOOP
 							for (uint lightIndex = 0; lightIndex < min(URP_FP_DIRECTIONAL_LIGHTS_COUNT, MAX_VISIBLE_LIGHTS); lightIndex++)
 							{
-								FORWARD_PLUS_SUBTRACTIVE_LIGHT_CHECK
+								CLUSTER_LIGHT_LOOP_SUBTRACTIVE_LIGHT_CHECK
 
 								Light light = GetAdditionalLight(lightIndex, inputData.positionWS, inputData.shadowMask);
 								#ifdef _LIGHT_LAYERS
@@ -950,10 +950,10 @@ ClipVegetationFuel(WorldPosition);
 					#if defined(_ADDITIONAL_LIGHTS)
 						uint meshRenderingLayers = GetMeshRenderingLayer();
 						uint pixelLightCount = GetAdditionalLightsCount();
-						#if USE_FORWARD_PLUS
+						#if USE_CLUSTER_LIGHT_LOOP
 							for (uint lightIndex = 0; lightIndex < min(URP_FP_DIRECTIONAL_LIGHTS_COUNT, MAX_VISIBLE_LIGHTS); lightIndex++)
 							{
-								FORWARD_PLUS_SUBTRACTIVE_LIGHT_CHECK
+								CLUSTER_LIGHT_LOOP_SUBTRACTIVE_LIGHT_CHECK
 
 								Light light = GetAdditionalLight(lightIndex, inputData.positionWS, inputData.shadowMask);
 								#ifdef _LIGHT_LAYERS
@@ -1085,10 +1085,10 @@ ClipVegetationFuel(WorldPosition);
 
 			#include "Packages/com.unity.shadergraph/ShaderGraphLibrary/Functions.hlsl"
 			#define ASE_NEEDS_FRAG_SCREEN_POSITION
-			#pragma shader_feature_local _USEGLOBALWINDSETTINGS_ON
-			#pragma shader_feature_local _USEVERTEXCOLOR_ON
-			#pragma shader_feature _USEDITHERING_ON
-			#pragma shader_feature_local _USEGLOBALSETTING_ON
+			#pragma shader_feature_local_vertex _USEGLOBALWINDSETTINGS_ON
+			#pragma shader_feature_local_vertex _USEVERTEXCOLOR_ON
+			#pragma shader_feature_fragment _USEDITHERING_ON
+			#pragma shader_feature_local_fragment _USEGLOBALSETTING_ON
 
 
 			#if defined(ASE_EARLY_Z_DEPTH_OPTIMIZE) && (SHADER_TARGET >= 45)
@@ -1568,10 +1568,10 @@ ClipVegetationFuel(WorldPosition);
 
 			#include "Packages/com.unity.shadergraph/ShaderGraphLibrary/Functions.hlsl"
 			#define ASE_NEEDS_FRAG_SCREEN_POSITION
-			#pragma shader_feature_local _USEGLOBALWINDSETTINGS_ON
-			#pragma shader_feature_local _USEVERTEXCOLOR_ON
-			#pragma shader_feature _USEDITHERING_ON
-			#pragma shader_feature_local _USEGLOBALSETTING_ON
+			#pragma shader_feature_local_vertex _USEGLOBALWINDSETTINGS_ON
+			#pragma shader_feature_local_vertex _USEVERTEXCOLOR_ON
+			#pragma shader_feature_fragment _USEDITHERING_ON
+			#pragma shader_feature_local_fragment _USEGLOBALSETTING_ON
 
 
 			#if defined(ASE_EARLY_Z_DEPTH_OPTIMIZE) && (SHADER_TARGET >= 45)
@@ -2010,10 +2010,10 @@ ClipVegetationFuel(WorldPosition);
 			#include "Packages/com.unity.shadergraph/ShaderGraphLibrary/Functions.hlsl"
 			#define ASE_NEEDS_FRAG_WORLD_POSITION
 			#define ASE_NEEDS_FRAG_POSITION
-			#pragma shader_feature_local _USEGLOBALWINDSETTINGS_ON
-			#pragma shader_feature_local _USEVERTEXCOLOR_ON
-			#pragma shader_feature _USEDITHERING_ON
-			#pragma shader_feature_local _USEGLOBALSETTING_ON
+			#pragma shader_feature_local_vertex _USEGLOBALWINDSETTINGS_ON
+			#pragma shader_feature_local_vertex _USEVERTEXCOLOR_ON
+			#pragma shader_feature_fragment _USEDITHERING_ON
+			#pragma shader_feature_local_fragment _USEGLOBALSETTING_ON
 
 
 			struct Attributes
@@ -2481,10 +2481,10 @@ ClipVegetationFuel(WorldPosition);
 			#include "Packages/com.unity.shadergraph/ShaderGraphLibrary/Functions.hlsl"
 			#define ASE_NEEDS_FRAG_WORLD_POSITION
 			#define ASE_NEEDS_FRAG_POSITION
-			#pragma shader_feature_local _USEGLOBALWINDSETTINGS_ON
-			#pragma shader_feature_local _USEVERTEXCOLOR_ON
-			#pragma shader_feature _USEDITHERING_ON
-			#pragma shader_feature_local _USEGLOBALSETTING_ON
+			#pragma shader_feature_local_vertex _USEGLOBALWINDSETTINGS_ON
+			#pragma shader_feature_local_vertex _USEVERTEXCOLOR_ON
+			#pragma shader_feature_fragment _USEDITHERING_ON
+			#pragma shader_feature_local_fragment _USEGLOBALSETTING_ON
 
 
 			struct Attributes
@@ -2945,10 +2945,10 @@ ClipVegetationFuel(WorldPosition);
 
 			#include "Packages/com.unity.shadergraph/ShaderGraphLibrary/Functions.hlsl"
 			#define ASE_NEEDS_FRAG_SCREEN_POSITION
-			#pragma shader_feature_local _USEGLOBALWINDSETTINGS_ON
-			#pragma shader_feature_local _USEVERTEXCOLOR_ON
-			#pragma shader_feature _USEDITHERING_ON
-			#pragma shader_feature_local _USEGLOBALSETTING_ON
+			#pragma shader_feature_local_vertex _USEGLOBALWINDSETTINGS_ON
+			#pragma shader_feature_local_vertex _USEVERTEXCOLOR_ON
+			#pragma shader_feature_fragment _USEDITHERING_ON
+			#pragma shader_feature_local_fragment _USEGLOBALSETTING_ON
 
 
 			#if defined(ASE_EARLY_Z_DEPTH_OPTIMIZE) && (SHADER_TARGET >= 45)
@@ -3490,10 +3490,10 @@ ClipVegetationFuel(WorldPosition);
 			#define ASE_NEEDS_FRAG_WORLD_POSITION
 			#define ASE_NEEDS_FRAG_SCREEN_POSITION
 			#define ASE_NEEDS_FRAG_POSITION
-			#pragma shader_feature_local _USEGLOBALWINDSETTINGS_ON
-			#pragma shader_feature_local _USEVERTEXCOLOR_ON
-			#pragma shader_feature _USEDITHERING_ON
-			#pragma shader_feature_local _USEGLOBALSETTING_ON
+			#pragma shader_feature_local_vertex _USEGLOBALWINDSETTINGS_ON
+			#pragma shader_feature_local_vertex _USEVERTEXCOLOR_ON
+			#pragma shader_feature_fragment _USEDITHERING_ON
+			#pragma shader_feature_local_fragment _USEGLOBALSETTING_ON
 
 
 			#if defined(ASE_EARLY_Z_DEPTH_OPTIMIZE) && (SHADER_TARGET >= 45)
@@ -4116,10 +4116,10 @@ ClipVegetationFuel(WorldPosition);
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
 
 			#include "Packages/com.unity.shadergraph/ShaderGraphLibrary/Functions.hlsl"
-			#pragma shader_feature_local _USEGLOBALWINDSETTINGS_ON
-			#pragma shader_feature_local _USEVERTEXCOLOR_ON
-			#pragma shader_feature _USEDITHERING_ON
-			#pragma shader_feature_local _USEGLOBALSETTING_ON
+			#pragma shader_feature_local_vertex _USEGLOBALWINDSETTINGS_ON
+			#pragma shader_feature_local_vertex _USEVERTEXCOLOR_ON
+			#pragma shader_feature_fragment _USEDITHERING_ON
+			#pragma shader_feature_local_fragment _USEGLOBALSETTING_ON
 
 
 			struct Attributes
@@ -4547,10 +4547,10 @@ float _UseEnvironmentCells;
 			#include "Packages/com.unity.render-pipelines.universal/Editor/ShaderGraph/Includes/ShaderPass.hlsl"
 
 			#include "Packages/com.unity.shadergraph/ShaderGraphLibrary/Functions.hlsl"
-			#pragma shader_feature_local _USEGLOBALWINDSETTINGS_ON
-			#pragma shader_feature_local _USEVERTEXCOLOR_ON
-			#pragma shader_feature _USEDITHERING_ON
-			#pragma shader_feature_local _USEGLOBALSETTING_ON
+			#pragma shader_feature_local_vertex _USEGLOBALWINDSETTINGS_ON
+			#pragma shader_feature_local_vertex _USEVERTEXCOLOR_ON
+			#pragma shader_feature_fragment _USEDITHERING_ON
+			#pragma shader_feature_local_fragment _USEGLOBALSETTING_ON
 
 
 			struct Attributes

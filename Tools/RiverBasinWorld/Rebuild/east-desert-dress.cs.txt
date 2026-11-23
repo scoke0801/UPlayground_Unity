@@ -1,0 +1,87 @@
+// 검토 좌표의 사암 표지물을 기존 구매 프리팹으로 배치한다. 열린 보행면을 보호한다.
+const string mode = "dry";
+const string source = "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones";
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (EditorApplication.isPlayingOrWillChangePlaymode || scene.name != "RiverBasin4km" || scene.isDirty)
+    throw new InvalidOperationException("RiverBasin4km 저장본을 Edit Mode에서 열어야 합니다.");
+if (GameObject.Find("동부 사암 사막") != null) throw new InvalidOperationException("기존 사막 배치가 있습니다.");
+var terrain = System.Array.Find(Terrain.activeTerrains, t => t.gameObject.scene == scene && t.name == "Terrain_7_3");
+if (terrain == null) throw new InvalidOperationException("제작 지형이 없습니다.");
+// 프리팹, X, Z, 수평 최대 폭, Y 회전, 땅에 묻히는 높이 비율.
+var plan = new object[][]
+{
+    new object[] { "StoneArch_01", 3747f, 1783f, 12f, 67f, 0.22f },
+    new object[] { "MedBoulder_03", 3740f, 1788f, 5f, 128f, 0.33f },
+    new object[] { "SmallBoulder_01", 3753f, 1777f, 2f, 90f, 0.37f },
+    new object[] { "BigBoulder_02", 3795f, 1833f, 13f, 43f, 0.36f },
+    new object[] { "MedBoulder_01", 3804f, 1828f, 5f, 143f, 0.31f },
+    new object[] { "SmallBoulder_02", 3787f, 1827f, 2.4f, 113f, 0.35f },
+    new object[] { "FlatStone_03", 3823f, 1751f, 3f, 83f, 0.4f },
+    new object[] { "FlatStone_02", 3828f, 1754f, 1.45f, 93f, 0.43f },
+    new object[] { "MedBoulder_04", 3878f, 1756f, 6.2f, 50f, 0.36f },
+    new object[] { "SmallBoulder_01", 3884f, 1752f, 1.6f, 280f, 0.45f },
+    new object[] { "Cliff_02", 3902f, 1857f, 18f, 70f, 0.46f },
+    new object[] { "BigBoulder_01", 3913f, 1852f, 12f, 110f, 0.37f },
+    new object[] { "MedBoulder_05", 3918f, 1837f, 5.5f, 160f, 0.39f },
+    new object[] { "Cliff_03", 3888f, 1891f, 20f, 26f, 0.43f }
+};
+var sources = new GameObject[plan.Length];
+for (int i = 0; i < plan.Length; i++)
+{
+    string name = "PF_EastLands_" + plan[i][0];
+    foreach (string id in AssetDatabase.FindAssets(name + " t:Prefab", new[] { source }))
+    {
+        string path = AssetDatabase.GUIDToAssetPath(id);
+        if (System.IO.Path.GetFileNameWithoutExtension(path) != name) continue;
+        if (sources[i] != null) throw new InvalidOperationException("프리팹 이름 중복: " + name);
+        sources[i] = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+    }
+    if (sources[i] == null || sources[i].GetComponentInChildren<Renderer>(true) == null)
+        throw new InvalidOperationException("사암 프리팹 누락: " + name);
+}
+if (mode != "apply") return "Dry / source=" + sources.Length;
+Undo.IncrementCurrentGroup();
+int group = Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName("동부 사암 사막 배치");
+try
+{
+    var root = new GameObject("동부 사암 사막");
+    Undo.RegisterCreatedObjectUndo(root, "동부 사암 사막 배치");
+    int colliders = 0, lods = 0;
+    System.Func<Vector3, float> surface = p => terrain.SampleHeight(p) + terrain.transform.position.y;
+    for (int i = 0; i < plan.Length; i++)
+    {
+        var row = plan[i];
+        var rock = (GameObject)PrefabUtility.InstantiatePrefab(sources[i], root.transform);
+        Undo.RegisterCreatedObjectUndo(rock, "사암 배치");
+        var p = new Vector3((float)row[1], 0, (float)row[2]);
+        p.y = surface(p);
+        rock.transform.SetPositionAndRotation(p, Quaternion.Euler(0, (float)row[4], 0));
+        var renderers = rock.GetComponentsInChildren<Renderer>();
+        System.Func<Bounds> measure = () =>
+        {
+            Bounds b = renderers[0].bounds;
+            for (int j = 1; j < renderers.Length; j++) b.Encapsulate(renderers[j].bounds);
+            return b;
+        };
+        Bounds bounds = measure();
+        rock.transform.localScale *= (float)row[3] / Mathf.Max(bounds.size.x, bounds.size.z);
+        bounds = measure();
+        float lower = Mathf.Min(surface(bounds.min), surface(bounds.max));
+        lower = Mathf.Min(lower, surface(new Vector3(bounds.min.x, 0, bounds.max.z)),
+            surface(new Vector3(bounds.max.x, 0, bounds.min.z)));
+        rock.transform.position += Vector3.up * (Mathf.Min(lower, p.y) - bounds.min.y - bounds.size.y * (float)row[5]);
+        colliders += rock.GetComponentsInChildren<Collider>().Length;
+        lods += rock.GetComponentsInChildren<LODGroup>().Length;
+        if (System.Array.Exists(renderers, r => r.sharedMaterial == null)) throw new InvalidOperationException("재질 누락: " + rock.name);
+    }
+    UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+    if (!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene)) throw new InvalidOperationException("사막 배치 저장 실패");
+    Undo.CollapseUndoOperations(group);
+    return "암반·아치 " + plan.Length + " / 콜라이더 " + colliders + " / LOD " + lods;
+}
+catch
+{
+    Undo.RevertAllDownToGroup(group);
+    throw;
+}

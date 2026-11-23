@@ -1,0 +1,139 @@
+// RiverBasin4km에 사막 지형과 발자국 데이터를 연결한다. 기존 에셋은 경로와 타입으로 재사용한다.
+const string world = "6effd90b68ea4b3d8f8caa5197fcfe34";
+string production = "Assets/WorldBuilder/Worlds/" + world + "/Production";
+string root = production + "/EastDesert";
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (scene.name != "RiverBasin4km" || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("RiverBasin4km 저장본을 Edit Mode에서 열어야 합니다.");
+var terrain = System.Array.Find(Terrain.activeTerrains, t => t.gameObject.scene == scene && t.name == "Terrain_7_3");
+var existingWorld = terrain != null ? terrain.GetComponent<UPlayGround.Gameplay.World.SandFootprintWorld>() : null;
+if (existingWorld != null && existingWorld.adjoiningReceivers.Length > 0)
+    throw new InvalidOperationException("확장 사막은 east-desert-expand의 verify 단계로 확인하세요.");
+var player = System.Array.Find(scene.GetRootGameObjects(), go => go.GetComponent<UPlayGround.PlayerActor>() != null);
+var shader = AssetDatabase.LoadAssetAtPath<Shader>("Assets/06.Shaders/SandFootprints/SandTerrainLit.shader");
+var compute = AssetDatabase.LoadAssetAtPath<ComputeShader>("Assets/06.Shaders/SandFootprints/SandStamp.compute");
+var renderer = AssetDatabase.LoadAssetAtPath<UnityEngine.Rendering.Universal.UniversalRendererData>("Assets/Settings/PC_Renderer.asset");
+var header = AssetDatabase.LoadAssetAtPath<TerrainLayer>(production + "/Layers/FineDesertSand.terrainlayer");
+if (terrain == null || player == null || shader == null || !shader.isSupported || compute == null || renderer == null || header == null)
+    throw new InvalidOperationException("필요한 씬 또는 발자국 에셋이 없습니다.");
+foreach (var path in new[] { shader, Shader.Find("Hidden/UPlayGround/Terrain/Sand Lit (Add Pass)"), Shader.Find("Hidden/UPlayGround/Terrain/Sand Lit (Base Pass)") })
+    if (path == null || ShaderUtil.ShaderHasError(path)) throw new InvalidOperationException("지형 셰이더 확인 실패: " + path);
+var data = terrain.terrainData;
+var layers = data.terrainLayers;
+int sandLayer = System.Array.IndexOf(layers, header);
+if (sandLayer < 0) throw new InvalidOperationException("모래 레이어가 없습니다.");
+if (!AssetDatabase.IsValidFolder(root)) AssetDatabase.CreateFolder(production, "EastDesert");
+int width = data.alphamapWidth, height = data.alphamapHeight;
+var maskBytes = new byte[width * height];
+var dominant = new byte[width * height];
+for (int start = 0; start < height; start += 32)
+{
+    int rows = Mathf.Min(32, height - start);
+    var values = data.GetAlphamaps(0, start, width, rows);
+    for (int z = 0; z < rows; z++)
+    for (int x = 0; x < width; x++)
+    {
+        int i = (start + z) * width + x;
+        maskBytes[i] = (byte)Mathf.RoundToInt(255 * values[z, x, sandLayer]);
+        int best = 0;
+        for (int layer = 1; layer < layers.Length; layer++)
+            if (values[z, x, layer] > values[z, x, best]) best = layer;
+        dominant[i] = (byte)best;
+    }
+}
+if (System.Array.FindIndex(maskBytes, x => x >= 128) < 0) throw new InvalidOperationException("수신 면적이 없습니다.");
+string maskPath = root + "/EastDesertMask.asset";
+var mask = AssetDatabase.LoadAssetAtPath<Texture2D>(maskPath);
+if (mask == null)
+{
+    mask = new Texture2D(width, height, TextureFormat.R8, false, true);
+    mask.name = "동부 사막 수신 마스크";
+    AssetDatabase.CreateAsset(mask, maskPath);
+}
+else if ((mask.width != width || mask.height != height) && !mask.Reinitialize(width, height, TextureFormat.R8, false))
+    throw new InvalidOperationException("마스크 크기를 변경할 수 없습니다.");
+mask.wrapMode = TextureWrapMode.Clamp;
+mask.filterMode = FilterMode.Bilinear;
+mask.LoadRawTextureData(maskBytes);
+mask.Apply(false, false);
+EditorUtility.SetDirty(mask);
+
+string profilePath = "Assets/10.Datas/Actor/Footsteps/SandFootprint_Standard.asset";
+var profile = AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Actor.SandFootprintProfileSO>(profilePath);
+if (profile == null)
+{
+    profile = ScriptableObject.CreateInstance<UPlayGround.Data.Actor.SandFootprintProfileSO>();
+    AssetDatabase.CreateAsset(profile, profilePath);
+}
+var sand = UPlayGround.Tool.Editor.FootstepAuthoring.AuthorSand();
+var map = AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Actor.FootstepTerrainMapSO>(root + "/EastDesertFootstepAudio.asset");
+if (map == null)
+{
+    map = ScriptableObject.CreateInstance<UPlayGround.Data.Actor.FootstepTerrainMapSO>();
+    AssetDatabase.CreateAsset(map, root + "/EastDesertFootstepAudio.asset");
+}
+map.width = width;
+map.height = height;
+map.dominantLayers = dominant;
+map.surfaces = new UPlayGround.Data.Actor.FootstepSurfaceProfileSO[layers.Length];
+const string footsteps = "Assets/10.Datas/Actor/Footsteps/";
+var dirt = AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Actor.FootstepSurfaceProfileSO>(footsteps + "Surface_Dirt.asset");
+var stone = AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Actor.FootstepSurfaceProfileSO>(footsteps + "Surface_Stone.asset");
+var grass = AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Actor.FootstepSurfaceProfileSO>(footsteps + "Surface_Grass.asset");
+for (int i = 0; i < layers.Length; i++) map.surfaces[i] = i == sandLayer ? sand : i < 2 ? grass : i == 5 ? dirt : stone;
+EditorUtility.SetDirty(map);
+
+var mat = AssetDatabase.LoadAssetAtPath<Material>(root + "/EastDesertTerrain.mat");
+if (mat == null)
+{
+    mat = new Material(terrain.materialTemplate);
+    mat.shader = shader;
+    AssetDatabase.CreateAsset(mat, root + "/EastDesertTerrain.mat");
+}
+var surface = terrain.GetComponent<UPlayGround.Components.FootstepSurface>();
+if (surface == null) surface = Undo.AddComponent<UPlayGround.Components.FootstepSurface>(terrain.gameObject);
+Undo.RecordObjects(new UnityEngine.Object[] { terrain, surface }, "동부 사막 수신면 연결");
+terrain.materialTemplate = mat;
+var collider = terrain.GetComponent<TerrainCollider>();
+surface.colliders = new[] { collider };
+surface.terrain = terrain;
+surface.profile = stone;
+surface.terrainMap = map;
+
+var footprints = terrain.GetComponent<UPlayGround.Gameplay.World.SandFootprintWorld>();
+if (footprints == null) footprints = Undo.AddComponent<UPlayGround.Gameplay.World.SandFootprintWorld>(terrain.gameObject);
+Undo.RecordObject(footprints, "모래 발자국 데이터 연결");
+footprints.receiver = collider;
+footprints.receiverMask = mask;
+footprints.profile = profile;
+footprints.stampShader = compute;
+footprints.trackingAnchor = player.transform;
+
+if (!renderer.rendererFeatures.Exists(f => f is UPlayGround.Gameplay.World.SandFootprintRendererFeature))
+{
+    var feature = ScriptableObject.CreateInstance<UPlayGround.Gameplay.World.SandFootprintRendererFeature>();
+    feature.name = "SandFootprintRendererFeature";
+    Undo.RecordObject(renderer, "모래 발자국 렌더 패스 추가");
+    AssetDatabase.AddObjectToAsset(feature, renderer);
+    var serialized = new SerializedObject(renderer);
+    var features = serialized.FindProperty("m_RendererFeatures");
+    features.GetArrayElementAtIndex(features.arraySize++).objectReferenceValue = feature;
+    var ids = serialized.FindProperty("m_RendererFeatureMap");
+    string guid;
+    long local;
+    if (!AssetDatabase.TryGetGUIDAndLocalFileIdentifier(feature, out guid, out local))
+        throw new InvalidOperationException("렌더 패스 로컬 ID를 읽을 수 없습니다.");
+    ids.GetArrayElementAtIndex(ids.arraySize++).longValue = local;
+    serialized.ApplyModifiedProperties();
+    renderer.SetDirty();
+    EditorUtility.SetDirty(renderer);
+    AssetDatabase.SaveAssetIfDirty(renderer);
+}
+AssetDatabase.SaveAssetIfDirty(mask);
+AssetDatabase.SaveAssetIfDirty(map);
+AssetDatabase.SaveAssetIfDirty(profile);
+AssetDatabase.SaveAssetIfDirty(mat);
+UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+if (!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene))
+    throw new InvalidOperationException("4km 씬 저장 실패");
+return "RiverBasin4km terrain=" + terrain.name + " / R8 " + width + "x" + height + " / " + player.name + " / " + renderer.name;

@@ -1,0 +1,327 @@
+// 최초 동선 블록아웃 단계의 기록. 남안 교량은 lake-islands-swim-art.cs.txt에서 수영 구간으로 바꾼다.
+// 초기 블록아웃을 재현할 때 Edit Mode에서 dry → apply → verify 순서로 실행한다.
+const string mode = "dry";
+const string world = "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34";
+const string meshPath = world + "/Production/OffrouteBlockout.asset";
+const string rootName = "미연결 구역 동선 블록아웃";
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (scene.path != world + "/Preview/RiverBasin4km.unity" || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("저장된 RiverBasin4km Edit Mode가 필요합니다.");
+var savedRoot = scene.GetRootGameObjects().SingleOrDefault(o => o.name == rootName);
+if (mode == "apply" && (savedRoot != null || AssetDatabase.LoadMainAssetAtPath(meshPath) != null))
+    throw new InvalidOperationException("저장된 블록아웃이 이미 있습니다.");
+if (mode == "verify" && (savedRoot == null || AssetDatabase.LoadMainAssetAtPath(meshPath) == null))
+    throw new InvalidOperationException("저장된 블록아웃을 찾지 못했습니다.");
+Physics.SyncTransforms();
+
+var tiles = new Terrain[8, 8];
+foreach (var tile in Terrain.activeTerrains.Where(t => t.gameObject.scene == scene))
+{
+    var p = tile.transform.position;
+    if (tile.terrainData.size.x != 512 || tile.terrainData.size.z != 512)
+        throw new InvalidOperationException("지형 타일 규격이 다릅니다.");
+    tiles[(int)p.x / 512, (int)p.z / 512] = tile;
+}
+if (tiles.Cast<Terrain>().Any(t => t == null))
+    throw new InvalidOperationException("64개 지형 타일이 필요합니다.");
+Func<Vector2, float> ground = p =>
+{
+    var tile = tiles[(int)p.x / 512, (int)p.y / 512];
+    return tile.SampleHeight(new Vector3(p.x, 0, p.y)) + tile.transform.position.y;
+};
+var rows = System.IO.File.ReadAllLines("Tools/RiverBasinWorld/Rebuild/offroute-blockout-4km.csv");
+var invariant = System.Globalization.CultureInfo.InvariantCulture;
+var routes = rows.Skip(1).Select(line => line.Split(',')).GroupBy(row => row[0]).ToDictionary(
+    group => group.Key,
+    group => new {
+        Width = float.Parse(group.First()[1], invariant),
+        Points = group.Select(row => new Vector2(float.Parse(row[2], invariant), float.Parse(row[3], invariant))).ToArray()
+    });
+Action<string, int, string, int> socket = (a, i, b, j) =>
+{
+    var first = routes[a].Points;
+    var second = routes[b].Points;
+    if (first[i < 0 ? first.Length - 1 : i] != second[j < 0 ? second.Length - 1 : j])
+        throw new InvalidOperationException(a + " ↔ " + b + " 접속점 불일치");
+};
+if (!routes["R1"].Points.Contains(routes["R1b"].Points[0]))
+    throw new InvalidOperationException("연못 갈림길 불일치");
+socket("lake-loop", -1, "alpine-approach", 0);
+socket("alpine-approach", -1, "quarry-approach", 0);
+socket("quarry-approach", -1, "R5", 0);
+if (!routes["R5"].Points.Contains(routes["R3"].Points.Last()))
+    throw new InvalidOperationException("R3 ↔ R5 접속점 불일치");
+socket("R5", -1, "R4a", 0);
+socket("R4a", -1, "R4b", 0);
+socket("R4b", -1, "B5", 0);
+socket("B5", -1, "coast", 0);
+if (!routes["lake-loop"].Points.Contains(routes["R3"].Points[0]))
+    throw new InvalidOperationException("B1 동쪽 분기 불일치");
+if (!routes["coast"].Points.Contains(routes["coast-dock"].Points[0]))
+    throw new InvalidOperationException("해안 선착장 분기 불일치");
+
+// 수면 삼각형을 8m 셀에 넣고 도로 표본에서 실제 수위를 보간한다.
+var waterCells = new System.Collections.Generic.Dictionary<int, System.Collections.Generic.List<Vector3>>();
+var waterRoot = scene.GetRootGameObjects().Single(o => o.name == "RiverBasin 수면");
+foreach (var filter in waterRoot.GetComponentsInChildren<MeshFilter>())
+{
+    var vertices = filter.sharedMesh.vertices.Select(filter.transform.TransformPoint).ToArray();
+    var triangles = filter.sharedMesh.triangles;
+    for (int i = 0; i < triangles.Length; i += 3)
+    {
+        var a = vertices[triangles[i]];
+        var b = vertices[triangles[i + 1]];
+        var c = vertices[triangles[i + 2]];
+        for (int z = (int)Mathf.Min(a.z, b.z, c.z) / 8; z <= (int)Mathf.Max(a.z, b.z, c.z) / 8; z++)
+        for (int x = (int)Mathf.Min(a.x, b.x, c.x) / 8; x <= (int)Mathf.Max(a.x, b.x, c.x) / 8; x++)
+        {
+            int key = z * 1024 + x;
+            System.Collections.Generic.List<Vector3> cell;
+            if (!waterCells.TryGetValue(key, out cell))
+            {
+                cell = new System.Collections.Generic.List<Vector3>();
+                waterCells.Add(key, cell);
+            }
+            cell.Add(a); cell.Add(b); cell.Add(c);
+        }
+    }
+}
+Func<Vector2, float> water = p =>
+{
+    System.Collections.Generic.List<Vector3> cell;
+    float level = float.NegativeInfinity;
+    if (!waterCells.TryGetValue((int)p.y / 8 * 1024 + (int)p.x / 8, out cell)) return level;
+    for (int i = 0; i < cell.Count; i += 3)
+    {
+        var a = cell[i]; var b = cell[i + 1]; var c = cell[i + 2];
+        float area = (b.z - c.z) * (a.x - c.x) + (c.x - b.x) * (a.z - c.z);
+        if (Mathf.Abs(area) < 0.00001f) continue;
+        float u = ((b.z - c.z) * (p.x - c.x) + (c.x - b.x) * (p.y - c.z)) / area;
+        float v = ((c.z - a.z) * (p.x - c.x) + (a.x - c.x) * (p.y - c.z)) / area;
+        if (u >= -0.00001f && v >= -0.00001f && u + v <= 1.00001f)
+            level = Mathf.Max(level, u * a.y + v * b.y + (1 - u - v) * c.y);
+    }
+    return level;
+};
+
+var report = new System.Text.StringBuilder();
+var trailMeshes = new System.Collections.Generic.List<Mesh>();
+bool connectedGround = true;
+float lift = 0.08f;
+foreach (var entry in routes.Where(pair => pair.Key != "B5"))
+{
+    var path = entry.Value.Points;
+    var length = 0f;
+    var center = new System.Collections.Generic.List<Vector2> { path[0] };
+    for (int k = 1; k < path.Length; k++)
+    {
+        float segment = Vector2.Distance(path[k - 1], path[k]);
+        int count = Mathf.CeilToInt(segment);
+        length += segment;
+        for (int i = 1; i <= count; i++) center.Add(Vector2.Lerp(path[k - 1], path[k], i / (float)count));
+    }
+    var vertices = new System.Collections.Generic.List<Vector3>(center.Count * 5);
+    var indices = new System.Collections.Generic.List<int>((center.Count - 1) * 24);
+    var grades = new System.Collections.Generic.List<float>();
+    var obstructions = new System.Collections.Generic.HashSet<string>();
+    const int columns = 5;
+    int wet = 0;
+    float wetDepth = 0;
+    Vector2 wetPoint = Vector2.zero;
+    for (int i = 0; i < center.Count; i++)
+    {
+        var p = center[i];
+        var tangent = (center[Mathf.Min(i + 1, center.Count - 1)] - center[Mathf.Max(0, i - 1)]).normalized;
+        var cross = new Vector2(-tangent.y, tangent.x);
+        float y = ground(p);
+        if (i > 0) grades.Add(Mathf.Abs(y - ground(center[i - 1])) / Vector2.Distance(p, center[i - 1]));
+        for (int col = 0; col < columns; col++)
+        {
+            var q = p + cross * entry.Value.Width * (col / (columns - 1f) - 0.5f);
+            float g = ground(q);
+            float depth = water(q) - g;
+            if (depth > 0.1f) wet++;
+            if (depth > wetDepth) { wetDepth = depth; wetPoint = q; }
+            vertices.Add(new Vector3(q.x, g + lift, q.y));
+            if (i == 0 || col == columns - 1) continue;
+            int a = (i - 1) * columns + col;
+            int b = i * columns + col;
+            indices.Add(a); indices.Add(a + 1); indices.Add(b);
+            indices.Add(a + 1); indices.Add(b + 1); indices.Add(b);
+        }
+        RaycastHit obstacle;
+        if (Physics.Raycast(new Vector3(p.x, y + 2, p.y), Vector3.down, out obstacle, 1.8f, ~0, QueryTriggerInteraction.Ignore))
+            obstructions.Add(obstacle.collider.name);
+    }
+    grades.Sort();
+    report.AppendLine(string.Format(invariant, "{0}: {1:F1}m / slope p90 {2:P1} max {3:P1} / wet {4} max {5:F2}m at {6}",
+        entry.Key, length, grades[Mathf.FloorToInt(grades.Count * 0.9f)], grades.Last(), wet, wetDepth, wetPoint));
+    if (obstructions.Count > 0)
+        report.AppendLine("  중심선 위 기존 충돌체: " + string.Join(", ", obstructions.OrderBy(name => name)));
+    connectedGround &= wet == 0 && obstructions.Count == 0;
+    if (mode == "verify")
+    {
+        var obj = savedRoot.transform.Find("길/WB_P04_Road_" + entry.Key);
+        if (obj == null || obj.GetComponent<MeshFilter>().sharedMesh.vertexCount != vertices.Count ||
+            !AssetDatabase.IsSubAsset(obj.GetComponent<MeshFilter>().sharedMesh))
+            throw new InvalidOperationException(entry.Key + " 저장 메시 누락");
+    }
+    if (mode != "apply") continue;
+    // 공유 접속면의 깊이 충돌을 피한다.
+    lift += 0.003f;
+    var mesh = new Mesh { name = "WB_P04_Road_" + entry.Key };
+    mesh.SetVertices(vertices);
+    mesh.SetTriangles(indices, 0);
+    mesh.RecalculateNormals();
+    mesh.RecalculateBounds();
+    trailMeshes.Add(mesh);
+}
+
+var bridge = routes["B5"];
+var east = bridge.Points[0];
+var west = bridge.Points[1];
+var aDeck = new Vector3(east.x, ground(east) + 0.07f, east.y);
+var bDeck = new Vector3(west.x, ground(west) + 0.07f, west.y);
+float bridgeLength = Vector3.Distance(aDeck, bDeck);
+var rotation = Quaternion.LookRotation(bDeck - aDeck);
+var right = rotation * Vector3.right;
+var up = rotation * Vector3.up;
+float clearance = float.PositiveInfinity, landingStep = 0f, maxDepth = 0f, wetSpan = 0f;
+float approachOverlap = 0f;
+int deckHits = 0;
+var deckCollider = mode == "verify"
+    ? savedRoot.transform.Find("WB_P04_Bridge_B5/WB_P04_Bridge_B5_상판").GetComponent<BoxCollider>()
+    : null;
+const int sections = 96;
+for (int i = 0; i <= sections; i++)
+{
+    var p = Vector3.Lerp(aDeck, bDeck, i / (float)sections);
+    var middle = new Vector2(p.x, p.z);
+    if (water(middle) - ground(middle) > 0.10f) wetSpan += bridgeLength / sections;
+    for (int col = -1; col <= 1; col++)
+    {
+        var q = p + right * (bridge.Width * 0.4f * col);
+        var xz = new Vector2(q.x, q.z);
+        float g = ground(xz), w = water(xz);
+        if (w > g + 0.1f) clearance = Mathf.Min(clearance, q.y - w);
+        maxDepth = Mathf.Max(maxDepth, w - g);
+        approachOverlap = Mathf.Max(approachOverlap, g - q.y);
+        if (i == 0 || i == sections) landingStep = Mathf.Max(landingStep, Mathf.Abs(q.y - g));
+        if (mode != "verify" || i == 0 || i == sections) continue;
+        RaycastHit hit;
+        if (!deckCollider.Raycast(new Ray(q + Vector3.up * 2, Vector3.down), out hit, 2.05f) ||
+            Mathf.Abs(hit.point.y - q.y) > 0.035f)
+            throw new InvalidOperationException("B5 상판 레이 실패 " + q);
+        deckHits++;
+    }
+}
+report.AppendLine(string.Format(invariant, "B5: deck {0:F1}m / wet span {1:F1}m / water clearance {2:F2}m / max depth {3:F2}m / landing delta {4:F2}m",
+    bridgeLength, wetSpan, clearance, maxDepth, landingStep));
+report.AppendLine(string.Format(invariant, "B5: approach overlap {0:F2}m / deck ray hits {1}", approachOverlap, deckHits));
+if (!connectedGround || clearance < 0.5f || landingStep > 0.25f || approachOverlap > 0.2f || wetSpan < 18f)
+    throw new InvalidOperationException("길의 물·충돌 또는 B5 접속 높이 오류\n" + report);
+if (mode != "apply") return report.ToString();
+
+var wood = AssetDatabase.LoadAssetAtPath<Material>("Assets/WorldBuilder/Worlds/a707a707a707a707a707a707a707a707/Wood.mat");
+var shader = Shader.Find("Universal Render Pipeline/Lit");
+if (wood == null || shader == null) throw new InvalidOperationException("블록아웃 재질 누락");
+var trail = new Material(shader) { name = "OffrouteBlockout" };
+trail.SetColor("_BaseColor", new Color(0.43f, 0.38f, 0.30f));
+trail.SetFloat("_Smoothness", 0.03f);
+var pivot = (aDeck + bDeck) * 0.5f;
+string backup = "output/RiverBasinOffroute/before-" + DateTime.UtcNow.ToString("yyyyMMdd-HHmmss-fff") + ".unity";
+System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(backup));
+System.IO.File.Copy(scene.path, backup);
+
+Undo.IncrementCurrentGroup();
+int undo = Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName("강 유역 미연결 구역 동선 블록아웃");
+bool createdAsset = false;
+try
+{
+    AssetDatabase.CreateAsset(trail, meshPath);
+    createdAsset = true;
+    var root = new GameObject(rootName);
+    Undo.RegisterCreatedObjectUndo(root, "동선 블록아웃");
+    var paths = new GameObject("길");
+    paths.transform.SetParent(root.transform, false);
+    foreach (var mesh in trailMeshes)
+    {
+        AssetDatabase.AddObjectToAsset(mesh, trail);
+        var obj = new GameObject(mesh.name, typeof(MeshFilter), typeof(MeshRenderer));
+        obj.transform.SetParent(paths.transform, false);
+        obj.GetComponent<MeshFilter>().sharedMesh = mesh;
+        var renderer = obj.GetComponent<MeshRenderer>();
+        renderer.sharedMaterial = trail;
+        renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+    }
+    var bridgeRoot = new GameObject("WB_P04_Bridge_B5");
+    bridgeRoot.transform.SetParent(root.transform, false);
+    Action<Transform, string, Vector3, Quaternion, Vector3, bool> timber = (parent, name, pos, rot, size, solid) =>
+    {
+        var part = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        part.name = name;
+        part.transform.SetParent(parent, false);
+        part.transform.SetPositionAndRotation(pos, rot);
+        part.transform.localScale = size;
+        part.GetComponent<MeshRenderer>().sharedMaterial = wood;
+        if (!solid) UnityEngine.Object.DestroyImmediate(part.GetComponent<BoxCollider>());
+    };
+    timber(bridgeRoot.transform, "WB_P04_Bridge_B5_상판", pivot - up * 0.15f, rotation,
+        new Vector3(bridge.Width, 0.30f, bridgeLength), true);
+    foreach (int side in new[] { -1, 1 })
+    {
+        var edge = side * right * (bridge.Width * 0.46f);
+        timber(bridgeRoot.transform, "WB_P04_Bridge_B5_난간", pivot + edge + up * 0.8f, rotation,
+            new Vector3(0.15f, 0.18f, bridgeLength - 1.6f), true);
+        for (int i = 0; i <= 8; i++)
+        {
+            var p = Vector3.Lerp(aDeck, bDeck, Mathf.Lerp(0.8f / bridgeLength, 1 - 0.8f / bridgeLength, i / 8f)) + edge;
+            float bottom = ground(new Vector2(p.x, p.z)) - 0.18f;
+            float top = p.y + 0.93f;
+            timber(bridgeRoot.transform, "WB_P04_Bridge_B5_말뚝", new Vector3(p.x, (top + bottom) * 0.5f, p.z),
+                Quaternion.identity, new Vector3(0.24f, top - bottom, 0.24f), false);
+        }
+    }
+    var markers = new GameObject("갈림길과 전망 쉼터");
+    markers.transform.SetParent(root.transform, false);
+    Action<string, string, int> mark = (name, route, index) =>
+    {
+        var path = routes[route].Points;
+        int i = index < 0 ? path.Length - 1 : index;
+        int next = i == path.Length - 1 ? i - 1 : i + 1;
+        var dir = (path[next] - path[i]).normalized;
+        var p = path[i] + new Vector2(-dir.y, dir.x) * (routes[route].Width * 0.5f + 0.8f);
+        float y = ground(p);
+        var rot = Quaternion.LookRotation(new Vector3(dir.x, 0, dir.y));
+        timber(markers.transform, name, new Vector3(p.x, y + 0.73f, p.y), rot, new Vector3(0.16f, 1.65f, 0.16f), false);
+        timber(markers.transform, name + " 표지판", new Vector3(p.x + dir.x * 0.28f, y + 1.4f, p.y + dir.y * 0.28f),
+            rot, new Vector3(0.12f, 0.24f, 0.94f), false);
+    };
+    mark("강가 마을", "R1", -1);
+    mark("옛 사당", "R1", 0);
+    mark("연못 갈림길", "R1b", 0);
+    mark("숲 연못 전망", "R1b", -1);
+    mark("석교 동쪽 갈림길", "R3", 0);
+    mark("고산과 채석 요새 갈림길", "quarry-approach", 0);
+    mark("채석 요새 정문", "R5", 0);
+    mark("마른 수로 갈림길", "R3", -1);
+    mark("사막 능선 전망", "R5", Array.IndexOf(routes["R5"].Points, new Vector2(3552, 2000)));
+    mark("호수 동안", "R4b", 0);
+    mark("해안 선착장 갈림길", "coast-dock", 0);
+    mark("호수 마을", "coast", -1);
+
+    Undo.FlushUndoRecordObjects();
+    AssetDatabase.SaveAssetIfDirty(trail);
+    UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+    if (!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene))
+        throw new InvalidOperationException("블록아웃 씬 저장 실패");
+    Undo.CollapseUndoOperations(undo);
+}
+catch
+{
+    Undo.RevertAllDownToGroup(undo);
+    if (createdAsset) AssetDatabase.DeleteAsset(meshPath);
+    throw;
+}
+return report.ToString() + "backup=" + backup;

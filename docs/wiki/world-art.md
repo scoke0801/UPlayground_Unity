@@ -1,10 +1,32 @@
 # 월드와 아트
 
+**RiverBasin4km 평지 기복·B3 협곡 설계(2026-11-22, 설계만).** 평지가 평평하게 읽히는 원인을 저장 RAW로 측정했다. 경사 중앙값은 7~8°지만 호수 마을 → B3 평지는 6m 이상 단절이 0%다. 남서 지류 B3 협곡(수면 27m 낙차)을 파일럿으로 4단 폭포·현수교·바닥 탐험 레인을 설계했다. 지형·씬 변경 없음, 수치는 G0 Editor 실측 후 확정, 전부 사용자 테스트 대기다. [설계](../../Assets/docs/design/world-art/open-world/RIVER_BASIN_GORGE_RELIEF_DESIGN.md) · [작업 상태](../work-status/river-basin-gorge-relief.md)
+
+**RiverBasin4km 첨부 지도 범위.** 사막을 동쪽 호수 동편과 남동부까지, 설산을 북쪽 산줄기 전역으로 확장했다. 숲 연못·서남 호수·동쪽 호수에 섬 네 곳과 발견 보상을 추가했다. 최종 지도와 수영 표면, Editor Play 보상 4곳 등록을 확인했다. 수영 왕복과 실제 획득·재방문은 사용자 테스트 대기다. [지도 전후](../work-status/river-basin-marked-regions-evidence/map-before-after.jpg) · [반영과 검증](../work-status/river-basin-marked-regions.md)
+
+**RiverBasin4km 호수·동부·설산 탐험.** 중앙섬 두 곳을 각각 3.2배·2.7배로 넓혔다. 채석 단구, 돌산 능선, 사막 모래골, 설산 허리길과 계곡 전망을 저작하고 지도를 갱신했다. 수영 단면 33개와 Terrain 경계 112개 검사 통과, Editor Play 발견 보상 등록 5/5 확인. 마커 없이 길 찾기, 수영 왕복, 실제 획득·재방문은 사용자 테스트 대기다. [지도 전후](../work-status/river-basin-exploration-evidence/map-before-after.jpg) · [반영과 검증](../work-status/river-basin-exploration.md)
+
+**RiverBasin4km 남부 호수 섬.** 두 호수의 보행교 10개와 남안 B5를 철거하고 수영 판정을 연결했다. 버드나무·바위·갈대 군락으로 섬과 호안을 꾸미고 상륙로를 열었다. 저장본의 입수·상륙 33개 단면 검사 통과, 미니맵 갱신. 수영·비행 조작과 경관은 사용자 테스트 대기다. [전후 화면과 검증](../work-status/river-basin-world.md#4km-남부-호수-섬)
+
 ## 본편 월드 제작 지침
 
-**월드 안개 조사(2026-11-21).** 열린 `RiverBasin4km`는 지수 제곱 거리 안개를 사용한다. `LakeVillageWorld` 저장본에는 선형 안개(110~1,250m), 호숫가 하늘 프로필, 폭포 입수 물보라의 `Mist` 파티클이 연결돼 있다. 수역을 그리는 카메라는 물 합성 패스에서 공기 구간의 거리 안개를 계산한다. [4km 씬과 Editor 확인](../work-status/river-basin-world.md#4km-거리-안개-조사) · [호수 씬](../../Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity) · [호숫가 하늘 프로필](../../Assets/10.Datas/World/OpenWorld/LakeVisualV2/LakeShoreSky.asset) · [수면 합성](../work-status/toon-water-world.md#구현과-정규-연결)
+**RiverBasin4km 지도 재촬영 · 2026-11-22.** 저장된 씬에서 정북 지도 PNG를 다시 촬영하고 Unity 재임포트와 기존 스프라이트 참조를 확인했다. [현재 지도](../../Assets/10.Datas/Map/RiverBasin4km/Minimap.png)
 
-**툰 안개.** PC Renderer에 거리 팔레트·높이 적분·국소 부피 안개를 연결했다. 사막 마을에 프로젝트 날씨·플레이어 기준점·교전 입력을 연결하고, 네 구역의 비교 씬과 일곱 지역 프리셋을 추가했다. [통합 계약](../../Assets/docs/design/world-art/environment/TOON_FOG_INTEGRATION.md) · [단계별 상태](../work-status/toon-fog/TaskStatus.md) · [비교 씬](../../Assets/01.Scenes/ArtReview/ToonFogValidation.unity)
+**사막·설산 공용 발자국.** 평가된 발 포즈와 마지막 접지 위치를 추적해 출발·정지·공격에서 새로 디딘 발을 기록한다. 두 지형의 전환과 걷기·달리기 회귀를 Editor Play로 재검증했다. 자세가 안정된 정지 상태에서 추가 기록 0회, EditMode 27/27 통과다. [변경과 검증](../work-status/river-basin-sand-footprints.md#출발정지공격의-새-접지)
+
+**RiverBasin4km 북부 설산.** 채석 요새 접근로에서 폭포 동쪽을 거쳐 고원 순환로까지 1.98km의 동선을 열었다. 동선 폭 6m의 최대 표본 경사는 43.6°이며, 전체 112개 타일 경계 높이 차는 0m다. 4개 타일에 근경 눈 노멀, 눈 발소리·눈가루와 사막 공용 발자국 캐시를 연결했다. 라온으로 눈 표면 전환과 타일 경계 양쪽의 발자국을 확인했다. 전체 동선 양방향·착지·시청각 인수는 사용자 테스트 대기다. [작업 상태](../work-status/river-basin-north-alpine.md)
+
+**RiverBasin4km 미연결 구역 동선(2026-11-22).** R1~R5 및 연못·선착장 가지길의 G2 블록아웃을 씬에 저장했다. R3는 요새 아래 R5로 합류하고 R4는 남안에서 수영·비행으로 유출 하천을 건넌다. R4 하강 경사·실제 이동·갈림길 가독성은 사용자 테스트 대기다. [설계](../../Assets/docs/design/world-art/open-world/RIVER_BASIN_OFFROUTE_REGIONS_DESIGN.md) · [작업 상태](../work-status/river-basin-world.md#4km-미연결-구역-동선-설계)
+
+**RiverBasin4km B1 수중 합성.** 각도에 따른 반사와 청록색 광학 프로필로 B1의 남색 단색 띠를 완화했다. Editor의 수평 잠수·수면 올려다보기·수면 위 고정 구도를 비교했다. 실제 잠수와 재부상은 사용자 테스트 대기다. [수정 전후와 검증](../work-status/river-basin-world.md#4km-b1-수중-합성-개선)
+
+**RiverBasin4km 동부 사막과 발자국.** 동부 모래 권역을 Terrain 여섯 타일, 약 0.405㎢로 확장했다. 기존 분지에서 서쪽 사면과 동쪽 협곡 바닥으로 이어지며 모래 발자국과 발소리를 공유한다. 높이·수신 마스크 경계 오차 0, EditMode 21건 통과. [확장 지도](../work-status/river-basin-sand-footprints-evidence/river-basin-desert-expanded-map.png) · [설계](../../Assets/docs/design/world-art/open-world/RIVER_BASIN_SAND_FOOTPRINTS_DESIGN.md) · [구현과 검증](../work-status/river-basin-sand-footprints.md)
+
+**월드 안개 조사(2026-11-21).** `RiverBasin4km`의 전환 전 기준은 지수 제곱 거리 안개였다. `LakeVillageWorld` 저장본에는 선형 안개(110~1,250m), 호숫가 하늘 프로필, 폭포 입수 물보라의 `Mist` 파티클이 연결돼 있다. [전환 전 4km 씬 조사](../work-status/river-basin-world.md#4km-거리-안개-조사) · [호수 씬](../../Assets/01.Scenes/Scenario/OpenWorld/LakeVillageWorld.unity) · [호숫가 하늘 프로필](../../Assets/10.Datas/World/OpenWorld/LakeVisualV2/LakeShoreSky.asset)
+
+**툰 안개.** PC Renderer에 거리 팔레트·높이 적분·국소 부피를 연결하고, 사막 마을의 날씨·플레이어 기준점·교전 입력을 연동했다. 일곱 지역 프리셋과 비교 씬을 추가했다. EditMode 44/44 통과. 밀도 0의 RGBA 중립성과 직교 카메라 제외, 사막 마을·관리 수역 고정 화면을 확인했다. 외곽선·식생·HUD와 실제 플레이, GPU·Player 검증이 남아 있다. [통합 계약](../../Assets/docs/design/world-art/environment/TOON_FOG_INTEGRATION.md) · [검증 기록](../work-status/toon-fog/Validation.md) · [단계별 상태](../work-status/toon-fog/TaskStatus.md) · [비교 씬](../../Assets/01.Scenes/ArtReview/ToonFogValidation.unity)
+
+**RiverBasin4km 툰 안개.** Built-in Fog를 끄고 4km 전용 프로필과 기존 날씨 컨트롤러를 연결했다. B1 진입로와 수면 고정 시점에서 수역 합성 경로의 적용을 확인했다. 실제 플레이 가독성과 수면 경계는 사용자 테스트 대기다. [4km 적용 상태](../work-status/toon-fog/TaskStatus.md#riverbasin4km-적용) · [전후 화면](../work-status/toon-fog/Validation.md#riverbasin4km-고정-카메라)
 
 [오픈월드 맵 제작 가이드](../../Assets/docs/guide/OPENWORLD_MAP_AUTHORING_GUIDE.md)에서 지역의 탐험 목표, 랜드마크, 이동 동선을 정한다. 거점과 주변 동선을 블록아웃으로 주행해 본 뒤 아트와 콘텐츠를 배치한다.
 

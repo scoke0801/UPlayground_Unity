@@ -1,0 +1,63 @@
+// 저장된 4km 지형과 마스크를 대조한다. 씬이나 에셋을 수정하지 않는다.
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (scene.name != "RiverBasin4km") throw new InvalidOperationException("RiverBasin4km을 열어야 합니다.");
+var world = UnityEngine.Object.FindFirstObjectByType<UPlayGround.Gameplay.World.SandFootprintWorld>();
+if (world == null || world.receiver == null || world.receiverMask == null
+    || world.profile == null || world.stampShader == null || world.trackingAnchor == null)
+    throw new InvalidOperationException("사막 구성 요소 누락");
+if (world.adjoiningReceivers.Length > 0)
+    throw new InvalidOperationException("확장 사막은 east-desert-expand의 verify 단계로 확인하세요.");
+var terrain = world.receiver.GetComponent<Terrain>();
+var data = terrain.terrainData;
+var root = GameObject.Find("동부 사암 사막");
+if (world.receiver.terrainData != data || root == null || root.transform.childCount != 14)
+    throw new InvalidOperationException("사암 배치 또는 물리 지형 불일치");
+var grid = new Terrain[8, 8];
+foreach (var tile in Terrain.activeTerrains)
+{
+    var p = tile.transform.position;
+    grid[Mathf.RoundToInt(p.z / 512), Mathf.RoundToInt(p.x / 512)] = tile;
+}
+int sand = System.Array.FindIndex(data.terrainLayers, layer => layer.name == "FineDesertSand");
+int width = data.alphamapWidth, height = data.alphamapHeight;
+var bytes = world.receiverMask.GetRawTextureData<byte>();
+if (sand < 0 || width * height != bytes.Length)
+    throw new InvalidOperationException("마스크 해상도 또는 모래 레이어 불일치");
+int mismatch = 0, solid = 0;
+var values = data.GetAlphamaps(0, 0, width, height);
+for (int z = 0; z < height; z++)
+for (int x = 0; x < width; x++)
+{
+    byte mask = bytes[x + z * width];
+    if (mask >= 128) solid++;
+    if (mask != Mathf.RoundToInt(values[z, x, sand] * 255)) mismatch++;
+}
+if (mismatch != 0) throw new InvalidOperationException("기존 마스크를 다시 베이크하세요. 불일치 " + mismatch);
+int r = data.heightmapResolution;
+var west = data.GetHeights(0, 0, 1, r);
+var south = data.GetHeights(0, 0, r, 1);
+var north = data.GetHeights(0, r - 1, r, 1);
+var westNeighbor = grid[3, 6].terrainData.GetHeights(r - 1, 0, 1, r);
+var southNeighbor = grid[2, 7].terrainData.GetHeights(0, r - 1, r, 1);
+var northNeighbor = grid[4, 7].terrainData.GetHeights(0, 0, r, 1);
+float seam = 0;
+for (int i = 0; i < r; i++)
+{
+    seam = Mathf.Max(seam, Mathf.Abs(west[i, 0] - westNeighbor[i, 0]));
+    seam = Mathf.Max(seam, Mathf.Abs(south[0, i] - southNeighbor[0, i]));
+    seam = Mathf.Max(seam, Mathf.Abs(north[0, i] - northNeighbor[0, i]));
+}
+if (seam * data.size.y > 0.031) throw new InvalidOperationException("인접 타일에 높이 차이가 있습니다.");
+foreach (var name in new[] { "UPlayGround/Terrain/Sand Lit", "Hidden/UPlayGround/Terrain/Sand Lit (Add Pass)", "Hidden/UPlayGround/Terrain/Sand Lit (Base Pass)" })
+{
+    var shader = Shader.Find(name);
+    if (shader == null || !shader.isSupported || ShaderUtil.ShaderHasError(shader))
+        throw new InvalidOperationException("Terrain shader 검사 실패: " + name);
+}
+var report = "RiverBasin4km / mask " + width + "x" + height + " mismatch=" + mismatch + " weight>=0.5 samples=" + solid
+    + " / height seam max=" + (seam * data.size.y) + "m / set dressing=" + root.transform.childCount
+    + " / Terrain shader variants located and supported";
+string directory = "docs/work-status/river-basin-sand-footprints-evidence/";
+System.IO.Directory.CreateDirectory(directory);
+System.IO.File.WriteAllText(directory + "scene-check.txt", report);
+return report;

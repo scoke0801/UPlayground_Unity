@@ -1,0 +1,259 @@
+// dry → apply → verify. 현재 높이를 기준으로 이 패스만 WorldBuilder Sculpt에 추가한다.
+const string mode = "dry";
+const string id = "6effd90b68ea4b3d8f8caa5197fcfe34";
+const string world = "Assets/WorldBuilder/Worlds/" + id;
+const string definitionPath = "Assets/10.Datas/WorldBuilder/" + id + "_Authoring.asset";
+const string evidence = "docs/work-status/river-basin-exploration-evidence/";
+const string backup = "output/RiverBasinWorld/Exploration/before/";
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (scene.path != world + "/Preview/RiverBasin4km.unity" || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("저장된 RiverBasin4km의 편집 모드가 필요합니다.");
+var definition = AssetDatabase.LoadAssetAtPath<UPlayGround.WorldBuilder.Data.WorldDefinition>(definitionPath);
+var grid = new Terrain[8,8];
+foreach (var tile in Terrain.activeTerrains)
+{
+    if (tile.gameObject.scene != scene) continue;
+    var p = tile.transform.position;
+    if (tile.terrainData.heightmapResolution != 513 || tile.terrainData.size.x != 512 || tile.terrainData.size.z != 512
+        || p.x % 512 != 0 || p.z % 512 != 0 || tile.GetComponent<TerrainCollider>().terrainData != tile.terrainData)
+        throw new InvalidOperationException("Terrain 격자 또는 충돌 데이터 불일치");
+    grid[(int)p.z/512,(int)p.x/512] = tile;
+}
+foreach (var tile in grid) if (tile == null) throw new InvalidOperationException("64개 Terrain이 필요합니다.");
+if (definition == null || definition.ActiveSession != null) throw new InvalidOperationException("WorldBuilder 조형 세션을 확인하세요.");
+
+Func<float,float> smooth = value =>
+{
+    float t = Mathf.Clamp01(value);
+    return t*t*(3f-2f*t);
+};
+Func<Vector2,float> oldGround = p =>
+{
+    var tile = grid[(int)p.y/512,(int)p.x/512];
+    return tile.SampleHeight(new Vector3(p.x,0,p.y)) + tile.transform.position.y;
+};
+// 중심, 반경, 회전, 수면, 내륙 융기 높이. 윤곽의 움푹한 부분이 상륙 방향을 만든다.
+var islands = new[]
+{
+    new Vector4(1104,834,137,93), new Vector4(2829,998,129,92),
+    new Vector4(1070,956,35,23), new Vector4(1093,682,45,30),
+    new Vector4(2680,1001,36,22), new Vector4(2898,838,50,35)
+};
+var angles = new[] { 12f,-30f,14f,-32f,-21f,-20f };
+var levels = new[] { 15f,24f,15f,15f,24f,24f };
+var crests = new[] { 16f,17f,3.2f,4.7f,3.6f,5f };
+Func<int,Vector2,float,float> islandShape = (i,p,old) =>
+{
+    var area = islands[i];
+    float dx=p.x-area.x, dz=p.y-area.y;
+    if (dx*dx+dz*dz > area.z*area.z*2.65f) return old;
+    float angle = angles[i]*Mathf.Deg2Rad;
+    float u=(dx*Mathf.Cos(angle)+dz*Mathf.Sin(angle))/area.z;
+    float v=(-dx*Mathf.Sin(angle)+dz*Mathf.Cos(angle))/area.w;
+    float a=Mathf.Atan2(v,u);
+    float radius=Mathf.Sqrt(u*u+v*v)/(1f+0.14f*Mathf.Cos(3*a+1.4f+i)+0.085f*Mathf.Sin(5*a-i));
+    if (radius >= 1.25f) return old;
+    float shore = levels[i] + (i < 2 ? 1.8f : 1.2f);
+    float inland = smooth((0.87f-radius)/0.81f);
+    float relief = i < 2 ? 2.8f * (Mathf.PerlinNoise(p.x*0.037f,p.y*0.037f)-0.5f) : 0;
+    float target = shore + inland*(crests[i]+relief);
+    return Mathf.Max(old,Mathf.Lerp(old,target,1-smooth((radius-0.83f)/0.42f)));
+};
+
+// 첫점과 끝점을 기존 길에 붙이고, 채석장 작업면과 설산 전망의 허리길을 다듬는다.
+var quarry = new[] { new Vector3(3140,0,2102),new Vector3(3146,118,2140),new Vector3(3170,103,2174),
+    new Vector3(3200,94,2200),new Vector3(3213,93,2228),new Vector3(3190,83,2248),
+    new Vector3(3155,74,2231),new Vector3(3138,84,2192),new Vector3(3159,110,2158) };
+var alpine = new[] { new Vector3(3304,0,3624),new Vector3(3285,393,3636),
+    new Vector3(3269,397,3647),new Vector3(3250,403,3667),new Vector3(3247,409,3691),
+    new Vector3(3262,415,3706),new Vector3(3285,0,3694) };
+var desert = new[] { new Vector3(3724,0,1680),new Vector3(3757,52,1702),
+    new Vector3(3783,52,1725),new Vector3(3775,53,1754),new Vector3(3744,0,1776) };
+Func<Vector3,Vector2> xz = p => new Vector2(p.x,p.z);
+// 재실행 시 끝점이 본 패스의 성형 결과로 달라지지 않도록 끝점의 기존 높이를 보존한다.
+foreach (var route in new[] {quarry,alpine,desert})
+for (int i=0;i<route.Length;i++)
+    if (route[i].y == 0) route[i].y = oldGround(xz(route[i]));
+
+Func<Vector2,Vector3[],float,float,float,float> corridor = (p,route,old,core,feather) =>
+{
+    float best = float.PositiveInfinity, weightedHeight = 0, weightTotal = 0;
+    for (int i=0;i<route.Length-1;i++)
+    {
+        var origin = xz(route[i]);
+        var delta = xz(route[i+1])-origin;
+        float q = Mathf.Clamp01(Vector2.Dot(p-origin,delta)/delta.sqrMagnitude);
+        float dist = Vector2.Distance(p,origin+q*delta);
+        best = Mathf.Min(best,dist);
+        float weight = Mathf.Exp(-dist*dist/95f);
+        weightedHeight += weight*Mathf.Lerp(route[i].y,route[i+1].y,q);
+        weightTotal += weight;
+    }
+    if (best >= core+feather) return old;
+    float endDistance = Vector2.Distance(p,xz(route[0]));
+    if (route != quarry) endDistance = Mathf.Min(endDistance,Vector2.Distance(p,xz(route[route.Length-1])));
+    float endFade = smooth(endDistance/17f);
+    float target = weightedHeight/weightTotal;
+    return Mathf.Lerp(old,target,(1-smooth((best-core)/feather))*endFade);
+};
+Func<Vector2,float,float> shape = (p, old) =>
+{
+    if (p.y < 1200)
+    {
+        float value = old;
+        for (int i=0;i<islands.Length;i++) value = Mathf.Max(value,islandShape(i,p,old));
+        return value;
+    }
+    if (p.x > 3090 && p.x < 3260 && p.y > 2095 && p.y < 2290)
+    {
+        float noise=(Mathf.PerlinNoise(p.x*0.052f,p.y*0.052f)-0.5f)*1.5f;
+        float workface=(1-smooth((Mathf.Abs(p.x-3209f)-24f)/19f))*(1-smooth((Mathf.Abs(p.y-2222f)-23f)/28f));
+        float ledge = Mathf.Lerp(93f,103f,smooth((p.x-3223f)/7f));
+        float cut=Mathf.Lerp(old,ledge+noise,workface);
+        return Mathf.Lerp(old,corridor(p,quarry,cut,9,25),smooth((p.y-2095f)/22f));
+    }
+    if (p.x > 3690 && p.x < 3885 && p.y > 1620 && p.y < 1790)
+    {
+        float u=(p.x-3801f-0.27f*(p.y-1693f))/75f, v=(p.y-1693f)/66f;
+        float taper=1-smooth(Mathf.Sqrt(u*u+v*v));
+        float spine=0.5f+0.5f*Mathf.Cos(u*8.6f+0.9f*Mathf.Sin(v*2.6f));
+        float dune=old+9.4f*taper*Mathf.Pow(spine,1.7f)*smooth((p.x-3732f)/33f);
+        return corridor(p,desert,dune,5,24);
+    }
+    if (p.x > 3200 && p.x < 3340 && p.y > 3590 && p.y < 3745)
+        return corridor(p,alpine,old,9,32);
+    return old;
+};
+Func<Vector2,float> ground = p => mode == "verify" ? oldGround(p) : shape(p,oldGround(p));
+var report = new System.Text.StringBuilder();
+for (int i=0;i<islands.Length;i++)
+{
+    var area=islands[i];
+    int oldLand=0,newLand=0;
+    float peak=0;
+    for (float z=area.y-area.w*1.5f;z<=area.y+area.w*1.5f;z+=2)
+    for (float x=area.x-area.z*1.3f;x<=area.x+area.z*1.3f;x+=2)
+    {
+        var p=new Vector2(x,z);
+        float old=oldGround(p);
+        if (old>levels[i]+0.35f) oldLand+=4;
+        float y=mode=="verify" ? old : islandShape(i,p,old);
+        if (y<=levels[i]+0.35f) continue;
+        newLand+=4;
+        peak=Mathf.Max(peak,y-levels[i]);
+    }
+    if (i<2 && (newLand<21000 || peak<15)) throw new InvalidOperationException("중앙섬 규모 미달 "+i+": "+newLand);
+    report.AppendLine("섬 "+i+" 육지 "+oldLand+" → "+newLand+"m² / 수면 위 "+peak.ToString("F1")+"m");
+}
+var names=new[] {"채석 단구","설산 허리길","사막 모래골"};
+int routeIndex=0;
+foreach (var route in new[] {quarry,alpine,desert})
+{
+    float max=0,length=0;
+    var steepest=Vector2.zero;
+    int samples=0;
+    for (int i=0;i<route.Length-1;i++)
+    {
+        var a=xz(route[i]); var b=xz(route[i+1]);
+        float segment=Vector2.Distance(a,b);
+        var side=new Vector2(-(b-a).y,(b-a).x).normalized;
+        length+=segment;
+        for (int j=0;j<=Mathf.CeilToInt(segment);j+=2)
+        foreach (float offset in new[]{-2f,0f,2f})
+        {
+            var p=Vector2.Lerp(a,b,j/segment)+side*offset;
+            float dx=(ground(p+Vector2.right)-ground(p-Vector2.right))*0.5f;
+            float dz=(ground(p+Vector2.up)-ground(p-Vector2.up))*0.5f;
+            float angle=Mathf.Atan(Mathf.Sqrt(dx*dx+dz*dz))*Mathf.Rad2Deg;
+            if (angle>max) { max=angle; steepest=p; }
+            samples++;
+        }
+    }
+    report.AppendLine(names[routeIndex++]+" "+length.ToString("F0")+"m / "+samples+"점 최대 "+max.ToString("F1")+"° "+steepest);
+    if (max>46f) throw new InvalidOperationException(report.ToString());
+}
+if (mode=="dry") return report.ToString();
+if (mode=="verify")
+{
+    float seam=0;
+    for (int tz=0;tz<8;tz++)
+    for (int tx=0;tx<8;tx++)
+    {
+        var data=grid[tz,tx].terrainData;
+        if (tx<7)
+        {
+            var a=data.GetHeights(512,0,1,513);
+            var b=grid[tz,tx+1].terrainData.GetHeights(0,0,1,513);
+            for (int i=0;i<=512;i++) seam=Mathf.Max(seam,Mathf.Abs(a[i,0]-b[i,0])*data.size.y);
+        }
+        if (tz<7)
+        {
+            var a=data.GetHeights(0,512,513,1);
+            var b=grid[tz+1,tx].terrainData.GetHeights(0,0,513,1);
+            for (int i=0;i<=512;i++) seam=Mathf.Max(seam,Mathf.Abs(a[0,i]-b[0,i])*data.size.y);
+        }
+    }
+    if (seam>0.031f) throw new InvalidOperationException("타일 경계 높이 차 "+seam);
+    report.AppendLine("112개 타일 경계 최대 높이 차 "+seam.ToString("F4")+"m");
+    System.IO.Directory.CreateDirectory(evidence);
+    System.IO.File.WriteAllText(evidence+"terrain-verify.txt",report.ToString());
+    return report.ToString();
+}
+if (mode!="apply" || System.IO.Directory.Exists(backup)) throw new InvalidOperationException("반영 모드와 기존 백업을 확인하세요.");
+var changed=new System.Collections.Generic.Dictionary<Terrain,float[,]>();
+int edits=0;
+foreach(var t in grid)
+{
+    var data=t.terrainData;
+    var origin=t.transform.position;
+    if (origin.z>3750 || origin.z+512<520) continue;
+    var h=data.GetHeights(0,0,513,513);
+    int before=edits;
+    for(int z=0;z<=512;z++)
+    for(int x=0;x<=512;x++)
+    {
+        float old=h[z,x]*data.size.y+origin.y;
+        float delta=shape(new Vector2(origin.x+x,origin.z+z),old)-old;
+        if (Mathf.Abs(delta)<0.0125f) continue;
+        h[z,x]+=delta/data.size.y;
+        edits++;
+    }
+    if(edits>before) changed.Add(t,h);
+}
+if(changed.Count==0) throw new InvalidOperationException("조형 변경 없음");
+System.IO.Directory.CreateDirectory(backup);
+var files=new System.Collections.Generic.List<string>{scene.path,definitionPath,"Assets/10.Datas/Map/RiverBasin4km/Minimap.png"};
+foreach(var entry in changed) files.Add(AssetDatabase.GetAssetPath(entry.Key.terrainData));
+foreach(var path in files) System.IO.File.Copy(path,backup+System.IO.Path.GetFileName(path));
+var lake=GameObject.Find("남부 호수 물가와 섬");
+var shifts=new System.Collections.Generic.List<string>();
+for (int g=0;g<lake.transform.childCount;g++)
+{
+    var parent=lake.transform.GetChild(g);
+    for (int i=0;i<parent.childCount;i++)
+    {
+        var p=xz(parent.GetChild(i).position);
+        float old=oldGround(p);
+        float delta=shape(p,old)-old;
+        if (delta>0.05f) shifts.Add(g+","+i+","+delta.ToString("R",System.Globalization.CultureInfo.InvariantCulture));
+    }
+}
+System.IO.File.WriteAllLines(backup+"lake-prop-shifts.csv",shifts);
+using(var session=new UPlayGround.WorldBuilder.Editor.WorldTerrainAuthoringSession(definition,grid))
+{
+    session.BeginSculpt();
+    try
+    {
+        foreach(var entry in changed) entry.Key.terrainData.SetHeights(0,0,entry.Value);
+        session.CaptureSculpt();
+    }
+    catch
+    {
+        session.RevertUncaptured();
+        throw;
+    }
+}
+report.AppendLine("조형 "+changed.Count+"개 타일 / "+edits+"개 표본");
+System.IO.Directory.CreateDirectory(evidence);
+System.IO.File.WriteAllText(evidence+"terrain-apply.txt",report.ToString());
+return report.ToString();

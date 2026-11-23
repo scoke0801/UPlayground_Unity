@@ -1,0 +1,189 @@
+// dry에서 변경 후 단면을 검사하고, apply에서 수로와 상륙면을 Sculpt로 기록한다.
+const string mode = "dry";
+const string id = "6effd90b68ea4b3d8f8caa5197fcfe34";
+const string evidence = "docs/work-status/river-basin-exploration-evidence/";
+const string backup = "output/RiverBasinWorld/Exploration/before-crossing-correction/";
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if(scene.name!="RiverBasin4km" || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("저장된 RiverBasin4km 편집 모드가 필요합니다.");
+var grid=new Terrain[8,8];
+foreach(var t in Terrain.activeTerrains)
+    if(t.gameObject.scene==scene) grid[(int)t.transform.position.z/512,(int)t.transform.position.x/512]=t;
+foreach(var t in grid) if(t==null) throw new InvalidOperationException("Terrain 격자 누락");
+Func<Vector2,float> ground=p =>
+{
+    var t=grid[(int)p.y/512,(int)p.x/512];
+    return t.SampleHeight(new Vector3(p.x,0,p.y))+t.transform.position.y;
+};
+Func<float,float> smooth=value =>
+{
+    float q=Mathf.Clamp01(value);
+    return q*q*(3-2*q);
+};
+var sections=new[]
+{
+    new[]{1009.14f,1039.05f,1072.99f,958.65f,15f,0f,0f},
+    new[]{1070f,956f,1104f,834f,15f,25f,105f},
+    new[]{1104f,834f,1093f,682f,15f,0f,0f},
+    new[]{1093f,682f,1100f,550f,15f,0f,0f},
+    new[]{2578f,1050f,2680f,1001f,24f,0f,0f},
+    new[]{2680f,1001f,2830f,1006f,24f,37f,87f},
+    new[]{2830f,1006f,2898f,838f,24f,139f,91f},
+    new[]{2898f,838f,2900f,693f,24f,0f,0f}
+};
+var directions=new Vector2[sections.Length];
+var starts=new Vector2[sections.Length];
+var lengths=new float[sections.Length];
+var beds=new float[sections.Length][];
+for(int i=0;i<sections.Length;i++)
+{
+    var row=sections[i];
+    starts[i]=new Vector2(row[0],row[1]);
+    var delta=new Vector2(row[2],row[3])-starts[i];
+    directions[i]=delta.normalized;
+    lengths[i]=delta.magnitude;
+    beds[i]=new float[Mathf.CeilToInt(lengths[i])+1];
+    for(int j=0;j<beds[i].Length;j++)
+    {
+        float weighted=0, weights=0;
+        for(int k=-12;k<=12;k+=2)
+        {
+            float w=13-Mathf.Abs(k);
+            weighted+=ground(starts[i]+directions[i]*Mathf.Clamp(j+k,0,lengths[i]))*w;
+            weights+=w;
+        }
+        beds[i][j]=weighted/weights;
+    }
+}
+Func<Vector2,float,float> shape=(p,old)=>
+{
+    float value=old;
+    for(int i=0;i<sections.Length;i++)
+    {
+        if((p-starts[i]).sqrMagnitude>95000f) continue;
+        var row=sections[i];
+        var dir=directions[i];
+        var delta=p-starts[i];
+        float along=Vector2.Dot(delta,dir);
+        if(along<=0 || along>=lengths[i]) continue;
+        float lateral=Vector2.Dot(delta,new Vector2(-dir.y,dir.x));
+        float distance=Mathf.Abs(lateral);
+        float central=(1-smooth((distance-3f)/12f))*smooth(Mathf.Min(along,lengths[i]-along)/10f);
+        int j=(int)along;
+        if(central>0)
+        {
+            float centerOld=ground(starts[i]+dir*along);
+            float bed=Mathf.Lerp(beds[i][j],beds[i][j+1],along-j);
+            float nearShore=1-smooth((Mathf.Abs(bed-row[4])-3f)/5f);
+            value=Mathf.Lerp(value,bed+(old-centerOld)*(1-nearShore),central*nearShore);
+        }
+        if(row[5]<=0 || distance>=row[6]) continue;
+        float bend=0.0018f*lateral*lateral*Mathf.Sin(i+0.8f);
+        float run=Mathf.Abs(along-row[5]-bend);
+        float depth=row[4]-3.4f+Mathf.Max(0,run-5.5f)*0.42f;
+        float sideMask=1-smooth((distance-row[6]*0.75f)/(row[6]*0.25f));
+        float lengthMask=smooth(Mathf.Min(along,lengths[i]-along)/9f);
+        value=Mathf.Lerp(value,Mathf.Min(value,depth),sideMask*lengthMask);
+    }
+    return value;
+};
+var audit=new System.Text.StringBuilder();
+for(int i=0;i<sections.Length;i++)
+{
+    float max=0,minDeep=float.MaxValue;
+    bool endsDry=true;
+    var dir=directions[i]; var side=new Vector2(-dir.y,dir.x);
+    foreach(float offset in new[]{-1.8f,0f,1.8f})
+    {
+        int steps=Mathf.CeilToInt(lengths[i]);
+        float previous=0,depthBefore=0,run=0,deep=0;
+        for(int j=0;j<=steps;j++)
+        {
+            var p=starts[i]+dir*(lengths[i]*j/steps)+side*offset;
+            float y=shape(p,ground(p));
+            float depth=sections[i][4]-y;
+            if(j==0 || j==steps) endsDry &= depth<=0.1f;
+            if(depth>=1.2f) { run+=lengths[i]/steps; deep=Mathf.Max(run,deep); }
+            else run=0;
+            if(j>0 && ((depth>-.4f && depth<1.4f)||(depthBefore>-.4f && depthBefore<1.4f)))
+                max=Mathf.Max(max,Mathf.Atan(Mathf.Abs(y-previous)*steps/lengths[i])*Mathf.Rad2Deg);
+            previous=y; depthBefore=depth;
+        }
+        minDeep=Mathf.Min(minDeep,deep);
+    }
+    audit.AppendLine("횡단 "+i+" / 수영 "+minDeep.ToString("F1")+"m / 물가 "+max.ToString("F1")+"° / 양안 "+endsDry);
+    if(!endsDry || minDeep<5 || max>40) throw new InvalidOperationException(audit.ToString());
+}
+if(mode=="dry") return audit.ToString();
+if(mode!="apply") throw new InvalidOperationException("수로 모드 확인");
+string definitionPath="Assets/10.Datas/WorldBuilder/"+id+"_Authoring.asset";
+var definition=AssetDatabase.LoadAssetAtPath<UPlayGround.WorldBuilder.Data.WorldDefinition>(definitionPath);
+if(definition==null || definition.ActiveSession!=null) throw new InvalidOperationException("기존 조형 세션을 먼저 확인하세요.");
+var changed=new System.Collections.Generic.Dictionary<Terrain,float[,]>();
+foreach(var t in new[]{grid[1,1],grid[1,2],grid[2,1],grid[2,2],grid[1,4],grid[1,5],grid[2,4],grid[2,5]})
+{
+    var pos=t.transform.position;
+    var h=t.terrainData.GetHeights(0,0,513,513);
+    bool dirty=false;
+    for(int z=0;z<=512;z++)
+    for(int x=0;x<=512;x++)
+    {
+        float old=h[z,x]*t.terrainData.size.y+pos.y;
+        float delta=shape(new Vector2(pos.x+x,pos.z+z),old)-old;
+        if(Mathf.Abs(delta)<0.0125f) continue;
+        h[z,x]+=delta/t.terrainData.size.y;
+        dirty=true;
+    }
+    if(dirty) changed.Add(t,h);
+}
+if(changed.Count==0) throw new InvalidOperationException("수로 변경 없음");
+var itemHeights=new System.Collections.Generic.Dictionary<Transform,float>();
+foreach(var name in new[]{"남부 호수 물가와 섬","호수와 동부·설산 탐험"})
+foreach(Transform group in GameObject.Find(name).transform)
+foreach(Transform prop in group)
+{
+    var p=new Vector2(prop.position.x,prop.position.z);
+    if(p.y>1200) continue;
+    float old=ground(p);
+    float offset=shape(p,old)-old;
+    if(Mathf.Abs(offset)>0.08f) itemHeights.Add(prop,offset);
+}
+// 이 교정에 들어가기 직전의 씬과 변경될 데이터만 다시 보관한다.
+if(System.IO.Directory.Exists(backup)) throw new InvalidOperationException("수로 교정 백업이 이미 있습니다.");
+System.IO.Directory.CreateDirectory(backup);
+var files=new System.Collections.Generic.List<string>{scene.path,definitionPath};
+foreach(var entry in changed) files.Add(AssetDatabase.GetAssetPath(entry.Key.terrainData));
+foreach(string path in files)
+{
+    string copy=backup+System.IO.Path.GetFileName(path);
+    System.IO.File.Copy(path,copy);
+    if(new System.IO.FileInfo(copy).Length!=new System.IO.FileInfo(path).Length)
+        throw new InvalidOperationException("수로 교정 백업 확인 실패 "+path);
+}
+audit.AppendLine("백업 "+files.Count+"개 / 보정 대상 장식 "+itemHeights.Count+"개");
+System.IO.File.WriteAllText(evidence+"lake-crossings-before.txt",audit.ToString());
+using(var session=new UPlayGround.WorldBuilder.Editor.WorldTerrainAuthoringSession(definition,grid))
+{
+    session.BeginSculpt();
+    try
+    {
+        foreach(var entry in changed) entry.Key.terrainData.SetHeights(0,0,entry.Value);
+        session.CaptureSculpt();
+    }
+    catch
+    {
+        session.RevertUncaptured();
+        throw;
+    }
+}
+foreach(var entry in itemHeights)
+{
+    Undo.RecordObject(entry.Key,"수로 변경에 따른 기존 장식 정렬");
+    entry.Key.position+=Vector3.up*entry.Value;
+    PrefabUtility.RecordPrefabInstancePropertyModifications(entry.Key);
+}
+UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+if(!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene)) throw new InvalidOperationException("수변 배치 저장 실패");
+audit.AppendLine("수로 조형 "+changed.Count+"개 타일 / 장식 "+itemHeights.Count+"개 정렬");
+System.IO.File.WriteAllText(evidence+"lake-crossings-apply.txt",audit.ToString());
+return audit.ToString();

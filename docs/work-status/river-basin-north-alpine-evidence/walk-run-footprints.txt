@@ -1,0 +1,4 @@
+Sand Walk reached=True mode=True wrongModeFrames=0 motions=Raon_Common_Walk_73cc146f left=6 right=7 same=0 wrongKind=0 idle=0 dropped=0 gpuD=5050
+Sand Run reached=True mode=True wrongModeFrames=0 motions=Raon_Common_Run_946f4169 left=5 right=5 same=0 wrongKind=0 idle=0 dropped=0 gpuD=4879
+Snow Walk reached=True mode=True wrongModeFrames=0 motions=Raon_Common_Walk_73cc146f left=8 right=8 same=0 wrongKind=0 idle=0 dropped=0 gpuD=6688
+Snow Run reached=True mode=True wrongModeFrames=0 motions=Raon_Common_Run_946f4169 left=6 right=6 same=0 wrongKind=0 idle=0 dropped=0 gpuD=7556

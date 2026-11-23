@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ad4cd578e5cf224abf0ae3777192d75, type: 3}
+  m_Name: SandFootprint_Low
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.Actor.SandFootprintProfileSO
+  quality: 1
+  halfLife: 20
+  windDecay: 1
+  depression: 0.012
+  rim: 0.004
+  colorContrast: 0.33
+  smoothness: 0.06
+  npcRadius: 9
+  npcStampsPerFrame: 4
+  walk: {x: 0.75, y: 0.62}
+  run: {x: 0.91, y: 0.82}
+  landing: {x: 1, y: 1}

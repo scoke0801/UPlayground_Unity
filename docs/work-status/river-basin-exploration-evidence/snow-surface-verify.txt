@@ -1,0 +1,1 @@
+atlas=382x763 sandMismatch=0 snowMismatch=0 snowArea=143871m² snowAudioSamples=8976

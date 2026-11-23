@@ -1,0 +1,46 @@
+// 구매 원본의 형상·LOD·노멀을 쓰고, 사막 인스턴스에만 이끼 없는 재질 복제본을 적용한다.
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (scene.name != "RiverBasin4km" || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("저장된 RiverBasin4km을 열어야 합니다.");
+var rocks = GameObject.Find("동부 사암 사막");
+if (rocks == null) throw new InvalidOperationException("사암 배치가 없습니다.");
+const string path = "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/EastDesert";
+var variants = new System.Collections.Generic.Dictionary<Material, Material>();
+foreach (var renderer in rocks.GetComponentsInChildren<Renderer>(true))
+{
+    var materials = renderer.sharedMaterials;
+    for (int i = 0; i < materials.Length; i++)
+    {
+        var original = materials[i];
+        if (original == null || AssetDatabase.GetAssetPath(original).StartsWith(path + "/")) continue;
+        Material version;
+        if (!variants.TryGetValue(original, out version))
+        {
+            string guid = AssetDatabase.AssetPathToGUID(AssetDatabase.GetAssetPath(original));
+            string destination = path + "/Sandstone_" + guid.Substring(0, 8) + ".mat";
+            version = AssetDatabase.LoadAssetAtPath<Material>(destination);
+            if (version == null)
+            {
+                version = new Material(original) { name = original.name + "_Sandstone" };
+                if (version.HasProperty("_USE_COVERAGE_LAYER"))
+                {
+                    version.SetFloat("_USE_COVERAGE_LAYER", 0);
+                    version.DisableKeyword("_USE_COVERAGE_LAYER");
+                }
+                if (version.HasProperty("_Stylization_Color")) version.SetColor("_Stylization_Color", new Color(0.62f, 0.43f, 0.29f, 0));
+                if (version.HasProperty("_Dirt_Color")) version.SetColor("_Dirt_Color", new Color(0.64f, 0.45f, 0.27f, 0));
+                if (version.HasProperty("_Edgewear_Color")) version.SetColor("_Edgewear_Color", new Color(0.84f, 0.68f, 0.46f, 0));
+                AssetDatabase.CreateAsset(version, destination);
+            }
+            variants.Add(original, version);
+        }
+        materials[i] = version;
+    }
+    Undo.RecordObject(renderer, "사암만의 재질 연결");
+    renderer.sharedMaterials = materials;
+    PrefabUtility.RecordPrefabInstancePropertyModifications(renderer);
+}
+UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+if (!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene))
+    throw new InvalidOperationException("사암 재질 연결 저장 실패");
+return "사암 재질 복제본 " + variants.Count;

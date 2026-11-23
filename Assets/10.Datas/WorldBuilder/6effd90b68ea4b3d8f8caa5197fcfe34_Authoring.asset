@@ -159,15 +159,175 @@ MonoBehaviour:
     patch: {fileID: 4900000, guid: 32a0d8347735f834cbfb8af1a09ab002, type: 3}
     patchSha256: bedf90dee8b99adf98dad3604c4f0bfc2e0d9ac2f0cbac65ef836bb6506a42b2
     sourceRevision: 4ef5b515bb3eb9e6a0c859c9287e609215162f28c544c1b281d56412f326445c
+  - operationGuid: e45db77e5b1f40a2a00dffea654de3f1
+    ownerPlanGuid: 
+    ownerElementGuid: 
+    kind: 0
+    x: 3690
+    z: 1669
+    width: 293
+    height: 234
+    value: 0
+    stage: 40
+    priority: 0
+    sequence: 4
+    enabled: 1
+    automatic: 0
+    radius: 1
+    iterations: 1
+    protection: 1
+    patch: {fileID: 4900000, guid: 994249cd68e72364fbc46da5b511c2e5, type: 3}
+    patchSha256: 7b1065fbb71b6f1a676e477714c511feebbb534a3b89e0f108531c40fe75ac8c
+    sourceRevision: 4ef5b515bb3eb9e6a0c859c9287e609215162f28c544c1b281d56412f326445c
+  - operationGuid: 8fc6c51cf8014f90b896f76cfaa35432
+    ownerPlanGuid: 
+    ownerElementGuid: 
+    kind: 0
+    x: 3269
+    z: 1477
+    width: 828
+    height: 982
+    value: 0
+    stage: 40
+    priority: 0
+    sequence: 5
+    enabled: 1
+    automatic: 0
+    radius: 1
+    iterations: 1
+    protection: 1
+    patch: {fileID: 4900000, guid: 3a085af792d5a004a9491a66cd70aa42, type: 3}
+    patchSha256: 163b883498ae51d96a905c632e9a4612aa128675992f4b4602169395b5007b6d
+    sourceRevision: 4ef5b515bb3eb9e6a0c859c9287e609215162f28c544c1b281d56412f326445c
+  - operationGuid: 5b88b2dd8cb746e9943efcd923d469e9
+    ownerPlanGuid: 
+    ownerElementGuid: 
+    kind: 0
+    x: 969
+    z: 634
+    width: 1993
+    height: 459
+    value: 0
+    stage: 40
+    priority: 0
+    sequence: 6
+    enabled: 1
+    automatic: 0
+    radius: 1
+    iterations: 1
+    protection: 1
+    patch: {fileID: 4900000, guid: 70a581d4517289242bde2a048cb640d4, type: 3}
+    patchSha256: db23f3ec985010ca10a06ea207e03079294aee6eaa09668d10bf16f31c7b9f1f
+    sourceRevision: 4ef5b515bb3eb9e6a0c859c9287e609215162f28c544c1b281d56412f326445c
+  - operationGuid: 6dea362daf01427cb68a56a9b811cbb7
+    ownerPlanGuid: 
+    ownerElementGuid: 
+    kind: 0
+    x: 2947
+    z: 2125
+    width: 512
+    height: 1689
+    value: 0
+    stage: 40
+    priority: 0
+    sequence: 7
+    enabled: 1
+    automatic: 0
+    radius: 1
+    iterations: 1
+    protection: 1
+    patch: {fileID: 4900000, guid: 0cc5ea3202a111f4390c6b78104857fe, type: 3}
+    patchSha256: 1066935d6dfa44bc43f9a3843cd194bbce7b0a4fd8844e43726898ede70c00e4
+    sourceRevision: 4ef5b515bb3eb9e6a0c859c9287e609215162f28c544c1b281d56412f326445c
+  - operationGuid: 386a0bc20ada4e0691e6619296ee1fa7
+    ownerPlanGuid: 
+    ownerElementGuid: 
+    kind: 0
+    x: 3277
+    z: 3531
+    width: 67
+    height: 107
+    value: 0
+    stage: 40
+    priority: 0
+    sequence: 8
+    enabled: 1
+    automatic: 0
+    radius: 1
+    iterations: 1
+    protection: 1
+    patch: {fileID: 4900000, guid: 9324cdec3d916654093c1305c8435086, type: 3}
+    patchSha256: 700c28d1aad1cc6a593ad0949fe4551b485d24900caac3503b4c69d2b623c0e7
+    sourceRevision: 4ef5b515bb3eb9e6a0c859c9287e609215162f28c544c1b281d56412f326445c
+  - operationGuid: c7875cc0079048aba82e42aba4ceb2c7
+    ownerPlanGuid: 
+    ownerElementGuid: 
+    kind: 0
+    x: 940
+    z: 639
+    width: 2934
+    height: 3106
+    value: 0
+    stage: 40
+    priority: 0
+    sequence: 9
+    enabled: 1
+    automatic: 0
+    radius: 1
+    iterations: 1
+    protection: 1
+    patch: {fileID: 4900000, guid: 780c4c3f1804af54ca6de190005da496, type: 3}
+    patchSha256: f44764ae000ffdba966e4d07ce5f9060da6417c9e59585023e65b9e5cc74432c
+    sourceRevision: 4ef5b515bb3eb9e6a0c859c9287e609215162f28c544c1b281d56412f326445c
+  - operationGuid: caf1d25ad7144752ad9ff41f0e2ff272
+    ownerPlanGuid: 
+    ownerElementGuid: 
+    kind: 0
+    x: 1001
+    z: 551
+    width: 1919
+    height: 533
+    value: 0
+    stage: 40
+    priority: 0
+    sequence: 10
+    enabled: 1
+    automatic: 0
+    radius: 1
+    iterations: 1
+    protection: 1
+    patch: {fileID: 4900000, guid: 87e6e795ed89c7a46a14304db6211841, type: 3}
+    patchSha256: e8aa22d8b0e42137880800ea0c076383c8823455da4d89bd3b5b3a4c020842e3
+    sourceRevision: 4ef5b515bb3eb9e6a0c859c9287e609215162f28c544c1b281d56412f326445c
+  - operationGuid: e42069872cd14e7a94bbd4f77a8af898
+    ownerPlanGuid: 
+    ownerElementGuid: 
+    kind: 0
+    x: 542
+    z: 627
+    width: 2647
+    height: 1623
+    value: 0
+    stage: 40
+    priority: 0
+    sequence: 11
+    enabled: 1
+    automatic: 0
+    radius: 1
+    iterations: 1
+    protection: 1
+    patch: {fileID: 4900000, guid: 954bc13af5a8a0544bae6ddd25975b61, type: 3}
+    patchSha256: d2b2ab98691fc0b7287c0ad26e799aa0b6707184aada6c2a16bf667277488d5b
+    sourceRevision: 4ef5b515bb3eb9e6a0c859c9287e609215162f28c544c1b281d56412f326445c
   _activeSession:
     rid: -2
-  _appliedTerrainHash: 7209c00b02b98b6249ab80c00e560f42ab54fca10d7dac920a4245058d57eed3
-  _appliedStackHash: ec11a0fb7c25efeaedba696a43c2b79e11290eafa5553e0b8bddcb763c2897e9
+  _appliedTerrainHash: 6f32357ed6bf9ceeb2c8e17d099c817fcae0c010edf01c382e3b567becec526e
+  _appliedStackHash: b75c5ad5409c6365ce8e25272c5eccb13a222d8da17a64b0994b6a4b779d9231
   _dirtyLayers: 767
-  _dirtyX: 920
+  _dirtyX: 542
   _dirtyZ: 138
-  _dirtyWidth: 2528
-  _dirtyHeight: 3314
+  _dirtyWidth: 3555
+  _dirtyHeight: 3676
   _placementSeed: 0
   _generationEpoch: 0
   _placementCatalog: {fileID: 0}

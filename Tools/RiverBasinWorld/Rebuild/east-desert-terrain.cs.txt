@@ -1,0 +1,120 @@
+// RiverBasin4km에서 dry → heights → paint 순서로 실행한다.
+const string mode = "dry";
+const string world = "6effd90b68ea4b3d8f8caa5197fcfe34";
+string root = "Assets/WorldBuilder/Worlds/" + world;
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (scene.path != root + "/Preview/RiverBasin4km.unity" || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("RiverBasin4km 저장본을 Edit Mode에서 열어야 합니다.");
+var grid = new Terrain[8, 8];
+foreach (var candidate in Terrain.activeTerrains)
+{
+    if (candidate.gameObject.scene != scene) continue;
+    Vector3 p = candidate.transform.position;
+    grid[Mathf.RoundToInt(p.z / 512), Mathf.RoundToInt(p.x / 512)] = candidate;
+}
+var terrain = grid[3, 7];
+var data = terrain.terrainData;
+var origin = terrain.transform.position;
+if (data.size.x != 512 || data.heightmapResolution != 513 || data.alphamapResolution != 128)
+    throw new InvalidOperationException("제작 지형 규격이 달라졌습니다.");
+var smooth = new Func<float, float>(v => { v = Mathf.Clamp01(v); return v * v * (3 - 2 * v); });
+var basin = new Func<float, float, float>((x, z) =>
+{
+    float u = (x - 3836f + 0.18f * (z - 1790f)) / 159f;
+    float v = (z - 1785f) / 129f;
+    return Mathf.Sqrt(u * u + v * v);
+});
+const int x0 = 90, z0 = 115, width = 334, height = 265;
+var heights = data.GetHeights(x0, z0, width, height);
+float maxDelta = 0;
+int edits = 0;
+for (int z = 0; z < height; z++)
+for (int x = 0; x < width; x++)
+{
+    float wx = origin.x + x0 + x, wz = origin.z + z0 + z;
+    float w = smooth((0.93f - basin(wx, wz)) / 0.32f);
+    if (w == 0) continue;
+    float phase = 0.041f * (wz - 0.56f * wx) + 0.71f * Mathf.Sin(wx * 0.033f);
+    float crest = 0.5f + 0.5f * Mathf.Sin(phase);
+    float wash = Mathf.Abs(wz - (1761f + 15f * Mathf.Sin((wx - 3750f) / 39f)));
+    float delta = w * ((0.55f + 2.5f * crest * crest) * smooth((wash - 5f) / 10f) - 0.85f * (1f - smooth(wash / 12f)));
+    maxDelta = Mathf.Max(maxDelta, Mathf.Abs(delta));
+    if (Mathf.Abs(delta) < 0.002f) continue;
+    heights[z, x] += delta / data.size.y;
+    edits++;
+}
+if (mode == "heights")
+{
+    string layerPath = root + "/Production/Layers/FineDesertSand.terrainlayer";
+    if (AssetDatabase.LoadAssetAtPath<TerrainLayer>(layerPath) != null)
+        throw new InvalidOperationException("이미 페인트가 제작된 지형입니다.");
+    var definition = AssetDatabase.LoadAssetAtPath<UPlayGround.WorldBuilder.Data.WorldDefinition>("Assets/10.Datas/WorldBuilder/" + world + "_Authoring.asset");
+    if (definition.Operations.Count != 7)
+        throw new InvalidOperationException("예상 지형 명령 기준과 다릅니다.");
+    using (var session = new UPlayGround.WorldBuilder.Editor.WorldTerrainAuthoringSession(definition, grid))
+    {
+        session.BeginSculpt();
+        try
+        {
+            data.SetHeights(x0, z0, heights);
+            session.CaptureSculpt();
+        }
+        catch
+        {
+            session.RevertUncaptured();
+            throw;
+        }
+    }
+    EditorUtility.SetDirty(data);
+    EditorUtility.SetDirty(definition);
+    AssetDatabase.SaveAssetIfDirty(data);
+    AssetDatabase.SaveAssetIfDirty(definition);
+    return "Sculpt " + definition.Operations.Count + " / " + edits + " samples / max " + maxDelta.ToString("F2") + "m";
+}
+if (mode != "paint")
+    return "Dry: " + edits + " samples / max " + maxDelta.ToString("F2") + "m";
+
+string path = root + "/Production/Layers/FineDesertSand.terrainlayer";
+if (data.terrainLayers.Length != 8 || AssetDatabase.LoadAssetAtPath<TerrainLayer>(path) != null)
+    throw new InvalidOperationException("초기 8레이어 페인트가 필요합니다.");
+var old = data.GetAlphamaps(0, 0, 128, 128);
+var next = new float[128, 128, 9];
+var layers = new System.Collections.Generic.List<TerrainLayer>(data.terrainLayers);
+var source = AssetDatabase.LoadAssetAtPath<TerrainLayer>("Assets/08.Terrain/SandLayer.terrainlayer");
+var sand = UnityEngine.Object.Instantiate(source);
+sand.name = "FineDesertSand";
+sand.tileSize = new Vector2(5, 5);
+sand.normalMapTexture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Textures/Ground/Sand/Sand_Normal.png");
+sand.normalScale = 0.38f;
+if (sand.diffuseTexture == null || sand.normalMapTexture == null)
+    throw new InvalidOperationException("모래 텍스처가 누락됐습니다.");
+int painted = 0, majority = 0;
+for (int z = 0; z < 128; z++)
+for (int x = 0; x < 128; x++)
+{
+    float u = x / 127f, v = z / 127f;
+    float wx = origin.x + u * 512, wz = origin.z + v * 512;
+    float distance = basin(wx, wz);
+    float dry = smooth((1.47f - distance) / 0.68f);
+    float flat = smooth((30f - data.GetSteepness(u, v)) / 17f);
+    float edge = smooth(Mathf.Min(Mathf.Min(x, z), Mathf.Min(127 - x, 127 - z)) / 4f);
+    float micro = Mathf.Lerp(0.82f, 1f, Mathf.PerlinNoise(wx * 0.019f, wz * 0.019f));
+    float weight = dry * flat * edge * micro;
+    if (weight > 0) painted++;
+    if (weight >= 0.5f) majority++;
+    float transfer = Mathf.Min(1, dry * edge * 1.48f);
+    for (int i = 0; i < 8; i++) next[z, x, i] = old[z, x, i] * (1 - weight);
+    float grass = (next[z, x, 0] + next[z, x, 1]) * transfer;
+    next[z, x, 0] *= 1 - transfer;
+    next[z, x, 1] *= 1 - transfer;
+    next[z, x, 2] += grass;
+    next[z, x, 8] = weight;
+}
+if (majority < 700) throw new InvalidOperationException("걸어서 이어지는 모래 면적을 확인하세요: " + majority);
+AssetDatabase.CreateAsset(sand, path);
+layers.Add(sand);
+data.terrainLayers = layers.ToArray();
+data.SetAlphamaps(0, 0, next);
+EditorUtility.SetDirty(data);
+AssetDatabase.SaveAssetIfDirty(data);
+return "Paint " + painted + " / sand >= 0.5: " + majority;

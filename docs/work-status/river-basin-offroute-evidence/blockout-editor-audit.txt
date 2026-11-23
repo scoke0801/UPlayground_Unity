@@ -1,0 +1,18 @@
+﻿RiverBasin4km Unity Edit Mode — 저장된 씬 검사 (2026-11-22)
+lake-loop: 663.6m / slope p90 7.3 % max 13.8 % / wet 0 max 0.00m at (0.00, 0.00)
+R1: 1467.7m / slope p90 19.5 % max 28.4 % / wet 0 max 0.00m at (0.00, 0.00)
+R1b: 554.6m / slope p90 12.1 % max 18.3 % / wet 0 max 0.00m at (0.00, 0.00)
+alpine-approach: 484.5m / slope p90 4.1 % max 7.3 % / wet 0 max 0.00m at (0.00, 0.00)
+quarry-approach: 811.1m / slope p90 7.2 % max 15.4 % / wet 0 max 0.00m at (0.00, 0.00)
+R3: 1816.1m / slope p90 21.4 % max 31.0 % / wet 0 max 0.00m at (0.00, 0.00)
+R5: 1339.5m / slope p90 25.0 % max 31.3 % / wet 0 max 0.00m at (0.00, 0.00)
+R4a: 650.3m / slope p90 26.9 % max 38.2 % / wet 0 max 0.00m at (0.00, 0.00)
+R4b: 534.8m / slope p90 29.3 % max 34.4 % / wet 0 max 0.00m at (0.00, 0.00)
+coast-dock: 429.5m / slope p90 4.7 % max 7.4 % / wet 0 max 0.00m at (0.00, 0.00)
+coast: 1144.8m / slope p90 14.6 % max 22.0 % / wet 0 max 0.00m at (0.00, 0.00)
+B5: deck 52.0m / wet span 28.7m / water clearance 1.21m / max depth 2.41m / landing delta 0.14m
+B5: approach overlap 0.02m / deck ray hits 285
+육상 11구간 중심과 폭 방향 5열을 최대 1m 간격으로 샘플링. wet은 수면 아래 0.10m를 초과한 표본 수.
+B5 상판 레이 285/285, 경간 방향 0.54m 간격의 3열. 착지 지형이 상판보다 높은 최대량 0.02m.
+씬 레코드 2,134개 보존, 루트 목록에 블록아웃 1개 추가. 새 레코드 235개.
+열린 씬의 활성 NavMesh 삼각형 수 0. 경로 검사와 플레이 이동 계측 미수행.

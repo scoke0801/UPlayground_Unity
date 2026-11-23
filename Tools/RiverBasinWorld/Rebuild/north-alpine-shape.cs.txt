@@ -1,0 +1,197 @@
+// dry/heights는 동선, bench-dry/bench는 눈선의 완경사 쉼터를 검사하고 조형 스택에 기록한다.
+const string mode = "dry";
+const string root = "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34";
+const string definitionPath = "Assets/10.Datas/WorldBuilder/6effd90b68ea4b3d8f8caa5197fcfe34_Authoring.asset";
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (scene.path != root + "/Preview/RiverBasin4km.unity" || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("저장된 RiverBasin4km의 편집 모드가 필요합니다.");
+var definition = AssetDatabase.LoadAssetAtPath<UPlayGround.WorldBuilder.Data.WorldDefinition>(definitionPath);
+var grid = new Terrain[8, 8];
+foreach (var t in Terrain.activeTerrains)
+{
+    var p = t.transform.position;
+    if (t.gameObject.scene == scene) grid[Mathf.RoundToInt(p.z / 512), Mathf.RoundToInt(p.x / 512)] = t;
+}
+var route = new[]
+{
+    new Vector3(2972,119,2152), new Vector3(3020,88,2194), new Vector3(3065,57,2260),
+    new Vector3(3070,54,2370), new Vector3(3075,57,2480), new Vector3(3080,63,2560),
+    new Vector3(3110,81,2660), new Vector3(3130,108,2760), new Vector3(3145,113,2880),
+    new Vector3(3140,119,2990), new Vector3(3190,141,3080), new Vector3(3225,171,3180),
+    new Vector3(3220,196,3300), new Vector3(3290,250,3400), new Vector3(3290,291,3470),
+    new Vector3(3310,338,3540), new Vector3(3310,380,3610), new Vector3(3280,414,3685),
+    new Vector3(3310,421,3740), new Vector3(3385,446,3730), new Vector3(3385,421,3655),
+    new Vector3(3365,392,3605), new Vector3(3310,338,3540)
+};
+var segments = new Vector2[route.Length - 1];
+var origins = new Vector2[segments.Length];
+for (int i = 0; i < segments.Length; i++)
+{
+    origins[i] = new Vector2(route[i].x, route[i].z);
+    segments[i] = new Vector2(route[i + 1].x, route[i + 1].z) - origins[i];
+}
+Func<float,float> smooth = v => { v = Mathf.Clamp01(v); return v*v*(3f-2f*v); };
+Func<Vector2,float,float> shape = (p, old) =>
+{
+    float dist = 1000, height = old, longitudinal = 0;
+    int nearest = -1;
+    for (int i = 0; i < segments.Length; i++)
+    {
+        var v = p - origins[i];
+        float f = Mathf.Clamp01(Vector2.Dot(v, segments[i]) / segments[i].sqrMagnitude);
+        float d = (v - segments[i]*f).magnitude;
+        if (d >= dist) continue;
+        dist = d;
+        nearest = i;
+        height = Mathf.Lerp(route[i].y, route[i + 1].y, f);
+        longitudinal = i == 0 ? f : 1;
+    }
+    if (dist > 75f) return old;
+    float weights = 1f;
+    for (int i = 0; i < segments.Length; i++)
+    {
+        if (i == nearest) continue;
+        var v = p - origins[i];
+        float f = Mathf.Clamp01(Vector2.Dot(v, segments[i]) / segments[i].sqrMagnitude);
+        float d2 = (v - segments[i]*f).sqrMagnitude;
+        if (d2 - dist*dist > 3600f) continue;
+        float w = Mathf.Exp(-(d2 - dist*dist) / 280f);
+        height += w * Mathf.Lerp(route[i].y, route[i + 1].y, f);
+        weights += w;
+    }
+    height /= weights;
+    float summit = smooth((p.y - 3500f) / 180f);
+    float foreland = smooth((p.y - 2210f) / 100f);
+    float core = Mathf.Lerp(4f, 13f, summit);
+    float blend = (1f - smooth((dist - core) / (44f + 17f*summit))) * smooth(longitudinal * 2f);
+    if (blend <= 0) return old;
+    float drift = (Mathf.PerlinNoise(p.x * 0.042f, p.y * 0.042f) - 0.5f) * (0.7f + 0.9f*summit);
+    float pitch = 0.085f * dist;
+    float target = height + pitch + drift*foreland;
+    return Mathf.Lerp(old, target, blend);
+};
+Func<Vector2,float,float> bench = (p, old) =>
+{
+    float fromSeam = p.y - 3584f;
+    float lengthWeight = 1f - smooth(Mathf.Abs(fromSeam) / 54f);
+    float widthWeight = 1f - smooth((Mathf.Abs(p.x-3310f) - 8f) / 26f);
+    return old - 0.45f*fromSeam*lengthWeight*widthWeight;
+};
+bool benchPass = mode == "bench" || mode == "bench-dry";
+var edit = benchPass ? bench : shape;
+Func<float,float,float> existing = (x,z) =>
+{
+    var t = grid[Mathf.FloorToInt(z / 512), Mathf.FloorToInt(x / 512)];
+    return t.SampleHeight(new Vector3(x,0,z)) + t.transform.position.y;
+};
+Func<float,float,float> sample = (x,z) => mode == "verify" ? existing(x,z) : edit(new Vector2(x,z),existing(x,z));
+float worst = 0, length = 0, ingress = 0;
+string worstAt = "";
+int checks = 0, blocked = 0, wet = 0;
+for (int i = 0; i < segments.Length; i++)
+{
+    var d = segments[i];
+    length += d.magnitude;
+    var side = new Vector2(-d.y, d.x).normalized;
+    for (int q = 0; q <= Mathf.CeilToInt(d.magnitude); q++)
+    {
+        var p = origins[i] + d * Mathf.Min(1f, q / d.magnitude);
+        foreach (float lateral in new[] {-3f, 0f, 3f})
+        {
+            var at = p + side * lateral;
+            float dx = 0.5f * (sample(at.x+1,at.y)-sample(at.x-1,at.y));
+            float dz = 0.5f * (sample(at.x,at.y+1)-sample(at.x,at.y-1));
+            float slope = Mathf.Atan(Mathf.Sqrt(dx*dx+dz*dz))*Mathf.Rad2Deg;
+            if (slope > worst) { worst = slope; worstAt = at.ToString(); }
+            if (i == 0) ingress = Mathf.Max(ingress, slope);
+            checks++;
+            if (mode != "verify") continue;
+            float y = existing(at.x,at.y);
+            if (!Physics.Raycast(new Vector3(at.x,y+2.2f,at.y),Vector3.down,out var hit,3f,Physics.DefaultRaycastLayers,QueryTriggerInteraction.Ignore)
+                || !(hit.collider is TerrainCollider)) blocked++;
+            if (UPlayGround.Components.FootstepWaterSurface.TryGetSurfaceHeight(new Vector3(at.x,y,at.y),out float waterY)
+                && waterY > y + 0.05f) wet++;
+        }
+    }
+}
+string summary = "length=" + length.ToString("F1") + "m samples=" + checks + " maxSlope=" + worst.ToString("F1")
+    + " at=" + worstAt + " ingress=" + ingress.ToString("F1") + " obstructions=" + blocked + " wet=" + wet;
+if (worst > 46f || blocked > 0 || wet > 0) throw new InvalidOperationException(summary);
+if (mode == "verify")
+{
+    float maxSeam = 0;
+    int count = 0;
+    for (int z = 0; z < 8; z++)
+    for (int x = 0; x < 8; x++)
+    {
+        var d = grid[z,x].terrainData;
+        if (x < 7)
+        {
+            var a = d.GetHeights(512,0,1,513);
+            var b = grid[z,x+1].terrainData.GetHeights(0,0,1,513);
+            for (int q = 0; q <= 512; q++) maxSeam = Mathf.Max(maxSeam,Mathf.Abs(a[q,0]-b[q,0])*d.size.y);
+            count++;
+        }
+        if (z < 7)
+        {
+            var a = d.GetHeights(0,512,513,1);
+            var b = grid[z+1,x].terrainData.GetHeights(0,0,513,1);
+            for (int q = 0; q <= 512; q++) maxSeam = Mathf.Max(maxSeam,Mathf.Abs(a[0,q]-b[0,q])*d.size.y);
+            count++;
+        }
+    }
+    if (maxSeam > 0.025f) throw new InvalidOperationException("지형 경계 오차: " + maxSeam);
+    return summary + " seams=" + count + " maxSeam=" + maxSeam.ToString("F4") + "m";
+}
+if (mode == "dry" || mode == "bench-dry") return summary;
+if ((mode != "heights" && mode != "bench") || definition == null ||
+    definition.Operations.Count != (benchPass ? 11 : 10) || definition.ActiveSession != null)
+    throw new InvalidOperationException("조형 기준과 편집 세션을 확인하세요.");
+var changed = new System.Collections.Generic.Dictionary<Terrain,float[,]>();
+float maxDelta = 0;
+int edits = 0;
+for (int tz = 4; tz <= 7; tz++)
+for (int tx = 5; tx <= 6; tx++)
+{
+    var t = grid[tz,tx];
+    var data = t.terrainData;
+    var h = data.GetHeights(0,0,513,513);
+    int before = edits;
+    for (int z = 0; z <= 512; z++)
+    for (int x = 0; x <= 512; x++)
+    {
+        var p = new Vector2(tx*512+x,tz*512+z);
+        float old = h[z,x]*data.size.y+t.transform.position.y;
+        float delta = edit(p,old)-old;
+        if (Mathf.Abs(delta) < 0.0125f) continue;
+        h[z,x] += delta/data.size.y;
+        edits++;
+        maxDelta = Mathf.Max(maxDelta,Mathf.Abs(delta));
+    }
+    if (edits != before) changed.Add(t,h);
+}
+if (changed.Count == 0) throw new InvalidOperationException("수정할 높이 표본이 없습니다.");
+string backup = "output/RiverBasinWorld/NorthAlpine/before";
+System.IO.Directory.CreateDirectory(backup);
+var files = new System.Collections.Generic.List<string> {scene.path,definitionPath};
+foreach (var entry in changed) files.Add(AssetDatabase.GetAssetPath(entry.Key.terrainData));
+foreach (var file in files)
+{
+    string copy = backup + "/" + System.IO.Path.GetFileName(file);
+    if (!System.IO.File.Exists(copy)) System.IO.File.Copy(file, copy);
+}
+using (var session = new UPlayGround.WorldBuilder.Editor.WorldTerrainAuthoringSession(definition,grid))
+{
+    session.BeginSculpt();
+    try
+    {
+        foreach (var entry in changed) entry.Key.terrainData.SetHeights(0,0,entry.Value);
+        session.CaptureSculpt();
+    }
+    catch
+    {
+        session.RevertUncaptured();
+        throw;
+    }
+}
+return summary + " tiles=" + changed.Count + " edits=" + edits + " maxDelta=" + maxDelta.ToString("F2") + "m";

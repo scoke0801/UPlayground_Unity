@@ -1,0 +1,283 @@
+// dry → apply → verify. 기존 구매 원본, 지형과 월드 지도 좌표를 사용한다.
+const string mode = "dry";
+const string evidence = "docs/work-status/river-basin-exploration-evidence/";
+const string backup = "output/RiverBasinWorld/Exploration/before/";
+const string rootName = "호수와 동부·설산 탐험";
+const string stones = "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones";
+const string nature = "Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Prefabs";
+const string props = "Assets/03.Prefabs/Environment";
+const string items = "Assets/03.Prefabs/Item/World";
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (scene.name != "RiverBasin4km" || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("저장된 RiverBasin4km의 편집 모드가 필요합니다.");
+var groups = new[]{"서남 호수 · 버드나무 능선","동쪽 호수 · 섬의 돌등","채석장 · 작업 단구","돌산 · 갈라진 능선","사막 · 모래골","설산 · 폭포 전망과 고갯길"};
+var grid = new Terrain[8,8];
+foreach (var t in Terrain.activeTerrains)
+    if (t.gameObject.scene == scene) grid[(int)t.transform.position.z/512,(int)t.transform.position.x/512]=t;
+Func<float,float,float> height = (x,z) =>
+{
+    var t=grid[(int)z/512,(int)x/512];
+    return t.SampleHeight(new Vector3(x,0,z))+t.transform.position.y;
+};
+var sourcePaths=new[]{stones,nature,props,items};
+// 구역, 프리팹, X/Z, 폭(0은 원본 크기), 회전, 매입 비율. 전경을 열어 둘 면의 반대쪽에 놓는다.
+var placements=new object[][]
+{
+    new object[]{0,"WillowTree_03_Green",1061f,868f,16f,-32f,0.02f},
+    new object[]{0,"WillowTree_01_Green",1048f,857f,12f,18f,0.02f},
+    new object[]{0,"WillowTree_03_Green",1057f,844f,10f,87f,0.02f},
+    new object[]{0,"WillowTree_01_Green",1075f,851f,11f,134f,0.03f},
+    new object[]{0,"WillowTree_01_Green",1174f,846f,14f,162f,0.03f},
+    new object[]{0,"WillowTree_03_Green",1186f,852f,9f,201f,0.03f},
+    new object[]{0,"PF_EastLands_BigBoulder_01",1036f,807f,13f,-22f,0.28f},
+    new object[]{0,"PF_EastLands_MedBoulder_03",1047f,811f,5f,38f,0.22f},
+    new object[]{0,"Deco_Stone_Cairn",1055f,824f,2.5f,55f,0.12f},
+    new object[]{0,"Shrine_StoneLantern",1086f,912f,0f,25f,0.08f},
+    new object[]{0,"Shrine_StoneLantern",1099f,906f,0f,189f,0.08f},
+    new object[]{0,"PF_EastLands_FlatStone_02",1102f,777f,5f,52f,0.23f},
+    new object[]{0,"WillowTree_03_Green",1119f,693f,10f,208f,0.02f},
+    new object[]{1,"PF_EastLands_BigBoulder_02",2897f,963f,20f,-40f,0.30f},
+    new object[]{1,"PF_EastLands_MedBoulder_03",2904f,977f,8f,88f,0.29f},
+    new object[]{1,"PF_EastLands_MedBoulder_04",2908f,956f,6f,125f,0.22f},
+    new object[]{1,"WillowTree_01_Green",2782f,1039f,13f,22f,0.03f},
+    new object[]{1,"WillowTree_03_Green",2799f,1049f,10f,78f,0.02f},
+    new object[]{1,"WillowTree_03_Green",2870f,1026f,15f,94f,0.02f},
+    new object[]{1,"WillowTree_01_Green",2883f,1016f,10f,174f,0.04f},
+    new object[]{1,"Deco_Stone_Cairn",2879f,968f,2.8f,115f,0.11f},
+    new object[]{1,"Shrine_StoneLantern",2755f,1029f,0f,20f,0.08f},
+    new object[]{1,"Shrine_StoneLantern",2765f,1041f,0f,140f,0.08f},
+    new object[]{1,"PF_EastLands_FlatStone_02",2935f,837f,6f,31f,0.28f},
+    new object[]{2,"PF_EastLands_Cliff_02",3225f,2206f,20f,160f,0.30f},
+    new object[]{2,"PF_EastLands_Cliff_03",3233f,2227f,22f,35f,0.32f},
+    new object[]{2,"PF_EastLands_Cliff_01",3214f,2251f,19f,67f,0.29f},
+    new object[]{2,"PF_EastLands_MedBoulder_04",3220f,2220f,6f,73f,0.22f},
+    new object[]{2,"PF_EastLands_SmallBoulder_02",3219f,2236f,4f,4f,0.22f},
+    new object[]{2,"CargoCrate",3197f,2210f,2.2f,31f,0.05f},
+    new object[]{2,"CargoBarrel",3201f,2212f,1.4f,-23f,0.12f},
+    new object[]{2,"CargoCrate",3189f,2240f,1.6f,-12f,0.09f},
+    new object[]{2,"Deco_Stone_Cairn",3150f,2113f,2.2f,80f,0.12f},
+    new object[]{2,"Deco_Stone_Cairn",3162f,2154f,2f,28f,0.14f},
+    new object[]{3,"PF_EastLands_Cliff_03",3521f,2003f,38f,148f,0.28f},
+    new object[]{3,"PF_EastLands_Cliff_01",3538f,2019f,34f,-48f,0.37f},
+    new object[]{3,"PF_EastLands_BigBoulder_01",3566f,1997f,22f,68f,0.24f},
+    new object[]{3,"PF_EastLands_MedBoulder_04",3544f,2003f,7f,104f,0.25f},
+    new object[]{3,"Deco_Stone_Cairn",3550f,1995f,2.6f,38f,0.07f},
+    new object[]{4,"PF_EastLands_BigBoulder_02",3795f,1739f,14f,102f,0.30f},
+    new object[]{4,"PF_EastLands_MedBoulder_01",3801f,1732f,6f,63f,0.24f},
+    new object[]{4,"PF_EastLands_SmallBoulder_02",3791f,1747f,3.8f,182f,0.3f},
+    new object[]{4,"PF_EastLands_FlatStone_02",3769f,1714f,3.6f,80f,0.27f},
+    new object[]{4,"CargoCrate",3790f,1734f,2f,12f,0.14f},
+    new object[]{5,"Deco_Stone_Cairn",2965f,2156f,2.3f,60f,0.16f},
+    new object[]{5,"Deco_Stone_Cairn",3296f,3534f,2.8f,65f,0.11f},
+    new object[]{5,"Deco_Stone_Cairn",3327f,3560f,3.3f,220f,0.13f},
+    new object[]{5,"PF_EastLands_BigBoulder_02",3293f,3618f,9f,158f,0.38f},
+    new object[]{5,"Deco_Stone_Cairn",3282f,3641f,2.5f,125f,0.12f},
+    new object[]{5,"PF_EastLands_MedBoulder_05",3256f,3650f,6f,57f,0.32f},
+    new object[]{5,"Deco_Stone_Cairn",3239f,3679f,3.5f,-20f,0.10f},
+    new object[]{5,"PF_EastLands_MedBoulder_03",3238f,3687f,4f,50f,0.28f},
+    new object[]{5,"Deco_Stone_Cairn",3260f,3713f,2.2f,20f,0.11f},
+    new object[]{5,"Deco_Stone_Cairn",3333f,3736f,2.8f,98f,0.12f},
+    new object[]{5,"PF_EastLands_BigBoulder_01",3369f,3728f,11f,98f,0.31f},
+    new object[]{5,"PF_EastLands_MedBoulder_04",3389f,3699f,5.4f,33f,0.35f}
+};
+var prizes=new object[][]
+{
+    new object[]{0,"WorldItem_Crystal",1056f,825f,"Assets/10.Datas/Item/Crystal.asset","052674fa856d4abeab007e09069307b4"},
+    new object[]{1,"WorldItem_Crystal",2884f,975f,"Assets/10.Datas/Item/Crystal.asset","5bc27b160e9b4cb0b43002cca179bbd8"},
+    new object[]{2,"WorldItem_Crystal",3214f,2215f,"Assets/10.Datas/Item/Crystal.asset","c89c46b3196e420fba775abed9764a08"},
+    new object[]{4,"WorldItem_common_hp_potion",3787f,1733f,"Assets/10.Datas/Item/Consume/common_hp_potion.asset","8902fe28abc2403abee4b13e834f239b"},
+    new object[]{5,"WorldItem_Crystal",3244f,3682f,"Assets/10.Datas/Item/Crystal.asset","82180e4e27964afdb0aa8888548a5a94"}
+};
+var existing=GameObject.Find(rootName);
+if (mode=="verify")
+{
+    if (existing==null || existing.transform.childCount!=groups.Length) throw new InvalidOperationException("탐험 배치 누락");
+    var audit=new System.Text.StringBuilder();
+    var drops=existing.GetComponentsInChildren<UPlayGround.DropItemActor>();
+    if (drops.Length!=prizes.Length) throw new InvalidOperationException("보상 배치 수 불일치");
+    var ids=new System.Collections.Generic.HashSet<string>();
+    foreach(var drop in drops)
+    {
+        var id=drop.GetComponent<UPlayGround.Components.SceneEntityId>();
+        if (drop.ItemData==null || drop.InteractionData==null || id==null || !id.HasGuid || !ids.Add(id.Guid)
+            || drop.GetComponentInChildren<Collider>()==null) throw new InvalidOperationException("보상 데이터나 충돌 확인 "+drop.name);
+        var p=drop.transform.position;
+        audit.AppendLine(drop.name+" "+p.ToString("F1")+" "+drop.ItemData.name+" "+id.Guid);
+    }
+    foreach (Transform group in existing.transform)
+    {
+        int missing=0;
+        foreach(var child in group.GetComponentsInChildren<Transform>(true))
+            missing+=GameObjectUtility.GetMonoBehavioursWithMissingScriptCount(child.gameObject);
+        if(missing!=0) throw new InvalidOperationException("누락된 스크립트가 있습니다 "+group.name+" "+missing);
+        audit.AppendLine(group.name+" / 배치 "+group.childCount+" / LOD "+group.GetComponentsInChildren<LODGroup>().Length
+            +" / 콜라이더 "+group.GetComponentsInChildren<Collider>().Length+" / 누락 "+missing);
+    }
+    System.IO.File.WriteAllText(evidence+"dressing-verify.txt",audit.ToString());
+    return audit.ToString();
+}
+if (existing!=null) throw new InvalidOperationException("탐험 배치가 이미 있습니다.");
+var prefabs=new System.Collections.Generic.Dictionary<string,GameObject>();
+foreach(var row in System.Linq.Enumerable.Concat(placements,prizes))
+{
+    string name=(string)row[1];
+    if(prefabs.ContainsKey(name)) continue;
+    string path=null;
+    foreach(string guid in AssetDatabase.FindAssets(name+" t:Prefab",sourcePaths))
+    {
+        string candidate=AssetDatabase.GUIDToAssetPath(guid);
+        if(System.IO.Path.GetFileNameWithoutExtension(candidate)!=name) continue;
+        if(path!=null) throw new InvalidOperationException("프리팹 이름 중복 "+name);
+        path=candidate;
+    }
+    var prefab=AssetDatabase.LoadAssetAtPath<GameObject>(path);
+    if(prefab==null || prefab.GetComponentInChildren<Renderer>(true)==null)
+        throw new InvalidOperationException("프리팹 또는 렌더러 누락 "+name);
+    prefabs.Add(name,prefab);
+}
+var interaction=AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Actor.InteractableActorSO>("Assets/10.Datas/Actor/Interaction/DropItem.asset");
+if(interaction==null) throw new InvalidOperationException("획득 데이터 누락");
+foreach(var row in prizes)
+    if(AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Item.ItemSO>((string)row[4])==null)
+        throw new InvalidOperationException("아이템 누락 "+row[4]);
+if(mode=="dry") return "프리팹 "+prefabs.Count+"종 / 환경 "+placements.Length+"개 / 획득 "+prizes.Length+"개";
+if(mode!="apply") throw new InvalidOperationException("적용 모드를 확인하세요.");
+var currentLake=GameObject.Find("남부 호수 물가와 섬");
+var shifts=System.IO.File.ReadAllLines(backup+"lake-prop-shifts.csv");
+Undo.IncrementCurrentGroup();
+int undo=Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName("호수·동부·설산 탐험 배치");
+try
+{
+    foreach(string line in shifts)
+    {
+        var parts=line.Split(',');
+        var t=currentLake.transform.GetChild(int.Parse(parts[0])).GetChild(int.Parse(parts[1]));
+        Undo.RecordObject(t,"섬 식생과 암반 지면 정렬");
+        t.position+=Vector3.up*float.Parse(parts[2],System.Globalization.CultureInfo.InvariantCulture);
+        PrefabUtility.RecordPrefabInstancePropertyModifications(t);
+    }
+    var root=new GameObject(rootName);
+    Undo.RegisterCreatedObjectUndo(root,"탐험 배치");
+    var parents=new Transform[groups.Length];
+    for(int i=0;i<groups.Length;i++)
+    {
+        var group=new GameObject(groups[i]);
+        group.transform.SetParent(root.transform,false);
+        parents[i]=group.transform;
+    }
+    Func<GameObject,Bounds> bounds = obj =>
+    {
+        var renderers=obj.GetComponentsInChildren<Renderer>();
+        if(renderers.Length==0) throw new InvalidOperationException("활성 렌더러 누락 "+obj.name);
+        var b=renderers[0].bounds;
+        foreach(var renderer in renderers)
+        {
+            if(Array.Exists(renderer.sharedMaterials,m=>m==null || m.shader==null))
+                throw new InvalidOperationException("재질 누락 "+obj.name);
+            b.Encapsulate(renderer.bounds);
+        }
+        return b;
+    };
+    foreach(var row in placements)
+    {
+        var obj=(GameObject)PrefabUtility.InstantiatePrefab(prefabs[(string)row[1]],parents[(int)row[0]]);
+        Undo.RegisterCreatedObjectUndo(obj,"탐험 지형 표지물");
+        float x=(float)row[2], z=(float)row[3], width=(float)row[4];
+        obj.transform.SetPositionAndRotation(new Vector3(x,height(x,z),z),Quaternion.Euler(0,(float)row[5],0));
+        Bounds b=bounds(obj);
+        if(width>0)
+        {
+            obj.transform.localScale*=width/Mathf.Max(b.size.x,b.size.z);
+            b=bounds(obj);
+        }
+        float low=height(x,z);
+        foreach(float bx in new[]{b.min.x,b.max.x})
+        foreach(float bz in new[]{b.min.z,b.max.z})
+            low=Mathf.Min(low,height(bx,bz));
+        obj.transform.position+=Vector3.up*(Mathf.Lerp(height(x,z),low,0.5f)-b.min.y-b.size.y*(float)row[6]);
+    }
+    foreach(var row in prizes)
+    {
+        float x=(float)row[2], z=(float)row[3];
+        var item=AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Item.ItemSO>((string)row[4]);
+        var marker=new GameObject("발견 · "+item.name);
+        Undo.RegisterCreatedObjectUndo(marker,"탐험 발견 보상");
+        marker.transform.SetParent(parents[(int)row[0]],false);
+        marker.transform.position=new Vector3(x,height(x,z)+0.14f,z);
+        var visual=(GameObject)PrefabUtility.InstantiatePrefab(prefabs[(string)row[1]],marker.transform);
+        Undo.RegisterCreatedObjectUndo(visual,"보상 모델");
+        visual.transform.localPosition=Vector3.zero;
+        var b=bounds(visual);
+        visual.transform.position+=Vector3.up*(marker.transform.position.y-b.min.y);
+        var collider=Undo.AddComponent<SphereCollider>(marker);
+        collider.radius=0.43f;
+        collider.center=Vector3.up*0.28f;
+        collider.isTrigger=true;
+        var id=Undo.AddComponent<UPlayGround.Components.SceneEntityId>(marker);
+        id.EditorSetGuid((string)row[5]);
+        Undo.AddComponent<UPlayGround.DropItemActor>(marker).Init(item,1,interaction);
+    }
+    // 수변의 자갈턱과 그 위 식생을 구분하고 채석 사면에는 회색 암반을 드러낸다.
+    foreach(var tile in new[]{grid[1,1],grid[1,2],grid[1,5],grid[2,5],grid[4,6]})
+    {
+        var data=tile.terrainData;
+        var pos=tile.transform.position;
+        var layers=data.terrainLayers;
+        int meadow=Array.FindIndex(layers,l=>l!=null && l.name=="Meadow");
+        int shore=Array.FindIndex(layers,l=>l!=null && l.name=="Shore");
+        int rock=Array.FindIndex(layers,l=>l!=null && l.name=="Rock");
+        if(meadow<0 || shore<0 || rock<0) throw new InvalidOperationException("기존 지면 레이어 누락 "+tile.name);
+        var alpha=data.GetAlphamaps(0,0,data.alphamapWidth,data.alphamapHeight);
+        bool painted=false;
+        for(int az=0;az<data.alphamapHeight;az++)
+        for(int ax=0;ax<data.alphamapWidth;ax++)
+        {
+            float x=pos.x+(ax+0.5f)/data.alphamapWidth*512;
+            float z=pos.z+(az+0.5f)/data.alphamapHeight*512;
+            float weight;
+            int target;
+            float noise=Mathf.PerlinNoise(x*0.055f,z*0.055f);
+            if(pos.z>=2048)
+            {
+                float ex=(x-3200)/63f, ez=(z-2213)/74f;
+                float radial=Mathf.Sqrt(ex*ex+ez*ez);
+                weight=Mathf.SmoothStep(0,0.94f,Mathf.Clamp01((1.15f-radial+(noise-0.5f)*0.15f)/0.48f));
+                target=rock;
+            }
+            else
+            {
+                bool west=x<2000;
+                float cx=west?1104:2829, cz=west?834:998;
+                float ex=(x-cx)/153f, ez=(z-cz)/105f;
+                float radial=Mathf.Sqrt(ex*ex+ez*ez);
+                float above=height(x,z)-(west?15:24);
+                if(above<0.25f || radial>1.18f) continue;
+                weight=Mathf.SmoothStep(0,0.73f,Mathf.Clamp01((1.18f-radial)/0.31f));
+                target=above<2.0f+(noise-0.5f)*1.7f?shore:meadow;
+                float dx=0.5f*(height(x+1,z)-height(x-1,z));
+                float dz=0.5f*(height(x,z+1)-height(x,z-1));
+                if(dx*dx+dz*dz>0.36f && above>2.5f) target=rock;
+            }
+            if(weight<0.01f) continue;
+            for(int layer=0;layer<layers.Length;layer++) alpha[az,ax,layer]*=1-weight;
+            alpha[az,ax,target]+=weight;
+            painted=true;
+        }
+        if(!painted) continue;
+        Undo.RegisterCompleteObjectUndo(data,"섬 지면과 채석 단구 재질");
+        data.SetAlphamaps(0,0,alpha);
+        EditorUtility.SetDirty(data);
+    }
+    UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+    if(!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene)) throw new InvalidOperationException("씬 저장 실패");
+    foreach(var tile in new[]{grid[1,1],grid[1,2],grid[1,5],grid[2,5],grid[4,6]})
+        AssetDatabase.SaveAssetIfDirty(tile.terrainData);
+    Undo.CollapseUndoOperations(undo);
+}
+catch
+{
+    Undo.RevertAllDownToGroup(undo);
+    throw;
+}
+return "환경 "+placements.Length+"개 / 배치 보상 "+prizes.Length+"개 / 기존 섬 장식 재정렬 "+shifts.Length+"개";

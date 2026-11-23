@@ -1,0 +1,124 @@
+// 기존 씬을 유지하며 작은 메시·Terrain 검수 씬과 Low/Extended 프로필을 만든다.
+if (EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("Edit Mode가 필요합니다.");
+const string production = "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/EastDesert";
+string root = production + "/Samples";
+var active = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (!AssetDatabase.IsValidFolder(root)) AssetDatabase.CreateFolder(production, "Samples");
+var standard = AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Actor.SandFootprintProfileSO>("Assets/10.Datas/Actor/Footsteps/SandFootprint_Standard.asset");
+var compute = AssetDatabase.LoadAssetAtPath<ComputeShader>("Assets/06.Shaders/SandFootprints/SandStamp.compute");
+var meshShader = Shader.Find("UPlayGround/Sand Footprints/Mesh Preview");
+var terrainMat = AssetDatabase.LoadAssetAtPath<Material>(production + "/EastDesertTerrain.mat");
+var sand = AssetDatabase.LoadAssetAtPath<TerrainLayer>("Assets/08.Terrain/SandLayer.terrainlayer");
+if (standard == null || compute == null || meshShader == null || terrainMat == null || sand == null
+    || ShaderUtil.ShaderHasError(meshShader))
+    throw new InvalidOperationException("실제 사막에서 사용하는 데이터와 셰이더를 먼저 확인하세요.");
+standard.depression = 0.012f;
+standard.rim = 0.004f;
+standard.colorContrast = 0.33f;
+EditorUtility.SetDirty(standard);
+AssetDatabase.SaveAssetIfDirty(standard);
+System.Func<string, UPlayGround.Data.Actor.SandFootprintProfileSO.Quality, UPlayGround.Data.Actor.SandFootprintProfileSO> preset =
+    (name, quality) =>
+    {
+        string path = root + "/SandFootprint_" + name + ".asset";
+        var profile = AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Actor.SandFootprintProfileSO>(path);
+        if (profile == null)
+        {
+            profile = UnityEngine.Object.Instantiate(standard);
+            profile.quality = quality;
+            AssetDatabase.CreateAsset(profile, path);
+        }
+        return profile;
+    };
+var low = preset("Low", UPlayGround.Data.Actor.SandFootprintProfileSO.Quality.Low);
+var extended = preset("Extended", UPlayGround.Data.Actor.SandFootprintProfileSO.Quality.Extended);
+var mask = AssetDatabase.LoadAssetAtPath<Texture2D>(root + "/FullSandR8.asset");
+if (mask == null)
+{
+    mask = new Texture2D(32, 32, TextureFormat.R8, false, true);
+    mask.filterMode = FilterMode.Bilinear;
+    mask.wrapMode = TextureWrapMode.Clamp;
+    var bytes = new byte[1024];
+    for (int i = 0; i < bytes.Length; i++) bytes[i] = 255;
+    mask.LoadRawTextureData(bytes);
+    mask.Apply(false, false);
+    AssetDatabase.CreateAsset(mask, root + "/FullSandR8.asset");
+}
+var material = AssetDatabase.LoadAssetAtPath<Material>(root + "/SandMeshLab.mat");
+if (material == null)
+{
+    material = new Material(meshShader);
+    material.SetTexture("_BaseMap", sand.diffuseTexture);
+    material.SetTextureScale("_BaseMap", new Vector2(5, 5));
+    material.SetColor("_BaseColor", new Color(0.88f, 0.77f, 0.62f));
+    AssetDatabase.CreateAsset(material, root + "/SandMeshLab.mat");
+}
+var data = AssetDatabase.LoadAssetAtPath<TerrainData>(root + "/SandTerrainLab.asset");
+if (data == null)
+{
+    data = new TerrainData { heightmapResolution = 33, alphamapResolution = 32, size = new Vector3(16, 4, 16) };
+    data.terrainLayers = new[] { sand };
+    var weights = new float[32, 32, 1];
+    var heights = new float[33, 33];
+    for (int z = 0; z < 33; z++)
+    for (int x = 0; x < 33; x++)
+    {
+        if (z < 32 && x < 32) weights[z, x, 0] = 1f;
+        heights[z, x] = Mathf.Max(0, z - 19) * 0.027f;
+    }
+    data.SetAlphamaps(0, 0, weights);
+    data.SetHeights(0, 0, heights);
+    AssetDatabase.CreateAsset(data, root + "/SandTerrainLab.asset");
+}
+for (int i = 0; i < 2; i++)
+{
+    bool mesh = i == 0;
+    string file = root + (mesh ? "/SandFootprintMeshLab.unity" : "/SandFootprintTerrainLab.unity");
+    if (AssetDatabase.LoadAssetAtPath<SceneAsset>(file) != null) continue;
+    var scene = UnityEditor.SceneManagement.EditorSceneManager.NewScene(
+        UnityEditor.SceneManagement.NewSceneSetup.EmptyScene, UnityEditor.SceneManagement.NewSceneMode.Additive);
+    try
+    {
+        UnityEngine.SceneManagement.SceneManager.SetActiveScene(scene);
+        var surface = mesh ? GameObject.CreatePrimitive(PrimitiveType.Plane) : Terrain.CreateTerrainGameObject(data);
+        surface.name = mesh ? "평평한 모래 메시" : "완사면 모래 Terrain";
+        if (mesh) surface.GetComponent<Renderer>().sharedMaterial = material;
+        else
+        {
+            surface.transform.position = new Vector3(-8, 0, -8);
+            var terrain = surface.GetComponent<Terrain>();
+            terrain.materialTemplate = terrainMat;
+            terrain.drawInstanced = true;
+        }
+        var anchor = new GameObject("테스트 발자국 기준");
+        anchor.transform.position = new Vector3(-0.9f, 0, -2f);
+        var world = surface.AddComponent<UPlayGround.Gameplay.World.SandFootprintWorld>();
+        world.receiver = surface.GetComponent<TerrainCollider>();
+        if (mesh) world.meshReceiver = surface.GetComponent<Collider>();
+        world.receiverMask = mask;
+        world.profile = mesh ? low : standard;
+        world.stampShader = compute;
+        world.trackingAnchor = anchor.transform;
+        var cam = new GameObject("Main Camera");
+        cam.tag = "MainCamera";
+        cam.AddComponent<Camera>();
+        cam.transform.position = new Vector3(1.6f, 2.35f, -3.2f);
+        cam.transform.LookAt(new Vector3(-0.85f, 0, -0.5f));
+        var light = new GameObject("낮은 햇빛");
+        light.transform.rotation = Quaternion.Euler(39, -45, 0);
+        light.AddComponent<Light>().type = LightType.Directional;
+        var slab = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        slab.name = "차폐 검사 발판";
+        slab.transform.SetPositionAndRotation(new Vector3(-0.7f, 0.49f, 1.5f), Quaternion.identity);
+        slab.transform.localScale = new Vector3(1.4f, 0.18f, 1.6f);
+        if (!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene, file))
+            throw new InvalidOperationException("검수 씬 저장 실패: " + file);
+    }
+    finally
+    {
+        UnityEngine.SceneManagement.SceneManager.SetActiveScene(active);
+        UnityEditor.SceneManagement.EditorSceneManager.CloseScene(scene, true);
+    }
+}
+int releases = UPlayGround.Tool.Editor.FootstepAuthoring.BakeSandReleases();
+return "검수 씬 2개 / 프리셋 " + low.quality + ", " + extended.quality + " / 라온의 상승 이벤트 " + releases;

@@ -1,0 +1,62 @@
+// 저장 씬의 조형, 발 디딤 수신 지도와 지면 소리 연결을 대조한다.
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if(scene.name!="RiverBasin4km" || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("RiverBasin4km 편집 모드가 필요합니다.");
+const string evidence="docs/work-status/river-basin-marked-regions-evidence/";
+var grid=new Terrain[8,8];
+foreach(var tile in Terrain.activeTerrains)
+    if(tile.gameObject.scene==scene)
+        grid[(int)tile.transform.position.z/512,(int)tile.transform.position.x/512]=tile;
+var definition=AssetDatabase.LoadAssetAtPath<UPlayGround.WorldBuilder.Data.WorldDefinition>(
+    "Assets/10.Datas/WorldBuilder/6effd90b68ea4b3d8f8caa5197fcfe34_Authoring.asset");
+var terrainHash=new UPlayGround.WorldBuilder.Editor.WorldTerrainStateAdapter(definition.Profile,grid).Read().ComputeHash();
+if(terrainHash!=definition.AppliedTerrainHash)
+    throw new InvalidOperationException("저장된 Terrain과 조형 해시가 다릅니다.");
+var world=grid[3,7].GetComponent<UPlayGround.Gameplay.World.SandFootprintWorld>();
+var receivers=world.adjoiningReceivers.Concat(new[]{world.receiver}).ToArray();
+int minX=receivers.Min(t=>(int)t.transform.position.x/512),minZ=receivers.Min(t=>(int)t.transform.position.z/512);
+const int n=128,stride=n-1;
+int width=(receivers.Max(t=>(int)t.transform.position.x/512)-minX+1)*stride+1;
+int height=(receivers.Max(t=>(int)t.transform.position.z/512)-minZ+1)*stride+1;
+var mask=world.receiverMask;
+if(mask==null || mask.width!=width || mask.height!=height || mask.format!=TextureFormat.R8 || !mask.isReadable)
+    throw new InvalidOperationException("발자국 수신 지도 규격 불일치");
+if(receivers.Distinct().Count()!=receivers.Length)
+    throw new InvalidOperationException("중복 수신 타일");
+var raw=mask.GetRawTextureData<byte>();
+int badAudio=0,badMask=0,edgeMaskMax=0,sand=0,snow=0;
+foreach(var collider in receivers)
+{
+    var tile=collider.GetComponent<Terrain>();
+    var binding=collider.GetComponent<UPlayGround.Components.FootstepSurface>();
+    var data=tile.terrainData;
+    var layers=data.terrainLayers;
+    var alpha=data.GetAlphamaps(0,0,n,n);
+    int sandIndex=Array.FindIndex(layers,l=>l.name=="FineDesertSand");
+    int snowIndex=Array.FindIndex(layers,l=>l.name=="Snow");
+    int x0=((int)tile.transform.position.x/512-minX)*stride;
+    int z0=((int)tile.transform.position.z/512-minZ)*stride;
+    if(binding==null || binding.terrainMap==null || tile.materialTemplate!=grid[3,7].materialTemplate)
+        throw new InvalidOperationException("지면 또는 발소리 연결 누락 "+tile.name);
+    for(int z=0;z<n;z++)
+    for(int x=0;x<n;x++)
+    {
+        int best=0;
+        for(int k=1;k<layers.Length;k++) if(alpha[z,x,k]>alpha[z,x,best]) best=k;
+        if(binding.terrainMap.dominantLayers[z*n+x]!=best || binding.terrainMap.surfaces[best]==null)
+            badAudio++;
+        float sandWeight=sandIndex<0?0:alpha[z,x,sandIndex];
+        float snowWeight=alpha[z,x,snowIndex];
+        if(sandWeight>=0.5f) sand++;
+        if(snowWeight>=0.5f) snow++;
+        int diff=Mathf.Abs(raw[(z0+z)*width+x0+x]-Mathf.RoundToInt(255*Mathf.Max(snowWeight,sandWeight)));
+        if(x==0 || x==stride || z==0 || z==stride) edgeMaskMax=Mathf.Max(edgeMaskMax,diff);
+        else if(diff>1) badMask++;
+    }
+}
+var report="Terrain 조형 해시 "+terrainHash+Environment.NewLine+"발자국 "+width+"×"+height+" / 수신면 "+receivers.Length
+    +" / 내부 마스크 불일치 "+badMask+" / 공유 경계 최대 양자화 차이 "+edgeMaskMax
+    +" / 발소리 불일치 "+badAudio+" / 모래·눈 우세 표본 "+sand+" / "+snow;
+System.IO.File.WriteAllText(evidence+"biomes-verify.txt",report);
+if(badAudio!=0 || badMask!=0 || edgeMaskMax>1) throw new InvalidOperationException(report);
+return report;

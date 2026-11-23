@@ -1,0 +1,44 @@
+// 카메라만 임시 생성해 저장된 사막의 구도 두 장을 기록한다.
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (scene.name != "RiverBasin4km" || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("편집 모드의 RiverBasin4km을 열어야 합니다.");
+var cameraRoot = new GameObject("동부 사막 검수 카메라") { hideFlags = HideFlags.HideAndDontSave };
+var camera = cameraRoot.AddComponent<Camera>();
+camera.enabled = false;
+camera.fieldOfView = 54;
+camera.farClipPlane = 1400;
+camera.nearClipPlane = 0.1f;
+string directory = "docs/work-status/river-basin-sand-footprints-evidence/";
+System.IO.Directory.CreateDirectory(directory);
+var shots = new[]
+{
+    new[] { new Vector3(3666, 172, 1713), new Vector3(3848, 59, 1808) },
+    new[] { new Vector3(3728, 64, 1767), new Vector3(3780, 54, 1788) }
+};
+var names = new[] { "desert-overview", "west-approach" };
+var target = RenderTexture.GetTemporary(1280, 720, 24);
+var previous = RenderTexture.active;
+var image = new Texture2D(target.width, target.height, TextureFormat.RGB24, false);
+try
+{
+    camera.targetTexture = target;
+    for (int i = 0; i < shots.Length; i++)
+    {
+        camera.transform.position = shots[i][0];
+        camera.transform.LookAt(shots[i][1]);
+        camera.Render();
+        RenderTexture.active = target;
+        image.ReadPixels(new Rect(0, 0, target.width, target.height), 0, 0);
+        image.Apply();
+        System.IO.File.WriteAllBytes(directory + names[i] + ".png", image.EncodeToPNG());
+    }
+}
+finally
+{
+    camera.targetTexture = null;
+    RenderTexture.active = previous;
+    RenderTexture.ReleaseTemporary(target);
+    UnityEngine.Object.DestroyImmediate(image);
+    UnityEngine.Object.DestroyImmediate(cameraRoot);
+}
+return string.Join(", ", names);

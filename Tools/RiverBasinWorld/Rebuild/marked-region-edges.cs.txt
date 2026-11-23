@@ -1,0 +1,120 @@
+// 인접 수신 타일의 공통 표본에서 모래와 눈 가중치를 맞추고 파생 지도를 갱신한다.
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if(scene.name!="RiverBasin4km" || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("RiverBasin4km 편집 모드가 필요합니다.");
+const string backup="output/RiverBasinWorld/MarkedRegions/before-edges/";
+const string evidence="docs/work-status/river-basin-marked-regions-evidence/";
+const int n=128,stride=n-1;
+var world=GameObject.Find("Terrain_7_3").GetComponent<UPlayGround.Gameplay.World.SandFootprintWorld>();
+var mask=world.receiverMask;
+var tiles=world.adjoiningReceivers.Concat(new[]{world.receiver}).Select(c=>c.GetComponent<Terrain>()).ToArray();
+int minX=tiles.Min(t=>(int)t.transform.position.x/512),minZ=tiles.Min(t=>(int)t.transform.position.z/512);
+var alpha=tiles.ToDictionary(t=>t,t=>t.terrainData.GetAlphamaps(0,0,n,n));
+var layers=tiles.ToDictionary(t=>t,t=>t.terrainData.terrainLayers);
+var snow=tiles.ToDictionary(t=>t,t=>Array.FindIndex(layers[t],l=>l.name=="Snow"));
+var sand=tiles.ToDictionary(t=>t,t=>Array.FindIndex(layers[t],l=>l.name=="FineDesertSand"));
+var origins=tiles.ToDictionary(t=>t,t=>new Vector2Int(((int)t.transform.position.x/512-minX)*stride,
+    ((int)t.transform.position.z/512-minZ)*stride));
+var edges=new Dictionary<Vector2Int,List<System.Tuple<Terrain,int,int>>>();
+foreach(var tile in tiles)
+for(int z=0;z<n;z++)
+for(int x=0;x<n;x++)
+{
+    if(x!=0 && x!=stride && z!=0 && z!=stride) continue;
+    var key=origins[tile]+new Vector2Int(x,z);
+    List<System.Tuple<Terrain,int,int>> neighbors;
+    if(!edges.TryGetValue(key,out neighbors)) edges.Add(key,neighbors=new List<System.Tuple<Terrain,int,int>>());
+    neighbors.Add(System.Tuple.Create(tile,x,z));
+}
+var changed=new HashSet<Terrain>();
+int count=0;
+foreach(var pair in edges)
+{
+    if(pair.Value.Count<2) continue;
+    var samples=pair.Value;
+    float frozen=samples.Average(p=>alpha[p.Item1][p.Item3,p.Item2,snow[p.Item1]]);
+    float loose=samples.Any(p=>sand[p.Item1]<0)?0:
+        samples.Average(p=>alpha[p.Item1][p.Item3,p.Item2,sand[p.Item1]]);
+    foreach(var p in samples)
+    {
+        var a=alpha[p.Item1];
+        int x=p.Item2,z=p.Item3,si=sand[p.Item1],ni=snow[p.Item1];
+        float currentSnow=a[z,x,ni],currentSand=si<0?0:a[z,x,si];
+        if(Mathf.Abs(currentSnow-frozen)+Mathf.Abs(currentSand-loose)<0.0001f) continue;
+        float remaining=1-currentSnow-currentSand;
+        float target=1-frozen-loose;
+        for(int k=0;k<a.GetLength(2);k++)
+            if(k!=si && k!=ni) a[z,x,k]=remaining>0.00001f?a[z,x,k]*target/remaining:0;
+        if(remaining<=0.00001f && target>0)
+            a[z,x,Array.FindIndex(layers[p.Item1],l=>l.name=="Rock")]=target;
+        a[z,x,ni]=frozen;
+        if(si>=0) a[z,x,si]=loose;
+        changed.Add(p.Item1);
+        count++;
+    }
+}
+if(changed.Count==0) return "이미 수신 타일 경계가 일치합니다.";
+if(System.IO.Directory.Exists(backup)) throw new InvalidOperationException("경계 보정 사본이 이미 있습니다.");
+System.IO.Directory.CreateDirectory(backup);
+var bindings=tiles.ToDictionary(t=>t,t=>t.GetComponent<UPlayGround.Components.FootstepSurface>());
+foreach(var asset in changed.SelectMany(t=>new UnityEngine.Object[]{t.terrainData,bindings[t].terrainMap}).Concat(new[]{mask}))
+{
+    var path=AssetDatabase.GetAssetPath(asset);
+    System.IO.File.Copy(path,backup+System.IO.Path.GetFileName(path));
+}
+Undo.IncrementCurrentGroup();
+int undo=Undo.GetCurrentGroup();
+try
+{
+    foreach(var tile in changed)
+    {
+        var d=tile.terrainData;
+        Undo.RegisterCompleteObjectUndo(d,"공유 경계 가중치");
+        Undo.RegisterCompleteObjectUndo(d.alphamapTextures,"공유 경계 알파맵");
+        d.SetAlphamaps(0,0,alpha[tile]);
+        alpha[tile]=d.GetAlphamaps(0,0,n,n);
+        EditorUtility.SetDirty(d);
+    }
+    var bytes=new byte[mask.width*mask.height];
+    foreach(var tile in tiles)
+    {
+        var a=alpha[tile];
+        int ni=snow[tile],si=sand[tile];
+        var audio=bindings[tile].terrainMap;
+        if(changed.Contains(tile)) Undo.RegisterCompleteObjectUndo(audio,"공유 경계 발소리");
+        var o=origins[tile];
+        for(int z=0;z<n;z++)
+        for(int x=0;x<n;x++)
+        {
+            if(changed.Contains(tile))
+            {
+                int best=0;
+                for(int k=1;k<a.GetLength(2);k++) if(a[z,x,k]>a[z,x,best]) best=k;
+                audio.dominantLayers[z*n+x]=(byte)best;
+            }
+            int index=(o.y+z)*mask.width+o.x+x;
+            float weight=Mathf.Max(a[z,x,ni],si<0?0:a[z,x,si]);
+            bytes[index]=Math.Max(bytes[index],(byte)Mathf.RoundToInt(255*weight));
+        }
+        if(changed.Contains(tile)) EditorUtility.SetDirty(audio);
+    }
+    Undo.RegisterCompleteObjectUndo(mask,"공유 경계 발자국");
+    mask.LoadRawTextureData(bytes);
+    mask.Apply(false,false);
+    EditorUtility.SetDirty(mask);
+    foreach(var tile in changed)
+    {
+        AssetDatabase.SaveAssetIfDirty(tile.terrainData);
+        AssetDatabase.SaveAssetIfDirty(bindings[tile].terrainMap);
+    }
+    AssetDatabase.SaveAssetIfDirty(mask);
+    Undo.CollapseUndoOperations(undo);
+}
+catch
+{
+    Undo.RevertAllDownToGroup(undo);
+    throw;
+}
+string report="수신 타일 "+changed.Count+"개 / 경계 표본 "+count+"개 보정";
+System.IO.File.WriteAllText(evidence+"biome-edges.txt",report);
+return report;

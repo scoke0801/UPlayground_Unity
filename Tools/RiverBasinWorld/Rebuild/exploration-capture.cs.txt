@@ -1,0 +1,120 @@
+// Unity에서 현장 구도와 정북 지도를 촬영한다. 지도 좌표, GUID, 임포터는 유지한다.
+const string evidence = "docs/work-status/river-basin-exploration-evidence/";
+const string mapPath = "Assets/10.Datas/Map/RiverBasin4km/Minimap.png";
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (scene.name!="RiverBasin4km" || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode
+    || GameObject.Find("호수와 동부·설산 탐험")==null)
+    throw new InvalidOperationException("탐험 배치가 저장된 RiverBasin4km 편집 모드가 필요합니다.");
+var config=AssetDatabase.LoadAssetAtPath<UPlayGround.Data.UI.MinimapIconConfigSO>("Assets/10.Datas/Map/RiverBasin4km/MinimapConfig.asset");
+if (config==null || AssetDatabase.GetAssetPath(config.backgroundSprite)!=mapPath || config.captureWorldSizeXY!=new Vector2(4096,4096))
+    throw new InvalidOperationException("기존 월드 지도 좌표 확인");
+var size=new Vector2Int(4096,4096);
+string guid=AssetDatabase.AssetPathToGUID(mapPath);
+var utility=typeof(UPlayGround.Tool.Editor.MinimapCaptureEditorWindow).Assembly.GetType("UPlayGround.Tool.Editor.MinimapCaptureUtility",true);
+var render=utility.GetMethod("Render");
+var cameraObject=new GameObject("RiverBasin 탐험 촬영") { hideFlags=HideFlags.HideAndDontSave };
+var camera=cameraObject.AddComponent<Camera>();
+camera.enabled=false;
+camera.nearClipPlane=0.2f;
+camera.farClipPlane=2150f;
+camera.fieldOfView=56f;
+camera.clearFlags=CameraClearFlags.Skybox;
+var target=RenderTexture.GetTemporary(1280,720,24);
+var previousTarget=RenderTexture.active;
+var image=new Texture2D(1280,720,TextureFormat.RGB24,false);
+var perspectives=new[]
+{
+    new[]{new Vector3(946,103,1010),new Vector3(1102,15,830)},
+    new[]{new Vector3(2813,87,1113),new Vector3(2864,24,980)},
+    new[]{new Vector3(3140,133,2155),new Vector3(3209,94,2222)},
+    new[]{new Vector3(3752,85,1664),new Vector3(3804,51,1724)},
+    new[]{new Vector3(3486,230,1967),new Vector3(3540,190,2008)},
+    new[]{new Vector3(3279,403,3632),new Vector3(3247,408,3683)},
+    new[]{new Vector3(3350,433.01f,3670),new Vector3(3210,210,3320)}
+};
+var names=new[]{"west-lake","east-lake","quarry","dunes","stone-ridge","alpine","alpine-outlook"};
+var waterRoot=GameObject.Find("RiverBasin 수면");
+var water2=GameObject.Find("WorldBuilder Water");
+if(waterRoot==null || water2==null) throw new InvalidOperationException("월드 지도 수면 누락");
+var water=System.Linq.Enumerable.ToArray(System.Linq.Enumerable.Concat(
+    waterRoot.GetComponentsInChildren<MeshRenderer>(),water2.GetComponentsInChildren<MeshRenderer>()));
+var materials=Array.ConvertAll(water,w=>w.sharedMaterials);
+var mapWater=new Material(Shader.Find("Universal Render Pipeline/Unlit"));
+mapWater.SetColor("_BaseColor",new Color(0.10f,0.49f,0.70f,1));
+mapWater.SetFloat("_Cull",0);
+System.IO.Directory.CreateDirectory(evidence);
+Texture2D map=null;
+try
+{
+    camera.targetTexture=target;
+    for(int i=0;i<names.Length;i++)
+    {
+        camera.transform.position=perspectives[i][0];
+        camera.transform.LookAt(perspectives[i][1]);
+        camera.Render();
+        RenderTexture.active=target;
+        image.ReadPixels(new Rect(0,0,1280,720),0,0);
+        image.Apply();
+        System.IO.File.WriteAllBytes(evidence+names[i]+".jpg",image.EncodeToJPG(90));
+    }
+    camera.targetTexture=null;
+    camera.orthographic=true;
+    camera.orthographicSize=config.captureWorldSizeXY.y/2;
+    camera.aspect=1;
+    camera.transform.SetPositionAndRotation(new Vector3(config.captureCenter.x,1000,config.captureCenter.y),Quaternion.Euler(90,0,0));
+    camera.clearFlags=CameraClearFlags.SolidColor;
+    camera.backgroundColor=RenderSettings.ambientGroundColor;
+    for(int i=0;i<water.Length;i++)
+        water[i].sharedMaterials=Array.ConvertAll(materials[i],m=>mapWater);
+    map=(Texture2D)render.Invoke(null,new object[]{camera,size,true,1000f});
+    // 지형 색이 비슷한 고원에서는 지도에서 산길과 절벽을 구별할 수 있게 실제 중심선을 표시한다.
+    var pixels=map.GetPixels32();
+    var origin=config.captureCenter-config.captureWorldSizeXY*0.5f;
+    var trails=System.IO.File.ReadLines("Tools/RiverBasinWorld/Rebuild/exploration-map-trails.csv").Skip(1)
+        .Select(row=>row.Split(',')).GroupBy(row=>row[0]);
+    foreach(var trail in trails)
+    {
+        var points=trail.Select(row=>new Vector2(int.Parse(row[1]),int.Parse(row[2]))-origin).ToArray();
+        bool snow=trail.Key=="alpine" || trail.Key=="view" || trail.Key=="outlook";
+        Color ink=snow?new Color(0.25f,0.20f,0.19f):new Color(0.28f,0.20f,0.15f);
+        float stepSum=0;
+        for(int i=1;i<points.Length;i++)
+        {
+            var a=points[i-1]; var b=points[i];
+            var delta=b-a;
+            float length=delta.magnitude;
+            float radius=snow?3.0f:2.45f;
+            for(int y=Mathf.FloorToInt(Mathf.Min(a.y,b.y)-radius);y<=Mathf.CeilToInt(Mathf.Max(a.y,b.y)+radius);y++)
+            for(int x=Mathf.FloorToInt(Mathf.Min(a.x,b.x)-radius);x<=Mathf.CeilToInt(Mathf.Max(a.x,b.x)+radius);x++)
+            {
+                if(x<0 || y<0 || x>=size.x || y>=size.y) continue;
+                var p=new Vector2(x,y);
+                float t=Mathf.Clamp01(Vector2.Dot(p-a,delta)/delta.sqrMagnitude);
+                if((stepSum+t*length)%19f>13.5f) continue;
+                float distance=Vector2.Distance(p,a+t*delta);
+                float alpha=Mathf.Clamp01(radius-distance)*0.71f;
+                if(alpha>0) pixels[y*size.x+x]=Color.Lerp(pixels[y*size.x+x],ink,alpha);
+            }
+            stepSum+=length;
+        }
+    }
+    map.SetPixels32(pixels);
+    map.Apply(false);
+    System.IO.File.WriteAllBytes(mapPath,map.EncodeToPNG());
+}
+finally
+{
+    for(int i=0;i<water.Length;i++) water[i].sharedMaterials=materials[i];
+    camera.targetTexture=null;
+    RenderTexture.active=previousTarget;
+    RenderTexture.ReleaseTemporary(target);
+    if(map!=null) UnityEngine.Object.DestroyImmediate(map);
+    UnityEngine.Object.DestroyImmediate(image);
+    UnityEngine.Object.DestroyImmediate(mapWater);
+    UnityEngine.Object.DestroyImmediate(cameraObject);
+}
+AssetDatabase.ImportAsset(mapPath,ImportAssetOptions.ForceSynchronousImport);
+var sprite=config.backgroundSprite;
+if(AssetDatabase.AssetPathToGUID(mapPath)!=guid || sprite==null || sprite.texture.width!=4096 || sprite.texture.height!=4096)
+    throw new InvalidOperationException("월드 지도 참조와 해상도 확인");
+return "4096×4096, "+sprite.texture.format+", "+sprite.texture.mipmapCount+" mip / GUID "+guid+" / 현장 "+names.Length+"장";

@@ -1,0 +1,74 @@
+// 메뉴에서 시작한 Play 안에서 검수 씬 두 개를 순서대로 연다. 현재 Play 세션의 월드는 교체된다.
+if (!EditorApplication.isPlaying) throw new InvalidOperationException("Play Mode가 필요합니다.");
+const string root = "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/EastDesert/Samples/";
+const string evidence = "docs/work-status/river-basin-sand-footprints-evidence/";
+var report = new System.Text.StringBuilder();
+string[] names = { "Mesh", "Terrain", "Terrain" };
+long[] expected = { 516L * 516 * 4 * 10, 1028L * 1028 * 4 * 10, 1028L * 1028 * 4 * 26 };
+var profile = AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Actor.SandFootprintProfileSO>(root + "SandFootprint_Extended.asset");
+int stage = 0, waitFrame = 0;
+bool stamped = false;
+UPlayGround.Gameplay.World.SandFootprintWorld world = null;
+System.Action Open = () =>
+{
+    UnityEditor.SceneManagement.EditorSceneManager.LoadSceneInPlayMode(root + "SandFootprint" + names[stage] + "Lab.unity",
+        new UnityEngine.SceneManagement.LoadSceneParameters(UnityEngine.SceneManagement.LoadSceneMode.Single));
+    world = null;
+    stamped = false;
+    waitFrame = Time.frameCount + 5;
+};
+EditorApplication.CallbackFunction tick = null;
+tick = () =>
+{
+    if (!EditorApplication.isPlaying) { EditorApplication.update -= tick; return; }
+    if (Time.frameCount < waitFrame) return;
+    if (world == null)
+    {
+        world = UPlayGround.Gameplay.World.SandFootprintWorld.Active;
+        if (world == null)
+        {
+            EditorApplication.update -= tick;
+            report.AppendLine("활성 수신면 누락 " + names[stage]);
+            System.IO.File.WriteAllText(evidence + "lab-check.txt", report.ToString());
+            return;
+        }
+        if (stage == 2) world.profile = profile;
+        waitFrame = Time.frameCount + 4;
+        return;
+    }
+    if (!stamped)
+    {
+        var stamp = world.GetType().GetMethod("StampAtAnchor", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+        stamp.Invoke(world, null);
+        stamped = true;
+        waitFrame = Time.frameCount + 4;
+        return;
+    }
+    long bytes = world.AllocatedTextureBytes;
+    var cacheField = world.GetType().GetField("_cache", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+    var texture = (RenderTexture)cacheField.GetValue(world);
+    bool valid = false;
+    if (texture != null)
+    {
+        var request = UnityEngine.Rendering.AsyncGPUReadback.Request(texture, 0, 0, texture.width, 0, texture.height, 0, texture.volumeDepth);
+        request.WaitForCompletion();
+        if (!request.hasError)
+        {
+            for (int i = 0; i < request.layerCount && !valid; i++)
+            {
+                var raw = request.GetData<ushort>(i);
+                for (int j = 0; j < raw.Length; j += 2)
+                    if (raw[j] > 0) { valid = true; break; }
+            }
+        }
+    }
+    report.AppendLine(names[stage] + " " + world.profile.quality + " requests=" + world.Accepted + " textureBytes=" + bytes
+        + " GPU=" + valid + " valid=" + (world.Accepted == 2 && bytes == expected[stage] && valid));
+    stage++;
+    if (stage < names.Length) { Open(); return; }
+    EditorApplication.update -= tick;
+    System.IO.File.WriteAllText(evidence + "lab-check.txt", report.ToString());
+};
+Open();
+EditorApplication.update += tick;
+return "검수 씬 프리셋 순회 시작";

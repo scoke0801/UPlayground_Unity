@@ -1,0 +1,326 @@
+// dry → heights → paint → verify. 높이 명령은 월드 조형 스택에, 재질과 마스크는 제작 에셋에 기록한다.
+const string mode = "dry";
+const string id = "6effd90b68ea4b3d8f8caa5197fcfe34";
+string root = "Assets/WorldBuilder/Worlds/" + id;
+string outDir = root + "/Production/EastDesert";
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (scene.path != root + "/Preview/RiverBasin4km.unity" || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("RiverBasin4km 편집 모드가 필요합니다.");
+var grid = new Terrain[8, 8];
+foreach (var t in Terrain.activeTerrains)
+{
+    if (t.gameObject.scene != scene) continue;
+    Vector3 p = t.transform.position;
+    grid[Mathf.RoundToInt(p.z / 512), Mathf.RoundToInt(p.x / 512)] = t;
+}
+var tiles = new[] { grid[2, 6], grid[2, 7], grid[3, 6], grid[3, 7], grid[4, 6], grid[4, 7] };
+var core = tiles[3];
+var world = core.GetComponent<UPlayGround.Gameplay.World.SandFootprintWorld>();
+var definition = AssetDatabase.LoadAssetAtPath<UPlayGround.WorldBuilder.Data.WorldDefinition>(
+    "Assets/10.Datas/WorldBuilder/" + id + "_Authoring.asset");
+var sand = AssetDatabase.LoadAssetAtPath<TerrainLayer>(root + "/Production/Layers/FineDesertSand.terrainlayer");
+var mask = world.receiverMask;
+if (definition == null || sand == null || mask == null) throw new InvalidOperationException("기존 사막 데이터가 필요합니다.");
+foreach (var t in tiles)
+    if (t == null || t.terrainData.size.x != 512 || t.terrainData.heightmapResolution != 513
+        || t.terrainData.alphamapWidth != 128 || t.terrainData.alphamapHeight != 128
+        || t.GetComponent<TerrainCollider>().terrainData != t.terrainData)
+        throw new InvalidOperationException("확장 타일 규격 불일치");
+
+var smooth = new Func<float, float>(v => { v = Mathf.Clamp01(v); return v * v * (3 - 2 * v); });
+var lobe = new Func<float, float, float, float, float, float, float>((x, z, cx, cz, rx, rz) =>
+{
+    float u = (x - cx) / rx, v = (z - cz) / rz;
+    return 1 - Mathf.Sqrt(u * u + v * v);
+});
+var dryField = new Func<float, float, float>((x, z) =>
+{
+    float west = lobe(x, z, 3486, 1704, 276, 244);
+    float center = lobe(x, z, 3790, 1690, 440, 236);
+    float east = lobe(x, z, 4014, 1940, 264, 356);
+    float north = lobe(x, z, 4102, 2245, 246, 200);
+    float noise = (Mathf.PerlinNoise(x * 0.006f, z * 0.006f) - 0.5f) * 0.24f;
+    return smooth((Mathf.Max(Mathf.Max(west, center), Mathf.Max(east, north)) + noise + 0.13f) / 0.39f);
+});
+
+if (mode == "heights")
+{
+    if (definition.Operations.Count != 8) throw new InvalidOperationException("기존 사막 조형 명령 8개가 필요합니다.");
+    string backup = "output/RiverBasinWorld/EastDesert/expansion-backup/";
+    System.IO.Directory.CreateDirectory(backup);
+    var files = new System.Collections.Generic.List<string> { scene.path, AssetDatabase.GetAssetPath(definition), AssetDatabase.GetAssetPath(mask) };
+    foreach (var t in tiles) files.Add(AssetDatabase.GetAssetPath(t.terrainData));
+    foreach (var file in files)
+    {
+        string save = backup + System.IO.Path.GetFileName(file);
+        if (!System.IO.File.Exists(save)) System.IO.File.Copy(file, save);
+    }
+    var deltas = new float[tiles.Length][,];
+    float maxDelta = 0;
+    int edits = 0;
+    for (int i = 0; i < tiles.Length; i++)
+    {
+        var t = tiles[i];
+        var d = t.terrainData;
+        Vector3 p = t.transform.position;
+        var h = d.GetHeights(0, 0, 513, 513);
+        for (int z = 0; z <= 512; z++)
+        for (int x = 0; x <= 512; x++)
+        {
+            float wx = p.x + x, wz = p.z + z;
+            float oldCore = lobe(wx, wz, 3836, 1785, 162, 133);
+            float rise = smooth((-oldCore - 0.18f) / 0.43f);
+            float flat = smooth((23f - d.GetSteepness(x / 512f, z / 512f)) / 15f);
+            float margin = smooth((wz - 1468f) / 85f) * smooth((wx - 3260f) / 95f);
+            float phase = 0.035f * (wz - 0.42f * wx)
+                + 0.8f * Mathf.Sin(wx * 0.031f) + 0.47f * Mathf.Sin((wx + wz) * 0.017f);
+            float crest = 0.5f + 0.5f * Mathf.Sin(phase);
+            float wave = 2.6f * (crest * crest - 0.35f) + 0.45f * Mathf.Sin(phase * 1.61f);
+            float influence = dryField(wx, wz) * rise * flat * margin;
+            float delta = influence * wave;
+            if (Mathf.Abs(delta) < 0.025f) continue;
+            h[z, x] += delta / d.size.y;
+            edits++;
+            maxDelta = Mathf.Max(maxDelta, Mathf.Abs(delta));
+        }
+        deltas[i] = h;
+    }
+    // 공통 경계의 높이 표본은 양쪽 타일에서 정확히 같은 값을 쓴다.
+    for (int i = 0; i < tiles.Length; i++)
+    {
+        if (i % 2 == 0)
+            for (int z = 0; z <= 512; z++) deltas[i + 1][z, 0] = deltas[i][z, 512];
+        if (i < 4)
+            for (int x = 0; x <= 512; x++) deltas[i + 2][0, x] = deltas[i][512, x];
+    }
+    using (var session = new UPlayGround.WorldBuilder.Editor.WorldTerrainAuthoringSession(definition, grid))
+    {
+        session.BeginSculpt();
+        try
+        {
+            for (int i = 0; i < tiles.Length; i++) tiles[i].terrainData.SetHeights(0, 0, deltas[i]);
+            session.CaptureSculpt();
+        }
+        catch
+        {
+            session.RevertUncaptured();
+            throw;
+        }
+    }
+    foreach (var t in tiles) AssetDatabase.SaveAssetIfDirty(t.terrainData);
+    AssetDatabase.SaveAssetIfDirty(definition);
+    return "Sculpt " + definition.Operations.Count + " / edited=" + edits + " / max=" + maxDelta.ToString("F2") + "m";
+}
+
+const int n = 128, w = 255, hMask = 382;
+var maps = new float[tiles.Length][,,];
+var layerLists = new TerrainLayer[tiles.Length][];
+var sandIndex = new int[tiles.Length];
+float beforeArea = 0;
+for (int i = 0; i < tiles.Length; i++)
+{
+    var t = tiles[i];
+    var d = t.terrainData;
+    var current = d.terrainLayers;
+    if (current.Length < 8 || current[0].name != "Meadow" || current[1].name != "Forest"
+        || current[2].name != "Sandstone" || current[4].name != "Snow" || current[5].name != "Shore")
+        throw new InvalidOperationException("기존 지면 레이어를 확인하세요: " + t.name);
+    int index = System.Array.IndexOf(current, sand);
+    var old = d.GetAlphamaps(0, 0, n, n);
+    if (mode == "verify")
+    {
+        if (index < 0) throw new InvalidOperationException("모래 레이어가 없습니다: " + t.name);
+        maps[i] = old;
+        sandIndex[i] = index;
+        continue;
+    }
+    if (index >= 0 && i != 3) throw new InvalidOperationException("확장 페인트가 이미 있습니다: " + t.name);
+    var layers = new System.Collections.Generic.List<TerrainLayer>(current);
+    if (index < 0) { index = layers.Count; layers.Add(sand); }
+    sandIndex[i] = index;
+    layerLists[i] = layers.ToArray();
+    var next = new float[n, n, layers.Count];
+    float dx = t.transform.position.x, dz = t.transform.position.z;
+    for (int z = 0; z < n; z++)
+    for (int x = 0; x < n; x++)
+    {
+        float u = x / 127f, v = z / 127f;
+        float wx = dx + u * 512, wz = dz + v * 512;
+        float previous = index < current.Length ? old[z, x, index] : 0;
+        if (previous >= 0.5f) beforeArea += 1;
+        float shore = Mathf.Max(old[z, x, 4], old[z, x, 5]);
+        float protection = 1 - smooth(shore * 1.9f);
+        float dry = dryField(wx, wz) * protection;
+        float slope = d.GetSteepness(u, v);
+        float loose = smooth((39f - slope) / 17f);
+        float fine = Mathf.Lerp(0.72f, 0.99f, Mathf.PerlinNoise(wx * 0.011f, wz * 0.011f));
+        float target = Mathf.Max(previous, dry * loose * fine);
+        float residual = (1 - target) / Mathf.Max(0.00001f, 1 - previous);
+        for (int k = 0; k < current.Length; k++) next[z, x, k] = old[z, x, k] * residual;
+        float scrub = Mathf.Min(1, dry * 1.38f);
+        float moved = (next[z, x, 0] + next[z, x, 1]) * scrub;
+        next[z, x, 0] *= 1 - scrub;
+        next[z, x, 1] *= 1 - scrub;
+        next[z, x, 2] += moved * 0.79f;
+        next[z, x, 7] += moved * 0.21f;
+        next[z, x, index] = target;
+    }
+    maps[i] = next;
+}
+
+var setSand = new Action<int, int, int, float>((tile, x, z, weight) =>
+{
+    var a = maps[tile];
+    int index = sandIndex[tile];
+    float residual = (1 - weight) / Mathf.Max(0.00001f, 1 - a[z, x, index]);
+    for (int k = 0; k < a.GetLength(2); k++) if (k != index) a[z, x, k] *= residual;
+    a[z, x, index] = weight;
+});
+var weld = new Action<int, int, int, int, int, int>((a, x, z, b, xx, zz) =>
+{
+    float weight = Mathf.Min(maps[a][z, x, sandIndex[a]], maps[b][zz, xx, sandIndex[b]]);
+    setSand(a, x, z, weight);
+    setSand(b, xx, zz, weight);
+});
+if (mode != "verify")
+{
+    for (int repeat = 0; repeat < 2; repeat++)
+    for (int i = 0; i < tiles.Length; i++)
+    {
+        if (i % 2 == 0) for (int j = 0; j < n; j++) weld(i, 127, j, i + 1, 0, j);
+        if (i < 4) for (int j = 0; j < n; j++) weld(i, j, 127, i + 2, j, 0);
+    }
+}
+var bytes = new byte[w * hMask];
+var seen = new bool[bytes.Length];
+int seam = 0, mismatch = 0;
+var liveMask = mask.GetRawTextureData<byte>();
+for (int i = 0; i < tiles.Length; i++)
+for (int z = 0; z < n; z++)
+for (int x = 0; x < n; x++)
+{
+    var b = (byte)Mathf.RoundToInt(255 * maps[i][z, x, sandIndex[i]]);
+    int dest = (z + i / 2 * 127) * w + x + i % 2 * 127;
+    if (seen[dest]) seam = Mathf.Max(seam, Mathf.Abs(bytes[dest] - b));
+    bytes[dest] = b;
+    seen[dest] = true;
+    if (mode == "verify" && (liveMask.Length != bytes.Length || Mathf.Abs(liveMask[dest] - b) > 1)) mismatch++;
+}
+int count = 0, xmin = w, xmax = 0, zmin = hMask, zmax = 0;
+for (int z = 0; z < hMask; z++)
+for (int x = 0; x < w; x++)
+{
+    if (bytes[z * w + x] < 128) continue;
+    count++;
+    xmin = Mathf.Min(xmin, x); xmax = Mathf.Max(xmax, x);
+    zmin = Mathf.Min(zmin, z); zmax = Mathf.Max(zmax, z);
+}
+int joined = 0;
+var pending = new System.Collections.Generic.Queue<int>();
+int seed = Mathf.RoundToInt((1773 - 1024) / 512f * 127) * w + Mathf.RoundToInt((3796 - 3072) / 512f * 127);
+System.Array.Clear(seen, 0, seen.Length);
+var push = new Action<int>(i => { if (!seen[i] && bytes[i] >= 128) { seen[i] = true; pending.Enqueue(i); } });
+push(seed);
+while (pending.Count != 0)
+{
+    int i = pending.Dequeue();
+    joined++;
+    if (i % w > 0) push(i - 1);
+    if (i % w < w - 1) push(i + 1);
+    if (i >= w) push(i - w);
+    if (i < bytes.Length - w) push(i + w);
+}
+string summary = "sand=" + count + " joined=" + joined + " before=" + beforeArea
+    + " area=" + (count * Mathf.Pow(512f / 127, 2) / 1000000).ToString("F3") + "km2"
+    + " X=" + Mathf.RoundToInt(3072 + xmin * 512f / 127) + ".." + Mathf.RoundToInt(3072 + xmax * 512f / 127)
+    + " Z=" + Mathf.RoundToInt(1024 + zmin * 512f / 127) + ".." + Mathf.RoundToInt(1024 + zmax * 512f / 127)
+    + " seam=" + seam + " mismatch=" + mismatch;
+if (count < 24000 || joined < count * 0.85f || seam > 1 || mismatch != 0)
+    throw new InvalidOperationException("사막 면적·연결·경계 검증 실패: " + summary);
+if (mode == "verify")
+{
+    if (world.adjoiningReceivers.Length != 5 || mask.width != w || mask.height != hMask)
+        throw new InvalidOperationException("발자국 수신 타일 또는 마스크 규격이 다릅니다.");
+    float seamHeight = 0;
+    for (int i = 0; i < tiles.Length; i++)
+    {
+        var d = tiles[i].terrainData;
+        if (i % 2 == 0)
+        {
+            var a = d.GetHeights(512, 0, 1, 513);
+            var b = tiles[i + 1].terrainData.GetHeights(0, 0, 1, 513);
+            for (int z = 0; z <= 512; z++) seamHeight = Mathf.Max(seamHeight, Mathf.Abs(a[z, 0] - b[z, 0]) * d.size.y);
+        }
+        if (i < 4)
+        {
+            var a = d.GetHeights(0, 512, 513, 1);
+            var b = tiles[i + 2].terrainData.GetHeights(0, 0, 513, 1);
+            for (int x = 0; x <= 512; x++) seamHeight = Mathf.Max(seamHeight, Mathf.Abs(a[0, x] - b[0, x]) * d.size.y);
+        }
+    }
+    if (seamHeight > 0.001f) throw new InvalidOperationException("높이 경계 오차: " + seamHeight);
+    return summary + " height seam=" + seamHeight + "m";
+}
+if (mode != "paint") return summary;
+if (definition.Operations.Count != 9) throw new InvalidOperationException("확장 조형을 먼저 캡처하세요.");
+
+const string footsteps = "Assets/10.Datas/Actor/Footsteps/";
+var sandSound = AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Actor.FootstepSurfaceProfileSO>(footsteps + "Surface_Sand.asset");
+var dirt = AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Actor.FootstepSurfaceProfileSO>(footsteps + "Surface_Dirt.asset");
+var stone = AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Actor.FootstepSurfaceProfileSO>(footsteps + "Surface_Stone.asset");
+var grass = AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Actor.FootstepSurfaceProfileSO>(footsteps + "Surface_Grass.asset");
+if (sandSound == null || dirt == null || stone == null || grass == null) throw new InvalidOperationException("기존 지면 음향 데이터가 없습니다.");
+var added = new System.Collections.Generic.List<TerrainCollider>();
+var material = core.materialTemplate;
+for (int i = 0; i < tiles.Length; i++)
+{
+    var t = tiles[i];
+    var data = t.terrainData;
+    data.terrainLayers = layerLists[i];
+    data.SetAlphamaps(0, 0, maps[i]);
+    var actual = data.GetAlphamaps(0, 0, n, n);
+    var collider = t.GetComponent<TerrainCollider>();
+    if (i != 3) added.Add(collider);
+    t.materialTemplate = material;
+    string path = outDir + (i == 3 ? "/EastDesertFootstepAudio.asset" : "/" + t.name + "_FootstepAudio.asset");
+    var audio = AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Actor.FootstepTerrainMapSO>(path);
+    if (audio == null)
+    {
+        audio = ScriptableObject.CreateInstance<UPlayGround.Data.Actor.FootstepTerrainMapSO>();
+        AssetDatabase.CreateAsset(audio, path);
+    }
+    audio.width = n; audio.height = n;
+    audio.surfaces = new UPlayGround.Data.Actor.FootstepSurfaceProfileSO[layerLists[i].Length];
+    for (int k = 0; k < audio.surfaces.Length; k++)
+        audio.surfaces[k] = k == sandIndex[i] ? sandSound : k < 2 ? grass : k == 5 ? dirt : stone;
+    audio.dominantLayers = new byte[n * n];
+    for (int z = 0; z < n; z++)
+    for (int x = 0; x < n; x++)
+    {
+        int best = 0;
+        for (int k = 1; k < audio.surfaces.Length; k++) if (actual[z, x, k] > actual[z, x, best]) best = k;
+        audio.dominantLayers[z * n + x] = (byte)best;
+        bytes[(z + i / 2 * 127) * w + x + i % 2 * 127] =
+            (byte)Mathf.RoundToInt(255 * actual[z, x, sandIndex[i]]);
+    }
+    var surface = t.GetComponent<UPlayGround.Components.FootstepSurface>();
+    if (surface == null) surface = Undo.AddComponent<UPlayGround.Components.FootstepSurface>(t.gameObject);
+    surface.terrain = t;
+    surface.colliders = new[] { collider };
+    surface.terrainMap = audio;
+    surface.profile = stone;
+    EditorUtility.SetDirty(audio);
+    EditorUtility.SetDirty(data);
+    AssetDatabase.SaveAssetIfDirty(audio);
+    AssetDatabase.SaveAssetIfDirty(data);
+}
+if (!mask.Reinitialize(w, hMask, TextureFormat.R8, false))
+    throw new InvalidOperationException("광역 마스크 크기를 변경할 수 없습니다.");
+mask.LoadRawTextureData(bytes);
+mask.Apply(false, false);
+world.adjoiningReceivers = added.ToArray();
+EditorUtility.SetDirty(mask);
+AssetDatabase.SaveAssetIfDirty(mask);
+UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+if (!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene)) throw new InvalidOperationException("씬 저장 실패");
+return "Applied " + summary;

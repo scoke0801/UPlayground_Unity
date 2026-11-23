@@ -1,0 +1,1 @@
+map=RiverBasin4km mapSprite=Assets/10.Datas/Map/RiverBasin4km/Minimap.png / footprints=28 / drops=4/4 nearby=4 / forest pond water=True 91.04

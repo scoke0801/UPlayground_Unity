@@ -1,0 +1,70 @@
+// 기존 알베도에 쓸 반복형 설면 노멀을 만든다.
+const string root = "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34";
+const string production = root + "/Production";
+const string directory = production + "/NorthAlpine";
+const string path = directory + "/AlpineSnow_MicroNormal.png";
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (scene.path != root + "/Preview/RiverBasin4km.unity" || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("RiverBasin4km의 편집 모드가 필요합니다.");
+var layer = AssetDatabase.LoadAssetAtPath<TerrainLayer>(production + "/Layers/Snow.terrainlayer");
+if (layer == null || layer.diffuseTexture == null) throw new InvalidOperationException("설면 알베도가 필요합니다.");
+const string backup = "output/RiverBasinWorld/NorthAlpine/before";
+System.IO.Directory.CreateDirectory(backup);
+if (!System.IO.File.Exists(backup + "/Snow.terrainlayer"))
+    System.IO.File.Copy(AssetDatabase.GetAssetPath(layer),backup + "/Snow.terrainlayer");
+if (!AssetDatabase.IsValidFolder(directory)) AssetDatabase.CreateFolder(production,"NorthAlpine");
+const int pixels = 512;
+var normal = new Texture2D(pixels,pixels,TextureFormat.RGB24,false,true);
+var data = new Color32[pixels*pixels];
+var height = new float[pixels,pixels];
+Func<int,int,int,int,int,float> lattice = (x,z,nx,nz,seed) =>
+{
+    uint hash = unchecked((uint)(x%nx)*374761393u + (uint)(z%nz)*668265263u + (uint)seed*2246822519u);
+    hash = unchecked((hash^(hash>>13))*1274126177u);
+    return ((hash^(hash>>16)) & 0x00ffffffu) / 16777215f;
+};
+Func<float,float,int,int,int,float> noise = (u,v,nx,nz,seed) =>
+{
+    float x = u*nx, z = v*nz;
+    int ix = Mathf.FloorToInt(x), iz = Mathf.FloorToInt(z);
+    float fx = x-ix, fz = z-iz;
+    fx = fx*fx*(3-2*fx); fz = fz*fz*(3-2*fz);
+    return Mathf.Lerp(Mathf.Lerp(lattice(ix,iz,nx,nz,seed),lattice(ix+1,iz,nx,nz,seed),fx),
+        Mathf.Lerp(lattice(ix,iz+1,nx,nz,seed),lattice(ix+1,iz+1,nx,nz,seed),fx),fz);
+};
+try
+{
+    for (int z = 0; z < pixels; z++)
+    for (int x = 0; x < pixels; x++)
+    {
+        float u = x/(float)pixels, v = z/(float)pixels;
+        height[z,x] = 1.8f*noise(u,v,11,19,3) + 0.7f*noise(u,v,29,43,7)
+            + 0.37f*noise(u,v,61,67,11) + 0.14f*noise(u,v,123,127,17);
+    }
+    for (int z = 0; z < pixels; z++)
+    for (int x = 0; x < pixels; x++)
+    {
+        float dx = height[z,(x+1)%pixels]-height[z,(x+pixels-1)%pixels];
+        float dz = height[(z+1)%pixels,x]-height[(z+pixels-1)%pixels,x];
+        var n = new Vector3(-0.78f*dx,-0.78f*dz,1f).normalized;
+        data[z*pixels+x] = new Color(n.x*0.5f+0.5f,n.y*0.5f+0.5f,n.z*0.5f+0.5f);
+    }
+    normal.SetPixels32(data);
+    normal.Apply();
+    System.IO.File.WriteAllBytes(path,normal.EncodeToPNG());
+}
+finally { UnityEngine.Object.DestroyImmediate(normal); }
+AssetDatabase.ImportAsset(path,ImportAssetOptions.ForceSynchronousImport);
+var importer = (TextureImporter)AssetImporter.GetAtPath(path);
+importer.textureType = TextureImporterType.NormalMap;
+importer.wrapMode = TextureWrapMode.Repeat;
+importer.anisoLevel = 4;
+importer.SaveAndReimport();
+Undo.RecordObject(layer,"설면 미세 노멀");
+layer.normalMapTexture = AssetDatabase.LoadAssetAtPath<Texture2D>(path);
+layer.normalScale = 0.52f;
+layer.tileSize = new Vector2(12.8f,12.8f);
+layer.diffuseRemapMax = new Vector4(0.92f,0.95f,0.98f,1f);
+EditorUtility.SetDirty(layer);
+AssetDatabase.SaveAssetIfDirty(layer);
+return layer.normalMapTexture.name + " 512x512";

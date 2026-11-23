@@ -1,0 +1,215 @@
+// 네 섬에 상륙 방향이 보이는 군락과 기존 획득 아이템을 배치한다.
+const string mode="dry";
+const string rootName="표시 좌표의 네 섬";
+const string evidence="docs/work-status/river-basin-marked-regions-evidence/";
+const string backup="output/RiverBasinWorld/MarkedRegions/before-dressing/";
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if(scene.name!="RiverBasin4km" || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("저장된 RiverBasin4km 편집 모드가 필요합니다.");
+var groups=new[]{"숲 연못의 섬","서남 호수 서쪽 섬","서남 호수 동쪽 섬","동쪽 호수의 긴 섬"};
+var centers=new[]{new Vector3(631,91.04f,2173),new Vector3(824,15.04f,790),
+    new Vector3(1420,15.04f,853),new Vector3(3054,24.04f,1080)};
+var grid=new Terrain[8,8];
+foreach(var t in Terrain.activeTerrains)
+    if(t.gameObject.scene==scene) grid[(int)t.transform.position.z/512,(int)t.transform.position.x/512]=t;
+Func<float,float,float> height=(x,z)=>
+{
+    var t=grid[(int)z/512,(int)x/512];
+    return t.SampleHeight(new Vector3(x,0,z))+t.transform.position.y;
+};
+var roots=scene.GetRootGameObjects();
+var waterRoot=roots.Single(o=>o.name=="RiverBasin 수면");
+var template=roots.Single(o=>o.name=="WorldBuilder Water").GetComponentInChildren<UPlayGround.Components.FootstepWaterSurface>();
+if(template==null || template.profile==null) throw new InvalidOperationException("기존 수영 프로필이 필요합니다.");
+var lakeWater=waterRoot.transform.Find("Water_1_4").GetComponent<MeshFilter>();
+var root=GameObject.Find(rootName);
+if(mode=="finish")
+{
+    if(root==null || root.transform.childCount!=4) throw new InvalidOperationException("기존 섬 장식이 필요합니다.");
+    Undo.IncrementCurrentGroup();
+    int polishUndo=Undo.GetCurrentGroup();
+    int adjusted=0;
+    try
+    {
+        foreach(Transform area in root.transform)
+        foreach(Transform prop in area)
+        {
+            bool tree=prop.name.StartsWith("Fir_") || prop.name.StartsWith("WillowTree_") || prop.name.Contains("Osmanthus");
+            bool rock=prop.name.Contains("Boulder") || prop.name.Contains("FlatStone");
+            if(!tree && !rock) continue;
+            var renderers=prop.GetComponentsInChildren<Renderer>();
+            if(renderers.Length==0) throw new InvalidOperationException("장식 메시 누락 "+prop.name);
+            var b=renderers[0].bounds;
+            foreach(var renderer in renderers) b.Encapsulate(renderer.bounds);
+            float variation=(adjusted%5)*0.15f;
+            float span=tree?b.size.y:Mathf.Max(b.size.x,b.size.z);
+            float target=tree?Mathf.Lerp(8.5f,15f,variation):
+                prop.name.Contains("BigBoulder")?11f:prop.name.Contains("FlatStone")?4.5f:6.4f;
+            if(span<=0.01f) throw new InvalidOperationException("장식 크기를 확인하세요.");
+            Undo.RecordObject(prop,"섬 능선 수목과 암편 크기");
+            prop.localScale*=target/span;
+            var p=prop.position;
+            float bottom=renderers.Min(r=>r.bounds.min.y);
+            prop.position+=Vector3.up*(height(p.x,p.z)-bottom-(rock?1.0f:0.16f));
+            PrefabUtility.RecordPrefabInstancePropertyModifications(prop);
+            adjusted++;
+        }
+        if(!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene)) throw new InvalidOperationException("섬 미술 저장 실패");
+        Undo.CollapseUndoOperations(polishUndo);
+    }
+    catch
+    {
+        Undo.RevertAllDownToGroup(polishUndo);
+        throw;
+    }
+    return "섬 수목·암반 "+adjusted+"개 실측 크기 정리";
+}
+if(mode=="verify")
+{
+    if(root==null || root.transform.childCount!=4) throw new InvalidOperationException("4개 섬 배치 누락");
+    var audit=new System.Text.StringBuilder();
+    foreach(var center in centers)
+    {
+        var probe=new Vector3(center.x+0.17f,center.y-1,center.z+0.16f);
+        if(!UPlayGround.Components.FootstepWaterSurface.TryGetSurfaceHeight(probe,out float y) || Mathf.Abs(y-center.y)>0.3f)
+            throw new InvalidOperationException("수면 메시 연결 누락 "+center);
+        audit.AppendLine(center+" 수면 "+y.ToString("F2")+" 지상 "+height(center.x,center.z).ToString("F2"));
+    }
+    var drops=root.GetComponentsInChildren<UPlayGround.DropItemActor>();
+    var ids=new HashSet<string>();
+    if(drops.Length!=4) throw new InvalidOperationException("획득 아이템 수 불일치");
+    foreach(var item in drops)
+    {
+        var id=item.GetComponent<UPlayGround.Components.SceneEntityId>();
+        if(id==null || !id.HasGuid || !ids.Add(id.Guid) || item.ItemData==null || item.InteractionData==null)
+            throw new InvalidOperationException("획득 아이템 연결 실패");
+    }
+    foreach(Transform group in root.transform)
+    {
+        int missing=group.GetComponentsInChildren<Transform>(true)
+            .Sum(t=>GameObjectUtility.GetMonoBehavioursWithMissingScriptCount(t.gameObject));
+        if(missing!=0) throw new InvalidOperationException("배치 스크립트 누락 "+group.name);
+        audit.AppendLine(group.name+" / 배치 "+group.childCount+" / LOD "+group.GetComponentsInChildren<LODGroup>().Length);
+    }
+    System.IO.File.WriteAllText(evidence+"island-dressing.txt",audit.ToString());
+    return audit.ToString();
+}
+if(root!=null || lakeWater==null) throw new InvalidOperationException("섬 배치 또는 연못 수면 확인");
+var paths=new[]{"Assets/03.Prefabs/Environment","Assets/03.Prefabs/Item/World",
+    "Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Prefabs",
+    "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs"};
+// 지역별로 기존 자산을 재사용한다. X/Z는 섬 중심에서 떨어진 거리다.
+var objects=new object[][]
+{
+    new object[]{0,"Fir_03",-19f,18f,1.10f}, new object[]{0,"Fir_02",-28f,12f,1.02f},
+    new object[]{0,"Fir_01",-10f,26f,0.86f}, new object[]{0,"Fir_04",-29f,28f,0.89f},
+    new object[]{0,"Fir_03",-13f,32f,0.92f}, new object[]{0,"Fir_02",-34f,4f,1.05f},
+    new object[]{0,"Shrine_StoneLantern",12f,9f,1.30f}, new object[]{0,"Deco_Stone_Cairn",21f,28f,1.0f},
+    new object[]{0,"PF_EastLands_MedBoulder_03",-31f,-9f,0.64f},
+    new object[]{1,"WillowTree_03_Green",-31f,27f,1.22f}, new object[]{1,"WillowTree_01_Green",-52f,35f,0.97f},
+    new object[]{1,"WillowTree_03_Green",-24f,49f,1.02f}, new object[]{1,"WillowTree_01_Green",-14f,64f,0.91f},
+    new object[]{1,"WillowTree_03_Green",-49f,14f,0.82f}, new object[]{1,"WillowTree_01_Green",24f,-23f,0.82f},
+    new object[]{1,"PF_EastLands_BigBoulder_01",-27f,-28f,0.88f}, new object[]{1,"PF_EastLands_MedBoulder_04",-33f,-20f,0.95f},
+    new object[]{1,"Deco_Stone_Cairn",7f,6f,1.30f}, new object[]{1,"PF_EastLands_FlatStone_02",41f,-5f,0.86f},
+    new object[]{2,"PF_EastLands_Osmanthus_01",21f,-18f,1.05f}, new object[]{2,"PF_EastLands_Osmanthus_03",34f,-28f,0.95f},
+    new object[]{2,"PF_EastLands_Osmanthus_01",31f,-4f,0.80f}, new object[]{2,"PF_EastLands_Osmanthus_03",41f,-32f,0.85f},
+    new object[]{2,"PF_EastLands_BigBoulder_02",24f,15f,0.82f}, new object[]{2,"PF_EastLands_MedBoulder_01",16f,24f,0.93f},
+    new object[]{2,"PF_EastLands_FlatStone_02",-24f,19f,0.85f}, new object[]{2,"Shrine_StoneLantern",-14f,5f,1.18f},
+    new object[]{3,"WillowTree_03_Green",-40f,51f,1.15f}, new object[]{3,"WillowTree_01_Green",-33f,34f,0.92f},
+    new object[]{3,"PF_EastLands_Osmanthus_03",-52f,62f,1.24f}, new object[]{3,"PF_EastLands_Osmanthus_01",-62f,75f,0.90f},
+    new object[]{3,"PF_EastLands_Osmanthus_03",-40f,74f,0.91f}, new object[]{3,"PF_EastLands_BigBoulder_02",23f,-24f,0.92f},
+    new object[]{3,"PF_EastLands_MedBoulder_04",29f,-21f,0.95f}, new object[]{3,"PF_EastLands_MedBoulder_01",36f,-34f,0.68f},
+    new object[]{3,"Deco_Stone_Cairn",43f,-48f,1.30f}, new object[]{3,"Shrine_StoneLantern",-19f,20f,1.20f}
+};
+var prizes=new[]
+{
+    new Vector2(11,13),new Vector2(11,10),new Vector2(17,14),new Vector2(46,-51)
+};
+var idsForDrops=new[]{"7b557ef440ce4c40ba2e8653d30bc8d8","9addc55113634c9cb5fe683a1f73a77f",
+    "fe37ee8ad5fa4b4497824e4e0b8a4e4f","131be284e16f4883b7900a0f464392a3"};
+var sources=new Dictionary<string,GameObject>();
+foreach(var name in objects.Select(row=>(string)row[1]).Concat(new[]{"WorldItem_Crystal"}).Distinct())
+{
+    var matches=AssetDatabase.FindAssets(name+" t:Prefab",paths).Select(AssetDatabase.GUIDToAssetPath)
+        .Where(path=>System.IO.Path.GetFileNameWithoutExtension(path)==name).ToArray();
+    if(matches.Length!=1) throw new InvalidOperationException("프리팹 식별 실패 "+name+" "+matches.Length);
+    sources.Add(name,AssetDatabase.LoadAssetAtPath<GameObject>(matches[0]));
+}
+var itemData=AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Item.ItemSO>("Assets/10.Datas/Item/Crystal.asset");
+var pickup=AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Actor.InteractableActorSO>("Assets/10.Datas/Actor/Interaction/DropItem.asset");
+if(itemData==null || pickup==null) throw new InvalidOperationException("기존 획득 데이터가 필요합니다.");
+foreach(var row in objects)
+{
+    var center=centers[(int)row[0]];
+    if(height(center.x+(float)row[2],center.z+(float)row[3])<center.y+0.45f)
+        throw new InvalidOperationException("장식이 물에 잠깁니다 "+string.Join(" ",row));
+}
+if(mode=="dry") return "장식 "+objects.Length+" / 획득 "+prizes.Length+" / 프리팹 "+sources.Count;
+if(mode!="apply" || System.IO.Directory.Exists(backup)) throw new InvalidOperationException("배치 모드와 백업을 확인하세요.");
+System.IO.Directory.CreateDirectory(backup);
+System.IO.File.Copy(scene.path,backup+"RiverBasin4km.unity");
+Undo.IncrementCurrentGroup();
+int undo=Undo.GetCurrentGroup();
+try
+{
+    var surface=lakeWater.GetComponent<UPlayGround.Components.FootstepWaterSurface>();
+    if(surface==null) surface=Undo.AddComponent<UPlayGround.Components.FootstepWaterSurface>(lakeWater.gameObject);
+    Undo.RecordObject(surface,"숲 연못 수영");
+    surface.surfaceMesh=lakeWater;
+    surface.profile=template.profile;
+    surface.useVolumeBounds=true;
+    var bounds=new Bounds();
+    var origin=lakeWater.transform.position;
+    bounds.SetMinMax(new Vector3(512,76,2048)-origin,new Vector3(915,94,2350)-origin);
+    surface.volumeBounds=bounds;
+    surface.RefreshMesh();
+    root=new GameObject(rootName);
+    Undo.RegisterCreatedObjectUndo(root,"섬 4곳 장식");
+    var parents=new Transform[groups.Length];
+    for(int i=0;i<groups.Length;i++)
+    {
+        var group=new GameObject(groups[i]);
+        group.transform.SetParent(root.transform,false);
+        parents[i]=group.transform;
+    }
+    int index=0;
+    foreach(var row in objects)
+    {
+        int group=(int)row[0];
+        string name=(string)row[1];
+        var instance=(GameObject)PrefabUtility.InstantiatePrefab(sources[name],parents[group]);
+        Undo.RegisterCreatedObjectUndo(instance,"섬 지형 표지물");
+        float x=centers[group].x+(float)row[2], z=centers[group].z+(float)row[3];
+        instance.transform.SetPositionAndRotation(new Vector3(x,height(x,z),z),Quaternion.Euler(0,index++*137.5f,0));
+        instance.transform.localScale*=(float)row[4];
+        var renderers=instance.GetComponentsInChildren<Renderer>();
+        if(renderers.Length==0) throw new InvalidOperationException("활성 렌더러 누락 "+name);
+        float bottom=renderers.Min(r=>r.bounds.min.y);
+        instance.transform.position+=Vector3.up*(height(x,z)-bottom-(name.Contains("Boulder")?0.62f:0.14f));
+    }
+    for(int i=0;i<prizes.Length;i++)
+    {
+        float x=centers[i].x+prizes[i].x,z=centers[i].z+prizes[i].y;
+        var marker=new GameObject("발견 · Crystal");
+        Undo.RegisterCreatedObjectUndo(marker,"섬 발견 보상");
+        marker.transform.SetParent(parents[i],false);
+        marker.transform.position=new Vector3(x,height(x,z)+0.15f,z);
+        var model=(GameObject)PrefabUtility.InstantiatePrefab(sources["WorldItem_Crystal"],marker.transform);
+        model.transform.localPosition=Vector3.zero;
+        var trigger=Undo.AddComponent<SphereCollider>(marker);
+        trigger.radius=0.43f;
+        trigger.center=Vector3.up*0.28f;
+        trigger.isTrigger=true;
+        Undo.AddComponent<UPlayGround.Components.SceneEntityId>(marker).EditorSetGuid(idsForDrops[i]);
+        Undo.AddComponent<UPlayGround.DropItemActor>(marker).Init(itemData,1,pickup);
+    }
+    UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+    if(!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene)) throw new InvalidOperationException("섬 배치 저장 실패");
+    Undo.CollapseUndoOperations(undo);
+}
+catch
+{
+    Undo.RevertAllDownToGroup(undo);
+    throw;
+}
+return "장식 "+objects.Length+"개·보상 4곳·숲 연못 수영 조회";

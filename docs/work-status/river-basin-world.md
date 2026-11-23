@@ -9,6 +9,55 @@
 
 ## WorldBuilder 신규 제작
 
+### 4km 남부 호수 섬
+
+**FEEL-RB-LAKES-01 · 경관과 이동 방식.** 사용자 피드백을 두 호수 섬과 R4 남안에 반영했다.
+
+> 1. 다리만 덜렁 있는게 이뻐 보이지 않는다.
+> 2. 섬만 덜렁 있는게 이뻐보이지 않는다.
+> 3. 다리만 너무 길게 배치되어 예쁘지 않다.
+> 이동 수단은 다리가 아니라 헤엄도 있고 공중 날기도 있으니 다리는 굳이 없어도 될 것 같다
+
+**구현 반영.** 호수 보행교 10개와 52m B5 보행교를 철거했다. 서남쪽 호수는 버드나무와 자갈, 호수 마을 쪽은 넓은 수관과 갈대를 중심으로 배치했다. 섬 여덟 곳과 호안·유출 하천 양안에 구매 수목·바위·갈대 프리팹 502개를 군락으로 두고 상륙 방향을 비워 뒀다. 기존 수면 메시 10개에 수영 조회와 얕은 물 발소리 프로필을 연결했다. B1 석교와 기존 Sculpt 지형을 보존했다. [저작 스크립트](../../Tools/RiverBasinWorld/Rebuild/lake-islands-swim-art.cs.txt) · [설계](../../Assets/docs/design/world-art/open-world/RIVER_BASIN_WORLD_REBUILD_DESIGN.md#남부-호수의-섬과-수영-동선)
+
+**Editor 검사 통과.** 저장 씬을 다시 열어 횡단 11곳에서 중심과 좌우 1.8m의 단면을 확인했다. 양쪽 마른 땅과 수심 1.2m 이상 구간이 이어진 표본은 33/33이고, 경로 표본 위 충돌물은 0건이다. B5가 있던 구간은 깊은 물 약 22m, 양안 최대 종경사 23.7°다. 씬 레코드 감사에서 삭제는 교량 계층 두 곳에 한정됐다. 재촬영한 미니맵은 기존 GUID와 4096×4096 BC7 규격을 유지한다. [수치 검사](river-basin-lakes-evidence/swim-shore-editor-audit.txt) · [미니맵](../../Assets/10.Datas/Map/RiverBasin4km/Minimap.png)
+
+| Unity 고정 구도 | 변경 전 | 변경 후 |
+|---|---|---|
+| 서남쪽 호수 | [교량과 작은 섬](river-basin-lakes-evidence/west-before.png) | [버드나무와 상륙면](river-basin-lakes-evidence/west-after.png) |
+| 호수 마을 | [교량과 초지 섬](river-basin-lakes-evidence/east-before.png) | [갈대와 중앙섬 수관](river-basin-lakes-evidence/east-after.png) |
+| 유출 하천 | [B5 보행교](river-basin-lakes-evidence/outlet-before.png) | [양안의 수영 진입부](river-basin-lakes-evidence/outlet-after.png) |
+
+**RB-ISLAND01 · 사용자 테스트 대기.** `RiverBasin4km`에서 서남쪽 호수 북안 (949, 1150) → 섬 → 남안 (1100, 550), 호수 마을 서안 (2452, 1065) → 섬 → 남안 (2900, 693)을 키보드 또는 게임패드로 수영한다. 역방향도 확인하고, 비행 가능한 상태라면 중앙섬의 열린 구간에 착지한다. 입수·출수가 자연스럽고 낮은 자갈면에서 카메라 가림이나 걸림 없이 움직이는지 본다. `RB-ISLAND01 / 호수와 방향 / 통과·실패·미수행 / 실제 증상 / 화면 또는 로그`로 기록한다. 실제 Play Mode 이동 계측과 성능 교차 검사는 미수행이다.
+
+**보존과 정리.** 원래 섬 모양은 [초기 Sculpt 패치](../../Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Authoring/Patches/1e41f2f3dbdb49c49aec4918b6beb653.bytes)에 있다. 적용 전 씬과 미니맵 사본은 로컬 `output/RiverBasinLakes/`의 `before-20261122-100305-173.unity`와 `minimap-original.png`에 보존했고, 중간본 10개(59.07MB)를 정리했다.
+
+### 4km 미니맵
+
+- **구현 반영.** [RiverBasin4km 씬](../../Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Preview/RiverBasin4km.unity)의 `SceneContext.WorldMapConfig`에 [전용 설정](../../Assets/10.Datas/Map/RiverBasin4km/MinimapConfig.asset)을 연결하고 탐험 HUD를 켰다. 기존 호수 월드의 아이콘과 표시 범위를 기준으로 미니맵은 한 변 약 90m를 보여준다. 탐험 HUD 설정은 월드 시계와 NPC 주변 대사에도 적용된다.
+- **지도 원본.** 현재 Unity 씬의 64개 Terrain을 X/Z 0~4096m, 중심 (2048, 2048)에서 정북 기준으로 촬영했다. 지도에서 수계를 읽기 쉽도록 촬영 중에만 물 표면 42개를 파란색으로 표시하고 원래 재질을 복원했다. [배경 PNG](../../Assets/10.Datas/Map/RiverBasin4km/Minimap.png)는 4096×4096, BC7, 밉맵 13단계로 임포트됐다. 수목 디테일은 촬영 이미지에서 희미하다.
+- **Editor 검증 통과.** 저장된 씬의 지도 GUID를 확인했다. 씬 단독 Play Mode에서 HUD가 자동으로 표시됐고, 게임 HUD의 지도 토글을 호출해 전체 지도도 같은 스프라이트와 월드 좌표 설정을 사용함을 확인했다. 월드 북동 모서리 (4096, 4096)는 지도 중심 기준 (2048, 2048)로 변환됐다.
+- **RB-MAP01 · 사용자 테스트 대기.** `RiverBasin4km` 씬을 열고 별도 저장 불러오기 없이 Play한다. B1 진입로에서 북쪽으로 이동하고 회전하며 미니맵의 플레이어 표시와 강·석교 위치를 비교한다. 키보드 `M`으로 전체 지도를 열어 현재 위치와 북쪽 상류·동부 사막의 방향이 맞는지 보고 다시 닫는다. 검은 배경, 위치 어긋남, 지도 열기·닫기 실패가 있으면 `RB-MAP01 / 결과 / 발생 위치와 증상 / 화면 또는 로그`로 기록한다.
+
+### 4km 미니맵 재촬영과 Ctrl 이동
+
+- **구현 반영.** 2026-11-22에 열린 `RiverBasin4km` 씬의 활성 Terrain 64개를 정북 기준으로 다시 촬영했다. 수면은 촬영 중에만 밝은 파랑으로 표시했다. [지도 PNG](../../Assets/10.Datas/Map/RiverBasin4km/Minimap.png)는 4096×4096, BC7, 밉맵 13단계로 임포트됐다. 기존 스프라이트 참조, 중심 X/Z (2048, 2048), 범위 4096×4096m를 유지했다.
+- **Editor Play Mode 통과.** HUD의 지도 토글을 호출해 전체 지도를 열고 새 배경의 에셋 경로를 확인했다. 가상 좌측 Ctrl과 EventSystem 클릭으로 X/Z (1780.97, 1887.47)에 이동했다. Game View 포커스를 설정한 뒤 가상 우측 Ctrl과 마우스 클릭을 UI 입력 모듈로 처리해 X/Z (1687.97, 1863.47)의 지면에 도착했다. 두 시도 모두 X/Z 오차 0m, Console 오류 0건이다. 기존 치트 연결을 사용했다.
+- **RB-MAP02 · 사용자 테스트 대기.** Editor에서 이 씬을 Play하고 키보드 `M`으로 전체 지도를 연다. 강과 남쪽 호수 위치를 확인하고, 마커가 없는 땅을 Ctrl+좌클릭한 뒤 지도를 닫는다. 선택 지점에 도착하면 통과다. 실제 입력이나 지도 가독성 문제가 있으면 `RB-MAP02 / 결과 / 클릭한 위치와 증상 / 화면 또는 로그`로 기록한다. 현재 HUD 설정에서 소형 미니맵은 기본 비표시다.
+
+### 4km 수중 색과 수면 경계 조사
+
+- **FEEL-RIVER-BASIN-01 · 수중 연출.** 사용자 제보 “Riber Brains 4Km 맵 수중 쉐이더 왜ㅑ 이렇까?” 첨부 화면에서 가까운 암반은 또렷하고 화면 위쪽은 남색 단색에 가깝다. B1 Play 구간의 기존 [수중 캡처](../../Tools/RiverBasinWorld/Rebuild/RiverBasin4km_B1_Underwater.png)에서도 같은 양상을 확인했다. 제보 화면의 정확한 위치·시야각과 재현 빈도는 모름.
+- 열린 Editor의 활성 씬은 `RiverBasin4km`였다. B1의 `UnderwaterRegion`은 [UpperOptics](../../Assets/10.Datas/World/ToonWater/UpperOptics.asset)에 연결돼 있고, 마지막 수중 합성 기록은 수역 1개·체적 셀 11개·거절 0개였다. Play Mode는 미수행.
+- [수중 합성](../../Assets/06.Shaders/Water/WaterSceneResolve.shader)은 수면 아래에서 비스듬히 올려다볼 때 전반사를 적용하며, 반사색을 수중 산란색으로 근사한다. [수중 광학](../../Assets/06.Shaders/Water/WaterCommon.hlsl)은 물속 경로가 길수록 같은 산란색에 가까워진다. 파도 프로필도 비어 있어 수면 각도 변화가 적다. 첨부 화면에서 두 경로가 차지하는 픽셀의 구분은 미확인.
+
+### 4km B1 수중 합성 개선
+
+- **구현 반영.** 수면 아래의 Fresnel 반사율을 물과 공기의 굴절률로 계산해 임계각에서 전반사로 연속적으로 이어지게 했다. 반사 방향에 따라 먼 물의 산란색에서 얕은 물의 색으로 이어진다. 이 계산은 관리 수역의 공통 셰이더에 적용된다. B1이 사용하는 [UpperOptics](../../Assets/10.Datas/World/ToonWater/UpperOptics.asset)는 남색 위주의 산란과 흡수를 청록 쪽으로 보정하고 기존 집광 무늬(Caustics) 세기를 0.12에서 0.22로 올렸다. 이 프로필과 메타는 기존 저장소의 월드 데이터 제외 규칙에 속한다.
+- **Editor 고정 카메라 확인.** B1 좌표 X 1655 / Z 1961의 수평 잠수, 올려다보기, 수면 위 구도에서 수정 전후 각 3장(640×360, MSAA 1배)을 촬영했다. 최종 3장 모두 카메라당 합성 1회, 수역 1개·셀 11개, 거절·자홍색 픽셀 0이었다. 위를 바라볼 때 반사 영역의 밝기 변화와 하늘 경계의 전이를 확인했다. 카메라는 같으며 시간과 조명 상태는 고정하지 않았다. [수평 전](../../output/RiverBasinWorld/UnderwaterReview/under-level-before.png) · [수평 후](../../output/RiverBasinWorld/UnderwaterReview/under-level-final.png) · [위쪽 전](../../output/RiverBasinWorld/UnderwaterReview/under-up-before.png) · [위쪽 후](../../output/RiverBasinWorld/UnderwaterReview/under-up-final.png) · [수면 위 전](../../output/RiverBasinWorld/UnderwaterReview/above-before.png) · [수면 위 후](../../output/RiverBasinWorld/UnderwaterReview/above-final.png)
+- **자동 검사.** 수치 검사에서 반사율의 0~1 범위, 단조성, 임계각 연속성과 수직 입사 약 2.04%를 확인했다. Unity `WaterRenderingContractTests`는 Play Mode 전환 중 실행 요청이 거절되어 미수행이다.
+- **사용자 테스트 대기.** `FEEL-RIVER-BASIN-01`의 B1 수영로에서 잠수하고 시선을 수평에서 위로 올린 뒤 재부상한다. 수면 아래 반사의 톤 변화, 바닥과 물빛 구분, 재부상 시 급격한 색 점프 유무를 확인한다. 실제 입력·밤·비·GPU 시간은 미수행. 수정 전후 비교에 쓴 사진 6장은 보존했고 중간본 3장은 정리했다.
+
 ### 4km 북부 2단 폭포
 
 2026-11-22 **제작 씬 반영·저장 · 가상 패드 Play 3경로 통과 / 미술·청감 사용자 테스트 대기.** 사용자 요청("RiverBasin4km에 폭포 연결해줘. 게임적으로 예쁘게 어울리게")으로 설계 순서(본선 → B2~B4 → 폭포)보다 앞당겨 제작했다.
@@ -136,6 +185,29 @@ TPS 입구 캡처에서 Farmlands 어린 활엽수의 낮은 가지가 플레이
 ### 4km 다음 제작 방침
 
 2026-11-21 **설계 반영.** 다음 납품 구간은 호수 마을 출구에서 B3와 B1을 지나 중앙 성채 정문까지 이어지는 약 1.9km 본선이다. B1 성능과 Editor 청크 로딩의 기준을 먼저 잡고, B3 단면과 도로 소켓을 실측해 본선의 건조 왕복을 제작한다. 기존 61.96ms는 캡처가 섞인 Editor p95 기록이므로 병목과 목표 품질 검증은 다음 계측에서 확인한다. 이번 변경은 설계·문서 연결에 반영했으며 신규 씬 제작과 계측은 미수행이다. [B1 이후 제작 방침](../../Assets/docs/design/world-art/open-world/RIVER_BASIN_WORLD_REBUILD_DESIGN.md#b1-이후-제작-방침)
+
+### 4km 미연결 구역 동선 설계
+
+2026-11-22 **G2 블록아웃 구현 반영 · Editor 형상 검사 통과 · 사용자 테스트 대기.** 열린 Unity의 Terrain 64개와 실제 수면 메시 35개를 기준으로 경로를 조정했다. [RiverBasin4km 씬](../../Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Preview/RiverBasin4km.unity)의 `미연결 구역 동선 블록아웃`에 길 메시 11개와 갈림길·전망 표지를 저장했다. R4 남안 B5는 후속 피드백으로 수영 구간으로 바꿨다. [초기 블록아웃 지도](river-basin-offroute-evidence/river-basin-offroute-blockout-map.png) · [설계와 구현 결정](../../Assets/docs/design/world-art/open-world/RIVER_BASIN_OFFROUTE_REGIONS_DESIGN.md#8-구현-결정과-저작-원본)
+
+- **구현 결정.** R1은 첫 방문부터 양방향으로 열었다. R2는 기존 경로 ID를 쓰고 성채 동쪽으로 접속한다. R3는 요새 아래에서 R5로 합류한다. R5는 능선과 사막 남쪽을 잇는다. R4는 동안과 남안에서 유출 하천을 수영하거나 비행으로 건너 호수 마을에 닿고, 해안 선착장으로 가지길을 낸다.
+- **Editor 검사 통과.** 초기 육상 11구간의 수면 침범 표본 0과 중심선 위 기존 충돌체 레이 0을 확인했다. 교량 철거 전 수치와 변경 후 입수·상륙 경사를 각각 보존했다. [초기 수치 근거](river-basin-offroute-evidence/blockout-editor-audit.txt) · [남안 수영 검사](#4km-남부-호수-섬)
+- **Unity 고정 구도.** [남안 수영 진입부](river-basin-lakes-evidence/outlet-after.png) · [R4 호수 동안](river-basin-offroute-evidence/R4-shore-blockout.png) · [R1b 연못 가지길](river-basin-offroute-evidence/R1b-pond-blockout.png)
+- **남은 제작.** R4a는 1m 표본에서 p90 26.9%, 최대 38.2%다. 사용자 주행 결과를 바탕으로 지그재그와 사면 폭을 보정한다. 호수 마을에서 B1로 돌아오는 기존 `lake-loop` 남서 접속부와 B3는 본선 제작이 남아 있어 동쪽 대순환 전체 인수는 대기다. 씬의 활성 NavMesh가 없어 경로 연결 자동 검사는 미수행이다. P04/P05 도로·교량 마감, P06 식생·지면, 실제 조우·휴식지점, Player·Addressables 검증은 미수행이다.
+- **저작 원본과 보존.** [중심선 CSV](../../Tools/RiverBasinWorld/Rebuild/offroute-blockout-4km.csv) · [저작 스크립트](../../Tools/RiverBasinWorld/Rebuild/offroute-blockout.cs.txt). 현재 지형과 `terrain-plan-4km.json`, 초기 후보 지도, 저장 씬의 검사 자료를 보존했다. 적용 직전 사용자 변경을 포함한 씬 사본은 로컬 `output/RiverBasinOffroute/before-20261122-094328-082.unity`에 있다. 임시 격자 표본·탐색·비교 파일 4개(8.42MB)를 정리했다.
+
+**사용자 테스트 대기.** `RiverBasin4km`를 Editor에서 열고 별도 저장 불러오기 없이 Play한다. 블록아웃 지도의 X/Z 위치와 갈림길 표지를 참고해 키보드나 게임패드로 확인한다.
+
+| ID | 시작과 확인 지점 | 기대 결과 |
+|---|---|---|
+| RB4-R01 | 강가 마을 (1312, 2060) → 연못 분기 (1152, 2640) → 사당 (1280, 3256). 연못 가지길과 역방향도 확인 | 표지와 노면이 이어지고 숲 굽이에서 카메라가 이동 방향을 가리지 않는다. |
+| RB4-R02 | B1 동쪽 (1896, 1992) → 요새 아래 (3376, 2016). 성채 동쪽 (2324, 2116) → 요새 (3336, 2132)도 확인 | 저지대 길과 성채 접근로가 모두 R5로 연결되고 요새 쪽 분기가 읽힌다. |
+| RB4-R03 | 사막 남쪽 (3664, 1472) → 호수 동안 (3392, 1000) | 걷기·달리기·회피로 내려올 수 있고 급경사에서 미끄러짐·낙하·카메라 가림이 없다. |
+| RB4-R04 | 동안 → 남안 수영 횡단 (3114, 564) → 호수 마을 (2320, 972), 역방향 포함 | 수영으로 걸림 없이 입수·상륙하고, 비행이 가능할 때 반대편 착지 여유가 있다. |
+| RB4-R05 | 성채 → 요새 → 사막 → 동안 → 남안 횡단 → 호수 마을 | 길을 놓친 지점과 도착 시간을 기록한다. 호수 마을에서 성채로 돌아오는 본선은 후속 확인한다. |
+| RB4-R06 | R1 숲 굽이·R4 하강·남안 횡단에서 밤과 전투 직후 카메라 확인 | 밝기와 카메라가 달라져도 다음 진행 방향과 발밑이 읽힌다. |
+
+결과는 `ID / 통과·실패·미수행 / 입력 장치와 위치 / 실제 증상 / 화면 또는 로그`로 기록한다.
 
 ### 4km B1 석교와 상류 수영로
 

@@ -1,0 +1,138 @@
+// Play에서 라온을 눈선 아래에 놓고 실제 왼쪽 스틱 입력으로 Terrain 경계를 건넌다.
+const bool seamOnly = false;
+if (!EditorApplication.isPlaying) throw new InvalidOperationException("Play Mode가 필요합니다.");
+var world = UPlayGround.Gameplay.World.SandFootprintWorld.Active;
+var actor = UnityEngine.Object.FindFirstObjectByType<UPlayGround.PlayerActor>();
+var feet = actor == null ? null : actor.GetComponentInChildren<UPlayGround.Components.ActorFootstep>();
+if (world == null || actor == null || feet == null) throw new InvalidOperationException("발 디딤과 플레이어 초기화를 확인하세요.");
+var motor = actor.GetComponent<KinematicCharacterController.KinematicCharacterMotor>();
+var t = Array.Find(Terrain.activeTerrains,o => o.name == "Terrain_6_6");
+var start = seamOnly ? new Vector3(3310,0,3551) : new Vector3(3298,0,3498);
+start.y = t.SampleHeight(start)+t.transform.position.y+0.15f;
+var route = seamOnly
+    ? new[] {new Vector2(3310,3572),new Vector2(3310,3588),new Vector2(3310,3620)}
+    : new[] {new Vector2(3310,3540),new Vector2(3310,3586),new Vector2(3310,3610),new Vector2(3288,3665)};
+motor.SetPositionAndRotation(start,Quaternion.LookRotation(Vector3.forward));
+world.Clear();
+int acceptedStart = world.Accepted, droppedStart = world.Dropped;
+var pad = UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Gamepad>();
+float began = Time.realtimeSinceStartup;
+int wp = 0, frames = 0, grounded = 0, firstSnow = -1, preSeam = -1, lastFrame = -1;
+int acceptedContact = acceptedStart;
+Vector3 lastStamp = default(Vector3);
+Action<RaycastHit,Vector3,Vector2,UPlayGround.Data.Actor.FootstepKind,bool,bool> contact = (hit,dir,size,kind,left,player) =>
+{
+    if (world.Accepted == acceptedContact) return;
+    acceptedContact = world.Accepted;
+    if (player) lastStamp = hit.point;
+};
+UPlayGround.Components.ActorFootstep.SandContact += contact;
+var seen = new System.Collections.Generic.HashSet<string>();
+var log = new System.Text.StringBuilder();
+log.AppendLine("시작 " + start + " graphics=" + SystemInfo.graphicsDeviceType);
+string output = "docs/work-status/river-basin-north-alpine-evidence/";
+System.IO.Directory.CreateDirectory(output);
+EditorApplication.CallbackFunction tick = null;
+tick = () =>
+{
+    if (!EditorApplication.isPlaying || actor == null)
+    {
+        EditorApplication.update -= tick;
+        UPlayGround.Components.ActorFootstep.SandContact -= contact;
+        if (pad.added) UnityEngine.InputSystem.InputSystem.RemoveDevice(pad);
+        return;
+    }
+    if (lastFrame == Time.frameCount) return;
+    lastFrame = Time.frameCount;
+    var cam = Camera.main;
+    float elapsed = Time.realtimeSinceStartup-began;
+    if (elapsed < 2.0f || cam == null) return;
+    var pos = motor.TransientPosition;
+    if (feet.LastSurface != null)
+    {
+        string surface = feet.LastSurface.name;
+        if (seen.Add(surface)) log.AppendLine(surface + " at " + pos.ToString("F1"));
+        if (surface == "Surface_Snow" && firstSnow < 0) firstSnow = world.Accepted;
+    }
+    if (pos.z >= 3584f && preSeam < 0) preSeam = world.Accepted;
+    var next = new Vector3(route[wp].x,0,route[wp].y);
+    var d = next - new Vector3(pos.x,0,pos.z);
+    if (d.sqrMagnitude < 5.0f)
+    {
+        log.AppendLine("경유지 " + wp + " " + pos.ToString("F1") + " accepted=" + (world.Accepted-acceptedStart));
+        wp++;
+    }
+    if (wp == route.Length || elapsed > 65f)
+    {
+        UnityEngine.InputSystem.InputSystem.RemoveDevice(pad);
+        EditorApplication.update -= tick;
+        UPlayGround.Components.ActorFootstep.SandContact -= contact;
+        bool passed = wp == route.Length && grounded >= frames*0.97f && firstSnow >= 0
+            && preSeam > acceptedStart && world.Accepted > preSeam && world.Dropped == droppedStart;
+        log.AppendLine("입력 검증=" + passed + " 경유지=" + wp + "/" + route.Length + " 접지=" + grounded + "/" + frames
+            + " 경계 전/후=" + (preSeam-acceptedStart) + "/" + (world.Accepted-preSeam)
+            + " 누락=" + (world.Dropped-droppedStart) + " 시간=" + elapsed.ToString("F1"));
+        System.IO.File.WriteAllText(output+"alpine-play.txt",log.ToString());
+        if (wp != route.Length) return;
+        ScreenCapture.CaptureScreenshot(output+"alpine-play.png");
+        if (lastStamp != default(Vector3))
+        {
+            var root = new GameObject("설면 발자국 확인 카메라") { hideFlags = HideFlags.HideAndDontSave };
+            var camera = root.AddComponent<Camera>();
+            camera.enabled = false;
+            camera.fieldOfView = 43f;
+            camera.farClipPlane = 120f;
+            camera.transform.position = lastStamp + new Vector3(0.85f,1.30f,-0.84f);
+            camera.transform.LookAt(lastStamp);
+            var target = RenderTexture.GetTemporary(960,640,24);
+            var prior = RenderTexture.active;
+            var image = new Texture2D(target.width,target.height,TextureFormat.RGB24,false);
+            try
+            {
+                camera.targetTexture = target;
+                camera.Render();
+                RenderTexture.active = target;
+                image.ReadPixels(new Rect(0,0,target.width,target.height),0,0);
+                image.Apply();
+                System.IO.File.WriteAllBytes(output+"alpine-footprint.png",image.EncodeToPNG());
+            }
+            finally
+            {
+                camera.targetTexture = null;
+                RenderTexture.active = prior;
+                RenderTexture.ReleaseTemporary(target);
+                UnityEngine.Object.DestroyImmediate(image);
+                UnityEngine.Object.DestroyImmediate(root);
+            }
+        }
+        var field = world.GetType().GetField("_cache",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic);
+        var cache = (RenderTexture)field.GetValue(world);
+        if (cache == null) return;
+        UnityEngine.Rendering.AsyncGPUReadback.Request(cache,0,request =>
+        {
+            if (request.hasError) { System.IO.File.AppendAllText(output+"alpine-play.txt","GPU readback 오류\n"); return; }
+            int depression = 0, rim = 0;
+            for (int slice = 0; slice < request.layerCount; slice++)
+            {
+                var data = request.GetData<ushort>(slice);
+                for (int k = 0; k < data.Length; k += 2)
+                {
+                    if (data[k] != 0) depression++;
+                    if (data[k+1] != 0) rim++;
+                }
+            }
+            System.IO.File.AppendAllText(output+"alpine-play.txt","GPU D="+depression+" R="+rim+"\n");
+        });
+        return;
+    }
+    frames++;
+    if (motor.GroundingStatus.IsStableOnGround) grounded++;
+    d = (new Vector3(route[wp].x,0,route[wp].y) - new Vector3(pos.x,0,pos.z)).normalized;
+    var forward = Vector3.ProjectOnPlane(cam.transform.forward,Vector3.up).normalized;
+    var right = Vector3.ProjectOnPlane(cam.transform.right,Vector3.up).normalized;
+    var input = new UnityEngine.InputSystem.LowLevel.GamepadState();
+    input.leftStick = new Vector2(Vector3.Dot(d,right),Vector3.Dot(d,forward));
+    UnityEngine.InputSystem.InputSystem.QueueStateEvent(pad,input);
+};
+EditorApplication.update += tick;
+return "설산 주행 확인 시작";

@@ -1,0 +1,2 @@
+Sand completed=True L=9 R=9 sameSideConsecutive=0 airborne=0 landing=0 dropped=0 audio=18 surface=Surface_Sand (UPlayGround.Data.Actor.FootstepSurfaceProfileSO)
+Snow completed=True L=16 R=16 sameSideConsecutive=0 airborne=0 landing=0 dropped=0 audio=20 surface=Surface_Snow (UPlayGround.Data.Actor.FootstepSurfaceProfileSO)

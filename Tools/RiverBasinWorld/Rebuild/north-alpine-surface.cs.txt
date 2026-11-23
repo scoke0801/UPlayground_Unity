@@ -1,0 +1,250 @@
+// paint로 적설과 디딤 데이터를 연결하고 verify로 저장본과 사막 마스크의 편차를 검사한다.
+const string mode = "verify";
+const string worldRoot = "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34";
+const string production = worldRoot + "/Production";
+const string output = production + "/NorthAlpine";
+const string foot = "Assets/10.Datas/Actor/Footsteps/";
+const int resolution = 128, stride = resolution - 1;
+const int atlasWidth = 3 * stride + 1, atlasHeight = 6 * stride + 1;
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (scene.path != worldRoot + "/Preview/RiverBasin4km.unity" || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("저장된 RiverBasin4km의 편집 모드가 필요합니다.");
+var grid = new Terrain[8, 8];
+foreach (var t in Terrain.activeTerrains)
+{
+    var p = t.transform.position;
+    if (t.gameObject.scene == scene) grid[Mathf.RoundToInt(p.z / 512), Mathf.RoundToInt(p.x / 512)] = t;
+}
+var world = grid[3, 7].GetComponent<UPlayGround.Gameplay.World.SandFootprintWorld>();
+var sandMask = AssetDatabase.LoadAssetAtPath<Texture2D>(production + "/EastDesert/EastDesertMask.asset");
+var snowLayer = AssetDatabase.LoadAssetAtPath<TerrainLayer>(production + "/Layers/Snow.terrainlayer");
+var grass = AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Actor.FootstepSurfaceProfileSO>(foot + "Surface_Grass.asset");
+var stone = AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Actor.FootstepSurfaceProfileSO>(foot + "Surface_Stone.asset");
+var dirt = AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Actor.FootstepSurfaceProfileSO>(foot + "Surface_Dirt.asset");
+var material = grid[3, 7].materialTemplate;
+if (sandMask == null || sandMask.width != 2*stride+1 || sandMask.height != 3*stride+1 ||
+    snowLayer == null || snowLayer.diffuseTexture == null || world == null || grass == null || stone == null || dirt == null ||
+    material == null || !material.shader.isSupported || ShaderUtil.ShaderHasError(material.shader))
+    throw new InvalidOperationException("지형 레이어·셰이더·기존 사막 마스크를 확인하세요.");
+var snowTiles = new[] { grid[6,5], grid[6,6], grid[7,5], grid[7,6] };
+var sandTiles = new[] { grid[2,6], grid[2,7], grid[3,6], grid[3,7], grid[4,6], grid[4,7] };
+foreach (var t in snowTiles)
+    if (t == null || t.terrainData.alphamapWidth != resolution || t.terrainData.alphamapHeight != resolution ||
+        t.GetComponent<TerrainCollider>().terrainData != t.terrainData || Array.IndexOf(t.terrainData.terrainLayers,snowLayer) != 4)
+        throw new InvalidOperationException("설산 타일 규격을 확인하세요.");
+string atlasPath = output + "/SandAndSnowReceiverMask.asset";
+var atlas = AssetDatabase.LoadAssetAtPath<Texture2D>(atlasPath);
+var snow = AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Actor.FootstepSurfaceProfileSO>(foot + "Surface_Snow.asset");
+var maps = new float[snowTiles.Length][,,];
+var smooth = new Func<float,float>(v => { v = Mathf.Clamp01(v); return v*v*(3-2*v); });
+var lobe = new Func<float,float,float,float,float,float,float>((x,z,cx,cz,rx,rz) =>
+{
+    float u = (x-cx)/rx, v = (z-cz)/rz;
+    return 1f - Mathf.Sqrt(u*u+v*v);
+});
+var setSnow = new Action<float[,,],int,int,float>((a,x,z,weight) =>
+{
+    float remaining = 0;
+    for (int k = 0; k < a.GetLength(2); k++) if (k != 4) remaining += a[z,x,k];
+    if (remaining < 0.0001f) a[z,x,6] = 1f - weight;
+    else
+    {
+        float factor = (1f - weight) / remaining;
+        for (int k = 0; k < a.GetLength(2); k++) if (k != 4) a[z,x,k] *= factor;
+    }
+    a[z,x,4] = weight;
+});
+if (mode == "paint")
+{
+    if (atlas != null || world.receiverMask != sandMask || world.adjoiningReceivers.Length != 5)
+        throw new InvalidOperationException("설산을 다시 칠하면 기존 레이어와 마스크를 덮어씁니다. verify를 사용하세요.");
+    if (snowLayer.normalMapTexture == null)
+        throw new InvalidOperationException("north-alpine-normal을 먼저 실행하세요.");
+    for (int i = 0; i < snowTiles.Length; i++)
+    {
+        var t = snowTiles[i];
+        var d = t.terrainData;
+        var a = d.GetAlphamaps(0,0,resolution,resolution);
+        maps[i] = a;
+        var p = t.transform.position;
+        for (int z = 0; z < resolution; z++)
+        for (int x = 0; x < resolution; x++)
+        {
+            float u = x/(float)stride, v = z/(float)stride;
+            float wx = p.x+512*u, wz = p.z+512*v;
+            float macro = Mathf.PerlinNoise(wx*0.011f + 7.1f,wz*0.012f + 2.3f);
+            float zone = Mathf.Max(lobe(wx,wz,3298,3670,255,262),lobe(wx,wz,3235,3510,185,162));
+            float influence = smooth((zone + (macro-0.5f)*0.25f) / 0.39f);
+            if (influence <= 0) continue;
+            float height = d.GetInterpolatedHeight(u,v)+p.y;
+            float slope = d.GetSteepness(u,v);
+            float wind = Mathf.PerlinNoise(wx*0.029f,wz*0.016f);
+            float cold = smooth((height - (297f + 32f*macro)) / 69f);
+            float deposit = (1f-smooth((slope-40f-5f*wind)/17f)) * (0.82f+0.17f*wind);
+            float snowWeight = Mathf.Lerp(a[z,x,4],cold*deposit,influence);
+            setSnow(a,x,z,snowWeight);
+        }
+    }
+    // 공유 모서리의 적설 가중치는 공통 위치에서 한 번만 결정한다.
+    for (int repeat = 0; repeat < 2; repeat++)
+    for (int i = 0; i < snowTiles.Length; i++)
+    for (int q = 0; q < resolution; q++)
+    {
+        if (i % 2 == 0)
+        {
+            float w = (maps[i][q,stride,4]+maps[i+1][q,0,4])*0.5f;
+            setSnow(maps[i],stride,q,w); setSnow(maps[i+1],0,q,w);
+        }
+        if (i < 2)
+        {
+            float w = (maps[i][stride,q,4]+maps[i+2][0,q,4])*0.5f;
+            setSnow(maps[i],q,stride,w); setSnow(maps[i+2],q,0,w);
+        }
+    }
+    float corner = (maps[0][stride,stride,4]+maps[1][stride,0,4]+maps[2][0,stride,4]+maps[3][0,0,4])*0.25f;
+    for (int i = 0; i < snowTiles.Length; i++) setSnow(maps[i],i%2==0?stride:0,i<2?stride:0,corner);
+
+    string backup = "output/RiverBasinWorld/NorthAlpine/before";
+    System.IO.Directory.CreateDirectory(backup);
+    foreach (var file in new[] { AssetDatabase.GetAssetPath(snowLayer), foot + "Raon_FootstepSettings.asset", "Assets/10.Datas/Sound/SoundDatabase.asset" })
+    {
+        string copy = backup + "/" + System.IO.Path.GetFileName(file);
+        if (!System.IO.File.Exists(copy)) System.IO.File.Copy(file,copy);
+    }
+    if (!AssetDatabase.IsValidFolder(output)) AssetDatabase.CreateFolder(production,"NorthAlpine");
+    const string powderPath = foot + "Effects/FootstepSnowPowder.prefab";
+    if (AssetDatabase.LoadAssetAtPath<GameObject>(powderPath) == null)
+    {
+        var dust = AssetDatabase.LoadAssetAtPath<GameObject>(foot + "Effects/FootstepDust.prefab");
+        if (dust == null || !AssetDatabase.CopyAsset(AssetDatabase.GetAssetPath(dust),powderPath))
+            throw new InvalidOperationException("눈가루 입자 원본이 없습니다.");
+        var prefab = PrefabUtility.LoadPrefabContents(powderPath);
+        try
+        {
+            prefab.name = "FootstepSnowPowder";
+            var ps = prefab.GetComponent<ParticleSystem>();
+            var main = ps.main;
+            main.startColor = new ParticleSystem.MinMaxGradient(new Color(0.81f,0.90f,0.97f,0.72f),new Color(1f,1f,1f,0.88f));
+            main.startLifetime = new ParticleSystem.MinMaxCurve(0.17f,0.38f);
+            var color = ps.colorOverLifetime;
+            var fade = new Gradient();
+            fade.SetKeys(new[] {new GradientColorKey(Color.white,0),new GradientColorKey(Color.white,1)},
+                new[] {new GradientAlphaKey(0.85f,0),new GradientAlphaKey(0.55f,0.4f),new GradientAlphaKey(0,1)});
+            color.color = fade;
+            PrefabUtility.SaveAsPrefabAsset(prefab,powderPath);
+        }
+        finally { PrefabUtility.UnloadPrefabContents(prefab); }
+    }
+    snow = UPlayGround.Tool.Editor.FootstepAuthoring.AuthorSnow();
+    Undo.IncrementCurrentGroup();
+    int group = Undo.GetCurrentGroup();
+    try
+    {
+        Undo.SetCurrentGroupName("RiverBasin4km 설산 적설과 발 디딤");
+        for (int i = 0; i < snowTiles.Length; i++)
+        {
+            var t = snowTiles[i];
+            var d = t.terrainData;
+            Undo.RegisterCompleteObjectUndo(t,"설산 수신 재질");
+            Undo.RegisterCompleteObjectUndo(d,"설산 적설");
+            Undo.RegisterCompleteObjectUndo(d.alphamapTextures,"설산 알파맵");
+            d.SetAlphamaps(0,0,maps[i]);
+            maps[i] = d.GetAlphamaps(0,0,resolution,resolution);
+            t.materialTemplate = material;
+            var binding = t.GetComponent<UPlayGround.Components.FootstepSurface>();
+            if (binding == null) binding = Undo.AddComponent<UPlayGround.Components.FootstepSurface>(t.gameObject);
+            else Undo.RegisterCompleteObjectUndo(binding,"설산 음향 연결");
+            var map = ScriptableObject.CreateInstance<UPlayGround.Data.Actor.FootstepTerrainMapSO>();
+            map.width = map.height = resolution;
+            map.dominantLayers = new byte[resolution*resolution];
+            map.surfaces = new UPlayGround.Data.Actor.FootstepSurfaceProfileSO[d.terrainLayers.Length];
+            for (int k = 0; k < map.surfaces.Length; k++) map.surfaces[k] = k == 4 ? snow : k < 2 ? grass : k == 5 ? dirt : stone;
+            for (int z = 0; z < resolution; z++)
+            for (int x = 0; x < resolution; x++)
+            {
+                int best = 0;
+                for (int k = 1; k < map.surfaces.Length; k++) if (maps[i][z,x,k] > maps[i][z,x,best]) best = k;
+                map.dominantLayers[z*resolution+x] = (byte)best;
+            }
+            AssetDatabase.CreateAsset(map,output + "/" + t.name + "_FootstepAudio.asset");
+            Undo.RegisterCreatedObjectUndo(map,"설산 발소리 지도");
+            binding.colliders = new[] { t.GetComponent<TerrainCollider>() };
+            binding.terrain = t;
+            binding.profile = stone;
+            binding.terrainMap = map;
+        }
+        var bytes = new byte[atlasWidth*atlasHeight];
+        var old = sandMask.GetRawTextureData<byte>();
+        for (int z = 0; z < sandMask.height; z++)
+        for (int x = 0; x < sandMask.width; x++) bytes[z*atlasWidth+stride+x] = old[z*sandMask.width+x];
+        for (int i = 0; i < snowTiles.Length; i++)
+        for (int z = 0; z < resolution; z++)
+        for (int x = 0; x < resolution; x++)
+        {
+            int index = (stride*(4+i/2)+z)*atlasWidth + stride*(i%2)+x;
+            byte w = (byte)Mathf.RoundToInt(255*maps[i][z,x,4]);
+            bytes[index] = Math.Max(bytes[index], w);
+        }
+        atlas = new Texture2D(atlasWidth,atlasHeight,TextureFormat.R8,false,true)
+            { wrapMode = TextureWrapMode.Clamp, filterMode = FilterMode.Bilinear, name = "River Basin Sand and Snow" };
+        atlas.LoadRawTextureData(bytes);
+        atlas.Apply(false,false);
+        AssetDatabase.CreateAsset(atlas,atlasPath);
+        Undo.RegisterCreatedObjectUndo(atlas,"설산 발자국 마스크");
+        Undo.RegisterCompleteObjectUndo(world,"사막과 설산 발자국 수신면");
+        var adjoining = new System.Collections.Generic.List<TerrainCollider>(world.adjoiningReceivers);
+        foreach (var t in snowTiles) adjoining.Add(t.GetComponent<TerrainCollider>());
+        world.adjoiningReceivers = adjoining.ToArray();
+        world.receiverMask = atlas;
+        foreach (var t in snowTiles)
+        {
+            EditorUtility.SetDirty(t.terrainData);
+            AssetDatabase.SaveAssetIfDirty(t.terrainData);
+        }
+        UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+        if (!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene)) throw new InvalidOperationException("설산 씬 저장 실패");
+        Undo.CollapseUndoOperations(group);
+    }
+    catch
+    {
+        Undo.RevertAllDownToGroup(group);
+        foreach (var t in snowTiles) AssetDatabase.SaveAssetIfDirty(t.terrainData);
+        throw;
+    }
+}
+if (world.receiverMask != atlas || atlas == null || atlas.width != atlasWidth || atlas.height != atlasHeight ||
+    world.adjoiningReceivers.Length != 9 || snowLayer.normalMapTexture == null || snow == null)
+    throw new InvalidOperationException("수신 지도·노멀·눈 발소리 연결이 빠졌습니다.");
+foreach (var t in sandTiles)
+{
+    var collider = t.GetComponent<TerrainCollider>();
+    if (collider != world.receiver && Array.IndexOf(world.adjoiningReceivers,collider) < 0)
+        throw new InvalidOperationException("기존 사막 수신 타일이 빠졌습니다.");
+}
+var saved = atlas.GetRawTextureData<byte>();
+var sandBytes = sandMask.GetRawTextureData<byte>();
+int sandMismatch = 0, snowMismatch = 0, area = 0, snowSamples = 0;
+for (int z = 0; z < sandMask.height; z++)
+for (int x = 0; x < sandMask.width; x++) if (saved[z*atlasWidth+stride+x] != sandBytes[z*sandMask.width+x]) sandMismatch++;
+for (int i = 0; i < snowTiles.Length; i++)
+{
+    var t = snowTiles[i];
+    var binding = t.GetComponent<UPlayGround.Components.FootstepSurface>();
+    if (binding == null || binding.terrainMap == null || binding.terrainMap.surfaces[4] != snow ||
+        binding.colliders.Length != 1 || Array.IndexOf(world.adjoiningReceivers,binding.colliders[0] as TerrainCollider) < 0 ||
+        t.materialTemplate != material) throw new InvalidOperationException("설산 수신 타일 또는 발소리 지도 누락: " + t.name);
+    var a = t.terrainData.GetAlphamaps(0,0,resolution,resolution);
+    for (int z = 0; z < resolution; z++)
+    for (int x = 0; x < resolution; x++)
+    {
+        int index = (stride*(4+i/2)+z)*atlasWidth + stride*(i%2)+x;
+        if (Mathf.Abs(saved[index] - Mathf.RoundToInt(255*a[z,x,4])) > 1) snowMismatch++;
+        if (a[z,x,4] < 0.5f) continue;
+        if (x<stride && z<stride) area++;
+        if (binding.terrainMap.dominantLayers[z*resolution+x] == 4) snowSamples++;
+    }
+}
+if (sandMismatch != 0 || snowMismatch != 0 || area < 1500 || snowSamples < area)
+    throw new InvalidOperationException("마스크 또는 음향 검증 실패: " + sandMismatch + "/" + snowMismatch + "/" + area + "/" + snowSamples);
+return "atlas=" + atlasWidth + "x" + atlasHeight + " sandMismatch=" + sandMismatch + " snowMismatch=" + snowMismatch
+    + " snowArea=" + (area*Mathf.Pow(512f/stride,2)).ToString("F0") + "m² snowAudioSamples=" + snowSamples;

@@ -1,0 +1,168 @@
+// Play Mode의 실제 Terrain에서 경계 4슬라이스, 차폐, 일시정지, 색상 패스를 확인한다.
+if (!EditorApplication.isPlaying) throw new InvalidOperationException("Play Mode가 필요합니다.");
+var world = UPlayGround.Gameplay.World.SandFootprintWorld.Active;
+var actor = UnityEngine.Object.FindFirstObjectByType<UPlayGround.PlayerActor>();
+if (world == null || actor == null) throw new InvalidOperationException("활성 사막과 라온이 필요합니다.");
+var terrain = world.receiver.GetComponent<Terrain>();
+var motor = actor.GetComponent<KinematicCharacterController.KinematicCharacterMotor>();
+var spot = new Vector3(3824, 0, 1784);
+spot.y = terrain.SampleHeight(spot) + terrain.transform.position.y;
+if (world.Weight(spot) < 0.6f) throw new InvalidOperationException("검수 지점이 수신면에 없습니다.");
+motor.SetPositionAndRotation(spot + new Vector3(-1.75f, 0.3f, 0.2f), Quaternion.LookRotation(Vector3.right));
+world.enabled = false;
+world.enabled = true;
+var method = world.GetType().GetMethod("Receive", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+var field = world.GetType().GetField("_cache", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+var report = new System.Text.StringBuilder("경계/차폐/일시정지 실제 GPU 확인\n");
+string directory = "docs/work-status/river-basin-sand-footprints-evidence/";
+System.IO.Directory.CreateDirectory(directory);
+int begin = Time.frameCount, accepted = world.Accepted;
+float previousScale = Time.timeScale;
+EditorApplication.CallbackFunction tick = null;
+tick = () =>
+{
+    if (!EditorApplication.isPlaying || world == null)
+    {
+        EditorApplication.update -= tick;
+        return;
+    }
+    if (Time.frameCount - begin < 3) return;
+    EditorApplication.update -= tick;
+    var blocker = GameObject.CreatePrimitive(PrimitiveType.Cube);
+    blocker.transform.position = spot + Vector3.up * 0.36f;
+    blocker.transform.localScale = new Vector3(0.7f, 0.16f, 0.7f);
+    Physics.SyncTransforms();
+    RaycastHit hit;
+    Vector3 start = spot + Vector3.up * 2;
+    if (!Physics.Raycast(start, Vector3.down, out hit, 3f) || hit.collider.gameObject != blocker)
+        throw new InvalidOperationException("차폐 콜라이더가 최우선인지 확인할 수 없습니다.");
+    method.Invoke(world, new object[] { hit, Vector3.forward, new Vector2(0.13f, 0.29f), UPlayGround.Data.Actor.FootstepKind.Landing, false, true });
+    report.AppendLine("차폐 후 새 요청=" + (world.Accepted - accepted));
+    UnityEngine.Object.DestroyImmediate(blocker);
+    Physics.SyncTransforms();
+    if (!Physics.Raycast(start, Vector3.down, out hit, 3f) || hit.collider != world.receiver)
+        throw new InvalidOperationException("Terrain 차폐 해제 실패");
+    method.Invoke(world, new object[] { hit, Vector3.forward, new Vector2(0.13f, 0.29f), UPlayGround.Data.Actor.FootstepKind.Landing, false, true });
+    report.AppendLine("교차점 새 요청=" + (world.Accepted - accepted));
+
+    float waitStart = Time.realtimeSinceStartup;
+    EditorApplication.CallbackFunction rendered = null;
+    rendered = () =>
+    {
+        if (!EditorApplication.isPlaying || world == null) { EditorApplication.update -= rendered; return; }
+        if (world.LastFrameDispatches <= 0 && Time.realtimeSinceStartup - waitStart < 0.6f) return;
+        EditorApplication.update -= rendered;
+        var cache = (RenderTexture)field.GetValue(world);
+        if (cache == null) throw new InvalidOperationException("캐시가 생성되지 않았습니다.");
+        var request = UnityEngine.Rendering.AsyncGPUReadback.Request(cache, 0, 0, cache.width, 0, cache.height, 0, cache.volumeDepth);
+        request.WaitForCompletion();
+        if (request.hasError) throw new InvalidOperationException("GPU readback 실패");
+        int nonzeroSlices = 0;
+        for (int slice = 0; slice < request.layerCount; slice++)
+        {
+            var raw = request.GetData<ushort>(slice);
+            int depressed = 0, rim = 0;
+            for (int k = 0; k < raw.Length; k += 2)
+            {
+                if (raw[k] > 0) depressed++;
+                if (raw[k + 1] > 0) rim++;
+            }
+            if (depressed > 0 && rim > 0) nonzeroSlices++;
+            if (depressed > 0 || rim > 0) report.AppendLine("슬라이스 " + slice + " D=" + depressed + " R=" + rim);
+        }
+        report.AppendLine("양 채널이 채워진 슬라이스=" + nonzeroSlices);
+
+        var cameraRoot = new GameObject("모래 경계 검증 카메라") { hideFlags = HideFlags.HideAndDontSave };
+        var camera = cameraRoot.AddComponent<Camera>();
+        camera.enabled = false;
+        camera.fieldOfView = 42f;
+        camera.nearClipPlane = 0.05f;
+        camera.farClipPlane = 650f;
+        camera.transform.position = spot + new Vector3(0.85f, 1.06f, -1.03f);
+        camera.transform.LookAt(spot);
+        var output = RenderTexture.GetTemporary(960, 640, 24);
+        var prior = RenderTexture.active;
+        var png = new Texture2D(output.width, output.height, TextureFormat.RGB24, false);
+        var offPixels = new Color32[0];
+        var activeProfile = world.profile;
+        var neutral = UnityEngine.Object.Instantiate(activeProfile);
+        neutral.depression = neutral.rim = neutral.colorContrast = neutral.smoothness = 0;
+        try
+        {
+            camera.targetTexture = output;
+            for (int i = 0; i < 2; i++)
+            {
+                camera.Render();
+                RenderTexture.active = output;
+                png.ReadPixels(new Rect(0, 0, output.width, output.height), 0, 0);
+                png.Apply();
+                var pixels = png.GetPixels32();
+                if (i == 0)
+                {
+                    offPixels = pixels;
+                    System.IO.File.WriteAllBytes(directory + "edge-on.png", png.EncodeToPNG());
+                    world.profile = neutral;
+                }
+                else
+                {
+                    int different = 0;
+                    for (int p = 0; p < pixels.Length; p++)
+                    {
+                        int change = Mathf.Abs(pixels[p].r - offPixels[p].r) + Mathf.Abs(pixels[p].g - offPixels[p].g) + Mathf.Abs(pixels[p].b - offPixels[p].b);
+                        if (change >= 12) different++;
+                    }
+                    report.AppendLine("보조 Base 카메라 ON/OFF 유의 픽셀 차이=" + different);
+                }
+            }
+        }
+        finally
+        {
+            world.profile = activeProfile;
+            UnityEngine.Object.DestroyImmediate(neutral);
+            camera.targetTexture = null;
+            RenderTexture.active = prior;
+            RenderTexture.ReleaseTemporary(output);
+            UnityEngine.Object.DestroyImmediate(cameraRoot);
+            UnityEngine.Object.DestroyImmediate(png);
+        }
+        // pause 감쇠는 GPU 리소스에 재저장되지 않으므로 내부 게임 시계의 실제 값을 비교한다.
+        Time.timeScale = 0;
+        var clock = world.GetType().GetField("_clock", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+        double before = (double)clock.GetValue(world);
+        waitStart = Time.realtimeSinceStartup;
+        EditorApplication.CallbackFunction paused = null;
+        paused = () =>
+        {
+            if (EditorApplication.isPlaying && Time.realtimeSinceStartup - waitStart < 1f) return;
+            EditorApplication.update -= paused;
+            Time.timeScale = previousScale;
+            if (world == null) return;
+            report.AppendLine("일시정지 1초 clock 변화=" + ((double)clock.GetValue(world) - before));
+            var position = terrain.transform.position;
+            var standing = motor.TransientPosition;
+            var offset = new Vector3(-512, 0, 256);
+            var logical = world.GetType().GetField("_logicalOffset", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            var beforeOffset = (Vector2)logical.GetValue(world);
+            terrain.transform.position = position + offset;
+            motor.SetPositionAndRotation(standing + offset, motor.TransientRotation);
+            int shiftFrame = Time.frameCount;
+            EditorApplication.CallbackFunction shifted = null;
+            shifted = () =>
+            {
+                if (EditorApplication.isPlaying && Time.frameCount - shiftFrame < 3) return;
+                EditorApplication.update -= shifted;
+                if (world == null) return;
+                Vector2 delta = (Vector2)logical.GetValue(world) - beforeOffset;
+                report.AppendLine("원점 이동=" + offset + " 논리 오프셋 변화=" + delta);
+                terrain.transform.position = position;
+                motor.SetPositionAndRotation(standing, motor.TransientRotation);
+                System.IO.File.WriteAllText(directory + "edge-check.txt", report.ToString());
+            };
+            EditorApplication.update += shifted;
+        };
+        EditorApplication.update += paused;
+    };
+    EditorApplication.update += rendered;
+};
+EditorApplication.update += tick;
+return "실제 모래 경계 검사 시작";

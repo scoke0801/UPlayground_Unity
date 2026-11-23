@@ -1,0 +1,25 @@
+  p=0 R state=GroundMove point=(3794.68, 50.12, 1770.18) time=1.45
+  p=0 L state=GroundMove point=(3796.31, 50.18, 1770.79) time=1.71
+  p=0 R state=GroundMove point=(3798.31, 50.24, 1771.38) time=2.02
+  p=1 L state=GroundMove point=(3800.01, 50.30, 1771.99) time=2.31
+  p=1 R state=GroundMove point=(3801.78, 50.35, 1772.52) time=2.59
+  p=1 L state=GroundMove point=(3803.44, 50.41, 1773.11) time=2.86
+  p=1 R state=GroundMove point=(3805.46, 50.38, 1773.72) time=3.18
+  p=2 L state=Idle point=(3807.17, 50.35, 1774.35) time=3.53
+  p=2 R state=Idle point=(3807.21, 50.35, 1774.19) time=3.68
+  p=2 L state=Idle point=(3807.28, 50.35, 1774.47) time=3.72
+  p=3 L state=Attack point=(3807.51, 50.34, 1774.59) time=5.06
+Sand move=True distance=13.53 start=3 moving=4 sameSideMoving=0 stop=3 stopState=3 attack=True attackStamps=1 insideAttack=1 attackFeet=0.28/0.09 settledIdle=0 states=Idle,GroundMove,Attack
+  p=0 L state=Idle point=(3309.87, 362.73, 3576.11) time=0.86
+  p=0 R state=GroundMove point=(3310.03, 362.97, 3576.79) time=1.48
+  p=0 L state=GroundMove point=(3309.99, 363.68, 3578.71) time=1.82
+  p=0 R state=GroundMove point=(3310.01, 364.29, 3580.44) time=2.09
+  p=1 L state=GroundMove point=(3309.99, 364.95, 3582.39) time=2.41
+  p=1 R state=GroundMove point=(3310.01, 365.43, 3583.83) time=2.65
+  p=1 L state=GroundMove point=(3309.99, 366.08, 3585.78) time=2.96
+  p=1 R state=GroundMove point=(3310.01, 366.68, 3587.53) time=3.25
+  p=2 R state=Idle point=(3310.09, 367.55, 3590.02) time=3.72
+  p=2 L state=Idle point=(3309.87, 367.59, 3590.11) time=3.82
+  p=3 L state=Attack point=(3309.83, 367.70, 3590.37) time=5.14
+  p=3 R state=Attack point=(3310.16, 367.50, 3589.86) time=5.14
+Snow move=True distance=13.53 start=4 moving=4 sameSideMoving=0 stop=2 stopState=2 attack=True attackStamps=2 insideAttack=2 attackFeet=0.31/0.09 settledIdle=0 states=Idle,GroundMove,Attack

@@ -1,0 +1,238 @@
+// 첨부 지도의 사막과 설산 범위를 Terrain에 저작하고 발소리·발자국을 다시 연결한다.
+const string mode="dry";
+const string production="Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production";
+const string output=production+"/MarkedRegions";
+const string backup="output/RiverBasinWorld/MarkedRegions/before-biomes/";
+const string evidence="docs/work-status/river-basin-marked-regions-evidence/";
+const int resolution=128, stride=127;
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if(scene.name!="RiverBasin4km" || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("저장된 RiverBasin4km 편집 모드가 필요합니다.");
+var grid=new Terrain[8,8];
+foreach(var t in Terrain.activeTerrains)
+    if(t.gameObject.scene==scene) grid[(int)t.transform.position.z/512,(int)t.transform.position.x/512]=t;
+foreach(var t in grid)
+    if(t==null || t.terrainData.alphamapWidth!=resolution || t.terrainData.alphamapHeight!=resolution)
+        throw new InvalidOperationException("Terrain 재질 격자가 일치하지 않습니다.");
+var world=grid[3,7].GetComponent<UPlayGround.Gameplay.World.SandFootprintWorld>();
+var sand=AssetDatabase.LoadAssetAtPath<TerrainLayer>(production+"/Layers/FineDesertSand.terrainlayer");
+var snow=AssetDatabase.LoadAssetAtPath<TerrainLayer>(production+"/Layers/Snow.terrainlayer");
+var material=grid[3,7].materialTemplate;
+if(world==null || world.receiverMask==null || sand==null || snow==null || material==null)
+    throw new InvalidOperationException("기존 모래·눈 지면 데이터가 필요합니다.");
+var profiles=new Dictionary<string,UPlayGround.Data.Actor.FootstepSurfaceProfileSO>();
+foreach(string name in new[]{"Grass","Stone","Dirt","Sand","Snow"})
+{
+    var profile=AssetDatabase.LoadAssetAtPath<UPlayGround.Data.Actor.FootstepSurfaceProfileSO>(
+        "Assets/10.Datas/Actor/Footsteps/Surface_"+name+".asset");
+    if(profile==null) throw new InvalidOperationException("지면 소리 누락 "+name);
+    profiles.Add(name,profile);
+}
+Func<float,float> smooth=value=>
+{
+    float t=Mathf.Clamp01(value);
+    return t*t*(3-2*t);
+};
+Func<float,Vector2[],float> profileAt=(value,keys)=>
+{
+    for(int k=1;k<keys.Length;k++)
+        if(value<keys[k].x)
+            return Mathf.Lerp(keys[k-1].y,keys[k].y,Mathf.InverseLerp(keys[k-1].x,keys[k].x,value));
+    return keys[keys.Length-1].y;
+};
+// X별 북부 하한과 Z별 동부 사막의 서쪽 경계. 표시 밖으로는 고도와 완경사를 따라 서서히 전이한다.
+var northEdge=new[]{new Vector2(0,3210),new Vector2(450,3100),new Vector2(920,3235),
+    new Vector2(1460,3430),new Vector2(1900,3490),new Vector2(2400,3390),
+    new Vector2(2840,3320),new Vector2(3390,3250),new Vector2(4096,3200)};
+var westEdge=new[]{new Vector2(650,4040),new Vector2(720,3750),new Vector2(930,3500),
+    new Vector2(1290,3460),new Vector2(1500,3330),new Vector2(1620,3130),new Vector2(1760,2815),
+    new Vector2(1910,2665),new Vector2(2070,2825),new Vector2(2250,3580),new Vector2(2370,4100)};
+var islandCenters=new[]{new Vector4(631,2173,105,91.04f),new Vector4(824,790,168,15.04f),
+    new Vector4(1420,853,131,15.04f),new Vector4(3054,1080,171,24.04f)};
+Action<float[,,],int,int,int,float> setLayer=(a,z,x,index,weight)=>
+{
+    float previous=a[z,x,index];
+    if(Mathf.Abs(weight-previous)<0.0001f) return;
+    float multiplier=(1-weight)/Mathf.Max(0.000001f,1-previous);
+    for(int k=0;k<a.GetLength(2);k++) if(k!=index) a[z,x,k]*=multiplier;
+    if(previous>=0.999999f && weight<previous) a[z,x,index==3?0:3]=1-weight;
+    a[z,x,index]=weight;
+};
+var receivers=new HashSet<TerrainCollider>(world.adjoiningReceivers){world.receiver};
+var maps=new Dictionary<Terrain,float[,,]>();
+var lists=new Dictionary<Terrain,TerrainLayer[]>();
+var biomeTiles=new HashSet<Terrain>();
+float oldSnow=0,newSnow=0,oldSand=0,newSand=0,arid=0;
+float cellArea=512f/resolution*512f/resolution;
+foreach(var tile in grid)
+{
+    var data=tile.terrainData;
+    var p=tile.transform.position;
+    var oldLayers=data.terrainLayers;
+    int snowIndex=Array.IndexOf(oldLayers,snow), oldSandIndex=Array.IndexOf(oldLayers,sand);
+    int rock=Array.FindIndex(oldLayers,l=>l.name=="Rock"), sandstone=Array.FindIndex(oldLayers,l=>l.name=="Sandstone");
+    int meadow=Array.FindIndex(oldLayers,l=>l.name=="Meadow"), forest=Array.FindIndex(oldLayers,l=>l.name=="Forest");
+    int shore=Array.FindIndex(oldLayers,l=>l.name=="Shore");
+    if(snowIndex<0 || rock<0 || sandstone<0 || meadow<0 || forest<0 || shore<0)
+        throw new InvalidOperationException("TerrainLayer 누락 "+tile.name);
+    var before=data.GetAlphamaps(0,0,resolution,resolution);
+    int sandIndex=oldSandIndex<0?oldLayers.Length:oldSandIndex;
+    var next=new float[resolution,resolution,Mathf.Max(oldLayers.Length,sandIndex+1)];
+    bool painted=false, biome=false, hasSand=oldSandIndex>=0;
+    for(int z=0;z<resolution;z++)
+    for(int x=0;x<resolution;x++)
+    {
+        for(int k=0;k<oldLayers.Length;k++) next[z,x,k]=before[z,x,k];
+        float u=x/(float)stride,v=z/(float)stride;
+        float wx=p.x+u*512,wz=p.z+v*512;
+        float y=p.y+data.GetInterpolatedHeight(u,v);
+        float slope=data.GetSteepness(u,v);
+        float noise=Mathf.PerlinNoise(wx*0.011f,wz*0.009f)-0.5f;
+        float snowPrev=before[z,x,snowIndex], sandPrev=next[z,x,sandIndex];
+        if(snowPrev>=0.5f) oldSnow+=cellArea;
+        if(sandPrev>=0.5f) oldSand+=cellArea;
+        float snowLine=profileAt(wx,northEdge)+noise*95;
+        float belt=smooth((wz-snowLine+62)/150);
+        float cold=smooth((y-118)/105);
+        float crust=(1-0.78f*smooth((slope-31+noise*7)/25))*(0.96f+noise*0.075f);
+        float snowWeight=Mathf.Max(snowPrev,belt*cold*crust);
+        float guard=smooth((y-27)/11)*(1-smooth((before[z,x,shore]-0.35f)/0.51f));
+        float dry=smooth((wx-profileAt(wz,westEdge)+noise*86+45)/140)
+            *smooth((wz-632)/130)*smooth((2370-wz)/145)*guard;
+        // 단구와 돌산의 노출 암반은 경사를 따라 드러나고 분지와 완사면에 고운 모래가 쌓인다.
+        float loose=1-0.92f*smooth((slope-16+noise*4)/28);
+        float quarryGuard=1-0.84f*(1-smooth(Vector2.Distance(new Vector2(wx,wz),new Vector2(3199,2216))/99f));
+        float sandWeight=Mathf.Max(sandPrev,dry*loose*(0.92f+noise*0.12f)*quarryGuard);
+        if(snowWeight-snowPrev>0.007f)
+        {
+            setLayer(next,z,x,snowIndex,snowWeight);
+            painted=true; biome=true;
+        }
+        if(dry>0.014f)
+        {
+            float scrub=Mathf.Clamp01(dry*1.26f);
+            float amount=(next[z,x,meadow]+next[z,x,forest])*scrub;
+            next[z,x,meadow]*=1-scrub;
+            next[z,x,forest]*=1-scrub;
+            next[z,x,sandstone]+=amount;
+            setLayer(next,z,x,sandIndex,sandWeight);
+            painted=true; biome=true; hasSand=true;
+            if(dry>0.65f) arid+=cellArea;
+        }
+        foreach(var island in islandCenters)
+        {
+            float rise=y-island.w;
+            if(rise<0.2f || rise>17) continue;
+            float distance=Vector2.Distance(new Vector2(wx,wz),new Vector2(island.x,island.y));
+            if(distance>=island.z || distance>island.z-14 && rise<0.9f) continue;
+            float cover=(1-smooth((distance-island.z*0.7f)/(island.z*0.3f)))*0.91f;
+            int target=rise<2.1f+noise*1.4f?shore:rise>3 && slope>27?rock:meadow;
+            setLayer(next,z,x,target,Mathf.Lerp(next[z,x,target],1,cover));
+            painted=true;
+        }
+        if(next[z,x,snowIndex]>=0.5f) newSnow+=cellArea;
+        if(next[z,x,sandIndex]>=0.5f) newSand+=cellArea;
+    }
+    if(biome || receivers.Contains(tile.GetComponent<TerrainCollider>())) biomeTiles.Add(tile);
+    if(!painted) continue;
+    var finalLayers=hasSand && oldSandIndex<0?oldLayers.Concat(new[]{sand}).ToArray():oldLayers;
+    if(next.GetLength(2)!=finalLayers.Length)
+    {
+        var trimmed=new float[resolution,resolution,finalLayers.Length];
+        for(int z=0;z<resolution;z++)
+        for(int x=0;x<resolution;x++)
+        for(int k=0;k<finalLayers.Length;k++) trimmed[z,x,k]=next[z,x,k];
+        next=trimmed;
+    }
+    maps.Add(tile,next);
+    lists.Add(tile,finalLayers);
+}
+var report=new System.Text.StringBuilder("Terrain "+maps.Count+" / 발 디딤 수신 "+biomeTiles.Count);
+report.AppendLine().AppendLine("사막 핵심 권역 "+(arid/1000000).ToString("F2")+"km² / 모래 "+(oldSand/1000000).ToString("F2")
+    +" → "+(newSand/1000000).ToString("F2")+"km² / 적설 "+(oldSnow/1000000).ToString("F2")+" → "+(newSnow/1000000).ToString("F2")+"km²");
+if(newSnow-oldSnow<400000 || newSand-oldSand<350000) throw new InvalidOperationException(report.ToString());
+if(mode=="dry") return report.ToString();
+if(mode!="apply" || System.IO.Directory.Exists(backup) || AssetDatabase.IsValidFolder(output))
+    throw new InvalidOperationException("생성 경로와 백업을 확인하세요.");
+System.IO.Directory.CreateDirectory(backup);
+foreach(string path in new[]{scene.path}.Concat(maps.Keys.Select(t=>AssetDatabase.GetAssetPath(t.terrainData))))
+    System.IO.File.Copy(path,backup+System.IO.Path.GetFileName(path));
+if(string.IsNullOrEmpty(AssetDatabase.CreateFolder(production,"MarkedRegions")))
+    throw new InvalidOperationException("표면 데이터 폴더 생성 실패");
+Undo.IncrementCurrentGroup();
+int undo=Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName("표시 범위의 사막·설산·섬 지면");
+try
+{
+    foreach(var entry in maps)
+    {
+        var data=entry.Key.terrainData;
+        Undo.RegisterCompleteObjectUndo(data,"표시 범위 지면");
+        Undo.RegisterCompleteObjectUndo(data.alphamapTextures,"알파맵");
+        data.terrainLayers=lists[entry.Key];
+        data.SetAlphamaps(0,0,entry.Value);
+        EditorUtility.SetDirty(data);
+    }
+    int minX=biomeTiles.Min(t=>(int)t.transform.position.x/512), minZ=biomeTiles.Min(t=>(int)t.transform.position.z/512);
+    int width=(biomeTiles.Max(t=>(int)t.transform.position.x/512)-minX+1)*stride+1;
+    int height=(biomeTiles.Max(t=>(int)t.transform.position.z/512)-minZ+1)*stride+1;
+    var maskBytes=new byte[width*height];
+    foreach(var tile in biomeTiles)
+    {
+        var data=tile.terrainData;
+        var layers=data.terrainLayers;
+        var alpha=data.GetAlphamaps(0,0,resolution,resolution);
+        var audio=ScriptableObject.CreateInstance<UPlayGround.Data.Actor.FootstepTerrainMapSO>();
+        audio.width=audio.height=resolution;
+        audio.dominantLayers=new byte[resolution*resolution];
+        audio.surfaces=layers.Select(l=>profiles[l==snow?"Snow":l==sand?"Sand":
+            l.name=="Meadow" || l.name=="Forest"?"Grass":l.name=="Shore"?"Dirt":"Stone"]).ToArray();
+        int sx=((int)tile.transform.position.x/512-minX)*stride;
+        int sz=((int)tile.transform.position.z/512-minZ)*stride;
+        int si=Array.IndexOf(layers,sand), ni=Array.IndexOf(layers,snow);
+        for(int z=0;z<resolution;z++)
+        for(int x=0;x<resolution;x++)
+        {
+            int best=0;
+            for(int k=1;k<layers.Length;k++) if(alpha[z,x,k]>alpha[z,x,best]) best=k;
+            audio.dominantLayers[z*resolution+x]=(byte)best;
+            int index=(sz+z)*width+sx+x;
+            float weight=Mathf.Max(alpha[z,x,ni],si<0?0:alpha[z,x,si]);
+            maskBytes[index]=Math.Max(maskBytes[index],(byte)Mathf.RoundToInt(weight*255));
+        }
+        AssetDatabase.CreateAsset(audio,output+"/"+tile.name+"_Footsteps.asset");
+        Undo.RegisterCreatedObjectUndo(audio,"지면 소리 지도");
+        var binding=tile.GetComponent<UPlayGround.Components.FootstepSurface>();
+        if(binding==null) binding=Undo.AddComponent<UPlayGround.Components.FootstepSurface>(tile.gameObject);
+        Undo.RecordObject(binding,"지면 소리 연결");
+        Undo.RecordObject(tile,"눈·모래 수신 재질");
+        binding.colliders=new[]{tile.GetComponent<TerrainCollider>()};
+        binding.terrain=tile;
+        binding.profile=profiles["Stone"];
+        binding.terrainMap=audio;
+        tile.materialTemplate=material;
+    }
+    var mask=new Texture2D(width,height,TextureFormat.R8,false,true)
+        {name="RiverBasin Marked Regions",wrapMode=TextureWrapMode.Clamp,filterMode=FilterMode.Bilinear};
+    mask.LoadRawTextureData(maskBytes);
+    mask.Apply(false,false);
+    AssetDatabase.CreateAsset(mask,output+"/SandAndSnowMask.asset");
+    Undo.RegisterCreatedObjectUndo(mask,"눈과 모래 수신 마스크");
+    Undo.RecordObject(world,"눈과 모래 수신 범위");
+    world.adjoiningReceivers=biomeTiles.OrderBy(t=>t.name).Select(t=>t.GetComponent<TerrainCollider>()).Where(c=>c!=world.receiver).ToArray();
+    world.receiverMask=mask;
+    foreach(var tile in maps.Keys) AssetDatabase.SaveAssetIfDirty(tile.terrainData);
+    UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+    if(!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene)) throw new InvalidOperationException("표시 범위 씬 저장 실패");
+    Undo.CollapseUndoOperations(undo);
+    report.AppendLine("발자국 R8 "+width+"×"+height);
+}
+catch
+{
+    Undo.RevertAllDownToGroup(undo);
+    foreach(var tile in maps.Keys) AssetDatabase.SaveAssetIfDirty(tile.terrainData);
+    throw;
+}
+System.IO.Directory.CreateDirectory(evidence);
+System.IO.File.WriteAllText(evidence+"biomes.txt",report.ToString());
+return report.ToString();

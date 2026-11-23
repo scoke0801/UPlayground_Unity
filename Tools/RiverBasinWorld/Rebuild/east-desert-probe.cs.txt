@@ -1,0 +1,144 @@
+// RiverBasin4km Play에서 실행한다. 라온의 실제 입력 경로·모래 접촉·GPU 캐시를 확인한다.
+const bool featureEnabled = true;
+const bool extendedTiming = false; // true면 10초 예열 이후 60초 동안 같은 경로를 순환한다.
+const bool expansionLeg = false; // true면 확장된 서쪽 타일에서 기존 타일로 건넌다.
+if (!EditorApplication.isPlaying) throw new InvalidOperationException("Play Mode가 필요합니다.");
+var actor = UnityEngine.Object.FindFirstObjectByType<UPlayGround.PlayerActor>();
+var motor = actor != null ? actor.GetComponent<KinematicCharacterController.KinematicCharacterMotor>() : null;
+var world = UnityEngine.Object.FindFirstObjectByType<UPlayGround.Gameplay.World.SandFootprintWorld>();
+var terrain = world != null && world.receiver != null ? world.receiver.GetComponent<Terrain>() : null;
+if (actor == null || motor == null || world == null || terrain == null)
+    throw new InvalidOperationException("사막 또는 플레이어 누락");
+if (featureEnabled && !world.isActiveAndEnabled) world.enabled = true;
+if (!featureEnabled && world.isActiveAndEnabled) world.enabled = false;
+world.Clear();
+var route = expansionLeg
+    ? new[] { new Vector2(3540, 1608), new Vector2(3570, 1620), new Vector2(3600, 1625), new Vector2(3640, 1625) }
+    : new[] { new Vector2(3796, 1773), new Vector2(3819, 1784), new Vector2(3841, 1801), new Vector2(3830, 1811) };
+var first = new Vector3(route[0].x, 0, route[0].y);
+if (expansionLeg)
+    terrain = System.Array.Find(Terrain.activeTerrains, t =>
+    {
+        Vector3 p = t.transform.position;
+        Vector3 size = t.terrainData.size;
+        return first.x >= p.x && first.x < p.x + size.x && first.z >= p.z && first.z < p.z + size.z;
+    });
+if (terrain == null) throw new InvalidOperationException("출발 위치에 지형이 없습니다.");
+first.y = terrain.SampleHeight(first) + terrain.transform.position.y + 0.15f;
+motor.SetPositionAndRotation(first, Quaternion.LookRotation(new Vector3(route[1].x - first.x, 0, route[1].y - first.z)));
+var pad = UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Gamepad>();
+string evidence = "docs/work-status/river-basin-sand-footprints-evidence/";
+System.IO.Directory.CreateDirectory(evidence);
+var log = new System.Text.StringBuilder();
+log.AppendLine("RiverBasin4km " + Application.unityVersion + " " + SystemInfo.graphicsDeviceName + " " + SystemInfo.graphicsDeviceType);
+log.AppendLine("feature=" + featureEnabled + " start=" + first + " initialAccepted=" + world.Accepted + " " + Screen.width + "x" + Screen.height);
+int before = world.Accepted, startFrame = Time.frameCount, frame = -1, cursor = 1, reached = 0, grounded = 0, frames = 0, dispatchMax = 0;
+var frameTime = new System.Collections.Generic.List<double>();
+var cpuTime = new System.Collections.Generic.List<double>();
+var gpuTime = new System.Collections.Generic.List<double>();
+var gcFrame = new System.Collections.Generic.List<double>();
+var busyFrame = new System.Collections.Generic.List<double>();
+var timings = new FrameTiming[1];
+var gc = Unity.Profiling.ProfilerRecorder.StartNew(Unity.Profiling.ProfilerCategory.Memory, "GC Allocated In Frame");
+float start = Time.realtimeSinceStartup;
+System.Func<System.Collections.Generic.List<double>, string> summary = values =>
+{
+    if (values.Count == 0) return "N/A";
+    values.Sort();
+    return string.Format(System.Globalization.CultureInfo.InvariantCulture, "{0:F3}/{1:F3}/{2:F3} n={3}",
+        values[values.Count / 2], values[Mathf.CeilToInt(values.Count * 0.95f) - 1], values[values.Count - 1], values.Count);
+};
+EditorApplication.CallbackFunction tick = null;
+tick = () =>
+{
+    if (!EditorApplication.isPlaying || actor == null)
+    {
+        EditorApplication.update -= tick;
+        if (pad.added) UnityEngine.InputSystem.InputSystem.RemoveDevice(pad);
+        gc.Dispose();
+        return;
+    }
+    if (frame == Time.frameCount) return;
+    frame = Time.frameCount;
+    float elapsed = Time.realtimeSinceStartup - start;
+    if (elapsed < 3 || frame - startFrame < 5) return;
+    var camera = Camera.main;
+    if (camera == null) return;
+    var pos = motor.TransientPosition;
+    var target = route[cursor];
+    Vector3 direction = new Vector3(target.x - pos.x, 0, target.y - pos.z);
+    bool timeout = elapsed > (extendedTiming ? 70 : 50);
+    if (direction.magnitude < 2 || timeout)
+    {
+        if (!timeout)
+        {
+            reached++;
+            log.AppendLine("Waypoint=" + cursor + " position=" + pos + " accepted=" + (world.Accepted - before));
+        }
+        cursor++;
+        if (timeout || (!extendedTiming && cursor >= route.Length))
+        {
+            UnityEngine.InputSystem.InputSystem.QueueStateEvent(pad, new UnityEngine.InputSystem.LowLevel.GamepadState());
+            UnityEngine.InputSystem.InputSystem.RemoveDevice(pad);
+            EditorApplication.update -= tick;
+            gc.Dispose();
+            log.AppendLine("waypoints=" + reached + " elapsed=" + elapsed.ToString("F2") + " grounded=" + grounded + "/" + frames
+                + " accepted=" + (world.Accepted - before) + " peakDispatches=" + dispatchMax + " dropped=" + world.Dropped
+                + " allocatedTextureBytes=" + world.AllocatedTextureBytes);
+            var feet = UnityEngine.Object.FindFirstObjectByType<UPlayGround.Components.ActorFootstep>();
+            log.AppendLine("ActorFootstep=" + feet + " lastSurface=" + (feet != null ? feet.LastSurface : null));
+            log.AppendLine("median/p95/max: wall(ms)=" + summary(frameTime) + " cpu(ms)=" + summary(cpuTime)
+                + " gpu(ms)=" + summary(gpuTime) + " gc(B)=" + summary(gcFrame) + " wallDispatch6+(ms)=" + summary(busyFrame));
+            string logPath = evidence + (expansionLeg ? "expanded-play-" : extendedTiming ? "timing-" : "play-")
+                + (featureEnabled ? "on.txt" : "off.txt");
+            System.IO.File.WriteAllText(logPath, log.ToString());
+            // RenderGraph는 종료 시 전역 텍스처를 해제하므로 실제 지속형 리소스를 읽는다.
+            var cacheField = world.GetType().GetField("_cache", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
+            var cache = (RenderTexture)cacheField.GetValue(world);
+            if (featureEnabled && cache != null)
+            {
+                if (!extendedTiming) ScreenCapture.CaptureScreenshot(evidence + (expansionLeg ? "expanded-play-on.png" : "play-on.png"));
+                UnityEngine.Rendering.AsyncGPUReadback.Request(cache, 0, 0, cache.width, 0, cache.height, 0, cache.volumeDepth, request =>
+                {
+                    if (request.hasError) { System.IO.File.AppendAllText(logPath, "GPU readback error\n"); return; }
+                    int filledD = 0, filledR = 0;
+                    for (int slice = 0; slice < request.layerCount; slice++)
+                    {
+                        var channel = request.GetData<ushort>(slice);
+                        for (int i = 0; i < channel.Length; i += 2)
+                        {
+                            if (channel[i] != 0) filledD++;
+                            if (channel[i + 1] != 0) filledR++;
+                        }
+                    }
+                    System.IO.File.AppendAllText(logPath, "GPU readback slices=" + request.layerCount + " nonzeroD=" + filledD + " nonzeroR=" + filledR + "\n");
+                });
+            }
+            return;
+        }
+        cursor %= route.Length;
+        target = route[cursor];
+        direction = new Vector3(target.x - pos.x, 0, target.y - pos.z);
+    }
+    Vector3 forward = camera.transform.forward; forward.y = 0; forward.Normalize();
+    Vector3 right = camera.transform.right; right.y = 0; right.Normalize();
+    direction.Normalize();
+    var input = new UnityEngine.InputSystem.LowLevel.GamepadState();
+    input.leftStick = new Vector2(Vector3.Dot(direction, right), Vector3.Dot(direction, forward));
+    UnityEngine.InputSystem.InputSystem.QueueStateEvent(pad, input);
+    if (extendedTiming && elapsed < 10) return;
+    frames++;
+    if (motor.GroundingStatus.IsStableOnGround) grounded++;
+    dispatchMax = Mathf.Max(dispatchMax, world.LastFrameDispatches);
+    frameTime.Add(Time.unscaledDeltaTime * 1000);
+    if (world.LastFrameDispatches >= 6) busyFrame.Add(Time.unscaledDeltaTime * 1000);
+    FrameTimingManager.CaptureFrameTimings();
+    if (FrameTimingManager.GetLatestTimings(1, timings) > 0)
+    {
+        if (timings[0].cpuFrameTime > 0) cpuTime.Add(timings[0].cpuFrameTime);
+        if (timings[0].gpuFrameTime > 0) gpuTime.Add(timings[0].gpuFrameTime);
+    }
+    if (gc.Valid) gcFrame.Add(gc.LastValue);
+};
+EditorApplication.update += tick;
+return "모래 분지 실제 조작 프로브 시작";

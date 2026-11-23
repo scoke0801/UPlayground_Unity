@@ -1,0 +1,151 @@
+// 이미지의 원 네 곳을 실제 Terrain에 조형한다. dry → apply → verify.
+const string mode = "dry";
+const string world = "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34";
+const string definitionPath = "Assets/10.Datas/WorldBuilder/6effd90b68ea4b3d8f8caa5197fcfe34_Authoring.asset";
+const string backup = "output/RiverBasinWorld/MarkedRegions/before-islands/";
+const string evidence = "docs/work-status/river-basin-marked-regions-evidence/";
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (scene.path != world + "/Preview/RiverBasin4km.unity" || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("저장된 RiverBasin4km 편집 모드가 필요합니다.");
+var grid = new Terrain[8,8];
+foreach (var tile in Terrain.activeTerrains)
+    if (tile.gameObject.scene==scene)
+        grid[(int)tile.transform.position.z/512,(int)tile.transform.position.x/512]=tile;
+foreach (var tile in grid)
+    if (tile==null || tile.terrainData.heightmapResolution!=513 || tile.terrainData.size.x!=512 || tile.terrainData.size.z!=512 ||
+        tile.GetComponent<TerrainCollider>().terrainData!=tile.terrainData)
+        throw new InvalidOperationException("Terrain 격자나 충돌 데이터가 일치하지 않습니다.");
+// 중심 X/Z, 장축·단축 반경, 장축 각도, 수면, 최고 지형의 수면 대비 높이.
+var islands = new[]
+{
+    new[]{631f,2173f,76f,64f,14f,91.04f,10f},
+    new[]{824f,790f,129f,87f,75f,15.04f,13f},
+    new[]{1420f,853f,99f,68f,-14f,15.04f,10f},
+    new[]{3054f,1080f,143f,48f,-50f,24.04f,12f}
+};
+Func<float,float> smooth = value =>
+{
+    float t=Mathf.Clamp01(value);
+    return t*t*(3-2*t);
+};
+Func<Vector2,float> ground = p =>
+{
+    var tile=grid[(int)p.y/512,(int)p.x/512];
+    return tile.SampleHeight(new Vector3(p.x,0,p.y))+tile.transform.position.y;
+};
+Func<Vector2,float,float> shape = (p,old) =>
+{
+    float next=old;
+    for (int i=0;i<islands.Length;i++)
+    {
+        var a=islands[i];
+        var d=p-new Vector2(a[0],a[1]);
+        if (d.sqrMagnitude>a[2]*a[2]*1.85f) continue;
+        float turn=a[4]*Mathf.Deg2Rad;
+        float u=(d.x*Mathf.Cos(turn)+d.y*Mathf.Sin(turn))/a[2];
+        float v=(-d.x*Mathf.Sin(turn)+d.y*Mathf.Cos(turn))/a[3];
+        float direction=Mathf.Atan2(v,u);
+        float rim=1+0.11f*Mathf.Cos(direction*3+i*1.25f)+0.065f*Mathf.Sin(direction*5+0.8f+i);
+        float radius=Mathf.Sqrt(u*u+v*v)/rim;
+        float blendStart=i==3?0.66f:0.73f;
+        float outer=i==3?1.25f:1.18f;
+        if (radius>outer) continue;
+        float rise=smooth((0.77f-radius)/0.73f);
+        float ripple=(Mathf.PerlinNoise(p.x*0.042f,p.y*0.047f)-0.5f)*1.4f;
+        float local=a[5]+2.35f+rise*(a[6]-2.35f+ripple);
+        local=Mathf.Lerp(local,old,smooth((radius-blendStart)/(outer-blendStart)));
+        next=Mathf.Max(next,local);
+    }
+    return next;
+};
+Func<Vector2,float> sample=p=>mode=="verify"?ground(p):shape(p,ground(p));
+var report=new System.Text.StringBuilder();
+for(int i=0;i<islands.Length;i++)
+{
+    var a=islands[i];
+    int area=0;
+    float highest=0;
+    for (int dz=-(int)a[2];dz<=(int)a[2];dz+=2)
+    for (int dx=-(int)a[2];dx<=(int)a[2];dx+=2)
+    {
+        if (dx*dx+dz*dz>a[2]*a[2]) continue;
+        var p=new Vector2(a[0]+dx,a[1]+dz);
+        float y=sample(p)-a[5];
+        if (y<0.35f) continue;
+        area+=4;
+        highest=Mathf.Max(highest,y);
+    }
+    int deepRays=0;
+    float maxLanding=0;
+    for(int j=0;j<48;j++)
+    {
+        float direction=j*Mathf.PI/24;
+        var local=new Vector2(Mathf.Cos(direction)*a[2],Mathf.Sin(direction)*a[3]);
+        var ray=Quaternion.Euler(0,-a[4],0)*new Vector3(local.x,0,local.y);
+        var delta=new Vector2(ray.x,ray.z);
+        var center=new Vector2(a[0],a[1]);
+        float previous=sample(center+delta*0.5f);
+        bool channel=false;
+        for(float distance=delta.magnitude*0.5f+1;distance<=delta.magnitude*1.35f;distance+=1)
+        {
+            float y=sample(center+delta.normalized*distance);
+            if(y<a[5]-1.2f) { channel=true; break; }
+            if(y<a[5]+1.4f && previous>a[5]-0.4f)
+                maxLanding=Mathf.Max(maxLanding,Mathf.Atan(Mathf.Abs(y-previous))*Mathf.Rad2Deg);
+            previous=y;
+        }
+        if(channel) deepRays++;
+    }
+    report.AppendLine("섬 "+i+" ("+a[0]+", "+a[1]+") / 육지 "+area+"m² / 수면 위 "+highest.ToString("F1")
+        +"m / 수로 방향 "+deepRays+"/48 / 물가 최대 "+maxLanding.ToString("F1")+"°");
+    if(area<8500 || highest<8 || deepRays<47 || maxLanding>40)
+        throw new InvalidOperationException(report.ToString());
+}
+if(mode=="dry" || mode=="verify") return report.ToString();
+if(mode!="apply" || System.IO.Directory.Exists(backup)) throw new InvalidOperationException("반영 모드 및 백업 확인");
+var definition=AssetDatabase.LoadAssetAtPath<UPlayGround.WorldBuilder.Data.WorldDefinition>(definitionPath);
+if(definition==null || definition.ActiveSession!=null) throw new InvalidOperationException("WorldBuilder 조형 세션 확인");
+var changed=new Dictionary<Terrain,float[,]>();
+foreach(var tile in grid)
+{
+    var p=tile.transform.position;
+    if(!islands.Any(a=>a[0]+a[2]*1.37f>=p.x && a[0]-a[2]*1.37f<=p.x+512
+        && a[1]+a[2]*1.37f>=p.z && a[1]-a[2]*1.37f<=p.z+512)) continue;
+    var data=tile.terrainData;
+    var heights=data.GetHeights(0,0,513,513);
+    bool dirty=false;
+    for(int z=0;z<=512;z++)
+    for(int x=0;x<=512;x++)
+    {
+        float old=p.y+heights[z,x]*data.size.y;
+        float next=shape(new Vector2(p.x+x,p.z+z),old);
+        if(next-old<0.0125f) continue;
+        heights[z,x]=(next-p.y)/data.size.y;
+        dirty=true;
+    }
+    if(dirty) changed.Add(tile,heights);
+}
+if(changed.Count==0) throw new InvalidOperationException("조형 변경 없음");
+System.IO.Directory.CreateDirectory(backup);
+// 조형 적용 직사각형 안에서 Unity가 다시 저장할 수 있는 인접 타일까지 사본을 남긴다.
+foreach(var file in new[]{scene.path,definitionPath,"Assets/10.Datas/Map/RiverBasin4km/Minimap.png"}
+    .Concat(grid.Cast<Terrain>().Select(t=>AssetDatabase.GetAssetPath(t.terrainData))))
+    System.IO.File.Copy(file,backup+System.IO.Path.GetFileName(file));
+using(var session=new UPlayGround.WorldBuilder.Editor.WorldTerrainAuthoringSession(definition,grid))
+{
+    session.BeginSculpt();
+    try
+    {
+        foreach(var entry in changed) entry.Key.terrainData.SetHeights(0,0,entry.Value);
+        session.CaptureSculpt();
+    }
+    catch
+    {
+        session.RevertUncaptured();
+        throw;
+    }
+}
+report.AppendLine("Sculpt "+definition.Operations.Last().operationGuid+" / 수정 타일 "+changed.Count);
+System.IO.Directory.CreateDirectory(evidence);
+System.IO.File.WriteAllText(evidence+"island-sculpt.txt",report.ToString());
+return report.ToString();

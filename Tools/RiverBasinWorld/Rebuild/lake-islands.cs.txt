@@ -1,0 +1,288 @@
+// 초기 섬 조형·교량 단계. 호수 최종 상태는 lake-islands-swim-art.cs.txt까지 적용한다.
+// execute_code 본문. 먼저 apply=false로 검토하고, 저장된 편집 씬에서 apply=true로 한 번만 반영한다.
+bool apply = false;
+const string world = "6effd90b68ea4b3d8f8caa5197fcfe34";
+const string root = "Assets/WorldBuilder/Worlds/" + world;
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (scene.path != root + "/Preview/RiverBasin4km.unity" || EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling || (apply && scene.isDirty))
+    throw new InvalidOperationException("저장된 RiverBasin4km 씬의 Edit Mode가 필요합니다.");
+
+var grid = new Terrain[8, 8];
+foreach (var tile in Terrain.activeTerrains)
+{
+    if (tile.gameObject.scene != scene) continue;
+    var origin = tile.transform.position;
+    int x = Mathf.RoundToInt(origin.x / 512f), z = Mathf.RoundToInt(origin.z / 512f);
+    if (x < 0 || x >= 8 || z < 0 || z >= 8 || grid[z, x] != null || origin.x != x * 512 || origin.z != z * 512
+        || tile.terrainData.heightmapResolution != 513 || tile.terrainData.size.x != 512 || tile.terrainData.size.z != 512)
+        throw new InvalidOperationException("Terrain 격자 규격이 달라졌습니다.");
+    grid[z, x] = tile;
+}
+foreach (var tile in grid)
+    if (tile == null) throw new InvalidOperationException("64개 Terrain이 모두 필요합니다.");
+
+// X, Z, 수위, 장축 반경, 단축 반경, 장축 각도, 마루 높이, 윤곽 변주 위상.
+var islands = new[] {
+    new[] {1000f, 1035f, 15f, 23f, 15f, -20f, 2.2f, 1.8f},
+    new[] {1070f, 956f, 15f, 30f, 17f, 15f, 2.8f, 2.6f},
+    new[] {1104f, 834f, 15f, 91f, 54f, 25f, 7.5f, 0.8f},
+    new[] {2578f, 1050f, 24f, 24f, 17f, 20f, 2.4f, 2.8f},
+    new[] {2680f, 1001f, 24f, 31f, 18f, -21f, 3.0f, 0.4f},
+    new[] {2830f, 1006f, 24f, 88f, 57f, -31f, 8.4f, 2.3f},
+    new[] {1093f, 682f, 15f, 30f, 26f, -38f, 2.7f, 0.6f},
+    new[] {2898f, 838f, 24f, 42f, 33f, -20f, 3.2f, 1.1f},
+};
+var banks = new[] { new Vector2(949f, 1150f), new Vector2(2452f, 1065f), new Vector2(1100f, 550f), new Vector2(2900f, 693f) };
+var routes = new[] { new[] { 0, 1, 2 }, new[] { 3, 4, 5 }, new[] { 6, 2 }, new[] { 7, 5 } };
+const string bridgeRootName = "남부 호수 섬 보행교";
+if (scene.GetRootGameObjects().Any(go => go.name == bridgeRootName))
+    throw new InvalidOperationException("호수 섬 보행교가 이미 배치되어 있습니다.");
+Func<float, float, float> ground = (x, z) => {
+    var tile = grid[Mathf.FloorToInt(z / 512f), Mathf.FloorToInt(x / 512f)];
+    return tile.transform.position.y + tile.SampleHeight(new Vector3(x, 0, z));
+};
+Func<float, float> smooth = t => { t = Mathf.Clamp01(t); return t * t * (3f - 2f * t); };
+Func<float[], float, float, float, float> shape = (island, x, z, oldY) => {
+    float dx = x - island[0], dz = z - island[1];
+    float angle = island[5] * Mathf.Deg2Rad;
+    float u = (dx * Mathf.Cos(angle) + dz * Mathf.Sin(angle)) / island[3];
+    float v = (-dx * Mathf.Sin(angle) + dz * Mathf.Cos(angle)) / island[4];
+    float heading = Mathf.Atan2(v, u);
+    float edge = 1f + 0.12f * Mathf.Cos(3f * heading + island[7])
+        + 0.075f * Mathf.Sin(5f * heading - island[7]) + 0.10f * u - 0.06f * v;
+    float radius = Mathf.Sqrt(u * u + v * v) / Mathf.Clamp(edge, 0.72f, 1.28f);
+    float outer = island[3] > 60f ? 1.54f : 1.40f;
+    if (radius >= outer) return oldY;
+
+    // 낮은 자갈턱을 지나 마루로 올라가고, 수면 아래에서는 기존 하상으로 천천히 이어진다.
+    float level = island[2];
+    if (radius >= 1.11f)
+        return Mathf.Max(oldY, Mathf.Lerp(level - 1.8f, oldY, smooth((radius - 1.11f) / (outer - 1.11f))));
+
+    float inland = smooth((0.86f - radius) / 0.70f);
+    float ripple = (Mathf.PerlinNoise(x * 0.061f, z * 0.061f) - 0.5f) * 0.85f * inland;
+    float height = radius < 0.88f
+        ? level + 0.25f + inland * (island[6] + ripple)
+        : Mathf.Lerp(level + 0.25f, level - 1.8f, smooth((radius - 0.88f) / 0.23f));
+    return Mathf.Max(oldY, height);
+};
+
+Func<float, float, float> proposedGround = (x, z) => {
+    float old = ground(x, z), result = old;
+    foreach (var island in islands) result = Mathf.Max(result, shape(island, x, z, old));
+    return result;
+};
+var waterRoot = GameObject.Find("RiverBasin 수면");
+if (waterRoot == null) throw new InvalidOperationException("기존 수면 루트가 없습니다.");
+var waterRenderers = waterRoot.GetComponentsInChildren<MeshRenderer>();
+var audit = new System.Text.StringBuilder();
+foreach (var island in islands)
+{
+    float cx = island[0], cz = island[1], waterY = island[2];
+    if (ground(cx, cz) >= waterY - 3f) throw new InvalidOperationException("섬 중심의 기존 하상이 예상 범위를 벗어났습니다.");
+    if (!waterRenderers.Any(r => r.bounds.min.x <= cx && cx <= r.bounds.max.x
+        && r.bounds.min.z <= cz && cz <= r.bounds.max.z && r.bounds.min.y <= waterY + 0.2f && r.bounds.max.y >= waterY - 0.2f))
+        throw new InvalidOperationException("기존 수면 위치 또는 높이가 계획과 다릅니다.");
+    int area = 0;
+    int radius = Mathf.CeilToInt(island[3] * 1.30f);
+    float maxSlope = 0f;
+    for (int z = (int)cz - radius; z <= (int)cz + radius; z++)
+    for (int x = (int)cx - radius; x <= (int)cx + radius; x++)
+    {
+        float old = ground(x, z), y = shape(island, x, z, old);
+        if (y <= waterY || y <= old + 0.002f) continue;
+        area++;
+        float dx = (proposedGround(x + 1, z) - proposedGround(x - 1, z)) * 0.5f;
+        float dz = (proposedGround(x, z + 1) - proposedGround(x, z - 1)) * 0.5f;
+        maxSlope = Mathf.Max(maxSlope, Mathf.Atan(Mathf.Sqrt(dx * dx + dz * dz)) * Mathf.Rad2Deg);
+    }
+    if (area < (island[3] > 60f ? 7000 : 450) || maxSlope > 43f)
+        throw new InvalidOperationException("섬 면적·보행 경사 확인 필요: " + area + " / " + maxSlope);
+    audit.AppendLine(string.Format("X/Z {0}/{1}: 마른 땅 {2}m², 최대 경사 {3:F1}°", cx, cz, area, maxSlope));
+}
+
+var bridges = new List<Vector3[]>();
+for (int route = 0; route < routes.Length; route++)
+{
+    Vector2 start = banks[route];
+    foreach (int i in routes[route])
+    {
+        var island = islands[i];
+        var end = new Vector2(island[0], island[1]);
+        float level = island[2];
+        float length = Vector2.Distance(start, end);
+        var along = (end - start) / length;
+        Func<Vector2, Vector2, Vector3> landing = (from, direction) => {
+            for (float d = 2f; d <= length - 2f; d += 0.5f)
+            {
+                var q = from + direction * d;
+                if (proposedGround(q.x, q.y) >= level + 0.60f) continue;
+                q -= direction * 2.5f;
+                return new Vector3(q.x, proposedGround(q.x, q.y) + 0.02f, q.y);
+            }
+            throw new InvalidOperationException("목교 착지 구간을 찾지 못했습니다.");
+        };
+        var a = landing(start, along);
+        var b = landing(end, -along);
+        float span = Vector3.Dot(b - a, new Vector3(along.x, 0, along.y));
+        if (span < 5f || span > 125f || Mathf.Abs(a.y - b.y) / span > 0.14f
+            || a.y < level + 0.6f || b.y < level + 0.6f)
+            throw new InvalidOperationException("보행교 경간 또는 고도가 기준을 벗어났습니다.");
+        // 중앙 유수 폭이 남는지 표본으로 확인한다.
+        for (float f = 0.30f; f <= 0.70f; f += 0.05f)
+        {
+            var p = Vector3.Lerp(a, b, f);
+            if (proposedGround(p.x, p.z) > level - 0.45f)
+                throw new InvalidOperationException("교량 아래에 열린 수로가 필요합니다.");
+        }
+        bridges.Add(new[] { a, b });
+        audit.AppendLine(string.Format("보행교 {0}: {1:F1}m, {2} → {3}", bridges.Count, span, a, b));
+        start = end;
+    }
+}
+
+var definition = AssetDatabase.LoadAssetAtPath<UPlayGround.WorldBuilder.Data.WorldDefinition>(
+    "Assets/10.Datas/WorldBuilder/" + world + "_Authoring.asset");
+if (definition == null || definition.ActiveSession != null)
+    throw new InvalidOperationException("기존 지형 저작 세션을 확인하세요.");
+
+var writeHeight = new List<Action>();
+var writePaint = new List<Action>();
+var restorePaint = new List<Action>();
+var changedTiles = new List<TerrainData>();
+for (int tz = 1; tz <= 2; tz++)
+for (int tx = 1; tx <= 5; tx++)
+{
+        if (tx == 3) continue;
+        float waterY = tx < 3 ? 15f : 24f;
+        var tile = grid[tz, tx];
+        var data = tile.terrainData;
+        var collider = tile.GetComponent<TerrainCollider>();
+        if (AssetDatabase.GetAssetPath(data) != root + "/Production/Terrain/Terrain_" + tx + "_" + tz + ".asset"
+            || collider == null || collider.terrainData != data)
+            throw new InvalidOperationException("제작 Terrain 또는 충돌 참조가 달라졌습니다.");
+        var origin = tile.transform.position;
+        int ox = tx * 512, oz = tz * 512;
+        int x0 = Mathf.Max((tx < 3 ? 912 : 2508) - ox, 0), z0 = Mathf.Max(615 - oz, 0);
+        int width = Mathf.Min((tx < 3 ? 1304 : 3020) - ox, 512) - x0 + 1;
+        int height = Mathf.Min(1110 - oz, 512) - z0 + 1;
+        var next = data.GetHeights(x0, z0, width, height);
+        int count = 0;
+        for (int iz = 0; iz < height; iz++)
+        for (int ix = 0; ix < width; ix++)
+        {
+            int wx = ox + x0 + ix, wz = oz + z0 + iz;
+            float old = ground(wx, wz);
+            float y = proposedGround(wx, wz);
+            if (y - old < 0.002f) continue;
+            if (old >= waterY - 2f) throw new InvalidOperationException("섬 기슭이 기존 호안과 겹칩니다.");
+            next[iz, ix] = (y - origin.y) / data.size.y;
+            count++;
+        }
+        if (count == 0) continue;
+        changedTiles.Add(data);
+        writeHeight.Add(() => data.SetHeights(x0, z0, next));
+
+        var layers = data.terrainLayers;
+        int shore = Array.FindIndex(layers, l => l.name == "Shore");
+        int grass = Array.FindIndex(layers, l => l.name == "Meadow");
+        int rock = Array.FindIndex(layers, l => l.name == "WeatheredRock");
+        if (shore < 0 || grass < 0 || rock < 0)
+            throw new InvalidOperationException("섬 도색용 기존 Terrain 레이어가 필요합니다: " + string.Join(", ", layers.Select(l => l.name).ToArray()));
+        int res = data.alphamapResolution;
+        var original = data.GetAlphamaps(0, 0, res, res);
+        var paint = (float[,,])original.Clone();
+        for (int iz = 0; iz < res; iz++)
+        for (int ix = 0; ix < res; ix++)
+        {
+            float x = ox + (ix + 0.5f) * 512f / res, z = oz + (iz + 0.5f) * 512f / res;
+            float old = ground(x, z), y = proposedGround(x, z);
+            float blend = smooth((y - old) / 3f) * smooth((y - waterY + 3.2f) / 3f);
+            if (blend <= 0.001f) continue;
+            float dry = smooth((y - waterY - 0.35f) / 3.2f);
+            float stone = Mathf.Lerp(0.08f, 0.30f, Mathf.PerlinNoise(x * 0.04f + 2f, z * 0.04f));
+            for (int l = 0; l < layers.Length; l++) paint[iz, ix, l] *= 1f - blend;
+            paint[iz, ix, shore] += (1f - dry) * blend;
+            paint[iz, ix, grass] += dry * (1f - stone) * blend;
+            paint[iz, ix, rock] += dry * stone * blend;
+        }
+        writePaint.Add(() => data.SetAlphamaps(0, 0, paint));
+        restorePaint.Add(() => data.SetAlphamaps(0, 0, original));
+}
+if (!apply) return "예상 지형\n" + audit;
+
+var wood = AssetDatabase.LoadAssetAtPath<Material>("Assets/WorldBuilder/Worlds/a707a707a707a707a707a707a707a707/Wood.mat");
+if (wood == null) throw new InvalidOperationException("기존 WorldBuilder 목재 재질이 필요합니다.");
+string backup = "output/river-basin-islands/before-" + DateTime.UtcNow.ToString("yyyyMMdd-HHmmss-fff");
+System.IO.Directory.CreateDirectory(backup);
+System.IO.File.Copy(scene.path, System.IO.Path.Combine(backup, System.IO.Path.GetFileName(scene.path)));
+foreach (var asset in changedTiles.Cast<UnityEngine.Object>().Concat(new UnityEngine.Object[] { definition }))
+{
+    string path = AssetDatabase.GetAssetPath(asset);
+    System.IO.File.Copy(path, System.IO.Path.Combine(backup, System.IO.Path.GetFileName(path)));
+}
+
+Action<Transform, string, Vector3, Quaternion, Vector3, bool> timber = (parent, name, p, rotation, size, collide) => {
+    var beam = GameObject.CreatePrimitive(PrimitiveType.Cube);
+    beam.name = name;
+    beam.transform.SetParent(parent, false);
+    beam.transform.SetPositionAndRotation(p, rotation);
+    beam.transform.localScale = size;
+    beam.GetComponent<MeshRenderer>().sharedMaterial = wood;
+    if (!collide) UnityEngine.Object.DestroyImmediate(beam.GetComponent<BoxCollider>());
+    GameObjectUtility.SetStaticEditorFlags(beam, StaticEditorFlags.BatchingStatic);
+};
+GameObject bridgeRoot = null;
+using (var session = new UPlayGround.WorldBuilder.Editor.WorldTerrainAuthoringSession(definition, grid))
+{
+    session.BeginSculpt();
+    try
+    {
+        foreach (var write in writeHeight) write();
+        foreach (var write in writePaint) write();
+        bridgeRoot = new GameObject(bridgeRootName);
+        for (int i = 0; i < bridges.Count; i++)
+        {
+            var a = bridges[i][0]; var b = bridges[i][1];
+            var bridge = new GameObject("WB_P04_Bridge_LakeIslands_" + (i + 1));
+            bridge.transform.SetParent(bridgeRoot.transform, false);
+            float length = Vector3.Distance(a, b);
+            var rotation = Quaternion.LookRotation(b - a);
+            var up = rotation * Vector3.up;
+            var right = rotation * Vector3.right;
+            var midpoint = (a + b) * 0.5f;
+            timber(bridge.transform, "WB_P04_Bridge_상판", midpoint - up * 0.14f, rotation, new Vector3(3.5f, 0.28f, length), true);
+            foreach (float side in new[] { -1.60f, 1.60f })
+            {
+                timber(bridge.transform, "WB_P04_Bridge_난간", midpoint + right * side + up * 0.90f, rotation, new Vector3(0.14f, 0.18f, length - 1.6f), true);
+                int frames = Mathf.CeilToInt(length / 7f);
+                for (int j = 0; j <= frames; j++)
+                {
+                    var p = Vector3.Lerp(a, b, Mathf.Lerp(0.85f / length, 1f - 0.85f / length, j / (float)frames)) + right * side;
+                    float foot = ground(p.x, p.z) - 0.12f;
+                    float height = Mathf.Max(0.95f, p.y + 0.97f - foot);
+                    timber(bridge.transform, "WB_P04_Bridge_말뚝", new Vector3(p.x, p.y + 0.97f - height * 0.5f, p.z),
+                        Quaternion.identity, new Vector3(0.22f, height, 0.22f), false);
+                }
+            }
+        }
+        session.CaptureSculpt();
+    }
+    catch
+    {
+        if (bridgeRoot != null) UnityEngine.Object.DestroyImmediate(bridgeRoot);
+        foreach (var restore in restorePaint) restore();
+        if (definition.ActiveSession != null) session.RevertUncaptured();
+        throw;
+    }
+}
+foreach (var data in changedTiles)
+{
+    EditorUtility.SetDirty(data);
+    AssetDatabase.SaveAssetIfDirty(data);
+}
+AssetDatabase.SaveAssetIfDirty(definition);
+UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+if (!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene))
+    throw new InvalidOperationException("지형 저장 후 보행교 씬 저장에 실패했습니다. 백업: " + backup);
+return "저장 완료\n" + audit;

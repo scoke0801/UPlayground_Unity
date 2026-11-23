@@ -1,0 +1,65 @@
+// Play의 실제 Jump 입력으로 정지, 체공, 착지의 스탬프를 계수한다.
+if (!EditorApplication.isPlaying) throw new InvalidOperationException("Play Mode가 필요합니다.");
+var world = UPlayGround.Gameplay.World.SandFootprintWorld.Active;
+var actor = UnityEngine.Object.FindFirstObjectByType<UPlayGround.PlayerActor>();
+if (world == null || actor == null) throw new InvalidOperationException("활성 모래 지형과 플레이어가 필요합니다.");
+var motor = actor.GetComponent<KinematicCharacterController.KinematicCharacterMotor>();
+var terrain = world.receiver.GetComponent<Terrain>();
+var spot = new Vector3(3822, 0, 1783);
+spot.y = terrain.SampleHeight(spot) + terrain.transform.position.y + 0.14f;
+motor.SetPositionAndRotation(spot, Quaternion.Euler(0, 45, 0));
+world.Clear();
+var pad = UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Gamepad>();
+var empty = new UnityEngine.InputSystem.LowLevel.GamepadState();
+var jump = empty.WithButton(UnityEngine.InputSystem.LowLevel.GamepadButton.South);
+float started = Time.realtimeSinceStartup, landedAt = 0;
+int idleStart = world.Accepted, airStart = 0, airEnd = 0, lastGroundCount = world.Accepted, jumpedAt = -1, tickFrame = -1;
+var log = new System.Text.StringBuilder();
+bool airborne = false, landed = false;
+EditorApplication.CallbackFunction tick = null;
+tick = () =>
+{
+    if (!EditorApplication.isPlaying || world == null || actor == null)
+    {
+        EditorApplication.update -= tick;
+        if (pad.added) UnityEngine.InputSystem.InputSystem.RemoveDevice(pad);
+        return;
+    }
+    int frame = Time.frameCount;
+    if (frame == tickFrame) return;
+    tickFrame = frame;
+    float now = Time.realtimeSinceStartup;
+    if (jumpedAt < 0 && now - started > 4 && motor.GroundingStatus.IsStableOnGround)
+    {
+        log.AppendLine("정지 4초 요청=" + (world.Accepted - idleStart));
+        UnityEngine.InputSystem.InputSystem.QueueStateEvent(pad, jump);
+        jumpedAt = frame;
+    }
+    else if (jumpedAt >= 0 && frame == jumpedAt + 1)
+        UnityEngine.InputSystem.InputSystem.QueueStateEvent(pad, empty);
+    if (jumpedAt >= 0 && !airborne && !motor.GroundingStatus.IsStableOnGround)
+    {
+        airborne = true;
+        airStart = lastGroundCount;
+    }
+    if (airborne && !landed)
+    {
+        if (motor.GroundingStatus.IsStableOnGround)
+        {
+            landed = true;
+            landedAt = now;
+        }
+        else airEnd = world.Accepted;
+    }
+    if (!landed && motor.GroundingStatus.IsStableOnGround) lastGroundCount = world.Accepted;
+    if ((!landed || now - landedAt < 0.8f) && now - started < 12) return;
+    UnityEngine.InputSystem.InputSystem.RemoveDevice(pad);
+    EditorApplication.update -= tick;
+    log.AppendLine("체공=" + airborne + " 착지=" + landed
+        + " 체공 요청=" + (airEnd - airStart) + " 착지 이후 요청=" + (world.Accepted - airEnd));
+    var feet = UnityEngine.Object.FindFirstObjectByType<UPlayGround.Components.ActorFootstep>();
+    log.AppendLine("접촉 표면=" + feet.LastSurface);
+    System.IO.File.WriteAllText("docs/work-status/river-basin-sand-footprints-evidence/jump-check.txt", log.ToString());
+};
+EditorApplication.update += tick;
+return "정지·점프·착지 입력 확인 시작";

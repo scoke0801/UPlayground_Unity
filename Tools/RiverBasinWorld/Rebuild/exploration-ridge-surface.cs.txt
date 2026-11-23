@@ -1,0 +1,66 @@
+// 기존 R5 도로 표시와 암릉이 만나는 곳을 암편이 드러난 지면으로 연결한다.
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if(scene.name!="RiverBasin4km" || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("저장된 RiverBasin4km 편집 모드가 필요합니다.");
+const string backup="output/RiverBasinWorld/Exploration/before-ridge-surface/";
+if(System.IO.Directory.Exists(backup)) throw new InvalidOperationException("암릉 저작 백업이 이미 있습니다.");
+var tiles=Terrain.activeTerrains.Where(t=>t.gameObject.scene==scene &&
+    (t.name=="Terrain_6_3" || t.name=="Terrain_7_3" || t.name=="Terrain_6_4" || t.name=="Terrain_7_4")).ToArray();
+if(tiles.Length!=4) throw new InvalidOperationException("동부 능선 타일 누락");
+var pending=new Dictionary<TerrainData,float[,,]>();
+foreach(var tile in tiles)
+{
+    var data=tile.terrainData;
+    var p=tile.transform.position;
+    var layers=data.terrainLayers;
+    int rock=Array.FindIndex(layers,l=>l!=null && l.name=="Rock");
+    if(rock<0) throw new InvalidOperationException("암반 레이어 누락 "+tile.name);
+    var alpha=data.GetAlphamaps(0,0,data.alphamapWidth,data.alphamapHeight);
+    for(int row=0;row<data.alphamapHeight;row++)
+    for(int col=0;col<data.alphamapWidth;col++)
+    {
+        float x=p.x+(col+0.5f)*512/data.alphamapWidth;
+        float z=p.z+(row+0.5f)*512/data.alphamapHeight;
+        float u=(x-3517f-0.77f*(z-1994f))/81f, v=(z-1994f)/59f;
+        float noise=Mathf.PerlinNoise(x*0.038f,z*0.041f)-0.5f;
+        float weight=Mathf.SmoothStep(0,0.84f,Mathf.Clamp01((1.14f-Mathf.Sqrt(u*u+v*v)+noise*0.22f)/0.58f));
+        if(weight<0.01f) continue;
+        float shifted=0;
+        for(int l=0;l<layers.Length;l++)
+        {
+            var layer=layers[l];
+            if(l==rock || layer==null || layer.name=="FineDesertSand" || layer.name=="Snow") continue;
+            float move=alpha[row,col,l]*weight;
+            alpha[row,col,l]-=move;
+            shifted+=move;
+        }
+        alpha[row,col,rock]+=shifted;
+        if(!pending.ContainsKey(data)) pending.Add(data,alpha);
+    }
+}
+if(pending.Count==0) throw new InvalidOperationException("암릉 표면 변경 없음");
+System.IO.Directory.CreateDirectory(backup);
+foreach(var entry in pending)
+{
+    var path=AssetDatabase.GetAssetPath(entry.Key);
+    System.IO.File.Copy(path,backup+System.IO.Path.GetFileName(path));
+}
+Undo.IncrementCurrentGroup();
+int undo=Undo.GetCurrentGroup();
+try
+{
+    foreach(var entry in pending)
+    {
+        Undo.RegisterCompleteObjectUndo(entry.Key,"돌산 암편 지면");
+        entry.Key.SetAlphamaps(0,0,entry.Value);
+        EditorUtility.SetDirty(entry.Key);
+    }
+    foreach(var entry in pending) AssetDatabase.SaveAssetIfDirty(entry.Key);
+    Undo.CollapseUndoOperations(undo);
+}
+catch
+{
+    Undo.RevertAllDownToGroup(undo);
+    throw;
+}
+return "돌산 암편 지면 "+pending.Count+"개 타일 / 눈·고운 모래 가중치 유지";

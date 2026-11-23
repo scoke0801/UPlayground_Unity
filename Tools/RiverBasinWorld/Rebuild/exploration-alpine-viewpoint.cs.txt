@@ -1,0 +1,48 @@
+// 기존 고원 동쪽 순환로에서 짧게 빠지는 계곡 조망을 실제 지형과 시선으로 확인한다.
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if(scene.name!="RiverBasin4km" || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("저장된 RiverBasin4km 편집 모드가 필요합니다.");
+var group=GameObject.Find("호수와 동부·설산 탐험").transform.GetChild(5);
+var tile=Array.Find(Terrain.activeTerrains,t=>t.name=="Terrain_6_7");
+var position=tile.transform.position;
+Func<float,float,float> height=(x,z)=>tile.SampleHeight(new Vector3(x,0,z))+position.y;
+float steepest=0;
+for(int x=3350;x<=3385;x++)
+{
+    steepest=Mathf.Max(steepest,tile.terrainData.GetSteepness((x-position.x)/512,(3670-position.z)/512));
+    if(Physics.CheckCapsule(new Vector3(x,height(x,3670)+0.72f,3670),
+        new Vector3(x,height(x,3670)+1.55f,3670),0.34f,~0,QueryTriggerInteraction.Ignore))
+        throw new InvalidOperationException("계곡 전망길 충돌 X "+x);
+}
+var eye=new Vector3(3350,height(3350,3670)+1.85f,3670);
+var basin=new Vector3(3210,210,3320);
+if(steepest>28 || Physics.Linecast(eye,basin,~0,QueryTriggerInteraction.Ignore) || group.Find("계곡 조망 표지")!=null)
+    throw new InvalidOperationException("보행 경사와 계곡 시야를 확인하세요.");
+var cairn=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Deco_Stone_Cairn.prefab");
+if(cairn==null) throw new InvalidOperationException("산길 표지 프리팹 누락");
+Undo.IncrementCurrentGroup();
+int undo=Undo.GetCurrentGroup();
+try
+{
+    Undo.RecordObject(group.gameObject,"설산 허리길과 계곡 전망");
+    group.name="설산 · 눈벽 허리길과 계곡 전망";
+    foreach(var p in new[]{new Vector3(3377,1.15f,3666),new Vector3(3352,1.42f,3667)})
+    {
+        var marker=(GameObject)PrefabUtility.InstantiatePrefab(cairn,group);
+        Undo.RegisterCreatedObjectUndo(marker,"계곡 조망 표지");
+        marker.name="계곡 조망 표지";
+        marker.transform.SetPositionAndRotation(new Vector3(p.x,height(p.x,p.z)-0.08f,p.z),Quaternion.Euler(0,112,0));
+        marker.transform.localScale*=p.y;
+    }
+    UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+    if(!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene)) throw new InvalidOperationException("전망 저장 실패");
+    Undo.CollapseUndoOperations(undo);
+}
+catch
+{
+    Undo.RevertAllDownToGroup(undo);
+    throw;
+}
+string result="계곡 전망길 35m / 최대 경사 "+steepest.ToString("F1")+"° / 캡슐 장애물 0 / 계곡 방향 시선 열림";
+System.IO.File.WriteAllText("docs/work-status/river-basin-exploration-evidence/alpine-viewpoint.txt",result);
+return result;

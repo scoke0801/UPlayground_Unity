@@ -1,0 +1,50 @@
+// 저장된 설산의 진입, 능선과 근경을 Unity 카메라로 기록한다.
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (scene.name != "RiverBasin4km" || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("저장된 RiverBasin4km의 편집 모드가 필요합니다.");
+Func<float,float,float> height = (x,z) =>
+{
+    var t = Array.Find(Terrain.activeTerrains,o => x >= o.transform.position.x && x < o.transform.position.x+512 &&
+        z >= o.transform.position.z && z < o.transform.position.z+512);
+    return t.SampleHeight(new Vector3(x,0,z))+t.transform.position.y;
+};
+string directory = "docs/work-status/river-basin-north-alpine-evidence/";
+System.IO.Directory.CreateDirectory(directory);
+var root = new GameObject("설산 확인 카메라") { hideFlags = HideFlags.HideAndDontSave };
+var camera = root.AddComponent<Camera>();
+camera.enabled = false;
+camera.fieldOfView = 57f;
+camera.farClipPlane = 2200f;
+var target = RenderTexture.GetTemporary(1280,720,24);
+var previous = RenderTexture.active;
+var image = new Texture2D(target.width,target.height,TextureFormat.RGB24,false);
+var names = new[] {"alpine-overview","alpine-ascent","alpine-snow-close"};
+var positions = new[]
+{
+    new Vector3(3470,598,3490), new Vector3(3304,height(3304,3547)+2.8f,3547),
+    new Vector3(3280,height(3280,3681)+2.1f,3681)
+};
+var look = new[] {new Vector3(3240,394,3670),new Vector3(3311,371,3597),new Vector3(3298,419,3714)};
+try
+{
+    camera.targetTexture = target;
+    for (int i = 0; i < names.Length; i++)
+    {
+        camera.transform.position = positions[i];
+        camera.transform.LookAt(look[i]);
+        camera.Render();
+        RenderTexture.active = target;
+        image.ReadPixels(new Rect(0,0,target.width,target.height),0,0);
+        image.Apply();
+        System.IO.File.WriteAllBytes(directory+names[i]+".png",image.EncodeToPNG());
+    }
+}
+finally
+{
+    camera.targetTexture = null;
+    RenderTexture.active = previous;
+    RenderTexture.ReleaseTemporary(target);
+    UnityEngine.Object.DestroyImmediate(image);
+    UnityEngine.Object.DestroyImmediate(root);
+}
+return string.Join(", ",names);

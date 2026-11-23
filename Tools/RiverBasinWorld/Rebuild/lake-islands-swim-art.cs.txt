@@ -1,0 +1,312 @@
+// 저장된 RiverBasin4km에서 apply로 저작하고 verify로 다시 검사한다.
+const string mode = "verify";
+const string rootName = "남부 호수 물가와 섬";
+const string world = "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34";
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (scene.path != world + "/Preview/RiverBasin4km.unity" || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("저장된 RiverBasin4km Edit Mode가 필요합니다.");
+var roots = scene.GetRootGameObjects();
+var previous = roots.SingleOrDefault(o => o.name == "남부 호수 섬 보행교");
+var outlet = roots.Single(o => o.name == "미연결 구역 동선 블록아웃").transform.Find("WB_P04_Bridge_B5");
+var waterRoot = roots.Single(o => o.name == "RiverBasin 수면");
+var saved = roots.SingleOrDefault(o => o.name == rootName);
+var template = roots.Single(o => o.name == "WorldBuilder Water").GetComponentInChildren<UPlayGround.Components.FootstepWaterSurface>();
+if (template == null || template.profile == null) throw new InvalidOperationException("공용 얕은 물 발소리 프로필이 필요합니다.");
+var waterNames = new[] { "1_1", "1_2", "2_1", "2_2", "4_1", "4_2", "5_1", "5_2", "6_1", "6_2" };
+var waterMeshes = waterNames.Select(tile => waterRoot.transform.Find("Water_" + tile).GetComponent<MeshFilter>()).ToArray();
+var tiles = Terrain.activeTerrains.Where(t => t.gameObject.scene == scene).ToDictionary(
+    t => new Vector2Int((int)t.transform.position.x / 512, (int)t.transform.position.z / 512));
+if (tiles.Count != 64) throw new InvalidOperationException("지형 타일이 누락됐습니다.");
+Func<Vector2, float> ground = p =>
+{
+    var t = tiles[new Vector2Int((int)p.x / 512, (int)p.y / 512)];
+    return t.SampleHeight(new Vector3(p.x, 0, p.y)) + t.transform.position.y;
+};
+
+// 각 섬의 양쪽 접근 방향을 함께 빼 두어, 물가에서 마루까지 빈 동선이 이어지게 한다.
+var sites = new[] {
+    new Vector2(1000, 1035), new Vector2(1070, 956), new Vector2(1104, 834), new Vector2(1093, 682),
+    new Vector2(2578, 1050), new Vector2(2680, 1001), new Vector2(2830, 1006), new Vector2(2898, 838),
+    new Vector2(949, 1150), new Vector2(1100, 550), new Vector2(2452, 1065), new Vector2(2900, 693),
+    new Vector2(3088, 564), new Vector2(3140, 564)
+};
+var links = new[] {
+    new[] {8,0}, new[] {0,1}, new[] {1,2}, new[] {2,3}, new[] {3,9},
+    new[] {10,4}, new[] {4,5}, new[] {5,6}, new[] {6,7}, new[] {7,11}, new[] {12,13}
+};
+var lanes = links.Select(link => new[] {sites[link[0]], sites[link[1]]}).ToArray();
+lanes[0][1] = new Vector2(1009.14f, 1039.05f);
+lanes[1][1] = new Vector2(1072.99f, 958.65f);
+lanes[5][1] = new Vector2(2579.18f, 1059.93f);
+Func<Vector2, Vector2, Vector2, float> distance = (p, a, b) =>
+{
+    var direction = b - a;
+    return Vector2.Distance(p, a + direction * Mathf.Clamp01(Vector2.Dot(p - a, direction) / direction.sqrMagnitude));
+};
+var clearances = lanes.ToList();
+var roadRows = System.IO.File.ReadAllLines("Tools/RiverBasinWorld/Rebuild/offroute-blockout-4km.csv")
+    .Skip(1).Select(line => line.Split(','));
+var culture = System.Globalization.CultureInfo.InvariantCulture;
+foreach (string road in new[] { "R4b", "coast" })
+{
+    var points = roadRows.Where(row => row[0] == road)
+        .Select(row => new Vector2(float.Parse(row[2], culture), float.Parse(row[3], culture)));
+    var approach = (road == "R4b" ? points.Reverse() : points).Take(4).ToArray();
+    if (approach.Length != 4) throw new InvalidOperationException("R4 남안 접근로 좌표 누락");
+    for (int i = 1; i < approach.Length; i++) clearances.Add(new[] { approach[i - 1], approach[i] });
+}
+Func<Vector2, float> courseDistance = p => clearances.Min(lane => distance(p, lane[0], lane[1]));
+Func<string> inspect = () =>
+{
+    var b = new System.Text.StringBuilder();
+    foreach (var filter in waterMeshes)
+    {
+        var component = filter.GetComponent<UPlayGround.Components.FootstepWaterSurface>();
+        if (component == null || !component.isActiveAndEnabled || component.surfaceMesh != filter || component.TriangleCount == 0)
+            throw new InvalidOperationException("수영 표면 누락 " + filter.name);
+    }
+    Physics.SyncTransforms();
+    int laneCount = 0;
+    int obstructionCount = 0;
+    var invalid = new List<string>();
+    for (int index = 0; index < links.Length; index++)
+    {
+        var link = links[index];
+        var a = lanes[index][0];
+        var end = lanes[index][1];
+        var along = (end - a).normalized;
+        var side = new Vector2(-along.y, along.x);
+        float length = Vector2.Distance(a, end);
+        int intervals = Mathf.CeilToInt(length);
+        float maxDepth = 0, maxBankSlope = 0, longestDeep = 0;
+        Vector2 steepPoint = Vector2.zero;
+        int crossed = 0;
+        foreach (float offset in new[] { -1.8f, 0f, 1.8f })
+        {
+            int transitions = 0;
+            float prevDepth = 0, prevGround = 0, maxRun = 0, run = 0;
+            bool beginsDry = false, endsDry = false;
+            for (int i = 0; i <= intervals; i++)
+            {
+                var p = Vector2.Lerp(a, end, i / (float)intervals) + side * offset;
+                float g = ground(p);
+                var q = new Vector3(p.x, g, p.y);
+                float surface;
+                float depth = UPlayGround.Components.FootstepWaterSurface.TryGetSurfaceHeight(q, out surface) ? surface - g : -1f;
+                if (i == 0) beginsDry = depth <= 0.1f;
+                if (i == intervals) endsDry = depth <= 0.1f;
+                if (mode == "verify")
+                {
+                    RaycastHit hit;
+                    if (Physics.Raycast(q + Vector3.up * 1.65f, Vector3.down, out hit, 1.45f, ~0, QueryTriggerInteraction.Ignore))
+                    {
+                        obstructionCount++;
+                        invalid.Add(hit.collider.name + " " + p);
+                    }
+                }
+                maxDepth = Mathf.Max(maxDepth, depth);
+                if (depth >= 1.2f) { run += length / intervals; maxRun = Mathf.Max(maxRun, run); }
+                else run = 0;
+                if (i > 0 && (depth >= 1.2f) != (prevDepth >= 1.2f)) transitions++;
+                if (i > 0 && (depth > -0.4f && depth < 1.4f || prevDepth > -0.4f && prevDepth < 1.4f))
+                {
+                    float slope = Mathf.Atan(Mathf.Abs(g - prevGround) * intervals / length) * Mathf.Rad2Deg;
+                    if (slope > maxBankSlope) { maxBankSlope = slope; steepPoint = p; }
+                }
+                prevDepth = depth; prevGround = g;
+            }
+            if (beginsDry && endsDry && transitions >= 2 && maxRun >= 5f) crossed++;
+            longestDeep = Mathf.Max(longestDeep, maxRun);
+        }
+        b.AppendLine(string.Format("{0}↔{1} / 깊은 물 {2:F1}m / 최대 수심 {3:F1}m / 물가 최대 종경사 {4:F1}° at {6} / 연결 {5}/3",
+            link[0], link[1], longestDeep, maxDepth, maxBankSlope, crossed, steepPoint));
+        if (crossed != 3 || maxBankSlope > 40f)
+            invalid.Add(link[0] + "↔" + link[1]);
+        laneCount++;
+    }
+    if (mode == "verify")
+    {
+        foreach (var approach in clearances.Skip(lanes.Length))
+        {
+            int intervals = Mathf.CeilToInt(Vector2.Distance(approach[0], approach[1]));
+            for (int i = 0; i <= intervals; i++)
+            {
+                var q = Vector2.Lerp(approach[0], approach[1], i / (float)intervals);
+                RaycastHit hit;
+                if (Physics.Raycast(new Vector3(q.x, ground(q) + 1.65f, q.y), Vector3.down, out hit, 1.45f, ~0, QueryTriggerInteraction.Ignore))
+                    invalid.Add("R4 남안 접근로 " + hit.collider.name + " " + q);
+            }
+        }
+    }
+    if (laneCount != 11) throw new InvalidOperationException("횡단 경로 수 불일치");
+    if (invalid.Count > 0) throw new InvalidOperationException("입수·상륙 단면 확인 필요 " + string.Join(", ", invalid) + "\n" + b);
+    if (mode == "verify") b.AppendLine("횡단 표본 위 충돌물 " + obstructionCount + " / 남안 육상 접근로 중심 충돌물 0");
+    return b.ToString();
+};
+
+if (mode == "verify")
+{
+    if (previous != null || outlet != null || saved == null ||
+        roots.Single(o => o.name == "WorldBuilder Plan").transform.Find("Castle_Moat_Bridge (B1)") == null)
+        throw new InvalidOperationException("교량 및 수변 배치 상태 불일치");
+    return inspect() + "직접 배치한 장식 프리팹 " + saved.transform.Cast<Transform>().Sum(group => group.childCount);
+}
+if (mode != "apply" || saved != null || previous == null || previous.transform.childCount != 10 || outlet == null ||
+    waterMeshes.Any(f => f.GetComponent<UPlayGround.Components.FootstepWaterSurface>() != null))
+    throw new InvalidOperationException("저작 기준 상태가 달라졌습니다.");
+
+const string nature = "Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Prefabs/";
+const string east = "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/";
+Func<string, GameObject> load = path =>
+{
+    var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path + ".prefab");
+    if (prefab == null) throw new InvalidOperationException("프리팹 누락 " + path);
+    return prefab;
+};
+var willow = new[] {load(nature + "WillowTree_01_Green"), load(nature + "WillowTree_03_Green")};
+var broadleaf = new[] {
+    load(east + "Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_01"),
+    load(east + "Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_03")
+};
+var bushes = new[] {
+    load(east + "Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_Bush_01"),
+    load(east + "Foliage/Trees/Osmanthus/PF_EastLands_Osmanthus_Bush_03")
+};
+var rocks = new[] {
+    load(east + "Stones/Boulders/PF_EastLands_MedBoulder_01"),
+    load(east + "Stones/Boulders/PF_EastLands_MedBoulder_04"),
+    load(east + "Stones/Flat/PF_EastLands_FlatStone_02")
+};
+var reeds = new[] { load(nature + "Reeds_02"), load(nature + "Cattail_02"), load(nature + "Cattail_03") };
+string backup = "output/RiverBasinLakes/before-" + DateTime.UtcNow.ToString("yyyyMMdd-HHmmss-fff") + ".unity";
+System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(backup));
+System.IO.File.Copy(scene.path, backup);
+Undo.IncrementCurrentGroup();
+int undo = Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName("남부 호수 수영 동선과 물가 저작");
+try
+{
+    foreach (var filter in waterMeshes)
+    {
+        // 원래 수면 메시를 사용하고, 호수와 남안 범위로만 조회를 제한한다.
+        var bounds = filter.sharedMesh.bounds;
+        var origin = filter.transform.position;
+        var min = bounds.min + origin;
+        var max = bounds.max + origin;
+        min.y = -35f;
+        max.y = 75f;
+        min.z = Mathf.Max(min.z, filter.name.StartsWith("Water_6_") ? 516f : 520f);
+        max.z = Mathf.Min(max.z, origin.x < 1536f ? 1160f : 1380f);
+        bounds.SetMinMax(min - origin, max - origin);
+        var surface = Undo.AddComponent<UPlayGround.Components.FootstepWaterSurface>(filter.gameObject);
+        surface.surfaceMesh = filter;
+        surface.profile = template.profile;
+        surface.useVolumeBounds = true;
+        surface.volumeBounds = bounds;
+        surface.RefreshMesh();
+    }
+    string audit = inspect();
+    Undo.DestroyObjectImmediate(previous);
+    Undo.DestroyObjectImmediate(outlet.gameObject);
+    var root = new GameObject(rootName);
+    Undo.RegisterCreatedObjectUndo(root, "남부 호수 장식");
+
+    var random = new System.Random(74421);
+    Func<float> rand = () => (float)random.NextDouble();
+    var objects = new List<Vector2>();
+    Func<GameObject[], Transform, Vector2, float, bool> place = (prefabs, parent, p, scale) =>
+    {
+        var obj = (GameObject)PrefabUtility.InstantiatePrefab(prefabs[random.Next(prefabs.Length)], parent);
+        obj.transform.position = new Vector3(p.x, ground(p) - 0.09f, p.y);
+        obj.transform.rotation = Quaternion.Euler(0, rand() * 360f, 0);
+        obj.transform.localScale *= scale;
+        if (prefabs == rocks)
+        {
+            var gap = obj.GetComponentsInChildren<Renderer>().Min(r =>
+                courseDistance(new Vector2(r.bounds.center.x, r.bounds.center.z)) -
+                new Vector2(r.bounds.extents.x, r.bounds.extents.z).magnitude);
+            if (gap < 2.4f)
+            {
+                UnityEngine.Object.DestroyImmediate(obj);
+                return false;
+            }
+        }
+        return true;
+    };
+    // 장마 흔적이 남은 바위턱 옆에 풀을 모으고 맞은편 모래톱을 열어 둔다.
+    Action<GameObject[], Transform, Vector2, int, float, float, float, float, float, float> cluster =
+        (prefabs, parent, center, count, radius, minY, maxY, clear, minScale, maxScale) =>
+    {
+        for (int trial = 0, done = 0; trial < count * 60 && done < count; trial++)
+        {
+            float angle = rand() * Mathf.PI * 2f;
+            var p = center + new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * (radius * Mathf.Sqrt(rand()));
+            float y = ground(p);
+            float spacing = clear > 6f ? 4.7f : clear > 4f ? 2.2f : 1.05f;
+            if (y < minY || y > maxY || courseDistance(p) < clear ||
+                objects.Any(other => (other - p).sqrMagnitude < spacing * spacing)) continue;
+            float rise = Mathf.Max(Mathf.Abs(ground(p + Vector2.right) - ground(p - Vector2.right)),
+                Mathf.Abs(ground(p + Vector2.up) - ground(p - Vector2.up)));
+            if (rise > (clear > 5f ? 1.0f : 1.55f)) continue;
+            if (!place(prefabs, parent, p, Mathf.Lerp(minScale, maxScale, rand()))) continue;
+            objects.Add(p);
+            done++;
+        }
+    };
+    var titles = new[] { "북쪽 버드나무섬", "버드나무 여울섬", "서남 호수 중앙섬", "남쪽 자갈섬",
+        "서쪽 갈대섬", "마을 앞 징검섬", "호수 마을 중앙섬", "남쪽 갈대섬",
+        "서남 호수 북안", "서남 호수 남안", "호수 마을 서안", "호수 마을 남안", "유출 하천 서안", "유출 하천 동안" };
+    var flank = new[] { new Vector2(12,6), new Vector2(-13,-5), new Vector2(29,9), new Vector2(12,-8),
+        new Vector2(-4,10), new Vector2(5,-13), new Vector2(-9,27), new Vector2(17,0),
+        new Vector2(22,-18), new Vector2(-18,14), new Vector2(12,22), new Vector2(19,10),
+        new Vector2(0,-8), new Vector2(-3,8) };
+    for (int i = 0; i < sites.Length; i++)
+    {
+        float level = i < 4 || i == 8 || i == 9 ? 15.04f : i >= 12 ? 22.2f : 24.04f;
+        bool large = i == 2 || i == 6, approach = i >= 8;
+        var p = sites[i];
+        var side = flank[i];
+        var group = new GameObject(titles[i]);
+        group.transform.SetParent(root.transform, false);
+        if (i < 12)
+            cluster(i < 4 || i == 8 || i == 9 ? willow : broadleaf, group.transform, p + side * 0.72f,
+                large ? 12 : approach ? 5 : i == 3 || i == 4 ? 1 : 2, large ? 32f : approach ? 17f : 11f,
+                level + 0.65f, level + (approach ? 6f : 12f), 6.2f, large ? 0.86f : 0.60f, large ? 1.37f : 1.02f);
+        if (large)
+        {
+            var crest = p + (i == 2 ? new Vector2(-27, 9) : new Vector2(25, 12));
+            cluster(broadleaf, group.transform, crest, 13, 29, level + 2f, level + 12f, 6.5f, 0.83f, 1.45f);
+            cluster(bushes, group.transform, crest + side * 0.2f, 14, 26,
+                level + 0.6f, level + 7f, 4.3f, 0.68f, 1.46f);
+        }
+        cluster(rocks, group.transform, p + side, large ? 13 : approach ? 5 : 6,
+            large ? 41f : 13f, level - 0.28f, level + 6f, 5.2f, 0.75f, large ? 2.45f : 1.70f);
+        cluster(bushes, group.transform, p + side * 0.83f, large ? 14 : 5,
+            large ? 32f : 14f, level + 0.1f, level + 7f, 4.3f, 0.60f, 1.40f);
+        cluster(reeds, group.transform, p + side * (large ? 1.65f : 1.32f),
+            large ? 20 : approach ? 10 : 12, large ? 38f : 13f,
+            level - 0.45f, level + 0.38f, 4.0f, 0.83f, 1.65f);
+        if (i >= 12)
+        {
+            cluster(reeds, group.transform, p + side * 1.9f, 12, 14,
+                level - 0.50f, level + 0.45f, 4.0f, 0.9f, 1.65f);
+            cluster(bushes, group.transform, p - side * 3.0f, 9, 17,
+                level + 0.3f, level + 5.0f, 4.3f, 0.85f, 1.60f);
+            cluster(reeds, group.transform, p - side * 3.8f, 14, 17,
+                level - 0.5f, level + 0.38f, 4.0f, 0.78f, 1.45f);
+        }
+    }
+    if (objects.Count < 125 || root.transform.Cast<Transform>().Any(t => t.childCount < 3))
+        throw new InvalidOperationException("섬과 호안 장식 군락이 비어 있습니다.");
+    Undo.FlushUndoRecordObjects();
+    UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+    if (!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene))
+        throw new InvalidOperationException("수변 씬 저장에 실패했습니다.");
+    Undo.CollapseUndoOperations(undo);
+    return audit + "장식 프리팹 " + objects.Count + "\nbackup=" + backup;
+}
+catch
+{
+    Undo.RevertAllDownToGroup(undo);
+    throw;
+}

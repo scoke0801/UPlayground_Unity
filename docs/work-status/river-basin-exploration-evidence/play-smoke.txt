@@ -1,0 +1,7 @@
+scene=RiverBasin4km map=RiverBasin4km boot=Ready
+Crystal (1056.0, 27.8, 825.0) / registered=True / nearby interaction=True
+Crystal (2884.0, 32.0, 975.0) / registered=True / nearby interaction=True
+Crystal (3214.0, 93.4, 2215.0) / registered=True / nearby interaction=True
+common_hp_potion (3787.0, 52.3, 1733.0) / registered=True / nearby interaction=True
+Crystal (3244.0, 407.5, 3682.0) / registered=True / nearby interaction=True
+registered=5/5 / eligible nearby=5/5 / pickup input skipped

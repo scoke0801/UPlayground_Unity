@@ -1,0 +1,99 @@
+// 모래골은 기존 사암 재질을 공유하고 채석장·설산의 돌에만 무이끼 암반 재질을 배정한다.
+const string production = "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production";
+const string finish = production+"/Exploration";
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+var root=GameObject.Find("호수와 동부·설산 탐험");
+if(scene.name!="RiverBasin4km" || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode || root==null)
+    throw new InvalidOperationException("탐험 배치가 저장된 RiverBasin4km 편집 모드가 필요합니다.");
+var changes=new System.Collections.Generic.Dictionary<Renderer,Material[]>();
+var copies=new System.Collections.Generic.Dictionary<string,Material>();
+try
+{
+    foreach(int section in new[]{2,3,4,5})
+    foreach(Transform prop in root.transform.GetChild(section))
+    {
+        if(!prop.name.StartsWith("PF_EastLands_")) continue;
+        foreach(var renderer in prop.GetComponentsInChildren<Renderer>(true))
+        {
+            var materials=renderer.sharedMaterials;
+            bool dirty=false;
+            for(int i=0;i<materials.Length;i++)
+            {
+                var original=materials[i];
+                var originalPath=AssetDatabase.GetAssetPath(original);
+                if(original==null || originalPath.StartsWith(finish+"/") || originalPath.StartsWith(production+"/EastDesert/")) continue;
+                var guid=AssetDatabase.AssetPathToGUID(originalPath);
+                if(guid.Length<8) throw new InvalidOperationException("원본 암반 재질 GUID 누락");
+                var sandstone=AssetDatabase.LoadAssetAtPath<Material>(production+"/EastDesert/Sandstone_"+guid.Substring(0,8)+".mat");
+                if(section==4 && sandstone!=null)
+                {
+                    materials[i]=sandstone;
+                    dirty=true;
+                    continue;
+                }
+                string profile=section==4?"DuneSandstone":section==5?"AlpineSlate":"QuarryRock";
+                var path=finish+"/"+profile+"_"+guid.Substring(0,8)+".mat";
+                Material variant;
+                if(!copies.TryGetValue(path,out variant))
+                {
+                    variant=AssetDatabase.LoadAssetAtPath<Material>(path);
+                    if(variant==null)
+                    {
+                        variant=new Material(original) {name=System.IO.Path.GetFileNameWithoutExtension(path)};
+                        if(variant.HasProperty("_USE_COVERAGE_LAYER")) variant.SetFloat("_USE_COVERAGE_LAYER",0);
+                        variant.DisableKeyword("_USE_COVERAGE_LAYER");
+                        Color tone=section==4?new Color(0.66f,0.48f,0.32f,0):section==5
+                            ?new Color(0.48f,0.52f,0.55f,0):new Color(0.49f,0.47f,0.45f,0);
+                        if(variant.HasProperty("_Stylization_Color")) variant.SetColor("_Stylization_Color",tone);
+                        if(variant.HasProperty("_Dirt_Color")) variant.SetColor("_Dirt_Color",tone);
+                        if(variant.HasProperty("_Edgewear_Color")) variant.SetColor("_Edgewear_Color",Color.Lerp(tone,Color.white,0.32f));
+                    }
+                    copies.Add(path,variant);
+                }
+                materials[i]=variant;
+                dirty=true;
+            }
+            if(dirty) changes.Add(renderer,materials);
+        }
+    }
+    if(changes.Count==0) throw new InvalidOperationException("변경할 탐험 암반이 없습니다.");
+    if(copies.Count>0 && !AssetDatabase.IsValidFolder(finish)) AssetDatabase.CreateFolder(production,"Exploration");
+    foreach(var entry in copies)
+        if(!AssetDatabase.Contains(entry.Value)) AssetDatabase.CreateAsset(entry.Value,entry.Key);
+}
+catch
+{
+    foreach(var variant in copies.Values)
+        if(!AssetDatabase.Contains(variant)) UnityEngine.Object.DestroyImmediate(variant);
+    throw;
+}
+Undo.IncrementCurrentGroup();
+int undo=Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName("탐험 지역 암반 재질 연결");
+try
+{
+    foreach(var entry in changes)
+    {
+        Undo.RecordObject(entry.Key,"암반 재질 인스턴스 연결");
+        entry.Key.sharedMaterials=entry.Value;
+        PrefabUtility.RecordPrefabInstancePropertyModifications(entry.Key);
+    }
+    var ridge=root.transform.GetChild(3);
+    foreach(Transform prop in ridge)
+    {
+        if(!prop.name.Contains("Cliff")) continue;
+        Undo.RecordObject(prop,"돌산 절리 매입");
+        prop.position-=Vector3.up*3.7f;
+        prop.rotation*=Quaternion.Euler(8,0,-8);
+        PrefabUtility.RecordPrefabInstancePropertyModifications(prop);
+    }
+    UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+    if(!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene)) throw new InvalidOperationException("탐험 재질 저장 실패");
+    Undo.CollapseUndoOperations(undo);
+}
+catch
+{
+    Undo.RevertAllDownToGroup(undo);
+    throw;
+}
+return "암반 렌더러 "+changes.Count+"개 / 지역 재질 "+copies.Count+"종";

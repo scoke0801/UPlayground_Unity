@@ -260,6 +260,8 @@ namespace UPlayGround.Tool.Editor.Build
             if (!EditorUtility.DisplayDialog("빌드 실행", s_modeLabels[(int)_mode] + "\n" + _profile.GetOutputDirectory() + "\n기존 파일을 갱신합니다.", "실행", "취소")) return;
             BuildManagerResult result = BuildManagerRunner.Run(_profile, _mode, _allowStaleContent);
             _lastResult = (result.Success ? "성공: " : "실패: ") + result.Summary;
+            if (result.Elapsed > TimeSpan.Zero)
+                _lastResult += $"\n총 시간 {result.Elapsed:c} · BuildTimings.log";
             InvalidateStatus();
         }
 

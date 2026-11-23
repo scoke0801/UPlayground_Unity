@@ -80,3 +80,30 @@
 | U04 | 주소 지정 SO/간접 참조/그룹 설정 변경 | 번들 변경 표시. 플레이어 입력도 바뀌면 전체 권장 |
 
 현재 프로젝트 설정은 보수적으로 비교하므로 에디터 전용 설정 변경도 exe 재빌드를 권장할 수 있다. 커스텀 전처리의 외부 입력과 출력 번들 전체 파일의 무결성은 판정 범위 밖이다.
+
+## 2026-11-22 Development 전체 빌드 시간 조사
+
+Windows64 빌드가 16:15:59부터 18:20:47까지 약 **2시간 4분 48초** 걸렸다(KST, 사전 점검 시작 시각은 기록 없음). 출력 `../BuildOuptut_BuildManager/BuildReport.txt`의 결과는 성공, 오류 0건, 경고 279건, 10,674,555,477바이트다. 같은 폴더의 `BuildManager.manifest.json`에서 프로필과 카탈로그 지문을 확인했다. Player 실행 확인과 개선 후 재측정은 미수행이다.
+
+| 구간 | 시간 | 원본 근거 |
+|---|---:|---|
+| Addressables | 8분 1.72초 | `Library/com.unity.addressables/AddressablesBuildTEP.json`의 `Building Default Build Script`. 직렬화 165.49초(88개 중 57개 캐시 재사용), 압축·아카이브 135.80초, 에셋 의존성 계산 107.61초 |
+| Player 전체 | 1시간 56분 45.45초 | `BuildReport.txt`, 열린 Unity에서 조회한 `Library/LastBuild.buildreport` |
+| ↳ 에셋 파일 쓰기 | 1시간 39분 32.36초 | `Writing asset files`. 여기 포함된 LakeVillageWorld의 `sharedassets3.assets` 패키징은 1시간 36분 36.37초로 Player의 82.7% |
+| ↳ 전처리 | 14분 9.80초 | `Preprocess Player`. 콜백별 원인과 시간은 미확정 |
+| ↳ 스크립트 어셈블리 생성 / Player 압축 | 16.33초 / 21.02초 | Player 보고서의 독립 단계 |
+
+Unity `Editor.log` 397229행에서 `UPG_Grass.shader` 기반 파생 식생의 D3D11 Forward 프래그먼트 패스가 19분 17.24초(신규 1,530개, 로컬 캐시 적중 1,542개)였다. Trunk 및 LeavesGraph 파생 패스도 각각 12분 3.43초(397479행), 10분 44.73초(398637행)였다. 세 원본은 Unity에서 파생 이름의 GUID를 조회해 확인했다. 셰이더 로그의 개별 패스 타이머는 Player 보고서의 단계 시간과 중복될 수 있으므로 합산하지 않았다. `Editor.log` 413807행의 `PlayerBuildInfo`로 Player 상위 단계 시간도 교차 확인했다.
+
+개선 순서는 아래와 같다.
+
+1. 기존 윈도우의 권장 모드를 활용한다. 호환되는 데이터만 바뀌면 콘텐츠만, Player 입력만 바뀌고 콘텐츠 지문이 맞으면 플레이어만 실행한다. 같은 프로필·출력 폴더의 빌드 캐시를 재사용하고 동일 입력의 두 번째 빌드에서 단계별 시간과 셰이더 캐시 적중을 비교한다.
+2. Grass → Trunk → Leaves 파생 파이프라인 순으로 URP 품질별 실제 키워드를 확인하고, 쓰이지 않는 조합만 생성 또는 스트리핑 단계에서 제거한다. 식생 반응, 바람, 디더, 그림자와 품질 전환을 Player에서 확인한다. 기존 스트리퍼의 적용 범위와 전후 변형 수를 함께 기록한다.
+3. 빌드 이력에 전체 벽시계 시간, 사전 점검, Addressables, Player의 단계별 시간, 배포 시간을 남기고 14분 전처리는 콜백별로 계측한다. 이후 LakeVillageWorld 직접 참조와 Addressables 사이의 대형 텍스처·메시 중복을 최신 빌드 레이아웃에서 확인한다. 이번 출력의 Addressables 폴더는 약 7.92GB다.
+
+### 병목 완화 반영
+
+- Grass 원본과 환경 반응 파생 셰이더에서 전역 바람·정점 색은 버텍스, 디더·전역 디더 설정은 프래그먼트에서만 변형을 생성한다. 두 셰이더의 Forward 패스는 URP의 `_CLUSTER_LIGHT_LOOP`를 사용해 현재 렌더러에 맞는 변형을 URP가 필터링할 수 있게 했다. Trunk와 Leaves 계열의 키워드 최적화는 후속 범위다.
+- Build Manager는 출력 폴더의 `BuildTimings.log`에 사전 점검, 설정 준비·복원, Addressables, Player, 콘텐츠 배포 등 실제 실행한 단계와 Unity Player 세부 단계를 누적한다. 창은 이번 실행의 총 시간을 표시한다. 같은 씬 목록을 중복 설정하거나 동일한 설정 파일을 다시 쓰는 작업과 사전 점검의 중복 카탈로그 해시를 줄였다.
+- **자동 검사 통과.** 열린 Unity 정상 컴파일과 새 코드 로드를 확인했다. Build Manager EditMode 33/33 통과(4.99초, 작업 ID `1e53163e00fb4d71adf93d22324e3e70`). Grass 원본 Forward 및 파생 Forward·ShadowCaster·DepthOnly의 D3D 대표 조합 16/16 컴파일 성공, 진단 메시지 0건. 두 셰이더의 Unity 임포트 오류 0건과 새 셰이더 키워드 등록을 확인했다. 합성 성공·실패 두 건의 시간 기록을 같은 로그에 누적하는 검사도 통과했다.
+- **사용자 테스트 대기.** 기존과 같은 Windows64 Development 프로필에서 전체 빌드 기록의 Player 패키징·전처리 시간과 파생 Grass Forward 신규 변형 수를 기준선과 비교한다. 이어서 LakeVillageWorld에서 잔디 바람·디더·그림자·환경 반응을 확인한다. 실제 빌드 시간 절감과 전처리 콜백별 원인은 미확인이다.

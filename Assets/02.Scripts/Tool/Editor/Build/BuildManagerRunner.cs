@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
+using Stopwatch = System.Diagnostics.Stopwatch;
 using UnityEditor;
 using UnityEditor.AddressableAssets;
 using UnityEditor.AddressableAssets.Build;
@@ -19,6 +22,7 @@ namespace UPlayGround.Tool.Editor.Build
         public bool Success;
         public string Summary;
         public BuildReport Report;
+        public TimeSpan Elapsed;
         public List<BuildIssue> Issues = new();
     }
 
@@ -69,6 +73,7 @@ namespace UPlayGround.Tool.Editor.Build
             string outputDirectory = profile.GetOutputDirectory();
             string executable = BuildManagerFiles.GetExecutablePath(outputDirectory, profile.executableName);
             string catalogDirectory = Addressables.BuildPath;
+            string cachedCatalogHash = BuildManagerFiles.ComputeCatalogHash(catalogDirectory);
 
             return new BuildPreflightInput
             {
@@ -91,8 +96,8 @@ namespace UPlayGround.Tool.Editor.Build
                 PlayerExecutableExists = File.Exists(executable),
                 PlayerCatalogHash = BuildManagerFiles.ComputeCatalogHash(BuildManagerFiles.GetPlayerAaDirectory(executable)),
                 CachedContentManifest = BuildManagerFiles.ReadManifest(BuildManagerFingerprint.GetContentRecordDirectory(profile.buildTarget)),
-                CachedCatalogHash = BuildManagerFiles.ComputeCatalogHash(catalogDirectory),
-                CatalogExists = !string.IsNullOrEmpty(BuildManagerFiles.ComputeCatalogHash(catalogDirectory)),
+                CachedCatalogHash = cachedCatalogHash,
+                CatalogExists = !string.IsNullOrEmpty(cachedCatalogHash),
                 CatalogWriteUtc = GetCatalogWriteUtc(catalogDirectory),
                 LatestContentSourceUtc = GetLatestContentSourceUtc(),
                 AllowStaleContent = allowStaleContent,
@@ -101,6 +106,7 @@ namespace UPlayGround.Tool.Editor.Build
 
         public static BuildManagerResult Run(BuildManagerProfileSO profile, BuildManagerMode mode, bool allowStaleContent)
         {
+            var timing = new BuildTiming();
             var result = new BuildManagerResult();
             if (profile == null)
             {
@@ -131,17 +137,22 @@ namespace UPlayGround.Tool.Editor.Build
 
             EditorBuildSettingsScene[] previousScenes = EditorBuildSettings.scenes;
             const string buildSettingsPath = "ProjectSettings/EditorBuildSettings.asset";
+            bool buildsPlayer = mode != BuildManagerMode.ContentOnly;
+            bool replacesScenes = buildsPlayer && !MatchesBuildScenes(previousScenes, input.Scenes);
             byte[] previousBuildSettings = File.ReadAllBytes(buildSettingsPath);
             AddressableAssetSettings.PlayerBuildOption previousOption = settings.BuildAddressablesWithPlayerBuild;
+            bool overridesAddressables = buildsPlayer && previousOption != AddressableAssetSettings.PlayerBuildOption.DoNotBuildWithPlayer;
+            timing.Begin("빌드 설정 준비");
             try
             {
                 // lilToon 전처리가 BuildPlayerOptions가 아닌 전역 씬 목록을 읽으므로 빌드 중에만 교체한다.
-                if (mode != BuildManagerMode.ContentOnly)
+                if (replacesScenes)
                     EditorBuildSettings.scenes = ToBuildScenes(input.Scenes);
                 // 콘텐츠는 이 도구가 명시적으로 만든다. 플레이어 빌드가 환경설정에 따라 다시 만들지 않게 막는다.
-                settings.BuildAddressablesWithPlayerBuild = AddressableAssetSettings.PlayerBuildOption.DoNotBuildWithPlayer;
+                if (overridesAddressables)
+                    settings.BuildAddressablesWithPlayerBuild = AddressableAssetSettings.PlayerBuildOption.DoNotBuildWithPlayer;
 
-                RunMode(profile, mode, input, result);
+                RunMode(profile, mode, input, result, timing);
             }
             catch (Exception exception)
             {
@@ -151,23 +162,31 @@ namespace UPlayGround.Tool.Editor.Build
             }
             finally
             {
-                settings.BuildAddressablesWithPlayerBuild = previousOption;
-                EditorBuildSettings.scenes = previousScenes;
-                File.WriteAllBytes(buildSettingsPath, previousBuildSettings);
+                timing.Begin("빌드 설정 복원");
+                if (settings.BuildAddressablesWithPlayerBuild != previousOption)
+                    settings.BuildAddressablesWithPlayerBuild = previousOption;
+                if (!EditorBuildSettings.scenes.Select(scene => (scene.path, scene.enabled))
+                        .SequenceEqual(previousScenes.Select(scene => (scene.path, scene.enabled))))
+                    EditorBuildSettings.scenes = previousScenes;
+                if (!File.Exists(buildSettingsPath) || !File.ReadAllBytes(buildSettingsPath).SequenceEqual(previousBuildSettings))
+                    File.WriteAllBytes(buildSettingsPath, previousBuildSettings);
                 AssetDatabase.SaveAssetIfDirty(settings);
             }
 
+            timing.Finish(profile, mode, result);
             return result;
         }
 
-        private static void RunMode(BuildManagerProfileSO profile, BuildManagerMode mode, BuildPreflightInput input, BuildManagerResult result)
+        private static void RunMode(BuildManagerProfileSO profile, BuildManagerMode mode, BuildPreflightInput input, BuildManagerResult result, BuildTiming timing)
         {
             string outputDirectory = profile.GetOutputDirectory();
             string executable = BuildManagerFiles.GetExecutablePath(outputDirectory, profile.executableName);
 
             if (mode != BuildManagerMode.PlayerOnly)
             {
+                timing.Begin("Addressables 빌드");
                 BuildContent();
+                timing.Begin("콘텐츠 빌드 기록 저장");
                 BuildManagerFiles.WriteManifest(BuildManagerFingerprint.GetContentRecordDirectory(profile.buildTarget), new BuildManifest
                 {
                     unityVersion = input.ExpectedUnityVersion, buildTarget = input.ExpectedBuildTarget,
@@ -179,6 +198,7 @@ namespace UPlayGround.Tool.Editor.Build
 
             if (mode == BuildManagerMode.ContentOnly)
             {
+                timing.Begin("콘텐츠 배포");
                 BuildManagerFiles.DeployContent(Addressables.BuildPath, BuildManagerFiles.GetPlayerAaDirectory(executable));
                 BuildManifest manifest = input.PlayerManifest;
                 manifest.contentBuiltAtUtc = DateTime.UtcNow.ToString("o");
@@ -190,8 +210,10 @@ namespace UPlayGround.Tool.Editor.Build
                 return;
             }
 
+            timing.Begin("Player 빌드");
             BuildReport report = BuildPlayer(profile, input.Scenes, executable);
             result.Report = report;
+            timing.Begin("Player 빌드 기록 저장");
             BuildSummary summary = report.summary;
             string text = $"결과: {summary.result}\nUnity: {Application.unityVersion}\n플랫폼: {summary.platform}\n" +
                           $"오류: {summary.totalErrors}\n경고: {summary.totalWarnings}\n크기: {summary.totalSize} bytes\n시간: {summary.totalTime}\n실행: {summary.outputPath}\n";
@@ -203,6 +225,59 @@ namespace UPlayGround.Tool.Editor.Build
             WritePlayerManifest(profile, input, outputDirectory);
             result.Success = true;
             result.Summary = mode == BuildManagerMode.Full ? "콘텐츠와 플레이어를 빌드했습니다." : "기존 콘텐츠로 플레이어를 빌드했습니다.";
+        }
+
+        private sealed class BuildTiming
+        {
+            private readonly DateTime _startedAt = DateTime.UtcNow;
+            private readonly Stopwatch _clock = Stopwatch.StartNew();
+            private readonly StringBuilder _steps = new();
+            private string _stage = "사전 점검";
+            private TimeSpan _stageStarted;
+
+            public void Begin(string stage)
+            {
+                RecordCurrentStage();
+                _stage = stage;
+            }
+
+            private void RecordCurrentStage()
+            {
+                TimeSpan now = _clock.Elapsed;
+                _steps.AppendLine($"{_stage}: {now - _stageStarted:c}");
+                _stageStarted = now;
+            }
+
+            public void Finish(BuildManagerProfileSO profile, BuildManagerMode mode, BuildManagerResult result)
+            {
+                _clock.Stop();
+                RecordCurrentStage();
+                result.Elapsed = _clock.Elapsed;
+                var text = new StringBuilder();
+                text.AppendLine($"{_startedAt:O} | {profile.profileName} | {mode} | {profile.buildTarget} | {profile.GetBuildOptions()}");
+                text.AppendLine($"결과: {(result.Success ? "성공" : "실패")} | 총 시간: {result.Elapsed:c}");
+                text.Append(_steps);
+                if (!result.Success)
+                    text.AppendLine(result.Summary);
+                if (result.Report != null)
+                {
+                    text.AppendLine("Unity Player 세부 단계 (하위 단계는 상위 시간에 포함)");
+                    foreach (BuildStep step in result.Report.steps)
+                        text.Append(' ', Math.Max(0, step.depth) * 2).AppendLine($"{step.name}: {step.duration:c}");
+                }
+                text.AppendLine();
+
+                try
+                {
+                    string directory = profile.GetOutputDirectory();
+                    Directory.CreateDirectory(directory);
+                    File.AppendAllText(Path.Combine(directory, "BuildTimings.log"), text.ToString());
+                }
+                catch (Exception exception) when (exception is IOException || exception is UnauthorizedAccessException)
+                {
+                    Debug.LogWarning("빌드 시간 기록을 저장하지 못했습니다: " + exception.Message);
+                }
+            }
         }
 
         private static void BuildContent()
@@ -312,6 +387,18 @@ namespace UPlayGround.Tool.Editor.Build
             }
 
             return latest;
+        }
+
+        private static bool MatchesBuildScenes(EditorBuildSettingsScene[] current, IReadOnlyList<string> paths)
+        {
+            if (current.Length != paths.Count)
+                return false;
+            for (int i = 0; i < current.Length; i++)
+            {
+                if (!current[i].enabled || current[i].path != paths[i])
+                    return false;
+            }
+            return true;
         }
 
         private static EditorBuildSettingsScene[] ToBuildScenes(IReadOnlyList<string> paths)

@@ -49,6 +49,8 @@
 
 콘텐츠 빌드는 도구가 명시적으로 수행하고 플레이어 빌드 동안 `DoNotBuildWithPlayer`로 고정한 뒤 복원한다(환경설정에 의한 이중 빌드 방지).
 
+사전 점검을 통과해 시작한 작업은 출력 폴더의 `BuildTimings.log`에 UTC 시작 시각·프로필·모드·결과·총 시간과 실행된 단계의 시간을 추가한다. Player 보고서를 받은 경우 Unity 단계 이름과 계층을 함께 기록한다. 기존 `BuildReport.txt`의 Player 총시간과 형식은 유지한다.
+
 ### D4 씬 목록의 정본은 프로필
 - 전역 Build Settings를 손으로 고치지 않고 `BuildManagerProfileSO`(씬·출력·실행 파일 이름·대상·Development)를 정본으로 한다. 기본 프로필은 `/Test/` 씬을 제외한다.
 - lilToon 전처리가 `BuildPlayerOptions.scenes`가 아닌 전역 씬 목록을 읽으므로 빌드 중에만 `EditorBuildSettings.scenes`를 교체하고 `finally`에서 복원한다(기존 스크립트와 같은 방식).

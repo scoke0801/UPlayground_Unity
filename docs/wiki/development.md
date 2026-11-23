@@ -1,5 +1,9 @@
 # 개발과 검증
 
+## 2026-11-22 코드 관계 그래프
+
+`Assets/02.Scripts`의 C# 2,051개를 Graphify로 인덱싱했다. 클래스 그래프는 Roslyn이 바인딩한 18,691개 방향 쌍과 Graphify 및 소스 검토의 추론 후보를 표시한다. 범위 내 asmdef 선언 25개에서 순환 0건을 확인했다. 클래스 수준에서는 몬스터와 전투 컴포넌트, 카메라 매니저와 전투 카메라 라우터의 양방향 참조를 개선 후보로 기록했다. Unity 에셋의 실제 배정과 런타임 콜백 검증은 별도 범위다. [분석 상태와 근거](../work-status/code-graph/GRAPH_REPORT.md) · [그래프](../work-status/code-graph/graph.html)
+
 2026-11-14 실제 몬스터 Play 패치에서 Hot Reload Worker의 배열 opcode 변환 누락을 수정했다. Worker 빌드·회귀 2/2·동일 Play 패치 재적용을 확인했다. [도구 상태](../work-status/unity-hot-reload.md) · [실제 작업 근거](../work-status/monster-bt-improvement/MCP_VALIDATION.md).
 
 ## 2026-11-15 빌드·번들 분리 설계와 빌드 매니저
@@ -7,6 +11,10 @@
 로컬 전용 번들 분리와 빌드 매니저 도구를 설계·구현했다. 코드·씬 목록이 같을 때만 번들 교체를 허용하는 지문 검사를 둔다. 후속 구현으로 도메인 그룹 5개와 구역별 별도 번들 설정을 반영하고, 기존 검증 빌드 진입점 5개를 공통 러너에 연결했다. 66개 주소·GUID·레이블 보존, 정상 컴파일·EditMode 18/18·하네스 43개 통과를 확인했다. 기본 Release 프로필 생성·창 열기·Full 사전 점검 0건도 확인했다. QualitySettings·EditorBuildSettings는 기존 파일과 바이트 동일하다. 설정 `BuildAddressablesWithPlayerBuild: 0`은 `PreferencesValue`이며 "자동 빌드 안 함"이 아니다. Player·Addressables 빌드는 미수행(`사용자 테스트 대기`). [설계](../../Assets/docs/design/dev-tools/BUILD_BUNDLE_SEPARATION_DESIGN.md) · [작업 상태](../work-status/build-manager.md).
 
 후속 UI 확장: Dev·씬·정확한 빌드 폴더를 창에서 편집하고 폴더별 exe/번들 재빌드 필요와 권장 모드를 표시한다. 도구·테스트 코드 독립 컴파일 및 순수 NUnit 메서드 19/19 확인. 사용자가 빌드·임포트 중 코드만 요청해 최신 코드의 Unity 반영·전체 EditMode·창 조작은 미수행이다. [후속 상태·검증 근거](../work-status/build-manager.md).
+
+2026-11-22 Development 전체 빌드는 약 2시간 5분에 성공했다. Addressables 약 8분, Player 약 1시간 57분이며, LakeVillageWorld 에셋 패키징에 약 1시간 37분이 걸렸다. 식생 파생 셰이더의 D3D11 Forward 변형 컴파일이 우선 개선 대상이다. [단계별 실측과 개선안](../work-status/build-manager.md#2026-11-22-development-전체-빌드-시간-조사).
+
+Grass 셰이더 키워드를 사용하는 단계로 제한하고 현재 URP 조명 키워드로 전환했다. Build Manager에 단계별 시간 로그를 추가했다. EditMode 33/33, Grass D3D 대표 조합 컴파일 16/16 통과. 실제 빌드 시간과 Player 렌더링은 사용자 테스트 대기다. [반영 내용과 검증](../work-status/build-manager.md#병목-완화-반영).
 
 ## 2026-11-13 시작 경로 프로파일링
 

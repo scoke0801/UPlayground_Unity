@@ -1,0 +1,7 @@
+forms,altered,area,gain,loss,water,colliders,steep,max
+24,229501,2484224,31.9906158,-9.815225,127049,672,0,0
+Terrain_0_0,Terrain_0_1,Terrain_0_2,Terrain_0_3,Terrain_0_4,Terrain_0_5,Terrain_0_6,Terrain_1_0,Terrain_1_1,Terrain_1_2,Terrain_1_3,Terrain_1_4,Terrain_1_5,Terrain_1_6,Terrain_2_0,Terrain_2_1,Terrain_2_2,Terrain_2_3,Terrain_2_4,Terrain_2_5,Terrain_2_6,Terrain_3_0,Terrain_3_1,Terrain_3_3,Terrain_3_4,Terrain_3_5,Terrain_3_6,Terrain_4_0,Terrain_4_1,Terrain_4_2,Terrain_4_3,Terrain_4_4,Terrain_4_5,Terrain_5_0,Terrain_5_2,Terrain_5_3,Terrain_5_4,Terrain_5_5,Terrain_6_0,Terrain_6_1,Terrain_6_2,Terrain_6_3,Terrain_6_4,Terrain_6_5,Terrain_7_0,Terrain_7_1,Terrain_7_2,Terrain_7_3,Terrain_7_4,Terrain_7_5,Terrain_7_6
+south=51493,16443,28183,707,6110,0,1772,15720
+west=68575,26299,41568,1876,8162,0,1078,20560
+central=75314,25315,36838,4491,9473,0,2312,26249
+east=34119,15674,19643,3311,6673,0,796,8052

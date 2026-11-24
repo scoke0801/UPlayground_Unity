@@ -1,6 +1,14 @@
 # 월드와 아트
 
-**RiverBasin4km 평지 기복·B3 협곡 설계(2026-11-22, 설계만).** 평지가 평평하게 읽히는 원인을 저장 RAW로 측정했다. 경사 중앙값은 7~8°지만 호수 마을 → B3 평지는 6m 이상 단절이 0%다. 남서 지류 B3 협곡(수면 27m 낙차)을 파일럿으로 4단 폭포·현수교·바닥 탐험 레인을 설계했다. 지형·씬 변경 없음, 수치는 G0 Editor 실측 후 확정, 전부 사용자 테스트 대기다. [설계](../../Assets/docs/design/world-art/open-world/RIVER_BASIN_GORGE_RELIEF_DESIGN.md) · [작업 상태](../work-status/river-basin-gorge-relief.md)
+**RiverBasin4km 여덟 지역 부지 확정.** 호수 마을과 중앙 성채는 기존 앵커, 깊은 숲 마을은 R1 수관 안쪽, 항구는 `coast-dock` 끝과 남쪽 해안, 폐성은 고산 유적 남쪽 턱에 둔다. 기존 채석 단구 아래 갱도 입구와 R5→R4 이음부 서쪽의 사막 마을 부지를 확정했다. Unity 지형 실측과 고정 화면 비교를 마쳤다. 호수 마을 → B3 → B1 회색 매스와 실제 보행 검증은 미수행이다. [지역 설계](../../Assets/docs/design/world-art/open-world/RIVER_BASIN_REGION_CONCEPT_DESIGN.md) · [부지 지도](../work-status/river-basin-region-sites-evidence/site-map.jpg) · [실측과 다음 제작](../work-status/river-basin-world.md#4km-지역-콘셉트-재검토)
+
+**RiverBasin4km 저지대 전역 기복.** 남부 해안, 서부 숲, 중앙 분지, 동부 사막·산기슭에 비대칭 능선과 안부 24곳을 조형했다. 가늘고 긴 홈 제보 후 전역 패스에서 새로 낮춘 표본을 복원하고 지상 수목과 미니맵을 갱신했다. Unity에서 보정 영역 밖 표본과 타일 경계 112곳의 높이를 확인했다. 시야 변화와 실제 탐험 경로는 사용자 테스트 대기다. [권역별 비교·검사](../work-status/river-basin-world.md#4km-저지대-전역-기복)
+
+**RiverBasin4km 평지 기복·B3 협곡.** Blender 현수교, 4단 폭포, 회백색 암반과 목서, 바닥 길과 출구 두 곳을 저장했다. 가상 게임패드 Play로 다리 왕복, B3 웅덩이 상륙, E1·E2 복귀를 검증했다. 평지 체감 제보에 따라 B3에서 호수 마을로 향하는 길 왼쪽에 기존 단구를 잇는 사면을 조형했다. WorldBuilder 명령으로 저장했고 목서·노두 접지, 보행 NavMesh, 미니맵을 갱신했다. 타일 경계 112곳과 보행 경로 4개를 Editor에서 확인했다. 새 사면의 실제 조작·외형은 사용자 테스트 대기다. [설계](../../Assets/docs/design/world-art/open-world/RIVER_BASIN_GORGE_RELIEF_DESIGN.md) · [검증과 화면](../work-status/river-basin-gorge-relief.md#b3에서-호수-마을로-이어지는-사면--2026-11-23)
+
+**RiverBasin4km 미니맵 전역 재촬영.** 사면을 반영한 씬에서 64개 Terrain을 정북 기준 4096×4096으로 촬영하고 탐험로·B3 본선 점선을 다시 그렸다. Unity에서 기존 GUID와 지도 중심·규격을 확인했다. 실제 HUD 확인은 사용자 테스트 대기다. [지도와 검증](../work-status/river-basin-world.md#4km-미니맵-재촬영과-ctrl-이동)
+
+**RiverBasin4km 호수 마을 접근로.** 지도에서 각져 보이던 B3 접근로를 굽은 흙길로 다시 그렸고, 주변에 반복되던 단구를 넓은 능선 두 줄로 이어 조형했다. 보행 경로 네 개와 Terrain 경계 112곳을 Editor에서 확인했다. 실제 보행과 HUD는 사용자 테스트 대기다. [지도 전후·현장 화면·검증](../work-status/river-basin-gorge-relief.md)
 
 **RiverBasin4km 첨부 지도 범위.** 사막을 동쪽 호수 동편과 남동부까지, 설산을 북쪽 산줄기 전역으로 확장했다. 숲 연못·서남 호수·동쪽 호수에 섬 네 곳과 발견 보상을 추가했다. 최종 지도와 수영 표면, Editor Play 보상 4곳 등록을 확인했다. 수영 왕복과 실제 획득·재방문은 사용자 테스트 대기다. [지도 전후](../work-status/river-basin-marked-regions-evidence/map-before-after.jpg) · [반영과 검증](../work-status/river-basin-marked-regions.md)
 
@@ -51,6 +59,8 @@
 **RiverBasin4km 서부 가을 숲 전역.** X 440~1450 / Z 1600~2900과 사당 능선에 새 수목·관목 18,447개와 수관 아래 성긴 풀을 결정적 스크립트로 배치했다. 파일럿 구간은 보존했고 경계 밖 50m는 밀도를 서서히 맞췄다. 핵심 숲의 수관 피복은 55%이고 길·수면·부지 침범은 0이다. 대형 수종의 줄기 충돌도 확인했다. 가상 패드로 네 경로를 왕복해 막힘 0과 안정 지지 100%를 확인했다. 1080p Editor의 CPU·GPU p95는 16.7ms 목표를 넘고, 원인 미분류인 1.8~8.9초 프레임 정지가 있다. 미술 인수와 Player 계측은 대기 중이다. [배치·검증·남은 항목](../work-status/river-basin-world.md#4km-서부-가을-숲-전역-식생)
 
 **서부 숲 식생.** 지형 12장에서 숲 경계 안 풀 인스턴스 2,771,383개와 프리팹 11종을 확인했다. 4km 씬에는 날씨와 목서 6종의 나무 승격을 연결했다. 목서 6,118그루는 평소 TerrainTree로 표시하며, 반응형 실물의 상한은 32개다. 이동 성능과 사당 능선 수관 색, 벌목·연소의 실제 조작은 사용자 테스트 대기다. [풀 비교 캡처](../work-status/river-basin-world.md#지면-식생-자연화-사용자-제보--2026-11-21) · [승격 설계](../../Assets/docs/design/world-art/environment/TERRAIN_TREE_PROMOTION_DESIGN.md) · [구현·검증 상태](../work-status/river-basin-world.md#반응형-수목-승격-설계와-play-실측)
+
+**서부 숲 지면 식생 레퍼런스 비교.** Phase 1 지표·밑동 색과 Phase 2 가을 풀·억새 배율 및 환경 풍향 휨을 제작 반영했다. Phase 3은 기존 수관 피복 추정치 24.1%인 X 1170 / Z 2270에 주변의 키 큰 풀 1,311포기를 옮겼다. 숲 안 풀 총량 2,304,680개와 나무 배열을 보존했다. 고정 구도, Game 뷰 영상, Editor 성능 값과 사용자 확인 항목을 기록했다. [Phase 1 색](../work-status/river-basin-world.md#phase-1-제작-반영) · [Phase 2 형태·바람](../work-status/river-basin-world.md#phase-2-풀-형태와-방향성-바람) · [Phase 3 열린 풀밭](../work-status/river-basin-world.md#phase-3-서부-숲의-열린-풀밭) · [설계](../../Assets/docs/design/world-art/environment/RIVER_BASIN_GROUND_VEGETATION_REFERENCE_DESIGN.md)
 
 | 제작 단계 | 지침 |
 |---|---|

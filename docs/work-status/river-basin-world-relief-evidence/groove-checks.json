@@ -1,0 +1,28 @@
+{
+  "measured": 6957,
+  "fillSamples": 2915,
+  "residual": 0.022896409,
+  "offPatch": 0,
+  "seam": 0,
+  "seams": 112,
+  "treeCount": 18666,
+  "treeMismatch": 0,
+  "nav": [
+    "PathComplete",
+    "PathComplete",
+    "PathComplete",
+    "PathComplete"
+  ],
+  "patches": 15,
+  "formerBase": 56.872612,
+  "groove": 52.86846,
+  "restored": 56.872612,
+  "map": "Assets/10.Datas/Map/RiverBasin4km/Minimap.png",
+  "guid": "f9cc09cfb5d8f2640a87fbaf1c8e16e7",
+  "width": 4096,
+  "sceneDirty": false,
+  "changedTiles": 45,
+  "restoredHeightSamples": 753678,
+  "treeHeightAdjustments": 1124,
+  "staticReattachments": 12
+}

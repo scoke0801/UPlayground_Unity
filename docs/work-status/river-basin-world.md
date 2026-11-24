@@ -9,6 +9,44 @@
 
 ## WorldBuilder 신규 제작
 
+### 4km 지역 콘셉트 재검토
+
+**2026-11-23 부지 확정.** 열린 `RiverBasin4km` 저장 씬에서 Terrain 64장, 기존 배치, R1·R4·R5·`coast-dock`·설산길 중심선을 대조했다. 부지 24곳의 중심 높이와 2m 격자 경사를 비교하고, 기존 수면 메시와 접근 시점을 확인했다. [지역 설계](../../Assets/docs/design/world-art/open-world/RIVER_BASIN_REGION_CONCEPT_DESIGN.md) · [부지 지도](river-basin-region-sites-evidence/site-map.jpg) · [Unity 고정 카메라 15컷](river-basin-region-sites-evidence/site-contact-sheet.jpg) · [기존 동선 좌표](../../Tools/RiverBasinWorld/Rebuild/offroute-blockout-4km.csv)
+
+| 조사 | 관찰과 결정 |
+|---|---|
+| 호수 마을·B3·성채 | 마을 중심에서 섬의 가설 수관 상단까지 지형이 시선을 약 0.7m 가린다. 서안 물가 X 2457 / Z 1080에서는 지형 시선이 열리며, 현장 화면 전경에 목서가 걸려 블록아웃에서 조망 틈을 잡아야 한다. B3 마을 쪽 교대 약 36m 전에서 현수교, 다리 위에서 하류 협곡을 고정 촬영했다. B1 이후 X 1896 / Z 1992에서 성채 문루의 가설 14m 상단까지 지형 시선이 열린다. |
+| 숲 마을 | 반경 60m Terrain 수목은 강가 앵커 2그루, R1 X 1248 / Z 2292에서 165그루, 더 북쪽 X 1224 / Z 2352에서 176그루였다. 확정한 부지는 수관이 이어지고 표본 경사 중앙값·최댓값이 4.4°·11.0°다. 북쪽 대안은 5.0°·14.8°다. 강가 앵커를 서부 연결점으로 쓰고 수관 아래에 마을을 둔다. |
+| 채석장·던전 | 작업 단구는 요새보다 북서쪽이고 중심 고도 차는 약 49m다. 동쪽 절개 암석 바로 앞 X 3210 / Z 2202의 12 × 12m 대기면은 Y 93.69~93.98, 최대 경사 2.7°다. 북쪽 대기면 X 3201 / Z 2238은 최대 27.7°다. 확정한 입구 방향에는 기존 절개 암석이 있고, 발견물은 Z 2215에 있어 입구 공사에서 따로 보존한다. |
+| 사막 마을 | R4 시작점 Y 61.85를 갈림길로 비우고 서쪽 사면의 X 3632 / Z 1512를 택했다. 동쪽 대안 Y 59.39보다 약 5.1m 높고 서쪽 대안보다 부지 최대 경사가 낮다(14.4° 대 18.6°). 수면 메시가 중심점과 겹치지 않았다. 국지 배수와 골목 입구의 가림은 블록아웃에서 잡는다. |
+| 항구마을 | 기존 선착장 앵커 Y 9.99에서 남쪽 해안까지 육상 연결이 필요하다. X 2826에서 Z 160은 지면 Y 1.33, Z 145는 지면 Y −1.55이고 수면은 Y 0.04였다. 시장은 기존 길과 이어지는 X 2790 / Z 270에 두고, 해안의 얕은 굽이를 방파제로 감싸는 배치를 택했다. |
+| 설산 밑 폐성 | 기존 유적 남쪽 20m의 바위턱에서 40 × 32m 표본의 높이 범위는 Y 195.21~198.21, 최대 경사는 15.0°다. 기존 유적 중심 표본의 최대 경사는 25.8°였다. 폐성 중심을 바위턱에 두면 기존 오르막 중심선과 약 22m 떨어지고, 남쪽 접근에서 가설 8m 문루까지 지형 시선이 열린다. |
+
+**검증 범위.** 위 높이·경사·수면은 저장 씬의 Editor 실측이다. 지형 시선은 2m 간격으로 Terrain 높이와 비교했으며 고정 화면은 카메라로 촬영했다. Unity 씬 저장 상태는 촬영 전후 깨끗했다. 회색 매스 배치, 최초 노출 시점의 양방향 플레이, 갱도 연결, 사막 배수, 항구 정박 수심은 미수행이다. 다음 블록아웃에서는 호수 마을 → B3 → B1에서 다리 첫 노출과 협곡 하강 선택, 성채 문루 재노출을 먼저 비교한다. 개별 촬영 파일은 비교 시트로 합친 뒤 정리했다. [월드와 아트 위키](../wiki/world-art.md)
+
+### 4km 저지대 전역 기복
+
+**2026-11-23 구현 반영.** “산지가 아닌 이상 대체로 너무 평탄해”, “언덕도 없고 경사 높은 지역 없고 ‘탐험’할 맛이 없어”라는 제보를 반영했다. 남부 해안, 서부 숲, 중앙 분지, 동부 사막과 산기슭에 비대칭 능선과 안부 스물네 곳을 조형했다. Terrain 64장 중 51장에 영향을 주며, 기본 조형에서 2m 이상 높이 변화 구역은 약 2.48㎢, 최대 상승은 약 32m다. WorldBuilder AddDelta 패치 16개를 저장하고, 새 급사면에는 기존 권역 재질을 섞었다. 동부 바위 보호 경계가 둥글게 드러난 곳은 사면으로 연결하고 소품 세 개를 재접지했다. 지면 높이에 따라 수목 7,229개의 높이와 승격 에셋 10개를 동기화했다. [설계](../../Assets/docs/design/world-art/open-world/RIVER_BASIN_WORLD_REBUILD_DESIGN.md#저지대-전역의-능선과-골짜기) · [좌표](../../Tools/RiverBasinWorld/Rebuild/world-relief-4km.csv) · [WorldDefinition](../../Assets/10.Datas/WorldBuilder/6effd90b68ea4b3d8f8caa5197fcfe34_Authoring.asset)
+
+| 권역 | 조형 영향 범위에서 경사 24° 이상인 4m 격자 표본 | 적용 후 목표 경험 |
+|---|---:|---|
+| 남부 해안 | 707 → 6,110 | 만에서 능선 너머 다음 해안 조망 |
+| 서부 숲 | 1,876 → 8,162 | 숲 안부와 연못 전망 사이의 시야 변화 |
+| 중앙 분지 | 4,491 → 9,473 | 낮은 본선과 능선 조망길 사이 선택 |
+| 동부 사막·산기슭 | 3,311 → 6,673 | 사암 사면을 돌아 좁은 골짜기로 내려가기 |
+
+**Editor 검사 통과.** 저장본 높이 표본 16,641개와 조형값을 대조해 최대 편차 2.33cm를 확인했다. 수계 보호 표본 2,568개와 동선·거점 보호 표본 603개의 높이 편차는 0.04mm 미만이었다. Terrain 경계 112곳의 높이 차는 0m다. 길과 B3 현수교를 포함한 NavMesh 네 경로가 모두 `PathComplete`였다. 수목 데이터 18,666개에서 위치·프로토타입 불일치가 0건이며 배치 ID 순서도 보존했다. 저장 자산 해시가 달라진 조형 영역 밖 타일 다섯 장은 높이 편차 0.04mm 미만, Terrain Hole 변경 0건을 확인했다. [사전 계산](river-basin-world-relief-evidence/preflight.txt) · [저장본 검사](river-basin-world-relief-evidence/checks.json)
+
+**Unity 화면과 지도.** 권역별 같은 조감 위치에서 촬영했고, 전역 미니맵을 4096²로 다시 만들었다. 기존 지도 스프라이트 GUID와 중심 좌표를 확인했다. [권역별 전후 비교](river-basin-world-relief-evidence/before-after.jpg) · [중앙 보행 높이 적용 전](river-basin-world-relief-evidence/central-ground-before.jpg) · [중앙 보행 높이 적용 후](river-basin-world-relief-evidence/central-ground-after.jpg) · [갱신한 전역 지도](../../Assets/10.Datas/Map/RiverBasin4km/Minimap.png)
+
+**RB-RELIEF01 · 사용자 테스트 대기.** `RiverBasin4km` Editor Play에서 새 저장을 만들 필요 없이 기존 플레이어와 평소 입력 장치로 확인한다. 중앙 분지 X/Z `(2508, 1550)` → `(2562, 1626)`, 남부 해안 `(1398, 364)` → `(1557, 274)`에서 낮은 쪽으로 우회한 뒤 사면을 오른다. 서부 `(1069, 2214)`와 동부 `(3641, 1794)`에서도 양쪽 경사를 비교한다. 올라갈 방향을 알아볼 수 있고, 능선 위에 도착했을 때 이전에 가려졌던 풍경이 보여야 한다. 길이 막히거나 경사가 읽히지 않으면 `RB-RELIEF01 / 좌표 / 진행 방향 / 증상`으로 기록한다. 실제 조작·카메라 품질과 전역 성능, Player·Addressables 빌드는 미수행이다.
+
+#### 능선 발치의 인공 홈 보정
+
+사용자 제보 “이 인위적인 파임은 뭐임”의 형태와 같은 홈을 서부 숲 남쪽에서 확인했다. 전역 기복 패스가 능선 한쪽에 적용한 절토가 떠 있는 물길처럼 길고 좁게 드러났다. 비교 위치 X/Z `(832, 1616)`은 전역 조형 전 56.87m에서 52.87m로 내려갔다. 첨부 이미지 각각의 좌표는 확인하지 못했다.
+
+전역 기복 패치의 음수 높이값만 취소하는 AddDelta 패치 15개를 저장했다. Terrain 45장의 1m 표본 753,678개를 복원했고, 비교 지점은 56.87m로 돌아왔다. 조형 규격의 절토 입력을 0m로 갱신하고 수목 높이와 미니맵을 다시 맞췄다. Editor 검사에서 복원 격자 최대 편차 2.29cm, 보정 영역 밖 검사 표본의 높이 변화 0m, 타일 경계 112곳의 오차 0m를 확인했다. NavMesh 경로 4개와 수목 배치 18,666개가 통과했다. 사용자 제보 구도의 재확인과 실제 조작은 대기다. [검사 수치](river-basin-world-relief-evidence/groove-checks.json) · [갱신한 미니맵](../../Assets/10.Datas/Map/RiverBasin4km/Minimap.png)
+
 ### 4km 남부 호수 섬
 
 **FEEL-RB-LAKES-01 · 경관과 이동 방식.** 사용자 피드백을 두 호수 섬과 R4 남안에 반영했다.
@@ -41,6 +79,7 @@
 
 ### 4km 미니맵 재촬영과 Ctrl 이동
 
+- **2026-11-23 전역 재촬영.** B3 사면 반영 후 저장된 `RiverBasin4km`의 Terrain 64개를 정북 기준으로 다시 촬영하고, 탐험로와 B3 본선 점선을 원본 경로로 다시 그렸다. 수면과 낙수 렌더러 56개는 촬영 중에만 파랑으로 표시했다. Unity에서 기존 지도 GUID·4096×4096·BC7·밉맵 13단계와 중심 X/Z (2048, 2048)를 확인했다. PNG `.meta` 해시는 동일하고 촬영 후 씬은 저장 상태를 유지했다. 새 배경의 실제 HUD 확인은 `RB-MAP02` 사용자 테스트 대기다. [지도 PNG](../../Assets/10.Datas/Map/RiverBasin4km/Minimap.png) · [직전 사면 작업](river-basin-gorge-relief.md#b3에서-호수-마을로-이어지는-사면--2026-11-23)
 - **구현 반영.** 2026-11-22에 열린 `RiverBasin4km` 씬의 활성 Terrain 64개를 정북 기준으로 다시 촬영했다. 수면은 촬영 중에만 밝은 파랑으로 표시했다. [지도 PNG](../../Assets/10.Datas/Map/RiverBasin4km/Minimap.png)는 4096×4096, BC7, 밉맵 13단계로 임포트됐다. 기존 스프라이트 참조, 중심 X/Z (2048, 2048), 범위 4096×4096m를 유지했다.
 - **Editor Play Mode 통과.** HUD의 지도 토글을 호출해 전체 지도를 열고 새 배경의 에셋 경로를 확인했다. 가상 좌측 Ctrl과 EventSystem 클릭으로 X/Z (1780.97, 1887.47)에 이동했다. Game View 포커스를 설정한 뒤 가상 우측 Ctrl과 마우스 클릭을 UI 입력 모듈로 처리해 X/Z (1687.97, 1863.47)의 지면에 도착했다. 두 시도 모두 X/Z 오차 0m, Console 오류 0건이다. 기존 치트 연결을 사용했다.
 - **RB-MAP02 · 사용자 테스트 대기.** Editor에서 이 씬을 Play하고 키보드 `M`으로 전체 지도를 연다. 강과 남쪽 호수 위치를 확인하고, 마커가 없는 땅을 Ctrl+좌클릭한 뒤 지도를 닫는다. 선택 지점에 도착하면 통과다. 실제 입력이나 지도 가독성 문제가 있으면 `RB-MAP02 / 결과 / 클릭한 위치와 증상 / 화면 또는 로그`로 기록한다. 현재 HUD 설정에서 소형 미니맵은 기본 비표시다.
@@ -119,6 +158,63 @@
 - **비교.** 같은 위치에서 적용 전후를 찍었다. [숲 안 전](../../Tools/RiverBasinWorld/Rebuild/GrassCompare/Before_Interior.png) · [숲 안 후](../../Tools/RiverBasinWorld/Rebuild/GrassCompare/After_Interior_1.png) · [능선 전](../../Tools/RiverBasinWorld/Rebuild/GrassCompare/Before_Ridge.png) · [능선 후](../../Tools/RiverBasinWorld/Rebuild/GrassCompare/After_Ridge2.png) · [공터 들꽃 군락](../../Tools/RiverBasinWorld/Rebuild/GrassCompare/After_Overview2.png). Editor Console의 풀 관련 오류는 0건이다.
 - **사용자 테스트 대기.** 실제 이동 중 풀 밀도의 변화와 색 배합, 길 가장자리, 들꽃·억새 군락의 빈도, 숲 바닥 낙엽 더미를 확인한다. 이동 계측(CPU·GPU p95)은 미수행이다. 지표 재질이 밝은 단색 잔디라 풀 사이 바닥이 인공적으로 보이는 문제는 남아 있다. 숲 바닥 지표 재질 보정은 별도 작업이다.
 - **저장 에셋 재확인.** Unity Editor에서 지형 12장을 읽어 숲 경계 안 인스턴스 2,771,383개, 각 타일의 프로토타입 11종, 누락된 풀 프리팹 참조 0건을 확인했다. 연결 재질은 9종이며 새로 생성된 재질 수는 확인하지 않았다. 풀 프리팹과 재질 경로는 현재 Git 제외 대상이다. 나무 배치 스크립트는 현재 풀 쓰기를 건너뛰며, 건너뛴 지점 아래에 옛 풀 배치 코드가 남아 있다.
+
+#### 서부 숲 지면 식생 레퍼런스 비교
+
+2026-11-23 **Phase 0 지표 요인 비교와 Phase 1 색 보정 후보 구현.** 제작 씬을 미리보기로 열어 지형 데이터·레이어·풀 재질을 메모리에서 복제했다. 같은 네 구도를 1280×720, FOV 54로 렌더했다. 재현 절차는 제작 씬을 편집 모드로 연 뒤 [측정 스크립트](../../Tools/RiverBasinWorld/Rebuild/GrassCompare/measure-ground-vegetation.cs.txt) 본문을 Unity MCP에서 실행하는 것이다. [설계](../../Assets/docs/design/world-art/environment/RIVER_BASIN_GROUND_VEGETATION_REFERENCE_DESIGN.md)
+
+- **지표.** X 440–1450 / Z 1600–2900과 교차한 타일 9장 모두 레이어 8개를 사용한다. 7장은 URP Terrain/Lit, `Terrain_0_5`와 `Terrain_1_5`는 Sand Lit이다. Meadow의 원본 알베도는 평균 선형 휘도 약 0.353, Forest는 0.203이다. 각 구도 전방 12m 표본에서 Meadow 비중은 숲 안 48.6%, 능선 76.9%, 공터 71.0%, 낮은 공터 72.2%였다. 가까운 타일의 풀과 나무를 숨긴 비교에서는 알베도 감쇠와 Meadow를 Forest로 치환하는 조작 모두 노출된 지표를 어둡게 했다. Meadow 전량 치환은 흙색 얼룩이 강하게 드러나는 진단용 조작이다. [지표 비교와 보정 후보](river-basin-grass-reference-evidence/ground-comparison.jpg) · [타일·재질 원시 측정](river-basin-grass-reference-evidence/measurements.txt)
+- **풀과 성능.** 같은 사각형 안에 저장된 풀 수는 2,304,680개다. 앞서 보고한 2,771,383개는 사당 능선까지 포함한 배치 범위다. InstanceCountMode의 API 상한은 프로토타입별 셀당 16, 관측 최대는 2였다. 제작 타일은 90m, 검증 씬의 직렬화 값은 80m 8장과 90m 1장이다. 풀 11종 중 7종이 `UPG_Grass` 원본을 쓴다. 80m·디더링·노이즈 배수는 정지 이미지로 기여도를 확정하기 어렵다. 같은 기준값으로 연달아 렌더해도 Editor 바람 시간에 따라 픽셀이 움직였다. 후처리를 끄면 이 구도에서는 화면 평균이 소폭 밝아졌다. [요인 비교](river-basin-grass-reference-evidence/factors.jpg) · [이미지 변화량](river-basin-grass-reference-evidence/image-deltas.txt)
+- **색 보정 후보.** 기존 스플랫·풀 수·풀 종·거리·셰이더를 유지한 복제본에서 Forest와 Meadow 알베도 remap을 완만하게 낮추고, `UPG_Grass` 재질 6개의 밑동 녹색 성분을 함께 낮췄다. 숲 안 지표와 풀 밑동의 색 차이가 줄었고 공터와 능선의 변화는 작았다. [비교 이미지의 마지막 두 열](river-basin-grass-reference-evidence/ground-comparison.jpg)
+- **검증.** 편집 모드에서 게임 카메라 렌더 52장과 캡처 중 오류·경고 0건을 기록했다. MCP 응답은 전송 중 끊겼으나 디스크의 52장과 마지막 로그까지 확인했다. 실제 Game 뷰의 날씨·움직임, draw call, CPU/GPU, 플레이 품질은 미수행이다. 과거 캡처의 뷰 종류는 확인할 수 없었다. 사용자 테스트는 같은 네 구도에서 그림자 속 밑동이 구멍처럼 보이는지, 걸을 때 풀밭 밀도와 길 가장자리가 읽히는지 확인하고 구도명·통과/실패·화면으로 회신한다. Player 성능 계측은 사용자 지시 대기다. Phase 2 바람과 Phase 3 열린 풀밭은 후속 작업이다.
+- **근거 보관.** 비교판 2장과 측정값(382,102바이트)은 이 문서 옆에, 최종 전체 해상도 PNG 52장(97,159,557바이트)은 `output/RiverBasinWorld/GrassReferencePhase0/`에 보관했다. 초기 캡처와 연결 확인 이미지(64,522,409바이트)를 정리했고, 임시 미리보기 씬과 복제본은 Unity에서 닫고 해제했다.
+
+##### Phase 1 제작 반영
+
+- **지표 색 저장 완료.** 타일 9장의 미사용 Sandstone·WeatheredRock 슬롯에 보정 Forest·Meadow 레이어를 넣었다. 숲 사각형 X 440–1450 / Z 1600–2900 안에서만 해당 가중치를 옮기고, 안쪽 40m에 걸쳐 전환했다. 복제본과 실제 저장 작업에서 모두 8개 슬롯과 알파맵 전체 채널의 재읽기 검사를 통과했다. 제작 씬 파일, 공유 원본 레이어, 풀·나무 배치, 지형 높이는 같은 데이터를 사용한다. [적용 스크립트](../../Tools/RiverBasinWorld/Rebuild/GrassCompare/apply-ground-tone.cs.txt) · [보정 레이어와 meta](../../Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Authoring/ForestWestGround/) · [적용 검사](river-basin-grass-reference-evidence/production-apply.txt)
+- **풀 밑동 색 저장 완료.** 초기 자동 승인 검토 이후 사용자가 `Terrain_0_6`·`Terrain_1_6`·`Terrain_2_6`을 포함한 재질 적용 범위를 승인했다. 제작 타일 12장의 Detail 참조를 확인하고 `FW_MI_Grass` 재질 6개의 `_ColorBottom`에 후보와 같은 RGB 배율 0.94/0.89/0.95를 적용했다. 백업과 비교해 재질 6개에서 해당 속성만 변경됐고 meta의 SHA-256은 같았다. 이 재질은 기존 Git 제외 경로에 있다. [적용 스크립트](../../Tools/RiverBasinWorld/Rebuild/GrassCompare/apply-grass-bottom-tone.cs.txt) · [재질 검사](river-basin-grass-reference-evidence/grass-bottom-apply.txt)
+- **저장본 확인.** 보정 가중치가 생긴 알파맵 표본 80,519개, 범위 밖 표본 0개, 누락된 풀 프리팹·재질 참조 0개를 확인했다. 타일 9장의 meta는 백업과 SHA-256이 같았다. 경계 안쪽·타일 경계·범위 밖을 포함한 6구도 전후 12장을 렌더했고 캡처 중 오류는 0건이었다. 숲 안 지표에서 색 변화가 가장 뚜렷했고, 타일 경계 비교에서 새 색 경계가 눈에 띄지 않았다. 실제 Game 뷰에서 이동 중 거리별 경계·디더링과 드로우 콜/CPU/GPU는 사용자 테스트 대기다. 같은 여섯 구도와 경계에서 지면 색 띠 또는 밝기 튐이 보이면 위치와 화면을 남긴다. Phase 2 바람과 Phase 3 열린 풀밭은 후속이다. [제작 전후 비교](river-basin-grass-reference-evidence/production-comparison.jpg) · [저장본 촬영 스크립트](../../Tools/RiverBasinWorld/Rebuild/GrassCompare/capture-production-ground.cs.txt)
+- **복구 근거.** 작업 직전 타일 9장과 meta(43,868,785바이트)는 `output/RiverBasinWorld/GrassReferencePhase1/backup-20261123-215356-731/`에 있다. 전후 원본 PNG 12장(23,774,897바이트)은 같은 Phase 1 폴더에 보관했다. 임시 렌더 리소스는 해제했다.
+- **풀 밑동 저장본 확인과 복구.** 사당 능선·서북 사면을 포함한 8구도의 전후 16장을 렌더했고 캡처 오류는 0건이었다. 서부 숲 안쪽 풀 밑동의 색 변화는 작았다. 실제 Game 뷰에서 눌러붙는 어두운 포기나 이동 중 색 튐이 생기는지 사용자 확인이 필요하다. `output/RiverBasinWorld/GrassReferencePhase1/grass-bottom/`에 PNG 16장(30,310,761바이트)과 `backup-20261123-215750-096/`의 재질·meta 12개(34,069바이트)를 보관했다. [풀 밑동 전후 비교](river-basin-grass-reference-evidence/grass-bottom-comparison.jpg)
+- **피드백 후 지표 톤 보강.** 사용자 비교에서 차이가 작아 노출 지표가 많은 숲 안과 타일 경계를 중심으로 기존값·중간값·강한 값을 복제본에서 비교했다. 숲 안에서 풀 사이가 갈색 흙으로 읽힌 강한 값을 채택했다. 전용 레이어 2개의 `DiffuseRemapMax`는 Forest (0.231, 0.30, 0.52, 1), Meadow (0.260, 0.286, 0.64, 1)이며 각각 해당 속성 한 줄만 바뀌었다. 제작 저장본 8구도에서 오류 0건이다. 숲 안 확대 영역의 평균 sRGB G−R은 최초 10.44 → 기존 보정 8.27 → 최종 0.08이었다. 풀의 화면 점유율이 높은 능선과 공터의 변화는 작았고, 실제 이동과 성능은 검증 대기다. 비교 원본 PNG 26장(50,735,254바이트)과 이전 레이어·meta(2,079바이트)는 `output/RiverBasinWorld/GrassReferencePhase1/tone-tuning/`에 보관했고 임시 미리보기 씬은 해제했다. [최초·이전·최종 확대 비교](river-basin-grass-reference-evidence/ground-tone-final.jpg)
+
+##### Phase 2 풀 형태와 방향성 바람
+
+- **제작 반영.** 타일 9장에서 키 큰 가을 풀의 메시 높이 환산 범위를 0.50–0.90m, 억새를 0.56–0.90m로 조정하고 폭에 편차를 줬다. 경계 타일 8장은 두 프로토타입의 숲 안·밖 밀도 배열을 나눠 숲 밖 63,178포기의 기존 배율을 보존했다. 서부 숲 인스턴스 2,304,680개와 기존 셀별 총량을 유지했다. 나무 배열과 프리팹 순서는 적용 전후 일치했다. [복제 비교](river-basin-grass-reference-evidence/phase2-shape-comparison.jpg) · [경계와 범위 밖](river-basin-grass-reference-evidence/phase2-boundary-comparison.jpg) · [셀 검사](river-basin-grass-reference-evidence/phase2-preview-checks.txt)
+- **셰이더.** `UPG_Grass`의 본체·그림자·깊이·노멀·모션 벡터에 동일한 변위 함수를 연결했다. 모션 벡터에는 이전 풍향과 이전 프레임 시간도 입력한다. 밟기 입력에 프레임 이력이 없어 벡터의 전후 위치에는 같은 접촉 오프셋을 적용한다. 반응형 파생은 `VegetationReactionShaderAuthoring.Generate`로 재생성했다. 원본·파생은 각 10패스, 가져오기 오류 0건이다. 기존 URP GBuffer 폐기 예정 경고 1건씩 남아 있다.
+- **사용처.** 공용 셰이더의 새 바람 배율 기본값은 0이다. 제작 씬에서 원본 셰이더를 직접 참조한 7종의 전용 재질 6개에만 0.23m 또는 0.32m를 저장했다. 이 재질은 서부 숲과 사당 능선 타일 12장에서 사용한다. 별도 B1 가을 풀과 `TD_Grass_Fresh`·`TD_Grass_Lime`는 배율 기본값을 사용한다. 억새는 기존 PlantGraph로 바람을 처리한다. 제작 타일에는 `TerrainDetailReaction` 컴포넌트가 없음을 확인했다.
+- **Editor Play.** 2560×1440, 품질 0, VSync 1, 같은 TPS 좌표·FOV·날씨에서 정지 계측 8초. CPU p50/p95 25.76/40.00 → 23.66/32.02ms, GPU 22.16/28.98 → 21.81/27.29ms, 드로우 콜 p50/p95 10,183/10,185 → 10,185/10,188. 측정 구간 뒤 패드 입력에서 플레이어 밟기 입력 최고값은 0.833 → 0.850, 수집 구간 Console 오류는 0건이다. 단일 Editor 구도 참고값이다. 영상은 실제 Game 뷰의 약 3fps 표본을 재생한다. [전 로그](river-basin-grass-reference-evidence/phase2-before-play.txt) · [후 로그](river-basin-grass-reference-evidence/phase2-after-play.txt) · [전 영상](river-basin-grass-reference-evidence/phase2-game-before.mp4) · [후 영상](river-basin-grass-reference-evidence/phase2-game-after.mp4)
+- **회귀 검사.** 환경 반응·환경 바람 상태·식생 저작·반응 통합 EditMode 4개 그룹에서 83/83 실행을 마쳤고 작업은 성공 상태다. 방향성 바람을 켠 같은 파생 풀을 GPU로 렌더해 젖음 7,844픽셀의 명도 감소, 연소 5,572픽셀의 적색 발광 증가, 완전 소진 뒤 남은 픽셀 0을 확인했다. 모션 벡터 패스가 이전 풍향을 읽고 파생 셰이더의 연료 소거가 해당 패스에도 적용되는지 소스를 대조했다. [젖음·연소·소진 검사](river-basin-grass-reference-evidence/phase2-reaction-render.txt)
+- **재현과 복구.** [복제 촬영 스크립트](../../Tools/RiverBasinWorld/Rebuild/GrassCompare/capture-vegetation-shape.cs.txt) · [제작 반영 스크립트](../../Tools/RiverBasinWorld/Rebuild/GrassCompare/apply-vegetation-shape.cs.txt) · [Play 계측·촬영](../../Tools/RiverBasinWorld/Rebuild/GrassCompare/probe-vegetation-play.cs.txt) · [제작 적용 기록](river-basin-grass-reference-evidence/phase2-production-checks.txt). 작업 직전 타일·전용 재질·meta와 셰이더는 `output/RiverBasinWorld/GrassReferencePhase2/`에 백업했다. 타일·전용 재질 meta 15개는 백업과 SHA-256이 일치했다.
+
+##### Phase 3 서부 숲의 열린 풀밭
+
+- **제작 반영.** 기존 수관의 중심과 LOD0 메시 반경을 표본화해 피복 추정치 24.1%인 X 1170 / Z 2270을 골랐다. 볕이 드는 X 반경 약 18m, Z 반경 약 24m의 기존 식생 셀에 키 큰 가을 풀 1,311포기를 보탰다. 가장자리는 수관 그늘과 군락에 따라 성기게 했고, 인접 띠에서 같은 풀 1,311포기를 회수했다. `Terrain_2_4`의 해당 레이어 패치 총량은 6,163개, 서부 숲 전체는 2,304,680개다. [낮은 두 시점과 가장자리](river-basin-grass-reference-evidence/phase3-meadow-comparison.jpg)
+- **복제 후 저장.** 복제 씬의 세 구도 전후 6장과 풀 셀 재읽기를 확인했다. 제작에 적용한 패치의 SHA-256이 복제 검증본과 일치한다. 추가 셀과 기존 길 중심 사이 최소 146.17m, 수면·보호 부지 침범 0이다. 나무를 고르거나 이동시키지 않고 기존 `TreeInstance` 배열의 모든 값과 프로토타입 순서가 일치하는지 확인했다. 같은 나무 인덱스와 벌목·반응 배치표를 사용한다. [복제 지형 검사](river-basin-grass-reference-evidence/phase3-preview-checks.txt) · [제작 적용 기록](river-basin-grass-reference-evidence/phase3-production-checks.txt)
+- **Game 뷰.** 남쪽 X 1170 / Z 2250에서 Phase 2와 같은 해상도·품질·풍향으로 서서 8초씩 계측한 뒤 가상 패드로 풀밭 쪽을 걸었다. 최초 전후 계측 카메라 위치는 (1170.00, 66.98, 2245.15), 피치 14°, FOV 55°다. 수집 구간의 Unity 오류는 전후 0, 최대 플레이어 밟기 입력은 0.841 → 0.834였다. 영상은 실제 Game 뷰의 약 3fps 표본을 재생한다. [전 영상](river-basin-grass-reference-evidence/phase3-game-before.mp4) · [후 영상](river-basin-grass-reference-evidence/phase3-game-after.mp4)
+- **재현.** [수관 표본화](../../Tools/RiverBasinWorld/Rebuild/GrassCompare/find-meadow.cs.txt)로 후보를 찾고 [풀밭 패치](../../Tools/RiverBasinWorld/Rebuild/GrassCompare/shape-open-meadow.cs.txt)의 `preview`에서 촬영했다. `apply`는 같은 패치 해시를 확인하고 한 TerrainData의 풀 레이어만 저장한다. 적용 직전 TerrainData와 meta는 `output/RiverBasinWorld/GrassReferencePhase3/`에 보관했다.
+
+| Editor 정지 계측 | CPU p50 / p95 (ms) | GPU p50 / p95 (ms) | 드로우 콜 p50 / p95 |
+|---|---:|---:|---:|
+| [Phase 3 전](river-basin-grass-reference-evidence/phase3-before-play.txt) | 23.13 / 249.10 | 21.24 / 25.25 | 11,039 / 11,039 |
+| [Phase 3 전 재측정](river-basin-grass-reference-evidence/phase3-before-repeat-play.txt) | 24.11 / 34.88 | 21.39 / 29.17 | 11,034 / 11,034 |
+| [Phase 3 후](river-basin-grass-reference-evidence/phase3-after-play.txt) | 24.25 / 32.34 | 21.62 / 28.09 | 11,040 / 11,648 |
+
+첫 기준 측정에 순간 지연이 있었고, 적용 후 드로우 콜 상위 표본이 늘었다. 표의 값에는 Editor 전체 프레임의 변동이 포함된다. 이후 별도 월드 기복 저작으로 제작 지형이 바뀌어 같은 조건의 추가 계측은 보류했다.
+
+- **최신 저장본 확인.** 월드 기복 작업 후에도 풀밭 패치 해시, 서부 숲 저장 풀 2,304,680개, 누락 참조 0을 확인했다. 남쪽 지면 높이는 Y 64.32m에서 73.16m로 올라갔다. 같은 X/Z와 지면 기준 카메라 높이로 세 구도를 다시 찍었으며, 최신 지형에서는 낮은 시점으로 사면을 따라 이어지는 풀과 성근 나무가 보인다. 촬영 오류 0건이다. [최신 지형의 풀밭](river-basin-grass-reference-evidence/phase3-current-terrain.jpg) · [최신 에셋 재검사](river-basin-grass-reference-evidence/phase3-final-recheck.txt)
+
+###### 사용자 테스트 대기
+
+같은 `RiverBasin4km`를 Editor Play하고 평소 쓰는 입력 장치로 이동한다. X/Z 좌표를 기준으로 아래 항목을 확인한다.
+
+| ID | 이동과 관찰 지점 | 통과 조건 |
+|---|---|---|
+| FG-01 풀 형태와 시야 | 숲 안 (1000, 2450), 능선 (1360, 2850), 공터 (1130, 2330)를 기본 TPS 시점으로 걷는다. | 가을 풀과 억새 높이가 구별되고 캐릭터와 길이 걷는 동안 읽힌다. |
+| FG-02 바람과 밟기 | 풀밭 남쪽 (1170, 2250)에서 북쪽을 보고 잠깐 서 있다가 (1170, 2270)까지 걷는다. 돌아서 경계를 다시 지난다. | 멀리 있는 풀 결은 풍향을 따르고, 가까운 풀은 발 주변에서만 눕는다. 수관과 풀 밀도 전환에 눈에 띄는 띠가 없다. |
+| FG-03 사당 능선 | (1310, 3235)에서 기존 사당길을 따라 걷는다. | 공유 재질의 바람으로 길과 진행 표식이 가리지 않는다. |
+
+결과는 `항목 ID / 통과·실패·미수행 / 좌표·방향 / 화면 또는 로그`로 남긴다. 실제 퀘스트 진행과 저장·재로드, Terrain Detail 모션 벡터 버퍼의 픽셀 판정은 미수행이다. Player·Addressables 빌드와 Player 성능 계측은 사용자 지시 대기다.
 
 #### 반응형 수목 승격 설계와 Play 실측
 

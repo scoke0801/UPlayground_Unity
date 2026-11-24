@@ -106,7 +106,7 @@ MonoBehaviour:
     prototype: 0
     sourcePrototype: {fileID: 720596880275578211, guid: efdc7933ee21ee84187dbe483d8fccae, type: 3}
   - id: d4d2a77c26804d1e896e1e2ef0f5b21a
-    position: {x: 0.5410855, y: 0.13651748, z: 0.0013151169}
+    position: {x: 0.5410855, y: 0.13657852, z: 0.0013151169}
     prototype: 5
     sourcePrototype: {fileID: 2491173230276523821, guid: 7da9e00ac1732924c99f4411617c280e, type: 3}
   - id: 620c3b8f51994797a4f14d013a55925a

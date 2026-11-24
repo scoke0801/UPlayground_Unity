@@ -1,0 +1,62 @@
+{
+  "inspected": 16641,
+  "residual": 0.0232543945,
+  "unshapedHeightDrift": 0.0000305175781,
+  "extraHoles": 0,
+  "wetCount": 2568,
+  "wetChange": 0.0000152587891,
+  "guardCount": 603,
+  "guardChange": 0.0000305175781,
+  "edges": 112,
+  "seam": 0,
+  "treeCount": 18666,
+  "treeMismatch": 0,
+  "paths": [
+    "PathComplete (1637.00, 1601.00) > (1607.00, 1638.00)",
+    "PathComplete (1656.00, 1555.00) > (1840.00, 1384.00)",
+    "PathComplete (1840.00, 1384.00) > (2046.00, 1214.00)",
+    "PathComplete (2046.00, 1214.00) > (2264.00, 1052.00)"
+  ],
+  "patches": 16,
+  "changedSamples": 3833539,
+  "changedTiles": 51,
+  "sceneDirty": false,
+  "activeSession": false,
+  "map": "Assets/10.Datas/Map/RiverBasin4km/Minimap.png",
+  "guid": "f9cc09cfb5d8f2640a87fbaf1c8e16e7",
+  "width": 4096,
+  "format": "BC7",
+  "center": "(2048.00, 2048.00)",
+  "placementIdRowsUnchanged": 18666,
+  "treeHeightsAdjusted": 7229,
+  "staticPropsAdjusted": 15,
+  "slopeMaterialSamples": 12870,
+  "landforms": 24,
+  "largeChangeAreaKm2": 2.484224,
+  "baseMaxRaiseMeters": 31.9906158,
+  "baseMaxCutMeters": 9.815225,
+  "regionSlopes24": {
+    "sampleGridMeters": 4,
+    "scope": "Base relief footprint before eastern collar refinement",
+    "south": {
+      "samples": 51493,
+      "before": 707,
+      "after": 6110
+    },
+    "west": {
+      "samples": 68575,
+      "before": 1876,
+      "after": 8162
+    },
+    "central": {
+      "samples": 75314,
+      "before": 4491,
+      "after": 9473
+    },
+    "east": {
+      "samples": 34119,
+      "before": 3311,
+      "after": 6673
+    }
+  }
+}

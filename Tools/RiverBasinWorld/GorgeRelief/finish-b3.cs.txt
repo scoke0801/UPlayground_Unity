@@ -1,0 +1,196 @@
+// 평지 마감, B3 주변 NavMesh 및 실제 보행 연결 검증.
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if(scene.path!=ScenePath || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling)
+    throw new InvalidOperationException("저장된 RiverBasin4km Edit Mode가 필요합니다.");
+var root=scene.GetRootGameObjects().Single(x=>x.name==RootName);
+var bridge=root.transform.Find("WB_P04_Bridge_B3_Suspension");
+if(bridge==null || !System.IO.File.Exists(ArtFolder+"/plains-operation.txt") || root.transform.Find("B3 보행 내비게이션")!=null)
+    throw new InvalidOperationException("G4 지형 기록과 NavMesh 반영 여부를 확인하세요.");
+var tiles=Terrain.activeTerrains.Where(t=>t.gameObject.scene==scene).ToDictionary(t=>t.name);
+Func<Vector2,Terrain> tileAt=p=>tiles["Terrain_"+(int)p.x/512+"_"+(int)p.y/512];
+Func<Vector2,float> sy=p=>{var t=tileAt(p);return t.SampleHeight(new Vector3(p.x,0,p.y))+t.transform.position.y;};
+Func<Vector2,Vector3> toWorld=p=>new Vector3(p.x,sy(p),p.y);
+var runs=new float[Line.Length];
+for(int i=1;i<runs.Length;i++)runs[i]=runs[i-1]+Vector2.Distance(Line[i-1],Line[i]);
+Func<float,Vector2> at=s=>
+{
+    for(int i=1;i<runs.Length;i++)if(s<=runs[i])return Vector2.Lerp(Line[i-1],Line[i],Mathf.InverseLerp(runs[i-1],runs[i],s));
+    return Line[Line.Length-1];
+};
+Func<float,Vector2> normal=s=>{var t=(at(s+10)-at(s-10)).normalized;return new Vector2(-t.y,t.x);};
+Func<Vector2[],float,float> sample=(values,s)=>
+{
+    for(int i=1;i<values.Length;i++)if(s<=values[i].x)return Mathf.Lerp(values[i-1].y,values[i].y,Mathf.InverseLerp(values[i-1].x,values[i].x,s));
+    return values[values.Length-1].y;
+};
+Func<float,float,float,float> smooth=(a,b,t)=>Mathf.SmoothStep(0,1,Mathf.InverseLerp(a,b,t));
+Func<Vector2,float> roadDistance=p=>
+{
+    float best=64;
+    for(int i=1;i<MainPath.Length;i++)
+    {
+        var a=MainPath[i-1];var b=MainPath[i];var d=b-a;
+        if(p.x<Mathf.Min(a.x,b.x)-8||p.x>Mathf.Max(a.x,b.x)+8||p.y<Mathf.Min(a.y,b.y)-8||p.y>Mathf.Max(a.y,b.y)+8)continue;
+        var diff=p-(a+d*Mathf.Clamp01(Vector2.Dot(p-a,d)/d.sqrMagnitude));
+        best=Mathf.Min(best,diff.sqrMagnitude);
+    }
+    return Mathf.Sqrt(best);
+};
+const string stone="Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Boulders/PF_EastLands_";
+const string visual="Assets/03.Prefabs/Environment/RiverBasinWorld/VisualR1/PF_EastLands_";
+var rocks=new[]{"BigBoulder_01","BigBoulder_02","MedBoulder_01","MedBoulder_03","MedBoulder_05"}.Select(n=>AssetDatabase.LoadAssetAtPath<GameObject>(stone+n+".prefab")).ToArray();
+var trees=new[]{"Osmanthus_01_Gold_1","Osmanthus_02_Gold_10","Osmanthus_03_Gold_11","Osmanthus_01_Copper_4"}.Select(n=>AssetDatabase.LoadAssetAtPath<GameObject>(visual+n+".prefab")).ToArray();
+if(rocks.Concat(trees).Any(x=>x==null))throw new InvalidOperationException("평지 배치 원본 누락");
+var granite=AssetDatabase.FindAssets("B3_Granite t:Material",new[]{ArtFolder}).Select(AssetDatabase.GUIDToAssetPath)
+    .Select(p=>AssetDatabase.LoadAssetAtPath<Material>(p)).ToDictionary(m=>m.name);
+var rng=new System.Random(9684);
+Func<float,float,float> range=(a,b)=>Mathf.Lerp(a,b,(float)rng.NextDouble());
+string backup="output/RiverBasinWorld/GorgeRelief/backup/"+DateTime.Now.ToString("yyyyMMdd-HHmmss-fff")+"-finish";
+System.IO.Directory.CreateDirectory(backup);
+System.IO.File.Copy(scene.path,backup+"/RiverBasin4km.unity",false);
+var edits=new List<Tuple<TerrainData,int,int,float[,,],float[,,]>>();
+string navPath=ArtFolder+"/B3_NavMesh.asset";
+if(System.IO.File.Exists(navPath))throw new InvalidOperationException("기존 B3 NavMesh를 보존합니다.");
+Undo.IncrementCurrentGroup();int group=Undo.GetCurrentGroup();Undo.SetCurrentGroupName("B3 평지와 보행 내비게이션");
+try
+{
+    var plain=new GameObject("호수 마을과 B3 사이 단구");Undo.RegisterCreatedObjectUndo(plain,"마을에서 B3까지의 지형 마감");
+    plain.transform.SetParent(root.transform,false);
+    int rockCount=0,treeCount=0;
+    for(int i=0;i<PlainSites.Length;i++)
+    {
+        var center=PlainSites[i];var spec=PlainSpecs[i];float h=spec[4];
+        var a=new Vector2(Mathf.Cos(spec[1]*Mathf.Deg2Rad),Mathf.Sin(spec[1]*Mathf.Deg2Rad));
+        var b=new Vector2(-a.y,a.x);
+        int count=spec[0]>.5f?8:3;
+        for(int j=0;j<count;j++)
+        {
+            float t=range(-spec[2]*.75f,spec[2]*.75f);
+            var p=center+a*t+b*(spec[0]>.5f?range(-3,6):range(-8,12));
+            if(roadDistance(p)<7.1f || Vector2.Distance(p,B1)<65)continue;
+            var prop=(GameObject)PrefabUtility.InstantiatePrefab(rocks[(i*3+j)%rocks.Length],plain.transform);
+            float y=sy(p);prop.transform.SetPositionAndRotation(new Vector3(p.x,y,p.y),Quaternion.Euler(0,spec[1]+range(-36,36),range(-7,7)));
+            var rs=prop.GetComponentsInChildren<Renderer>();var bounds=rs[0].bounds;foreach(var r in rs)bounds.Encapsulate(r.bounds);
+            float size=j%4==0?range(5.0f,7.6f):range(1.9f,4.4f);
+            prop.transform.localScale*=size/Mathf.Max(bounds.size.x,bounds.size.z);
+            bounds=rs[0].bounds;foreach(var r in rs)bounds.Encapsulate(r.bounds);
+            prop.transform.position+=new Vector3(p.x-bounds.center.x,y-bounds.min.y-bounds.size.y*range(.32f,.56f),p.y-bounds.center.z);
+            foreach(var r in rs)
+            {
+                var mats=r.sharedMaterials;
+                for(int k=0;k<mats.Length;k++){Material tint;if(mats[k]!=null && granite.TryGetValue("B3_Granite_"+mats[k].name,out tint))mats[k]=tint;}
+                r.sharedMaterials=mats;
+            }
+            rockCount++;
+        }
+        var treeSites=new List<Vector2>();
+        for(int j=0;j<8;j++)
+        {
+            var p=center+a*range(-spec[2]*.82f,spec[2]*.82f)+b*range(spec[3]*.33f,spec[3]*.86f);
+            if(roadDistance(p)<6.3f || treeSites.Any(v=>Vector2.Distance(v,p)<5.8f))continue;
+            var t=tileAt(p);var o=t.transform.position;
+            if(t.terrainData.GetSteepness((p.x-o.x)/512,(p.y-o.z)/512)>26)continue;
+            var prop=(GameObject)PrefabUtility.InstantiatePrefab(trees[(i+j)%trees.Length],plain.transform);
+            prop.transform.SetPositionAndRotation(toWorld(p)-Vector3.up*.15f,Quaternion.Euler(0,range(0,360),0));
+            prop.transform.localScale*=range(.51f,.82f);treeSites.Add(p);treeCount++;
+        }
+    }
+    int paint=0;
+    foreach(var tile in tiles.Values)
+    {
+        var o=tile.transform.position;var d=tile.terrainData;int n=d.alphamapResolution;
+        if(o.x>2350||o.x+512<1530||o.z>1810||o.z+512<910)continue;
+        int ax=Mathf.Clamp(Mathf.FloorToInt((1530-o.x)*n/512),0,n-1),az=Mathf.Clamp(Mathf.FloorToInt((910-o.z)*n/512),0,n-1);
+        int bx=Mathf.Clamp(Mathf.CeilToInt((2350-o.x)*n/512),0,n-1),bz=Mathf.Clamp(Mathf.CeilToInt((1810-o.z)*n/512),0,n-1);
+        var orig=d.GetAlphamaps(ax,az,bx-ax+1,bz-az+1);var dst=(float[,,])orig.Clone();
+        var layers=d.terrainLayers.Select(v=>v.name).ToArray();
+        int soil=Array.IndexOf(layers,"Forest"),cliff=Array.IndexOf(layers,"NorthCliff"),rock=Array.IndexOf(layers,"Rock"),gravel=Array.IndexOf(layers,"Shore");
+        if(soil<0||cliff<0||rock<0||gravel<0)throw new InvalidOperationException("지표 층 불일치 "+tile.name);
+        int count=0;
+        for(int z=0;z<orig.GetLength(0);z++)
+        for(int x=0;x<orig.GetLength(1);x++)
+        {
+            var p=new Vector2(o.x+(ax+x+.5f)*512/n,o.z+(az+z+.5f)*512/n);
+            if(Vector2.Distance(p,B1)<64 || Vector2.Distance(p,new Vector2(1622,1620))<34)continue;
+            float dist=roadDistance(p);
+            float groupPresence=0;
+            for(int i=0;i<PlainSites.Length;i++)
+            {
+                float extent=Mathf.Max(PlainSpecs[i][2],PlainSpecs[i][3]);
+                float q=(p-PlainSites[i]).sqrMagnitude;if(q>extent*extent)continue;
+                groupPresence=Mathf.Max(groupPresence,1-smooth(extent*.7f,extent,Mathf.Sqrt(q)));
+            }
+            if(groupPresence<.01f && dist>4)continue;
+            float steep=d.GetSteepness((p.x-o.x)/512,(p.y-o.z)/512);
+            float noise=Mathf.PerlinNoise(p.x*.15f,p.y*.15f);
+            float stoneBlend=groupPresence*smooth(32,60,steep)*.93f;
+            float track=(1-smooth(.9f,2.65f,dist+(noise-.5f)*.8f))*(1-smooth(21,34,steep))*.65f*(1-stoneBlend);
+            if(track+stoneBlend<.006f)continue;
+            for(int k=0;k<layers.Length;k++)dst[z,x,k]=orig[z,x,k]*(1-track-stoneBlend);
+            dst[z,x,soil]+=track*.62f;dst[z,x,gravel]+=track*.38f;
+            dst[z,x,cliff]+=stoneBlend*(.43f+noise*.24f);dst[z,x,rock]+=stoneBlend*(.57f-noise*.24f);
+            count++;
+        }
+        if(count==0)continue;
+        var source=AssetDatabase.GetAssetPath(d);System.IO.File.Copy(source,backup+"/"+System.IO.Path.GetFileName(source),false);
+        edits.Add(Tuple.Create(d,ax,az,orig,dst));paint+=count;
+    }
+    foreach(var e in edits){e.Item1.SetAlphamaps(e.Item2,e.Item3,e.Item5);EditorUtility.SetDirty(e.Item1);}
+
+    var navigation=new GameObject("B3 보행 내비게이션");Undo.RegisterCreatedObjectUndo(navigation,"B3 내비게이션");
+    navigation.transform.SetParent(root.transform,false);navigation.transform.position=new Vector3(1732,45,1445);
+    int noWalk=UnityEngine.AI.NavMesh.GetAreaFromName("Not Walkable");
+    if(noWalk<0)throw new InvalidOperationException("수면 NavMesh 제외 영역 누락");
+    for(float s=109.6f;s<935;s+=14)
+    {
+        float end=Mathf.Min(s+14,935);float mid=(s+end)/2;
+        var a=at(s);var b=at(end);var d=b-a;
+        float level=mid<198?39:sample(Water,mid);
+        var block=new GameObject("수영 구간 제외");block.transform.SetParent(navigation.transform,false);
+        block.transform.SetPositionAndRotation(new Vector3((a.x+b.x)/2,level-6.2f,(a.y+b.y)/2),Quaternion.LookRotation(new Vector3(d.x,0,d.y)));
+        var v=block.AddComponent<Unity.AI.Navigation.NavMeshModifierVolume>();
+        v.area=noWalk;v.size=new Vector3(2*sample(newWidths,mid)+.6f,12.3f,d.magnitude+1.1f);v.center=Vector3.zero;
+    }
+    var nav=navigation.AddComponent<Unity.AI.Navigation.NavMeshSurface>();
+    nav.collectObjects=Unity.AI.Navigation.CollectObjects.Volume;
+    nav.size=new Vector3(1260,140,1040);nav.useGeometry=UnityEngine.AI.NavMeshCollectGeometry.PhysicsColliders;
+    nav.overrideVoxelSize=true;nav.voxelSize=.31f;nav.overrideTileSize=true;nav.tileSize=192;
+    Physics.SyncTransforms();
+    nav.BuildNavMesh();
+    if(nav.navMeshData==null)throw new InvalidOperationException("B3 보행 NavMesh Bake 실패");
+    AssetDatabase.CreateAsset(nav.navMeshData,navPath);
+    Func<Vector3,Vector3,object> route=(a,b)=>
+    {
+        UnityEngine.AI.NavMeshHit h1,h2;
+        var path=new UnityEngine.AI.NavMeshPath();
+        bool startOk=UnityEngine.AI.NavMesh.SamplePosition(a,out h1,1.4f,UnityEngine.AI.NavMesh.AllAreas);
+        bool endOk=UnityEngine.AI.NavMesh.SamplePosition(b,out h2,1.4f,UnityEngine.AI.NavMesh.AllAreas);
+        bool pathOk=startOk && endOk && UnityEngine.AI.NavMesh.CalculatePath(h1.position,h2.position,UnityEngine.AI.NavMesh.AllAreas,path);
+        return new {startOk,endOk,pathOk,result=path.status.ToString(),corners=path.corners.Length,
+            length=path.corners.Zip(path.corners.Skip(1),Vector3.Distance).Sum()};
+    };
+    var deckA=bridge.position-bridge.forward*35;deckA.y=sy(new Vector2(deckA.x,deckA.z));
+    var deckB=bridge.position+bridge.forward*36;deckB.y=sy(new Vector2(deckB.x,deckB.z));
+    var navBridge=route(deckA,deckB);
+    var navExits=ExitStations.Select((s,i)=>
+    {
+        var a=at(s);var n=normal(s);float toe=Mathf.Max(sample(newWidths,s)+5,15.5f);
+        return route(toWorld(a+n*(toe-.3f)),toWorld(a+n*(toe+ExitLengths[i])));
+    }).ToArray();
+    int navTriangles=UnityEngine.AI.NavMesh.CalculateTriangulation().indices.Length/3;
+    if(navTriangles==0)throw new InvalidOperationException("B3 활성 NavMesh 삼각형이 없습니다.");
+    Undo.RecordObject(root,"B3 협곡 마감 이름");root.name="B3 협곡";
+    Undo.CollapseUndoOperations(group);
+    AssetDatabase.SaveAssets();
+    UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+    if(!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene))throw new InvalidOperationException("B3 마감 저장 실패");
+    return new {rockCount,treeCount,paint,paintedTiles=edits.Count,navTriangles,navBridge,navExits,backup};
+}
+catch
+{
+    foreach(var e in edits){e.Item1.SetAlphamaps(e.Item2,e.Item3,e.Item4);EditorUtility.SetDirty(e.Item1);}
+    Undo.RevertAllDownToGroup(group);
+    if(System.IO.File.Exists(navPath))AssetDatabase.DeleteAsset(navPath);
+    AssetDatabase.SaveAssets();
+    throw;
+}

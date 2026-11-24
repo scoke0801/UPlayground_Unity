@@ -1,0 +1,225 @@
+{
+  "sites": [
+    {
+      "kind": "terrace",
+      "x": 1767,
+      "z": 1462,
+      "axis": -32,
+      "halfLength": 52,
+      "halfWidth": 32,
+      "height": 8.8
+    },
+    {
+      "kind": "terrace",
+      "x": 1855,
+      "z": 1395,
+      "axis": 24,
+      "halfLength": 43,
+      "halfWidth": 28,
+      "height": 7.6
+    },
+    {
+      "kind": "terrace",
+      "x": 1987,
+      "z": 1302,
+      "axis": -64,
+      "halfLength": 50,
+      "halfWidth": 28,
+      "height": 8.6
+    },
+    {
+      "kind": "terrace",
+      "x": 2076,
+      "z": 1294,
+      "axis": 36,
+      "halfLength": 43,
+      "halfWidth": 27,
+      "height": 6.5
+    },
+    {
+      "kind": "terrace",
+      "x": 2094,
+      "z": 1150,
+      "axis": -18,
+      "halfLength": 48,
+      "halfWidth": 30,
+      "height": 7.3
+    },
+    {
+      "kind": "terrace",
+      "x": 2218,
+      "z": 1140,
+      "axis": 61,
+      "halfLength": 54,
+      "halfWidth": 31,
+      "height": 8
+    },
+    {
+      "kind": "terrace",
+      "x": 2211,
+      "z": 1012,
+      "axis": 24,
+      "halfLength": 40,
+      "halfWidth": 28,
+      "height": 6.5
+    },
+    {
+      "kind": "mound",
+      "x": 1718,
+      "z": 1391,
+      "axis": 22,
+      "halfLength": 38,
+      "halfWidth": 30,
+      "height": 4.3
+    },
+    {
+      "kind": "mound",
+      "x": 1877,
+      "z": 1285,
+      "axis": -20,
+      "halfLength": 40,
+      "halfWidth": 34,
+      "height": 4.6
+    },
+    {
+      "kind": "mound",
+      "x": 1980,
+      "z": 1399,
+      "axis": 38,
+      "halfLength": 44,
+      "halfWidth": 30,
+      "height": 4.3
+    },
+    {
+      "kind": "mound",
+      "x": 2089,
+      "z": 1082,
+      "axis": 33,
+      "halfLength": 38,
+      "halfWidth": 30,
+      "height": 4.5
+    },
+    {
+      "kind": "mound",
+      "x": 2247,
+      "z": 1243,
+      "axis": 35,
+      "halfLength": 47,
+      "halfWidth": 38,
+      "height": 4.4
+    },
+    {
+      "kind": "basin",
+      "x": 1900,
+      "z": 1477,
+      "axis": 24,
+      "halfLength": 38,
+      "halfWidth": 25,
+      "height": -3.6
+    },
+    {
+      "kind": "basin",
+      "x": 2115,
+      "z": 1350,
+      "axis": 21,
+      "halfLength": 43,
+      "halfWidth": 24,
+      "height": -3.4
+    },
+    {
+      "kind": "mound",
+      "x": 2260,
+      "z": 994,
+      "axis": -77,
+      "halfLength": 31,
+      "halfWidth": 22,
+      "height": 3.3
+    },
+    {
+      "kind": "mound",
+      "x": 2116,
+      "z": 1035,
+      "axis": -20,
+      "halfLength": 24,
+      "halfWidth": 17,
+      "height": 4.5
+    },
+    {
+      "kind": "basin",
+      "x": 1952,
+      "z": 1069,
+      "axis": 40,
+      "halfLength": 24,
+      "halfWidth": 18,
+      "height": -3.5
+    }
+  ],
+  "mainPathXZ": [
+    [
+      2320,
+      970
+    ],
+    [
+      2170,
+      1160
+    ],
+    [
+      1930,
+      1327
+    ],
+    [
+      1840,
+      1387
+    ],
+    [
+      1752,
+      1454
+    ],
+    [
+      1691,
+      1512
+    ],
+    [
+      1656,
+      1555
+    ],
+    [
+      1650,
+      1586
+    ],
+    [
+      1636.724,
+      1602.331
+    ],
+    [
+      1607.275,
+      1637.669
+    ],
+    [
+      1594.47,
+      1653.07
+    ],
+    [
+      1608,
+      1687
+    ],
+    [
+      1617,
+      1733
+    ],
+    [
+      1656,
+      1770
+    ],
+    [
+      1705,
+      1818
+    ]
+  ],
+  "thresholds": {
+    "blocks": 25,
+    "atLeast3M": 13,
+    "atLeast6M": 5,
+    "atLeast10M": 2
+  }
+}

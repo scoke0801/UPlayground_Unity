@@ -1,0 +1,48 @@
+﻿var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if(scene.name!="RiverBasin4km" || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("저장된 RiverBasin4km Edit Mode가 필요합니다.");
+var root=scene.GetRootGameObjects().Single(x=>x.name=="B3 협곡");
+var bridge=root.transform.Find("WB_P04_Bridge_B3_Suspension");
+var tiles=Terrain.activeTerrains.Where(t=>t.gameObject.scene==scene).ToDictionary(t=>t.name);
+Func<Vector3,float> height=p=>{var t=tiles["Terrain_"+(int)p.x/512+"_"+(int)p.z/512];return t.SampleHeight(p)+t.transform.position.y;};
+var camGo=new GameObject("B3 G1 촬영 카메라"){hideFlags=HideFlags.HideAndDontSave};
+Camera cam=camGo.AddComponent<Camera>();cam.enabled=false;cam.fieldOfView=58;cam.farClipPlane=2000;cam.nearClipPlane=.08f;
+var extra=camGo.AddComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();
+extra.requiresDepthTexture=true;extra.requiresColorTexture=true;
+string dir="docs/work-status/river-basin-gorge-relief-evidence";
+System.IO.Directory.CreateDirectory(dir);
+var center=bridge.position;
+var shots=new List<Tuple<string,Vector3,Vector3>>();
+foreach(int side in new[]{-1,1})
+{
+    var pos=center+bridge.forward*side*36f;pos.y=height(pos)+2.7f;
+    shots.Add(Tuple.Create(side==1?"village-approach":"b1-approach",pos,center+Vector3.up*.6f));
+}
+shots.Add(Tuple.Create("bridge-downstream",center+Vector3.up*2.3f,center+new Vector3(-64,-12,-57)));
+shots.Add(Tuple.Create("overview",center+new Vector3(82,84,25),center+new Vector3(-110,-12,-72)));
+shots.Add(Tuple.Create("floor-E2",new Vector3(1458,height(new Vector3(1458,0,1475))+2.3f,1475),new Vector3(1489,34,1452)));
+shots.Add(Tuple.Create("mouth-E1",new Vector3(1203,height(new Vector3(1203,0,1192))+2.3f,1192),new Vector3(1232,23,1178)));
+shots.Add(Tuple.Create("pool-upstream",new Vector3(1650.90f,36.7f,1637.97f),new Vector3(1660.60f,38.15f,1661.69f)));
+shots.Add(Tuple.Create("crossing-from-floor",new Vector3(1596.43f,37.1f,1587.18f),new Vector3(1623.24f,44f,1621.34f)));
+shots.Add(Tuple.Create("rim-vista",new Vector3(1680.49f,54f,1622.83f),new Vector3(1622.55f,44f,1620.60f)));
+shots.Add(Tuple.Create("village-relief",new Vector3(1999,64f,1328),new Vector3(1900,49,1370)));
+shots.Add(Tuple.Create("path-from-village",new Vector3(1948,height(new Vector3(1948,0,1313))+2.8f,1313),new Vector3(1859,49,1374)));
+shots.Add(Tuple.Create("pool-landing",new Vector3(1629.5f,36.5f,1624.4f),new Vector3(1640.3f,35.4f,1613.7f)));
+try
+{
+    foreach(var p in root.GetComponentsInChildren<ParticleSystem>()) p.Simulate(2f,false,true,true);
+    foreach(var shot in shots)
+    {
+        cam.transform.position=shot.Item2;cam.transform.LookAt(shot.Item3);
+        var rt=RenderTexture.GetTemporary(1200,675,24);var prior=RenderTexture.active;
+        try
+        {
+            cam.targetTexture=rt;cam.Render();RenderTexture.active=rt;
+            var tex=new Texture2D(1200,675,TextureFormat.RGB24,false);
+            try {tex.ReadPixels(new Rect(0,0,1200,675),0,0);tex.Apply();System.IO.File.WriteAllBytes(dir+"/final-"+shot.Item1+".jpg",tex.EncodeToJPG(87));}
+            finally {UnityEngine.Object.DestroyImmediate(tex);}
+        }
+        finally {cam.targetTexture=null;RenderTexture.active=prior;RenderTexture.ReleaseTemporary(rt);}
+    }
+}
+finally {UnityEngine.Object.DestroyImmediate(camGo);}
+return shots.Select(x=>x.Item1).ToArray();

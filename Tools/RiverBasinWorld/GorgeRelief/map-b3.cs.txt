@@ -1,0 +1,95 @@
+// 현행 4km 미니맵의 투영, GUID와 외부 지역 픽셀을 유지하고 B3 저작 범위를 갱신한다.
+const string mapPath="Assets/10.Datas/Map/RiverBasin4km/Minimap.png";
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+var gorge=scene.GetRootGameObjects().SingleOrDefault(x=>x.name=="B3 협곡");
+if(scene.name!="RiverBasin4km" || scene.isDirty || gorge==null || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("B3 마감이 저장된 RiverBasin4km 편집 모드가 필요합니다.");
+var config=AssetDatabase.LoadAssetAtPath<UPlayGround.Data.UI.MinimapIconConfigSO>("Assets/10.Datas/Map/RiverBasin4km/MinimapConfig.asset");
+if(config==null || AssetDatabase.GetAssetPath(config.backgroundSprite)!=mapPath || config.captureWorldSizeXY!=new Vector2(4096,4096))
+    throw new InvalidOperationException("기존 지도 좌표 또는 참조 불일치");
+const int size=4096;
+string guid=AssetDatabase.AssetPathToGUID(mapPath);
+var existing=System.IO.File.ReadAllBytes(mapPath);
+string backup="output/RiverBasinWorld/GorgeRelief/backup/"+DateTime.Now.ToString("yyyyMMdd-HHmmss-fff")+"-map";
+System.IO.Directory.CreateDirectory(backup);
+System.IO.File.WriteAllBytes(backup+"/Minimap.png",existing);
+var utility=typeof(UPlayGround.Tool.Editor.MinimapCaptureEditorWindow).Assembly.GetType("UPlayGround.Tool.Editor.MinimapCaptureUtility",true);
+var view=new GameObject("B3 지도 촬영"){hideFlags=HideFlags.HideAndDontSave};
+var camera=view.AddComponent<Camera>();camera.enabled=false;camera.orthographic=true;
+camera.orthographicSize=config.captureWorldSizeXY.y/2;camera.aspect=1;camera.farClipPlane=1400;camera.nearClipPlane=.2f;
+camera.transform.SetPositionAndRotation(new Vector3(config.captureCenter.x,1000,config.captureCenter.y),Quaternion.Euler(90,0,0));
+camera.clearFlags=CameraClearFlags.SolidColor;camera.backgroundColor=RenderSettings.ambientGroundColor;
+var water=scene.GetRootGameObjects().Where(o=>o.name=="RiverBasin 수면" || o.name=="WorldBuilder Water")
+    .SelectMany(o=>o.GetComponentsInChildren<MeshRenderer>())
+    .Concat(gorge.transform.Find("단계 수면").GetComponentsInChildren<MeshRenderer>())
+    .Concat(gorge.transform.Find("낙수와 물안개").GetComponentsInChildren<MeshRenderer>())
+    .ToArray();
+var sourceMats=water.Select(w=>w.sharedMaterials).ToArray();
+var mapWater=new Material(Shader.Find("Universal Render Pipeline/Unlit"));
+mapWater.SetColor("_BaseColor",new Color(.10f,.49f,.70f,1));mapWater.SetFloat("_Cull",0);
+var basis=new Texture2D(2,2,TextureFormat.RGB24,false);
+Texture2D capture=null;
+try
+{
+    if(!ImageConversion.LoadImage(basis,existing) || basis.width!=size || basis.height!=size)
+        throw new InvalidOperationException("기존 지도 해상도 불일치");
+    for(int i=0;i<water.Length;i++)water[i].sharedMaterials=Array.ConvertAll(sourceMats[i],m=>mapWater);
+    capture=(Texture2D)utility.GetMethod("Render").Invoke(null,new object[]{camera,new Vector2Int(size,size),true,1000f});
+    var oldPixels=basis.GetPixels32();var newPixels=capture.GetPixels32();
+    var origin=config.captureCenter-config.captureWorldSizeXY*.5f;
+    Func<int,int,float> weight=(x,z)=>
+    {
+        float wx=x+origin.x,wz=z+origin.y;
+        return Mathf.SmoothStep(0,1,Mathf.Clamp01(Mathf.Min(Mathf.Min(wx-1080,2390-wx),Mathf.Min(wz-900,1875-wz))/28f));
+    };
+    int changed=0;
+    for(int z=Mathf.Max(0,(int)(900-origin.y));z<Mathf.Min(size,1875-origin.y);z++)
+    for(int x=Mathf.Max(0,(int)(1080-origin.x));x<Mathf.Min(size,2390-origin.x);x++)
+    {
+        int index=z*size+x;float alpha=weight(x,z);
+        if(alpha<=0)continue;
+        oldPixels[index]=Color32.Lerp(oldPixels[index],newPixels[index],alpha);changed++;
+    }
+    Action<Vector2[],float,Color> draw=(points,radius,ink)=>
+    {
+        float distance=0;
+        for(int i=1;i<points.Length;i++)
+        {
+            var a=points[i-1]-origin;var b=points[i]-origin;var d=b-a;float length=d.magnitude;
+            if(length<.001f)continue;
+            for(int y=Mathf.Max(0,Mathf.FloorToInt(Mathf.Min(a.y,b.y)-radius));y<=Mathf.Min(size-1,Mathf.CeilToInt(Mathf.Max(a.y,b.y)+radius));y++)
+            for(int x=Mathf.Max(0,Mathf.FloorToInt(Mathf.Min(a.x,b.x)-radius));x<=Mathf.Min(size-1,Mathf.CeilToInt(Mathf.Max(a.x,b.x)+radius));x++)
+            {
+                var p=new Vector2(x,y);float t=Mathf.Clamp01(Vector2.Dot(p-a,d)/d.sqrMagnitude);
+                if((distance+t*length)%19f>13.5f)continue;
+                float alpha=Mathf.Clamp01(radius-Vector2.Distance(p,a+t*d))*.68f*weight(x,y);
+                if(alpha>0)oldPixels[y*size+x]=Color.Lerp(oldPixels[y*size+x],ink,alpha);
+            }
+            distance+=length;
+        }
+    };
+    foreach(var trail in System.IO.File.ReadLines("Tools/RiverBasinWorld/Rebuild/exploration-map-trails.csv").Skip(1).Select(v=>v.Split(',')).GroupBy(v=>v[0]))
+        draw(trail.Select(v=>new Vector2(int.Parse(v[1]),int.Parse(v[2]))).ToArray(),2.45f,new Color(.28f,.20f,.15f));
+    draw(MainPath,2.4f,new Color(.31f,.23f,.17f));
+    basis.SetPixels32(oldPixels);basis.Apply(false);
+    System.IO.File.WriteAllBytes(mapPath,basis.EncodeToPNG());
+    AssetDatabase.ImportAsset(mapPath,ImportAssetOptions.ForceSynchronousImport);
+    var sprite=config.backgroundSprite;
+    if(AssetDatabase.AssetPathToGUID(mapPath)!=guid || sprite==null || sprite.texture.width!=size || sprite.texture.height!=size)
+        throw new InvalidOperationException("지도 GUID와 해상도 검증 실패");
+    return new {size,changed,guid,backup};
+}
+catch
+{
+    System.IO.File.WriteAllBytes(mapPath,existing);
+    AssetDatabase.ImportAsset(mapPath,ImportAssetOptions.ForceSynchronousImport);
+    throw;
+}
+finally
+{
+    for(int i=0;i<water.Length;i++)water[i].sharedMaterials=sourceMats[i];
+    if(capture!=null)UnityEngine.Object.DestroyImmediate(capture);
+    UnityEngine.Object.DestroyImmediate(basis);
+    UnityEngine.Object.DestroyImmediate(mapWater);
+    UnityEngine.Object.DestroyImmediate(view);
+}

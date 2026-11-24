@@ -1,0 +1,268 @@
+// B3 플레이 구간의 현수교, 수면과 낙수. G1의 지형 명령과 본류 계층을 그대로 사용한다.
+// prepare-b3.ps1 -Mode water 로 공통 좌표를 붙인 뒤 열린 Editor에서 실행한다.
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if(scene.path!=ScenePath || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling)
+    throw new InvalidOperationException("저장된 RiverBasin4km Edit Mode가 필요합니다.");
+var root=scene.GetRootGameObjects().Single(x=>x.name==RootName);
+var grayBridge=root.transform.Find("WB_P04_Bridge_B3_G1");
+var waterRoot=root.transform.Find("단계 수면");
+if(grayBridge==null || !grayBridge.gameObject.activeSelf || root.transform.Find("낙수와 물안개")!=null)
+    throw new InvalidOperationException("G1 저장본 또는 G2 반영 여부를 확인하세요.");
+const string ShoreRiver="RiverBasin 수면";
+var river=scene.GetRootGameObjects().Single(x=>x.name==ShoreRiver);
+var headFilter=river.transform.Find("Water_3_3").GetComponent<MeshFilter>();
+string originalPath=System.IO.File.ReadAllLines(AssetFolder+"/g1-record.txt")[1];
+var original=AssetDatabase.LoadAssetAtPath<Mesh>(originalPath);
+var north=scene.GetRootGameObjects().Single(x=>x.name=="북부 폭포");
+var northFx=north.transform.Find("물보라와 소리");
+var splash=northFx.Find("상단 폭포 물보라 1").gameObject;
+var mist=northFx.Find("상단 폭포 미스트").gameObject;
+var fallSource=AssetDatabase.LoadAssetAtPath<Material>("Assets/10.Datas/World/RiverBasinWorld/NorthFalls/NorthFalls_Fall.mat");
+var roar=AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/10.Datas/World/RiverBasinWorld/NorthFalls/NorthFalls_Roar_Loop.wav");
+var model=AssetDatabase.LoadAssetAtPath<GameObject>(ArtFolder+"/B3_SuspensionBridge.fbx");
+var wood=AssetDatabase.LoadAssetAtPath<Material>("Assets/08.Models/Dungeon/Materials/Dng_Wood_Plank.mat");
+var rope=AssetDatabase.LoadAssetAtPath<Material>("Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Materials/Props/Rope/M_EastLands_Rope.mat");
+var surfaceSource=headFilter.GetComponent<MeshRenderer>().sharedMaterial;
+if(model==null || original==null || fallSource==null || roar==null || wood==null || rope==null || surfaceSource==null)
+    throw new InvalidOperationException("교량·물 시각 또는 음원 원본을 확인하세요.");
+
+var runs=new float[Line.Length];
+for(int i=1;i<runs.Length;i++) runs[i]=runs[i-1]+Vector2.Distance(Line[i-1],Line[i]);
+Func<float,Vector2> at=s=>
+{
+    for(int i=1;i<runs.Length;i++) if(s<=runs[i]) return Vector2.Lerp(Line[i-1],Line[i],Mathf.InverseLerp(runs[i-1],runs[i],s));
+    return Line[Line.Length-1];
+};
+Func<float,Vector2> normal=s=>{var t=(at(s+9)-at(s-9)).normalized;return new Vector2(-t.y,t.x);};
+Func<float,float,float,Vector3> xyz=(s,q,y)=>{var p=at(s)+normal(s)*q;return new Vector3(p.x,y,p.y);};
+Func<Vector2,Vector2> project=p=>
+{
+    float best=float.PositiveInfinity; var result=Vector2.zero;
+    for(int i=1;i<Line.Length;i++)
+    {
+        var v=Line[i]-Line[i-1];float t=Mathf.Clamp01(Vector2.Dot(p-Line[i-1],v)/v.sqrMagnitude);
+        var off=p-(Line[i-1]+t*v);if(off.sqrMagnitude>=best)continue;
+        best=off.sqrMagnitude;
+        result=new Vector2(Mathf.Lerp(runs[i-1],runs[i],t),Mathf.Sign(v.x*off.y-v.y*off.x)*off.magnitude);
+    }
+    return result;
+};
+var tiles=Terrain.activeTerrains.Where(t=>t.gameObject.scene==scene).ToDictionary(t=>t.name);
+Func<Vector3,float> ground=p=>{var t=tiles["Terrain_"+(int)p.x/512+"_"+(int)p.z/512];return t.SampleHeight(p)+t.transform.position.y;};
+var surfaces=waterRoot.GetComponentsInChildren<UPlayGround.Components.FootstepWaterSurface>()
+    .OrderBy(s=>int.Parse(s.name.Split(' ').Last())).ToArray();
+var drops=waterRoot.Cast<Transform>().Where(t=>t.name.StartsWith("낙수 구간"))
+    .OrderBy(t=>int.Parse(t.name.Split(' ').Last())).ToArray();
+if(drops.Length!=4 || surfaces.Length!=10) throw new InvalidOperationException("G1 수면 구조 불일치");
+string backup="output/RiverBasinWorld/GorgeRelief/backup/"+DateTime.Now.ToString("yyyyMMdd-HHmmss-fff")+"-water";
+System.IO.Directory.CreateDirectory(backup);
+System.IO.File.Copy(scene.path,backup+"/RiverBasin4km.unity",false);
+var created=new List<string>();
+Action<UnityEngine.Object,string> save=(obj,name)=>
+{
+    string path=ArtFolder+"/"+name;
+    if(AssetDatabase.LoadMainAssetAtPath(path)!=null || System.IO.File.Exists(path)) throw new InvalidOperationException(path+" 이미 존재");
+    created.Add(path);
+    AssetDatabase.CreateAsset(obj,path);
+};
+
+Undo.IncrementCurrentGroup();int group=Undo.GetCurrentGroup();Undo.SetCurrentGroupName("B3 현수교와 낙수");
+try
+{
+    var matByName=new Dictionary<string,Material>();
+    foreach(var item in new[]{Tuple.Create("Deck_Warm",wood,new Color(.91f,.79f,.67f)),Tuple.Create("Deck_Pale",wood,new Color(1f,.96f,.83f)),
+        Tuple.Create("Deck_Dark",wood,new Color(.69f,.59f,.48f)),Tuple.Create("Timber",wood,new Color(.73f,.57f,.44f)),
+        Tuple.Create("Hemp",rope,new Color(.92f,.82f,.64f)),Tuple.Create("Iron",wood,new Color(.18f,.16f,.14f))})
+    {
+        var mat=new Material(item.Item2){name="B3_"+item.Item1};
+        foreach(string tint in new[]{"_BaseColor","_Color","_MainColor"}) if(mat.HasProperty(tint)) mat.SetColor(tint,item.Item3);
+        if(item.Item1=="Iron")
+        {
+            mat.SetTexture("_BaseMap",null);mat.SetFloat("_Metallic",.4f);mat.SetFloat("_Smoothness",.31f);
+        }
+        if(item.Item1.StartsWith("Deck") || item.Item1=="Timber")
+        {
+            mat.SetTextureScale("_BaseMap",new Vector2(1.3f,.62f));
+            mat.SetFloat("_Smoothness",.19f);
+        }
+        save(mat,mat.name+".mat");matByName.Add(item.Item1,mat);
+    }
+
+    var bridge=new GameObject("WB_P04_Bridge_B3_Suspension");
+    Undo.RegisterCreatedObjectUndo(bridge,"B3 교량");
+    bridge.transform.SetParent(root.transform,false);
+    bridge.transform.SetPositionAndRotation(grayBridge.position,grayBridge.rotation);
+    var visual=(GameObject)PrefabUtility.InstantiatePrefab(model,bridge.transform);
+    visual.name="현수교 렌더링";
+    var renderers=visual.GetComponentsInChildren<MeshRenderer>();
+    foreach(var r in renderers)
+    {
+        string key=r.name.Substring(3,r.name.LastIndexOf("_LOD",StringComparison.Ordinal)-3);
+        r.sharedMaterial=matByName[key];
+    }
+    var lod=bridge.AddComponent<LODGroup>();
+    lod.fadeMode=LODFadeMode.None;
+    lod.SetLODs(new[]{new LOD(.145f,renderers.Where(r=>r.name.EndsWith("_LOD0")).ToArray()),
+        new LOD(.055f,renderers.Where(r=>r.name.EndsWith("_LOD1")).ToArray()),
+        new LOD(.006f,renderers.Where(r=>r.name.EndsWith("_LOD2")).ToArray())});
+    lod.RecalculateBounds();
+    Func<float,float> sag=z=>-.65f*(1-Mathf.Pow(Mathf.Min(Mathf.Abs(z)/23f,1),2));
+    Action<string,Vector3,Vector3,float,float> collision=(name,a,b,w,h)=>
+    {
+        var go=new GameObject(name);go.transform.SetParent(bridge.transform,false);
+        go.transform.localPosition=(a+b)/2;
+        go.transform.localRotation=Quaternion.LookRotation((b-a).normalized);
+        var box=go.AddComponent<BoxCollider>();box.size=new Vector3(w,h,Vector3.Distance(a,b)+.035f);
+    };
+    for(int i=0;i<12;i++)
+    {
+        float a=-23+46*i/12f,b=-23+46*(i+1)/12f;
+        collision("데크",new Vector3(0,sag(a)-.091f,a),new Vector3(0,sag(b)-.091f,b),2.33f,.18f);
+        foreach(int side in new[]{-1,1})
+            collision("난간",new Vector3(side*1.17f,sag(a)+.57f,a),new Vector3(side*1.17f,sag(b)+.57f,b),.13f,1.14f);
+    }
+    foreach(int end in new[]{-1,1})
+    {
+        float inner=end*22.98f, outer=end*26.4f;
+        float y=ground(bridge.transform.TransformPoint(new Vector3(0,0,outer)))-bridge.transform.position.y;
+        var a=new Vector3(0,-.052f,inner); var b=new Vector3(0,y+.012f,outer);
+        var pad=GameObject.CreatePrimitive(PrimitiveType.Cube);
+        pad.name="접속 목재 발판";pad.transform.SetParent(bridge.transform,false);
+        pad.transform.localRotation=Quaternion.LookRotation((b-a).normalized);
+        pad.transform.localPosition=(a+b)/2 - pad.transform.localRotation*Vector3.up*.09f;
+        pad.transform.localScale=new Vector3(2.35f,.18f,Vector3.Distance(a,b));
+        pad.GetComponent<MeshRenderer>().sharedMaterial=matByName["Timber"];
+    }
+    var old=grayBridge.gameObject;
+    Undo.RecordObject(old,"임시 다리 비활성");
+    old.SetActive(false);
+    string prefabPath=ArtFolder+"/WB_P04_Bridge_B3_Suspension.prefab";
+    if(System.IO.File.Exists(prefabPath)) throw new InvalidOperationException(prefabPath+" 이미 존재");
+    created.Add(prefabPath);
+    PrefabUtility.SaveAsPrefabAssetAndConnect(bridge,prefabPath,InteractionMode.AutomatedAction);
+
+    var fallMat=new Material(fallSource){name="B3_Fall"};
+    fallMat.SetColor("_DeepColor",new Color(.115f,.32f,.266f,1));
+    fallMat.SetFloat("_SideFade",.115f);
+    save(fallMat,fallMat.name+".mat");
+    var poolMat=new Material(surfaceSource){name="B3_DeepPool"};
+    poolMat.SetColor("_DeepColor",Color.Lerp(surfaceSource.GetColor("_DeepColor"),new Color(.07f,.34f,.32f,1),.23f));
+    save(poolMat,poolMat.name+".mat");
+    foreach(var surface in surfaces.Skip(1).Take(2))
+    {
+        var r=surface.GetComponent<MeshRenderer>();Undo.RecordObject(r,"B3 웅덩이 수심색");r.sharedMaterial=poolMat;
+    }
+
+    // 실제 하류 방향으로 내려가도록 입구 수면의 시작점을 기존 Y39 수역으로 올려 연결한다.
+    var inlet=surfaces[0];
+    var inletMesh=new Mesh{name="B3_HeadPool"};
+    var verts=new List<Vector3>();var uv=new List<Vector2>();var tris=new List<int>();
+    const int Row=64,Col=14;
+    float join=runs[1];
+    for(int i=0;i<=Row;i++)
+    {
+        float s=Mathf.Lerp(join,Water[1].x,i/(float)Row);
+        float half=Mathf.Lerp(11f,7.9f,Mathf.SmoothStep(0f,1f,Mathf.InverseLerp(163,198,s)));
+        for(int j=0;j<=Col;j++)
+        {
+            var p=xyz(s,Mathf.Lerp(-half,half,j/(float)Col),39);
+            verts.Add(p);uv.Add(new Vector2(p.x/6,p.z/6));
+            if(i<Row && j<Col){int v=i*(Col+1)+j;tris.AddRange(new[]{v,v+1,v+Col+1,v+1,v+Col+2,v+Col+1});}
+        }
+    }
+    inletMesh.SetVertices(verts);inletMesh.SetUVs(0,uv);inletMesh.SetTriangles(tris,0);
+    inletMesh.RecalculateNormals();inletMesh.RecalculateTangents();inletMesh.RecalculateBounds();save(inletMesh,inletMesh.name+".asset");
+    Undo.RecordObject(inlet.surfaceMesh,"C1 상류 수면 교체");Undo.RecordObject(inlet,"C1 상류 조회 체적");
+    inlet.surfaceMesh.sharedMesh=inletMesh;var inletBounds=inletMesh.bounds;inletBounds.Expand(new Vector3(0,12,0));inlet.volumeBounds=inletBounds;
+    inlet.RefreshMesh();
+
+    var head=UnityEngine.Object.Instantiate(original);head.name="B3_Water_3_3_OutsideInlet";
+    var originalVertices=original.vertices;var triangles=original.triangles;var keep=new List<int>();
+    for(int i=0;i<triangles.Length;i+=3)
+    {
+        var p=headFilter.transform.TransformPoint((originalVertices[triangles[i]]+originalVertices[triangles[i+1]]+originalVertices[triangles[i+2]])/3);
+        var sq=project(new Vector2(p.x,p.z));
+        if(sq.x>=join && sq.x<EndS && Mathf.Abs(sq.y)<=22 && p.y>15.12f) continue;
+        keep.Add(triangles[i]);keep.Add(triangles[i+1]);keep.Add(triangles[i+2]);
+    }
+    head.SetTriangles(keep,0);save(head,head.name+".asset");
+    Undo.RecordObject(headFilter,"C1 기존 지류 렌더 영역");headFilter.sharedMesh=head;
+
+    var fallsRoot=new GameObject("낙수와 물안개");Undo.RegisterCreatedObjectUndo(fallsRoot,"B3 낙수");
+    fallsRoot.transform.SetParent(root.transform,false);
+    for(int f=0;f<Falls.Length;f++)
+    {
+        float s=Falls[f],top=Water[1+2*f].y,below=Water[2+2*f].y;
+        float half=FallWidths[f]*.5f;
+        var go=new GameObject("폭포 C"+(f+1));go.transform.SetParent(fallsRoot.transform,false);
+        Undo.RecordObject(drops[f].gameObject,"임시 경사 수면 비활성");drops[f].gameObject.SetActive(false);
+        var vs=new List<Vector3>();var us=new List<Vector2>();var cs=new List<Color>();var ix=new List<int>();
+        const int rows=36,cols=22;int skin=(rows+1)*(cols+1);
+        for(int side=0;side<2;side++)
+        for(int i=0;i<=rows;i++)
+        {
+            float t=i/(float)rows;
+            float longitudinal,y,blend;
+            if(t<.20f)
+            {
+                float u=t/.20f;longitudinal=s-5+3*u;y=top+.04f;blend=Mathf.SmoothStep(0,1,u);
+            }
+            else
+            {
+                float u=(t-.20f)/.8f;longitudinal=s-2+5.5f*u;
+                y=Mathf.Lerp(top+.04f,below-.12f,Mathf.Pow(u,1.74f));
+                blend=1;
+            }
+            for(int j=0;j<=cols;j++)
+            {
+                float u=j/(float)cols;
+                float q=(u*2-1)*half*Mathf.Lerp(1,1.15f,t);
+                float jitter=(Mathf.PerlinNoise(u*6+f*4,t*2)-.5f)*.39f*Mathf.Sin(t*Mathf.PI);
+                var p=xyz(longitudinal+jitter,q,y+jitter*.46f+(side==0?1:-1)*.07f*Mathf.Sin(t*Mathf.PI));
+                vs.Add(p);us.Add(new Vector2(Mathf.Lerp(.012f,.988f,u),t));cs.Add(new Color(blend,0,0,1));
+                if(i==rows || j==cols)continue;
+                int v=side*skin+i*(cols+1)+j;
+                if(side==0)ix.AddRange(new[]{v,v+1,v+cols+1,v+1,v+cols+2,v+cols+1});
+                else ix.AddRange(new[]{v,v+cols+1,v+1,v+1,v+cols+1,v+cols+2});
+            }
+        }
+        var mesh=new Mesh{name="B3_Fall_C"+(f+1)};
+        mesh.SetVertices(vs);mesh.SetUVs(0,us);mesh.SetColors(cs);mesh.SetTriangles(ix,0);
+        mesh.RecalculateNormals();mesh.RecalculateTangents();mesh.RecalculateBounds();save(mesh,mesh.name+".asset");
+        go.AddComponent<MeshFilter>().sharedMesh=mesh;
+        var render=go.AddComponent<MeshRenderer>();render.sharedMaterial=fallMat;render.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;
+        var impact=new GameObject("낙구").transform;impact.SetParent(go.transform,false);
+        impact.position=xyz(s+3.5f,0,below+.08f);
+        var q0=at(s+4)-at(s-4);var flow=Quaternion.LookRotation(new Vector3(q0.x,0,q0.y));
+        for(int side=-1;side<=1;side+=2)
+        {
+            var foam=UnityEngine.Object.Instantiate(splash,go.transform);
+            foam.name="낙수 물보라";foam.transform.SetPositionAndRotation(xyz(s+3.5f,side*half*.45f,below+.12f),flow);
+            foam.transform.localScale=Vector3.one*Mathf.Lerp(.75f,1.05f,f/3f);
+            foreach(var ps in foam.GetComponentsInChildren<ParticleSystem>()) {var main=ps.main;main.maxParticles=Mathf.Min(main.maxParticles,180);}
+        }
+        var fog=UnityEngine.Object.Instantiate(mist,go.transform);
+        fog.name="엷은 물안개";fog.transform.SetPositionAndRotation(xyz(s+5,0,below+.65f),flow);
+        fog.transform.localScale=new Vector3(half*.33f,.82f,1.15f);
+        foreach(var ps in fog.GetComponentsInChildren<ParticleSystem>()) {var main=ps.main;main.maxParticles=Mathf.Min(main.maxParticles,130);}
+        var link=go.AddComponent<UPlayGround.Gameplay.World.WaterfallLink>();
+        link.source=surfaces.Last(x=>int.Parse(x.name.Split(' ').Last())<int.Parse(drops[f].name.Split(' ').Last()));
+        link.target=surfaces.First(x=>int.Parse(x.name.Split(' ').Last())>int.Parse(drops[f].name.Split(' ').Last()));
+        link.impact=impact;link.mist=fog.GetComponentInChildren<ParticleSystem>();link.impactInterval=.45f;link.impactStrength=1.2f+f*.12f;
+        var audio=impact.gameObject.AddComponent<AudioSource>();
+        audio.clip=roar;audio.loop=true;audio.playOnAwake=true;audio.spatialBlend=1;audio.dopplerLevel=0;
+        audio.minDistance=7;audio.maxDistance=78+f*6;audio.rolloffMode=AudioRolloffMode.Linear;audio.volume=.30f+f*.035f;audio.pitch=1.12f-f*.075f;
+    }
+    Undo.CollapseUndoOperations(group);
+    UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+    if(!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene)) throw new InvalidOperationException("B3 씬 저장 실패");
+    AssetDatabase.SaveAssets();
+    return new {bridge=bridge.name,lodCount=lod.lodCount, renderers=renderers.Length, waterfalls=Falls.Length, backup};
+}
+catch
+{
+    Undo.RevertAllDownToGroup(group);
+    foreach(string path in created) AssetDatabase.DeleteAsset(path);
+    if(surfaces[0]!=null) surfaces[0].RefreshMesh();
+    throw;
+}

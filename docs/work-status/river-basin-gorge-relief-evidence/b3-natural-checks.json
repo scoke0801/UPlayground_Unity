@@ -1,0 +1,27 @@
+{
+  "maxGrade": 0.06045212,
+  "edges": 112,
+  "seam": 0,
+  "routes": [
+    "PathComplete (1637.00, 1601.00) -> (1607.00, 1638.00)",
+    "PathComplete (1656.00, 1555.00) -> (1840.00, 1384.00)",
+    "PathComplete (1840.00, 1384.00) -> (2046.00, 1214.00)",
+    "PathComplete (2046.00, 1214.00) -> (2264.00, 1052.00)"
+  ],
+  "sceneDirty": false,
+  "ops": 20,
+  "texture": 4096,
+  "format": "BC7",
+  "mips": 13,
+  "map": "Assets/10.Datas/Map/RiverBasin4km/Minimap.png",
+  "guid": "f9cc09cfb5d8f2640a87fbaf1c8e16e7",
+  "center": "(2048.00, 2048.00)",
+  "operation": "160266a897dd4fcf9015a2c43f150402",
+  "heightSamples": 171332,
+  "terrainTiles": 5,
+  "trailPaintSamples": 1085,
+  "rockToneSamples": 355,
+  "deactivatedRocks": 65,
+  "activeRocksRefit": 15,
+  "treesRefit": 80
+}

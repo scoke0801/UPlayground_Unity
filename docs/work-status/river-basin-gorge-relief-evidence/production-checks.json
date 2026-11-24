@@ -1,0 +1,181 @@
+﻿{
+  "g2": {
+    "bridge": "WB_P04_Bridge_B3_Suspension",
+    "lodCount": 3,
+    "renderers": 18,
+    "waterfalls": 4,
+    "backup": "output/RiverBasinWorld/GorgeRelief/backup/20261123-212919-613-water"
+  },
+  "g3": {
+    "faces": 69,
+    "stones": 66,
+    "treesPlaced": 72,
+    "plantsPlaced": 169,
+    "pixels": 2007,
+    "paintedTiles": 4,
+    "granite": 5,
+    "backup": "output/RiverBasinWorld/GorgeRelief/backup/20261123-213230-106-dress"
+  },
+  "g4ProposedTerrain": {
+    "changed": 57491,
+    "unique": 57319,
+    "cut": 3.59999847,
+    "fill": 8.799999,
+    "tiles": [
+      "Terrain_4_1",
+      "Terrain_3_2",
+      "Terrain_4_2",
+      "Terrain_3_3"
+    ],
+    "counts": [
+      14,
+      9,
+      3
+    ],
+    "maxima": [
+      3.41817856,
+      1.66026306,
+      3.5585556,
+      4.08562469,
+      8.521767,
+      1.928833,
+      2.95428467,
+      2.09809875,
+      9.375301,
+      9.578785,
+      1.87999725,
+      3.176117,
+      9.979446,
+      7.957226,
+      1.92185211,
+      10.2095108,
+      10.6851463,
+      9.871925,
+      2.67682266,
+      2.88103485,
+      10.8168259,
+      4.56549072,
+      2.47967529,
+      2.97869873,
+      2.417141
+    ]
+  },
+  "terrainOperation": "3669b8293cae4836b0bc5b4a75a18be8",
+  "g4NavigationAndDressing": {
+    "rockCount": 80,
+    "treeCount": 80,
+    "paint": 743,
+    "paintedTiles": 4,
+    "navTriangles": 6114,
+    "navBridge": {
+      "startOk": true,
+      "endOk": true,
+      "pathOk": true,
+      "result": "PathComplete",
+      "corners": 2,
+      "length": 71.0010147
+    },
+    "navExits": [
+      {
+        "startOk": true,
+        "endOk": true,
+        "pathOk": true,
+        "result": "PathComplete",
+        "corners": 2,
+        "length": 30.5022411
+      },
+      {
+        "startOk": true,
+        "endOk": true,
+        "pathOk": true,
+        "result": "PathComplete",
+        "corners": 2,
+        "length": 36.6821671
+      }
+    ],
+    "backup": "output/RiverBasinWorld/GorgeRelief/backup/20261123-213901-153-finish"
+  },
+  "g4Map": {
+    "size": 4096,
+    "changed": 1274966,
+    "guid": "f9cc09cfb5d8f2640a87fbaf1c8e16e7",
+    "backup": "output/RiverBasinWorld/GorgeRelief/backup/20261123-214759-288-map"
+  },
+  "savedScene": {
+    "missing": 0,
+    "falls": [
+      {
+        "name": "폭포 C1",
+        "bound": true,
+        "source": "수면 구간 1",
+        "target": "수면 구간 3"
+      },
+      {
+        "name": "폭포 C2",
+        "bound": true,
+        "source": "수면 구간 4",
+        "target": "수면 구간 6"
+      },
+      {
+        "name": "폭포 C3",
+        "bound": true,
+        "source": "수면 구간 8",
+        "target": "수면 구간 10"
+      },
+      {
+        "name": "폭포 C4",
+        "bound": true,
+        "source": "수면 구간 11",
+        "target": "수면 구간 13"
+      }
+    ],
+    "maxSeam": 0,
+    "seams": 112,
+    "plain": [
+      25,
+      14,
+      9,
+      3
+    ],
+    "castle": [
+      60,
+      26,
+      12,
+      4
+    ],
+    "nav": 6114
+  },
+  "finalAfterPlay": {
+    "path": "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Preview/RiverBasin4km.unity",
+    "isDirty": false,
+    "playing": false,
+    "operations": 18,
+    "landOp": "d8554768d00d436e927c339f9dea9988",
+    "landingProfile": [
+      30.8588181,
+      31.75216,
+      32.4285355,
+      32.8555222,
+      33.27546,
+      33.7302475,
+      34.1637726,
+      34.8936844,
+      35.1599274,
+      35.1972961
+    ],
+    "activeFalls": 4,
+    "nav": 6123,
+    "navAsset": "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Authoring/GorgeReliefArt/B3_NavMesh.asset"
+  },
+  "virtualGamepadPlay": {
+    "routesPassed": 4,
+    "routes": 4,
+    "resolution": [
+      2560,
+      1440
+    ],
+    "p50Ms": 20.4,
+    "p95Ms": 32.7,
+    "samples": 2017
+  }
+}

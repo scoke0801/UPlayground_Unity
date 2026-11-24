@@ -1,0 +1,18 @@
+RiverBasin4km B3 | Unity 6000.3.21f1 | 2560x1440
+START 현수교 왕복 (1598.95, 47.95, 1647.66) → (1599.0, 1647.7) → (1645.0, 1592.3) → (1599.0, 1647.7)
+  reached (1644.32, 47.48, 1593.22) swimming=False
+  reached (1599.71, 47.85, 1646.75) swimming=False
+  PASS 현수교 왕복 pos=(1599.71, 47.85, 1646.75) swimFrames=0 grounded=964/966 time=25.3
+START B3 웅덩이에서 오른쪽 둑 (1627.50, 34.22, 1626.00) → (1627.5, 1626.0) → (1630.0, 1623.4) → (1640.3, 1613.7)
+  reached (1629.18, 31.67, 1624.31) swimming=True
+  reached (1639.47, 35.25, 1614.49) swimming=False
+  PASS B3 웅덩이에서 오른쪽 둑 pos=(1639.47, 35.25, 1614.49) swimFrames=242 grounded=37/282 time=10.2
+START E2 수영·상륙 후 중류 출구 (1450.88, 28.34, 1481.44) → (1450.9, 1481.4) → (1464.0, 1471.4) → (1491.6, 1450.1)
+  reached (1463.07, 29.22, 1472.09) swimming=False
+  reached (1490.68, 34.35, 1450.81) swimming=False
+  PASS E2 수영·상륙 후 중류 출구 pos=(1490.68, 34.35, 1450.81) swimFrames=126 grounded=324/451 time=12.2
+START E1 하구 출구 (1208.80, 19.26, 1190.40) → (1208.8, 1190.4) → (1232.9, 1174.5)
+  reached (1231.86, 22.39, 1175.19) swimming=False
+  PASS E1 하구 출구 pos=(1231.86, 22.39, 1175.19) swimFrames=0 grounded=318/318 time=6.9
+Editor frame ms p50=20.4 p95=32.7 samples=2017
+PASS

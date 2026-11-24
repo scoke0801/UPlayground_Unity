@@ -1,0 +1,137 @@
+// 호수 마을과 B3 사이의 단구·둔덕·분지. B3 교대 바깥 보행축을 정리하고 지형 명령으로 기록한다.
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if(scene.path!=ScenePath || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling)
+    throw new InvalidOperationException("저장된 RiverBasin4km Edit Mode가 필요합니다.");
+var def=AssetDatabase.LoadAssetAtPath<UPlayGround.WorldBuilder.Data.WorldDefinition>(DefinitionPath);
+if(def==null || def.ActiveSession!=null)throw new InvalidOperationException("WorldBuilder 편집 세션을 확인하세요.");
+string stageRecord=ArtFolder+"/plains-operation.txt";
+if(System.IO.File.Exists(stageRecord))throw new InvalidOperationException("G4 지형이 이미 배치되었습니다.");
+var root=scene.GetRootGameObjects().Single(x=>x.name==RootName);
+var bridge=root.transform.Find("WB_P04_Bridge_B3_Suspension");
+if(bridge==null || root.transform.Find("암반·식생·길")==null)throw new InvalidOperationException("G3 저장본이 필요합니다.");
+var grid=new Terrain[8,8];
+foreach(var tile in Terrain.activeTerrains.Where(t=>t.gameObject.scene==scene))
+{
+    var names=tile.name.Split('_');
+    if(names.Length==3 && names[0]=="Terrain")grid[int.Parse(names[2]),int.Parse(names[1])]=tile;
+}
+if(grid.Cast<Terrain>().Any(t=>t==null || t.terrainData.heightmapResolution!=513))
+    throw new InvalidOperationException("RiverBasin4km 높이맵 64개가 필요합니다.");
+Func<Vector2,float> ground=p=>
+{
+    var tile=grid[Mathf.Clamp((int)p.y/512,0,7),Mathf.Clamp((int)p.x/512,0,7)];
+    return tile.SampleHeight(new Vector3(p.x,0,p.y))+tile.transform.position.y;
+};
+Func<float,float,float,float> smooth=(a,b,t)=>Mathf.SmoothStep(0,1,Mathf.InverseLerp(a,b,t));
+Func<Vector2,float> roadClearance=p=>
+{
+    float best=196;
+    for(int i=1;i<MainPath.Length;i++)
+    {
+        var a=MainPath[i-1];var b=MainPath[i];var d=b-a;
+        if(p.x<Mathf.Min(a.x,b.x)-14||p.x>Mathf.Max(a.x,b.x)+14||p.y<Mathf.Min(a.y,b.y)-14||p.y>Mathf.Max(a.y,b.y)+14)continue;
+        var off=p-(a+d*Mathf.Clamp01(Vector2.Dot(p-a,d)/d.sqrMagnitude));best=Mathf.Min(best,off.sqrMagnitude);
+    }
+    return Mathf.Sqrt(best);
+};
+var axes=PlainSpecs.Select(a=>new Vector2(Mathf.Cos(a[1]*Mathf.Deg2Rad),Mathf.Sin(a[1]*Mathf.Deg2Rad))).ToArray();
+var deckCenter=new Vector2(bridge.position.x,bridge.position.z);
+var deckAxis=new Vector2(bridge.forward.x,bridge.forward.z);
+var deckRight=new Vector2(bridge.right.x,bridge.right.z);
+var padEnds=new[]{ground(deckCenter-deckAxis*26.4f),ground(deckCenter+deckAxis*26.4f)};
+var roadEnds=new[]{ground(deckCenter-deckAxis*53f),ground(deckCenter+deckAxis*53f)};
+Func<Vector2,float,float> adjust=(p,y)=>
+{
+    float delta=0;
+    for(int i=0;i<PlainSites.Length;i++)
+    {
+        var off=p-PlainSites[i];var spec=PlainSpecs[i];var a=axes[i];var l=spec[2];var w=spec[3];var h=spec[4];
+        if(Mathf.Abs(off.x)>l+w || Mathf.Abs(off.y)>l+w)continue;
+        float t=Vector2.Dot(off,a);float q=off.y*a.x-off.x*a.y;
+        if(Mathf.Abs(t)>=l || Mathf.Abs(q)>=w)continue;
+        if(spec[0]>.5f)
+        {
+            float fault=q+2.6f*Mathf.Sin(t*.072f)+1.4f*Mathf.Sin(t*.17f);
+            float face=smooth(-1.7f,1.55f,fault);
+            float apron=.27f*(1-smooth(w*.10f,w*.53f,Mathf.Abs(fault+4)));
+            delta+=h*(face-apron)*(1-smooth(w*.52f,w,Mathf.Abs(q)))*(1-smooth(l-13,l,Mathf.Abs(t)));
+        }
+        else
+            delta+=h*(1-smooth(.16f,1,new Vector2(t/l,q/w).magnitude));
+    }
+    if(Mathf.Abs(delta)>.001f)delta*=smooth(6,14,roadClearance(p));
+    // 목재 교대 발판 바깥에서 53m 지점까지 접근로 중앙을 완만하게 정리한다.
+    float z=Vector2.Dot(p-deckCenter,deckAxis);
+    float along=Mathf.Abs(z), across=Mathf.Abs(Vector2.Dot(p-deckCenter,deckRight));
+    if(along>26.4f && along<53 && across<6)
+    {
+        int side=z<0?0:1;
+        float ramp=Mathf.Lerp(padEnds[side],roadEnds[side],Mathf.InverseLerp(26.4f,53,along));
+        float w=smooth(26.4f,28.7f,along)*(1-smooth(48,53,along))*(1-smooth(2.0f,6,across));
+        delta=Mathf.Lerp(delta,ramp-y,w);
+    }
+    return y+delta;
+};
+var edits=new List<Tuple<Terrain,int,int,float[,]>>();
+var joined=new Dictionary<int,float>();
+int changed=0;float cut=0,fill=0;
+foreach(var tile in grid)
+{
+    var o=tile.transform.position;var data=tile.terrainData;
+    int ax=Mathf.Max(0,Mathf.FloorToInt(1530-o.x)),az=Mathf.Max(0,Mathf.FloorToInt(915-o.z));
+    int bx=Mathf.Min(512,Mathf.CeilToInt(2325-o.x)),bz=Mathf.Min(512,Mathf.CeilToInt(1730-o.z));
+    if(ax>bx || az>bz)continue;
+    var heights=data.GetHeights(ax,az,bx-ax+1,bz-az+1);bool any=false;
+    for(int z=0;z<heights.GetLength(0);z++)for(int x=0;x<heights.GetLength(1);x++)
+    {
+        var p=new Vector2(o.x+ax+x,o.z+az+z);float y=o.y+heights[z,x]*data.size.y;
+        float next=adjust(p,y);if(Mathf.Abs(next-y)<.022f)continue;
+        int key=(int)p.y*4097+(int)p.x;float previous;
+        if(joined.TryGetValue(key,out previous) && Mathf.Abs(previous-next)>.004f)
+            throw new InvalidOperationException("공유 Terrain 경계 높이 불일치");
+        joined[key]=next;heights[z,x]=(next-o.y)/data.size.y;any=true;changed++;
+        cut=Mathf.Max(cut,y-next);fill=Mathf.Max(fill,next-y);
+    }
+    if(any)edits.Add(Tuple.Create(tile,ax,az,heights));
+}
+var counts=new[]{0,0,0};var maxima=new List<float>();
+Func<int,int,float> editedHeight=(x,z)=>{float next;return joined.TryGetValue(z*4097+x,out next)?next:ground(new Vector2(x,z));};
+var plainSample=new float[648,648];
+for(int z=0;z<648;z++)for(int x=0;x<648;x++)plainSample[z,x]=editedHeight(1650+x,950+z);
+for(int row=0;row<5;row++)for(int col=0;col<5;col++)
+{
+    float best=0;
+    for(int z=row*128;z<(row+1)*128;z++)for(int x=col*128;x<(col+1)*128;x++)
+       best=Mathf.Max(best,Mathf.Max(Mathf.Abs(plainSample[z,x]-plainSample[z,x+8]),Mathf.Abs(plainSample[z,x]-plainSample[z+8,x])));
+    for(int n=0;n<counts.Length;n++)if(best>=new[]{3,6,10}[n])counts[n]++;
+    maxima.Add(best);
+}
+var report=new {changed,unique=joined.Count,cut,fill,tiles=edits.Select(e=>e.Item1.name).ToArray(),counts,maxima};
+if(Mode=="plains-dry")return report;
+if(changed<10000 || cut>5 || fill>12 || counts[0]<13 || counts[1]<5 || counts[2]<2)
+    throw new InvalidOperationException("편집량/평지 기복 목표 검사 실패 "+changed+" / "+cut+" / "+fill+" / "+string.Join(",",counts));
+string backup="output/RiverBasinWorld/GorgeRelief/backup/"+DateTime.Now.ToString("yyyyMMdd-HHmmss-fff")+"-plains";
+System.IO.Directory.CreateDirectory(backup);
+foreach(string path in new[]{scene.path,DefinitionPath}.Concat(edits.Select(e=>AssetDatabase.GetAssetPath(e.Item1.terrainData))))
+    System.IO.File.Copy(path,backup+"/"+System.IO.Path.GetFileName(path),false);
+var oldOperations=new HashSet<string>(def.Operations.Select(op=>op.operationGuid));
+string operationGuid;
+using(var session=new UPlayGround.WorldBuilder.Editor.WorldTerrainAuthoringSession(def,grid))
+{
+    session.BeginSculpt();
+    try
+    {
+        foreach(var e in edits)e.Item1.terrainData.SetHeights(e.Item2,e.Item3,e.Item4);
+        session.CaptureSculpt();
+        operationGuid=def.Operations.Single(op=>!oldOperations.Contains(op.operationGuid)).operationGuid;
+    }
+    catch
+    {
+        if(def.ActiveSession!=null)session.RevertUncaptured();
+        throw;
+    }
+}
+System.IO.File.WriteAllLines(stageRecord,new[]{operationGuid});
+AssetDatabase.ImportAsset(stageRecord);
+AssetDatabase.SaveAssets();
+return new {operationGuid,backup,report};

@@ -1,0 +1,19 @@
+{
+  "operation": "261d11b2fab643ca9603278c1ddeed40",
+  "changed": 23173,
+  "maxFill": 10.0347958,
+  "maxResidual": 0.0000305175781,
+  "maxOutside": 0.0000305175781,
+  "protectionChange": 0.00000762939453,
+  "seamMax": 0,
+  "seams": 112,
+  "routes": [
+    "PathComplete (1691.00, 1512.00) -> (1840.00, 1387.00)",
+    "PathComplete (1840.00, 1387.00) -> (1930.00, 1327.00)",
+    "PathComplete (1840.00, 1387.00) -> (1845.00, 1460.00)",
+    "PathComplete (1637.00, 1601.00) -> (1607.00, 1638.00)"
+  ],
+  "sceneDirty": false,
+  "sessionOpen": false,
+  "navTriangles": 6164
+}

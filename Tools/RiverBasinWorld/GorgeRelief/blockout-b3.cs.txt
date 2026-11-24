@@ -1,0 +1,332 @@
+﻿// G1 회색 블록아웃. plan-b3.ps1이 측정 계획의 상수와 실행 모드를 앞에 붙인다.
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (scene.path != ScenePath || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling)
+    throw new InvalidOperationException("저장된 RiverBasin4km Edit Mode가 필요합니다.");
+var def = AssetDatabase.LoadAssetAtPath<UPlayGround.WorldBuilder.Data.WorldDefinition>(DefinitionPath);
+if (def == null || def.ActiveSession != null) throw new InvalidOperationException("WorldBuilder 편집 세션이 비어 있어야 합니다.");
+var grid = new Terrain[8, 8];
+foreach (var tile in Terrain.activeTerrains.Where(t => t.gameObject.scene == scene))
+{
+    var names = tile.name.Split('_');
+    if (names.Length == 3 && names[0] == "Terrain") grid[int.Parse(names[2]), int.Parse(names[1])] = tile;
+}
+if (grid.Cast<Terrain>().Any(t => t == null || t.terrainData.heightmapResolution != 513))
+    throw new InvalidOperationException("1m 높이맵 64개가 필요합니다.");
+Func<Vector2, float> ground = p =>
+{
+    var tile = grid[Mathf.Clamp((int)p.y / 512, 0, 7), Mathf.Clamp((int)p.x / 512, 0, 7)];
+    return tile.SampleHeight(new Vector3(p.x, 0, p.y)) + tile.transform.position.y;
+};
+var runs = new float[Line.Length];
+for (int i = 1; i < runs.Length; i++) runs[i] = runs[i - 1] + Vector2.Distance(Line[i-1], Line[i]);
+Func<float, Vector2> at = s =>
+{
+    for (int i = 1; i < runs.Length; i++)
+        if (s <= runs[i]) return Vector2.Lerp(Line[i-1], Line[i], Mathf.InverseLerp(runs[i-1], runs[i], s));
+    return Line[Line.Length-1];
+};
+Func<float, Vector2> normal = s =>
+{
+    var t = (at(s+12) - at(s-12)).normalized;
+    return new Vector2(-t.y, t.x);
+};
+Func<Vector2, Vector2> project = p =>
+{
+    float best = float.PositiveInfinity;
+    var result = Vector2.zero;
+    for (int i = 1; i < Line.Length; i++)
+    {
+        var v = Line[i] - Line[i-1];
+        float t = Mathf.Clamp01(Vector2.Dot(p-Line[i-1], v) / v.sqrMagnitude);
+        var off = p - (Line[i-1] + t*v);
+        if (off.sqrMagnitude >= best) continue;
+        best = off.sqrMagnitude;
+        result = new Vector2(Mathf.Lerp(runs[i-1], runs[i], t), Mathf.Sign(v.x*off.y-v.y*off.x)*off.magnitude);
+    }
+    return result;
+};
+Func<float,float,float,float> smooth = (a,b,t) => Mathf.SmoothStep(0f,1f,Mathf.InverseLerp(a,b,t));
+Func<Vector2[],float,float> sample = (values,s) =>
+{
+    for (int i = 1; i < values.Length; i++)
+        if (s <= values[i].x) return Mathf.Lerp(values[i-1].y, values[i].y, Mathf.InverseLerp(values[i-1].x, values[i].x, s));
+    return values[values.Length-1].y;
+};
+Func<float,float> water = s => sample(Water, s);
+Func<float,float> halfWater = s => sample(newWidths, s);
+Func<float,float> pathY = s => sample(Trail,s);
+var center = at(BridgeS);
+var cross = normal(BridgeS);
+var along = new Vector2(cross.y, -cross.x);
+var root = scene.GetRootGameObjects().SingleOrDefault(o => o.name == RootName);
+if (Mode != "reset" && root != null) throw new InvalidOperationException("G1이 이미 배치되었습니다. 적용 대신 검증 또는 reset을 실행하세요.");
+string backupRoot = "output/RiverBasinWorld/GorgeRelief/backup";
+string manifest = AssetFolder + "/g1-record.txt";
+var river = scene.GetRootGameObjects().Single(o => o.name == "RiverBasin 수면");
+var filters = WaterNames.Select(n => river.transform.Find(n).GetComponent<MeshFilter>()).ToArray();
+Action<MeshFilter,Mesh> setWater = (f,m) =>
+{
+    f.sharedMesh = m;
+    var surface = f.GetComponent<UPlayGround.Components.FootstepWaterSurface>();
+    if (surface != null) surface.RefreshMesh();
+    EditorUtility.SetDirty(f);
+};
+if (Mode == "reset")
+{
+    if (root == null || !System.IO.File.Exists(manifest)) throw new InvalidOperationException("블록아웃 또는 적용 매니페스트가 없습니다.");
+    var record = System.IO.File.ReadAllLines(manifest);
+    int index = Enumerable.Range(0, def.Operations.Count).Single(k => def.Operations[k].operationGuid == record[0]);
+    var waterSources = record.Skip(1).Take(filters.Length).Select(path => AssetDatabase.LoadAssetAtPath<Mesh>(path)).ToArray();
+    if (waterSources.Length != filters.Length || waterSources.Any(m => m == null)) throw new InvalidOperationException("원본 수면 참조가 누락되었습니다.");
+    var ownedPaths = new HashSet<string>(root.GetComponentsInChildren<MeshFilter>().Where(f=>f.sharedMesh!=null)
+        .Select(f=>AssetDatabase.GetAssetPath(f.sharedMesh)).Concat(filters.Select(f=>AssetDatabase.GetAssetPath(f.sharedMesh)))
+        .Where(path=>path.StartsWith(AssetFolder+"/"))) { manifest };
+    if(AssetDatabase.FindAssets("",new[]{AssetFolder}).Any(g=>!ownedPaths.Contains(AssetDatabase.GUIDToAssetPath(g))))
+        throw new InvalidOperationException("G1 폴더에 별도 자산이 있습니다.");
+    using (var session = new UPlayGround.WorldBuilder.Editor.WorldTerrainAuthoringSession(def, grid))
+        session.ReplaceOperation(index, null);
+    for(int i=0;i<filters.Length;i++) setWater(filters[i],waterSources[i]);
+    UnityEngine.Object.DestroyImmediate(root);
+    UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene);
+    if(!AssetDatabase.DeleteAsset(AssetFolder)) throw new InvalidOperationException("G1 생성 폴더 정리 실패");
+    AssetDatabase.SaveAssets();
+    return "G1 reset · " + record[0];
+}
+
+Func<Vector2,float,float> target = (p,old) =>
+{
+    var sq = project(p);
+    float s = sq.x, q = sq.y, absQ = Mathf.Abs(q);
+    float sMask = smooth(StartS,StartS+34,s) * (1f-smooth(890,EndS,s));
+    if (Vector2.Distance(p, B1) <= B1Radius || sMask <= 0f) return old;
+
+    float w=halfWater(s);
+    float wetBed=water(s)-sample(Depths,s);
+    float foot=pathY(s);
+    float wide=smooth(96,12,Mathf.Abs(s-BridgeS));
+    float toe=Mathf.Max(w+5, 15.5f);
+    float rim=Mathf.Lerp(23f, BridgeSpan*0.5f, wide);
+    float shoulder=sample(Shoulders,s);
+    float wallFoot=Mathf.Min(foot+2.4f, shoulder-1.0f);
+    float next=wetBed;
+    if(absQ>w-1f) next=Mathf.Lerp(wetBed,foot,smooth(w-1f,w+3f,absQ));
+    if(absQ>toe) next=Mathf.Lerp(foot,wallFoot,Mathf.InverseLerp(toe,rim-3.4f,absQ));
+    if(absQ>rim-3.4f) next=Mathf.Lerp(wallFoot,shoulder,Mathf.InverseLerp(rim-3.4f,rim,absQ));
+    float widthMask=1f-smooth(rim+3,ShoreHalfWidth,absQ);
+    if (Vector2.Distance(p,B4)<B4Radius+7f)
+        widthMask *= 1f-(1f-smooth(B4Radius,B4Radius+7,Vector2.Distance(p,B4)))*smooth(B4Shoulder-4,B4Shoulder,absQ);
+
+    // 출구 두 곳은 수변과 림 사이에서 물 밖으로 올라오는 비탈이다.
+    for(int i=0;i<ExitStations.Length;i++)
+    {
+        float ds=Mathf.Abs(s-ExitStations[i]);
+        if (q<toe-1 || q>toe+ExitLengths[i]+7 || ds>ExitWidths[i]*.5f+9) continue;
+        float rimGround=ground(at(s)+normal(s)*(toe+ExitLengths[i]));
+        float rise=Mathf.Clamp(rimGround-foot,0,ExitLengths[i]*Mathf.Tan(ExitSlopes[i]*Mathf.Deg2Rad));
+        float ramp=foot+rise*Mathf.InverseLerp(toe,toe+ExitLengths[i],q);
+        float exitMask=(1f-smooth(ExitWidths[i]*.5f,ExitWidths[i]*.5f+9,ds))*(1f-smooth(toe+ExitLengths[i],toe+ExitLengths[i]+7,q))*smooth(toe-1,toe+1,q);
+        next=Mathf.Lerp(next,ramp,exitMask);
+        widthMask=Mathf.Max(widthMask,exitMask);
+    }
+    float shape = Mathf.Lerp(old,next,sMask*widthMask);
+
+    // 다리 법선 방향으로 접속부를 만들고 먼 쪽에서는 기존 동선 높이로 돌아간다.
+    float bq=Vector2.Dot(p-center,cross), bs=Mathf.Abs(Vector2.Dot(p-center,along));
+    float dist=Mathf.Abs(bq), half=BridgeSpan*.5f;
+    if(dist >= half-0.8f && dist <= half+ApproachLength && bs < 9f)
+    {
+        float settle = smooth(half+5,half+ApproachLength,dist);
+        float ramp=Mathf.Lerp(BridgeY,old,settle);
+        float weight=(1f-smooth(3f,9f,bs))*(1f-settle)*smooth(half-.8f,half,dist);
+        shape=Mathf.Lerp(shape,ramp,weight);
+    }
+    return shape;
+};
+
+var edits = new List<Tuple<Terrain,int,int,float[,],float[,]>>();
+int changed=0; float cut=0,fill=0; int shared=0;
+var changedSamples=new Dictionary<int,float>();
+foreach(var tile in grid)
+{
+    var o=tile.transform.position; var data=tile.terrainData;
+    int ax=Mathf.Max(0,Mathf.FloorToInt(Line.Min(p=>p.x)-100-o.x)), bx=Mathf.Min(512,Mathf.CeilToInt(Line.Max(p=>p.x)+100-o.x));
+    int az=Mathf.Max(0,Mathf.FloorToInt(Line.Min(p=>p.y)-100-o.z)), bz=Mathf.Min(512,Mathf.CeilToInt(Line.Max(p=>p.y)+100-o.z));
+    if(ax>bx || az>bz) continue;
+    var before=data.GetHeights(ax,az,bx-ax+1,bz-az+1);
+    var after=(float[,])before.Clone();
+    bool any=false;
+    for(int z=0;z<before.GetLength(0);z++) for(int x=0;x<before.GetLength(1);x++)
+    {
+        var p=new Vector2(o.x+ax+x,o.z+az+z);
+        float old=o.y+before[z,x]*data.size.y;
+        float y=target(p,old);
+        if(Mathf.Abs(old-y)<.02f) continue;
+        if(y<o.y || y>o.y+data.size.y) throw new InvalidOperationException("Terrain 높이 범위 초과");
+        int key=(int)p.y*4097+(int)p.x; float previous;
+        if(changedSamples.TryGetValue(key,out previous))
+        {
+            if(Mathf.Abs(previous-y)>.005f) throw new InvalidOperationException("타일 경계 목표 높이 불일치");
+            shared++;
+        }
+        else changedSamples.Add(key,y);
+        cut=Mathf.Max(cut,old-y); fill=Mathf.Max(fill,y-old);
+        after[z,x]=(y-o.y)/data.size.y; any=true; changed++;
+    }
+    if(any) edits.Add(Tuple.Create(tile,ax,az,before,after));
+}
+if(changed<10000 || cut>20 || fill>16) throw new InvalidOperationException("변경량 사전 검사 실패: " + changed + " / " + cut + " / " + fill);
+
+var original=filters.Select(f=>f.sharedMesh).ToArray();
+if(original.Any(m=>m==null) || filters.Any(f=>f.sharedMesh.subMeshCount!=1))
+    throw new InvalidOperationException("원본 수면 메시를 확인하세요.");
+var kept=new List<int[]>();
+for(int i=0;i<filters.Length;i++)
+{
+    var f=filters[i]; var src=original[i]; var vs=src.vertices; var indices=src.triangles;
+    var keep=new List<int>();
+    for(int j=0;j<indices.Length;j+=3)
+    {
+        var p=f.transform.TransformPoint((vs[indices[j]]+vs[indices[j+1]]+vs[indices[j+2]])/3f);
+        var sq=project(new Vector2(p.x,p.z));
+        // 기존 호수(15m), 본류, 분기 구간과 B1 패치는 그대로 둔다.
+        if(sq.x>=StartS && sq.x<EndS && Mathf.Abs(sq.y)<=22 && p.y>15.12f) continue;
+        keep.Add(indices[j]); keep.Add(indices[j+1]); keep.Add(indices[j+2]);
+    }
+    kept.Add(keep.ToArray());
+}
+var report=new {changed,unique=changedSamples.Count,shared,cut,fill,tiles=edits.Select(e=>e.Item1.name).ToArray(),
+    trimmed=original.Select((m,i)=>new {m.name, triangles=(m.triangles.Length-kept[i].Length)/3}).ToArray(),
+    bridgeEnds=new[]{center-cross*BridgeSpan/2,center+cross*BridgeSpan/2}.Select(v=>new{x=v.x,z=v.y,before=ground(v),after=target(v,ground(v))}).ToArray(),
+    crossSections=new[]{200f,BridgeS,345f,480f,575f,665f,771f,840f,863f}.Select(s=>new{s,heights=Enumerable.Range(-6,13).Select(j=>{var p=at(s)+normal(s)*j*5;return target(p,ground(p));}).ToArray()}).ToArray()};
+if(Mode=="dry") return report;
+if(Mode!="apply") throw new ArgumentException("지원 모드: dry, apply, reset");
+if(AssetDatabase.IsValidFolder(AssetFolder)) throw new InvalidOperationException("G1 생성 폴더가 이미 있습니다.");
+if(original.Select(AssetDatabase.GetAssetPath).Any(string.IsNullOrEmpty)) throw new InvalidOperationException("원본 수면은 자산 경로가 필요합니다.");
+
+// G1은 수위·횡단·출구를 확인할 수 있는 원본 보존형 블록아웃을 만든다.
+System.IO.Directory.CreateDirectory(backupRoot);
+string phaseBackup = backupRoot+"/"+DateTime.Now.ToString("yyyyMMdd-HHmmss-fff");
+System.IO.Directory.CreateDirectory(phaseBackup);
+var backupPaths = new[]{scene.path, DefinitionPath}.Concat(edits.Select(e=>AssetDatabase.GetAssetPath(e.Item1.terrainData)));
+foreach(string path in backupPaths)
+    System.IO.File.Copy(path, System.IO.Path.Combine(phaseBackup,System.IO.Path.GetFileName(path)), false);
+
+string operationId = null;
+var sourcePaths = original.Select(AssetDatabase.GetAssetPath).ToArray();
+var oldOperations = new HashSet<string>(def.Operations.Select(op=>op.operationGuid));
+try
+{
+    using(var session=new UPlayGround.WorldBuilder.Editor.WorldTerrainAuthoringSession(def,grid))
+    {
+        session.BeginSculpt();
+        try
+        {
+            foreach(var e in edits) e.Item1.terrainData.SetHeights(e.Item2,e.Item3,e.Item5);
+            session.CaptureSculpt();
+            operationId=def.Operations.Single(op=>!oldOperations.Contains(op.operationGuid)).operationGuid;
+        }
+        catch
+        {
+            if(def.ActiveSession!=null) session.RevertUncaptured();
+            throw;
+        }
+    }
+
+    string parent=System.IO.Path.GetDirectoryName(AssetFolder).Replace('\\','/');
+    AssetDatabase.CreateFolder(parent,System.IO.Path.GetFileName(AssetFolder));
+    for(int i=0;i<filters.Length;i++)
+    {
+        var replacement=UnityEngine.Object.Instantiate(original[i]);
+        replacement.name=filters[i].name+"_B3G1";
+        replacement.SetTriangles(kept[i],0);
+        AssetDatabase.CreateAsset(replacement,AssetFolder+"/"+replacement.name+".asset");
+        setWater(filters[i],replacement);
+    }
+    var surfaceMat=filters[0].GetComponent<MeshRenderer>().sharedMaterial;
+    var swimProfile=scene.GetRootGameObjects().Single(x=>x.name=="WorldBuilder Water")
+        .GetComponentsInChildren<UPlayGround.Components.FootstepWaterSurface>(true).First().profile;
+    root = new GameObject(RootName);
+    var sections=Water.Select(w=>w.x).Concat(runs.Where(s=>s>StartS && s<EndS)).Distinct().OrderBy(s=>s).ToArray();
+    var waterRoot=new GameObject("단계 수면"); waterRoot.transform.SetParent(root.transform,false);
+    for(int k=1;k<sections.Length;k++)
+    {
+        var a=sections[k-1]; var b=sections[k];
+        bool isDrop=Falls.Any(s=>s>a && s<b);
+        int rows=Mathf.CeilToInt((b-a)/1.5f);
+        const int cols=12;
+        var vertices=new List<Vector3>(); var uv=new List<Vector2>(); var indices=new List<int>();
+        for(int i=0;i<=rows;i++)
+        {
+            float s=Mathf.Lerp(a,b,i/(float)rows);
+            float level=water(s);
+            if(isDrop) level=Mathf.Lerp(water(a),water(b),Mathf.Pow(i/(float)rows,1.7f));
+            var p=at(s); var n=normal(s);
+            for(int j=0;j<=cols;j++)
+            {
+                var q=p+n*(Mathf.Lerp(-1,1,j/(float)cols)*(halfWater(s)+3f));
+                vertices.Add(new Vector3(q.x,level,q.y)); uv.Add(new Vector2(q.x/6f,q.y/6f));
+                if(i==rows || j==cols) continue;
+                int v=i*(cols+1)+j;
+                indices.AddRange(new[]{v,v+1,v+cols+1,v+1,v+cols+2,v+cols+1});
+            }
+        }
+        var mesh=new Mesh {name="B3G1_Water_"+k.ToString("00")};
+        mesh.SetVertices(vertices); mesh.SetUVs(0,uv); mesh.SetTriangles(indices,0);
+        mesh.RecalculateNormals(); mesh.RecalculateTangents(); mesh.RecalculateBounds();
+        AssetDatabase.CreateAsset(mesh,AssetFolder+"/"+mesh.name+".asset");
+        var go=new GameObject(isDrop ? "낙수 구간 "+k : "수면 구간 "+k);
+        go.transform.SetParent(waterRoot.transform,false);
+        var filter=go.AddComponent<MeshFilter>(); filter.sharedMesh=mesh;
+        var renderer=go.AddComponent<MeshRenderer>(); renderer.sharedMaterial=surfaceMat;
+        renderer.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;
+        if(!isDrop)
+        {
+            var surface=go.AddComponent<UPlayGround.Components.FootstepWaterSurface>();
+            surface.surfaceMesh=filter; surface.profile=swimProfile; surface.useVolumeBounds=true;
+            var bounds=mesh.bounds; bounds.Expand(new Vector3(0,12,0)); surface.volumeBounds=bounds; surface.RefreshMesh();
+        }
+    }
+    var bridge=new GameObject("WB_P04_Bridge_B3_G1"); bridge.transform.SetParent(root.transform,false);
+    bridge.transform.position=new Vector3(center.x,BridgeY,center.y);
+    bridge.transform.rotation=Quaternion.LookRotation(new Vector3(cross.x,0,cross.y));
+    Action<string,Vector3,Vector3> box=(name,local,size)=>
+    {
+        var go=GameObject.CreatePrimitive(PrimitiveType.Cube);
+        go.name=name; go.transform.SetParent(bridge.transform,false); go.transform.localPosition=local;
+        go.transform.localScale=size;
+    };
+    box("B3 Bridge Deck",new Vector3(0,-.2f,0),new Vector3(BridgeWidth,.4f,BridgeSpan+.4f));
+    foreach(int side in new[]{-1,1})
+    {
+        box("B3 Bridge Rail",new Vector3(side*(BridgeWidth*.5f-.06f),.53f,0),new Vector3(.12f,1.06f,BridgeSpan));
+        foreach(int end in new[]{-1,1})
+            box("B3 Bridge Post",new Vector3(side*(BridgeWidth*.5f-.06f),1.1f,end*(BridgeSpan*.5f-.3f)),new Vector3(.32f,2.6f,.5f));
+    }
+    foreach(float s in ExitStations)
+    {
+        var p=at(s)+normal(s)*17;
+        var mark=new GameObject(s==ExitStations[0]?"E1 · 하구":"E2 · 중류");
+        mark.transform.SetParent(root.transform,false); mark.transform.position=new Vector3(p.x,ground(p),p.y);
+    }
+    System.IO.File.WriteAllLines(manifest,new[]{operationId}.Concat(sourcePaths).ToArray());
+    System.IO.File.Copy(manifest,phaseBackup+"/g1-record.txt",false);
+    AssetDatabase.ImportAsset(manifest);
+    UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+    if(!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene)) throw new InvalidOperationException("블록아웃 씬 저장 실패");
+    AssetDatabase.SaveAssets();
+    return new {operationId,phaseBackup,report};
+}
+catch
+{
+    for(int i=0;i<filters.Length;i++) setWater(filters[i],original[i]);
+    if(root!=null) UnityEngine.Object.DestroyImmediate(root);
+    var added=Enumerable.Range(0,def.Operations.Count).Where(k=>!oldOperations.Contains(def.Operations[k].operationGuid)).ToArray();
+    if(added.Length==1)
+        using(var session=new UPlayGround.WorldBuilder.Editor.WorldTerrainAuthoringSession(def,grid))
+            session.ReplaceOperation(added[0],null);
+    if(AssetDatabase.IsValidFolder(AssetFolder)) AssetDatabase.DeleteAsset(AssetFolder);
+    UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene);
+    AssetDatabase.SaveAssets();
+    throw;
+}
+

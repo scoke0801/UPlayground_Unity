@@ -1,0 +1,80 @@
+// Play에서 확인한 B3 오른쪽 상륙 턱을 완만한 자갈 여울로 다듬는다.
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if(scene.path!=ScenePath || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode || EditorApplication.isCompiling)
+    throw new InvalidOperationException("저장된 RiverBasin4km Edit Mode가 필요합니다.");
+var root=scene.GetRootGameObjects().Single(x=>x.name=="B3 협곡");
+var nav=root.GetComponentInChildren<Unity.AI.Navigation.NavMeshSurface>();
+var def=AssetDatabase.LoadAssetAtPath<UPlayGround.WorldBuilder.Data.WorldDefinition>(DefinitionPath);
+if(nav==null || def==null || def.ActiveSession!=null)throw new InvalidOperationException("지형 및 내비게이션 원본을 확인하세요.");
+var grid=new Terrain[8,8];
+foreach(var tile in Terrain.activeTerrains.Where(t=>t.gameObject.scene==scene))
+{
+    var names=tile.name.Split('_');
+    if(names.Length==3 && names[0]=="Terrain")grid[int.Parse(names[2]),int.Parse(names[1])]=tile;
+}
+var terrain=grid[3,3];var o=terrain.transform.position;var data=terrain.terrainData;
+if(nav.navMeshData==null || grid.Cast<Terrain>().Any(t=>t==null) || data.heightmapResolution!=513)
+    throw new InvalidOperationException("1m 높이맵 및 NavMesh를 확인하세요.");
+string recordPath=ArtFolder+"/landing-operation.txt";
+if(System.IO.File.Exists(recordPath))throw new InvalidOperationException("B3 상륙 턱이 이미 있습니다.");
+var upstream=(Line[2]-Line[1]).normalized;
+var right=new Vector2(-upstream.y,upstream.x);
+var center=Line[2]-upstream*8f;
+Func<Vector2,Vector2> project=p=>new Vector2(Vector2.Dot(p-center,upstream),Vector2.Dot(p-center,right));
+Func<Vector2,float> y=p=>terrain.SampleHeight(new Vector3(p.x,0,p.y))+o.y;
+Func<float,float,float,float> smooth=(a,b,v)=>Mathf.SmoothStep(0,1,Mathf.InverseLerp(a,b,v));
+const int ax=1615,az=1595,width=48,height=44;const float maxDelta=2.8f;
+var weights=new float[width*height];int changed=0;
+for(int z=0;z<height;z++)for(int x=0;x<width;x++)
+{
+    var p=new Vector2(ax+x,az+z);var st=project(p);
+    if(Mathf.Abs(st.x)>15 || st.y<6.8f || st.y>17.6f)continue;
+    float desired=Mathf.Lerp(31.05f,35.24f,Mathf.InverseLerp(6.8f,16.55f,st.y));
+    float w=(1-smooth(6,15,Mathf.Abs(st.x)))*smooth(6.8f,9.7f,st.y)*(1-smooth(16.6f,17.6f,st.y));
+    float offset=Mathf.Max(0,desired-y(p))*w;
+    if(offset<.022f)continue;
+    if(offset>maxDelta)throw new InvalidOperationException("상륙 여울 성토 범위 초과");
+    weights[z*width+x]=offset/maxDelta;changed++;
+}
+if(changed<100)throw new InvalidOperationException("상륙 여울 표본 부족");
+string backup="output/RiverBasinWorld/GorgeRelief/backup/"+DateTime.Now.ToString("yyyyMMdd-HHmmss-fff")+"-landing";
+System.IO.Directory.CreateDirectory(backup);
+var baked=nav.navMeshData;string navAsset=AssetDatabase.GetAssetPath(baked);
+foreach(string path in new[]{scene.path,DefinitionPath,navAsset,AssetDatabase.GetAssetPath(data)})
+    System.IO.File.Copy(path,backup+"/"+System.IO.Path.GetFileName(path),false);
+var record=new UPlayGround.WorldBuilder.Data.TerrainOperationRecord
+{
+    operationGuid=Guid.NewGuid().ToString("N"),kind=UPlayGround.WorldBuilder.Core.TerrainOperationKind.AddDelta,
+    x=ax,z=az,width=width,height=height,value=maxDelta,stage=40,
+    sequence=def.Operations.Max(op=>op.sequence)+1,priority=def.Operations.Where(op=>op.stage==40).Max(op=>op.priority)
+};
+using(var session=new UPlayGround.WorldBuilder.Editor.WorldTerrainAuthoringSession(def,grid))session.AddMaskedOperation(record,weights);
+int n=data.alphamapResolution,shore=Array.FindIndex(data.terrainLayers,l=>l.name=="Shore");
+if(shore>=0)
+{
+    int x0=Mathf.FloorToInt((ax-o.x)*n/512),z0=Mathf.FloorToInt((az-o.z)*n/512);
+    int w=Mathf.CeilToInt(width*n/512f)+2,h=Mathf.CeilToInt(height*n/512f)+2;
+    var alpha=data.GetAlphamaps(x0,z0,w,h);
+    for(int z=0;z<h;z++)for(int x=0;x<w;x++)
+    {
+        var p=new Vector2(o.x+(x0+x+.5f)*512/n,o.z+(z0+z+.5f)*512/n);var st=project(p);
+        float blend=(1-smooth(4,14,Mathf.Abs(st.x)))*smooth(8,11,st.y)*(1-smooth(16.5f,18.5f,st.y))*.75f;
+        for(int i=0;i<alpha.GetLength(2);i++)alpha[z,x,i]*=1-blend;
+        alpha[z,x,shore]+=blend;
+    }
+    data.SetAlphamaps(x0,z0,alpha);EditorUtility.SetDirty(data);
+}
+nav.BuildNavMesh();
+var generated=nav.navMeshData;
+if(generated==null)
+{
+    nav.navMeshData=baked;nav.AddData();
+    throw new InvalidOperationException("상륙 턱 반영 이후 NavMesh 베이크 실패");
+}
+nav.RemoveData();EditorUtility.CopySerialized(generated,baked);
+nav.navMeshData=baked;nav.AddData();UnityEngine.Object.DestroyImmediate(generated);
+EditorUtility.SetDirty(baked);
+System.IO.File.WriteAllText(recordPath,record.operationGuid+Environment.NewLine);AssetDatabase.ImportAsset(recordPath);
+AssetDatabase.SaveAssets();
+if(scene.isDirty)UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene);
+return new {operation=record.operationGuid,changed,backup,bank=Enumerable.Range(8,10).Select(q=>y(center+right*q)).ToArray(),navTriangles=UnityEngine.AI.NavMesh.CalculateTriangulation().indices.Length/3};

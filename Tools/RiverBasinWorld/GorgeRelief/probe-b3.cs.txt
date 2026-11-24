@@ -1,0 +1,99 @@
+// Play Mode에서 가상 패드로 B3 왕복과 E1·E2를 확인한다. 테스트 중에만 플레이어 시작 위치를 옮긴다.
+if(!EditorApplication.isPlaying)throw new InvalidOperationException("RiverBasin4km Play Mode가 필요합니다.");
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+var gorge=scene.GetRootGameObjects().Single(x=>x.name=="B3 협곡");
+var bridge=gorge.transform.Find("WB_P04_Bridge_B3_Suspension");
+var actor=UnityEngine.Object.FindFirstObjectByType<UPlayGround.PlayerActor>();
+if(actor==null || Camera.main==null)throw new InvalidOperationException("플레이어와 TPS 카메라가 준비될 때까지 대기하세요.");
+var motor=actor.GetComponent<KinematicCharacterController.KinematicCharacterMotor>();
+var move=actor.GetComponent<UPlayGround.MovementController.PlayerMovementController>();
+var tiles=Terrain.activeTerrains.ToDictionary(t=>t.name);
+Func<Vector2,float> ground=p=>{var t=tiles["Terrain_"+(int)p.x/512+"_"+(int)p.y/512];return t.SampleHeight(new Vector3(p.x,0,p.y))+t.transform.position.y;};
+Func<float,Vector2> onBridge=z=>{var p=bridge.position+bridge.forward*z;return new Vector2(p.x,p.z);};
+var routes=new[]{
+    Tuple.Create("현수교 왕복",false,new[]{onBridge(-36),onBridge(36),onBridge(-36)}),
+    Tuple.Create("B3 웅덩이에서 오른쪽 둑",true,new[]{new Vector2(1627.5f,1626f),new Vector2(1630.0f,1623.4f),new Vector2(1640.3f,1613.7f)}),
+    Tuple.Create("E2 수영·상륙 후 중류 출구",true,new[]{new Vector2(1450.88f,1481.44f),new Vector2(1464f,1471.4f),new Vector2(1491.6f,1450.1f)}),
+    Tuple.Create("E1 하구 출구",false,new[]{new Vector2(1208.8f,1190.4f),new Vector2(1232.9f,1174.5f)})
+};
+var pad=UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Gamepad>();
+var log=new System.Text.StringBuilder();
+log.AppendLine("RiverBasin4km B3 | Unity "+Application.unityVersion+" | "+Screen.width+"x"+Screen.height);
+float initialTime=Time.realtimeSinceStartup,stageTime=initialTime,lastCheck=initialTime,resume=initialTime;
+var stop=new UnityEngine.InputSystem.LowLevel.GamepadState();
+int stage=0,step=1,fail=0,swim=0,grounded=0,frames=0;
+bool spawn=true,swam=false;
+Vector3 lastPosition=Vector3.zero;
+var times=new List<float>();
+EditorApplication.CallbackFunction update=null;
+Action<bool> close=complete=>
+{
+    EditorApplication.update-=update;
+    UnityEngine.InputSystem.InputSystem.QueueStateEvent(pad,stop);
+    UnityEngine.InputSystem.InputSystem.RemoveDevice(pad);
+    var ordered=times.OrderBy(x=>x).ToArray();
+    if(ordered.Length>0)log.AppendLine("Editor frame ms p50="+ordered[ordered.Length/2].ToString("F1")+" p95="+ordered[Mathf.Min(ordered.Length-1,(int)(ordered.Length*.95))].ToString("F1")+" samples="+ordered.Length);
+    log.AppendLine(complete&&fail==0?"PASS":"FAIL "+fail);
+    System.IO.File.WriteAllText("output/RiverBasinWorld/GorgeRelief/B3_PlayMode.final.txt",log.ToString());
+};
+update=()=>
+{
+    if(!EditorApplication.isPlaying || motor==null){close(false);return;}
+    if(Time.frameCount<150)return;
+    try
+    {
+        var current=routes[stage];var path=current.Item3;float now=Time.realtimeSinceStartup;
+        if(spawn)
+        {
+            var start=path[0];var direction=(path[1]-start).normalized;
+            float y=ground(start)+.14f;
+            if(current.Item2)
+            {
+                float level;
+                if(!UPlayGround.Components.FootstepWaterSurface.TryGetSurfaceHeight(new Vector3(start.x,y+.35f,start.y),out level))
+                    throw new InvalidOperationException("테스트 시작 수면 없음 "+current.Item1);
+                y=level+.22f;
+            }
+            var p=new Vector3(start.x,y,start.y);
+            motor.SetPositionAndRotation(p,Quaternion.LookRotation(new Vector3(direction.x,0,direction.y)));
+            log.AppendLine("START "+current.Item1+" "+p.ToString("F2")+" → "+string.Join(" → ",path.Select(v=>v.ToString("F1")).ToArray()));
+            lastPosition=p;step=1;swim=0;grounded=0;frames=0;swam=false;spawn=false;
+            resume=now+2.6f;stageTime=now;
+        }
+        if(now<resume){UnityEngine.InputSystem.InputSystem.QueueStateEvent(pad,stop);lastCheck=now;return;}
+        var pos=motor.TransientPosition;var target=path[step];var dir=new Vector3(target.x-pos.x,0,target.y-pos.z);
+        var cam=Camera.main;
+        if(move.IsSwimming){swam=true;swim++;}
+        if(motor.GroundingStatus.IsStableOnGround)grounded++;
+        frames++;times.Add(Time.unscaledDeltaTime*1000);
+        bool reached=dir.magnitude<1.25f;
+        bool stalled=now-lastCheck>4.2f || now-stageTime>75f;
+        if(reached || stalled)
+        {
+            if(reached)
+            {
+                log.AppendLine("  reached "+pos.ToString("F2")+" swimming="+move.IsSwimming);
+                if(++step<path.Length){lastPosition=pos;lastCheck=now;return;}
+            }
+            bool expectedState=!move.IsSwimming&&(!current.Item2||swam);
+            bool pass=reached&&expectedState;
+            if(stage==0)pass=pass&&swim==0&&pos.y>45.0f;
+            if(!pass)fail++;
+            log.AppendLine((pass?"  PASS ":"  FAIL ")+current.Item1+" pos="+pos.ToString("F2")+" swimFrames="+swim+" grounded="+grounded+"/"+frames+" time="+(now-stageTime).ToString("F1"));
+            UnityEngine.InputSystem.InputSystem.QueueStateEvent(pad,stop);
+            spawn=true;
+            if(++stage==routes.Length)close(true);
+            return;
+        }
+        if((pos-lastPosition).sqrMagnitude>.18f){lastPosition=pos;lastCheck=now;}
+        var f=Vector3.ProjectOnPlane(cam.transform.forward,Vector3.up).normalized;
+        var r=Vector3.ProjectOnPlane(cam.transform.right,Vector3.up).normalized;
+        dir.Normalize();
+        var state=new UnityEngine.InputSystem.LowLevel.GamepadState();
+        state.leftStick=new Vector2(Vector3.Dot(dir,r),Vector3.Dot(dir,f)).normalized;
+        UnityEngine.InputSystem.InputSystem.QueueStateEvent(pad,state);
+    }
+    catch(Exception ex){log.AppendLine(ex.ToString());fail++;close(false);}
+};
+EditorApplication.update+=update;
+return "B3 플레이 검사 시작 "+routes.Length+"경로";

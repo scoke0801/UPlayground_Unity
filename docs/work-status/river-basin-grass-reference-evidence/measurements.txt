@@ -1,0 +1,32 @@
+Unity 6000.3.21f1 / Direct3D11 / Linear
+편집 모드 CameraType.Game, 1280×720, FOV 54, 원거리 1100, 제작 씬의 조명
+숲 사각형 X440–1450 / Z1600–2900. 인스턴스는 셀 중심 기준, 타일 셰이더 및 레이어는 교차하는 전체 타일 기준.
+레이어 Meadow: Grass_Albedo linearRGB=0.391/0.377/0.007 Y=0.353, remap=(0.000, 0.000, 0.000, 0.000)/(0.340, 0.560, 0.800, 1.000), smoothness=0.000, tileSize=(7.60, 7.60)
+레이어 Forest: Forest_Albedo linearRGB=0.296/0.194/0.009 Y=0.203, remap=(0.000, 0.000, 0.000, 0.000)/(0.300, 0.430, 0.660, 1.000), smoothness=0.000, tileSize=(6.30, 6.30)
+레이어 Sandstone: T_Farm_Dirt_Flat_CH linearRGB=0.240/0.173/0.109 Y=0.183, remap=(0.000, 0.000, 0.000, 0.000)/(0.728, 0.513, 0.292, 1.000), smoothness=0.000, tileSize=(3.20, 3.20)
+레이어 Rock: Rock_Albedo linearRGB=0.279/0.280/0.279 Y=0.280, remap=(0.000, 0.000, 0.000, 0.000)/(0.650, 0.690, 0.730, 1.000), smoothness=0.000, tileSize=(15.30, 15.30)
+레이어 Snow: AlpineSnow_Albedo linearRGB=0.813/0.848/0.923 Y=0.846, remap=(0.000, 0.000, 0.000, 0.000)/(0.920, 0.950, 0.980, 1.000), smoothness=0.080, tileSize=(12.80, 12.80)
+레이어 Shore: T_EastLands_RiverBed_C linearRGB=0.193/0.160/0.112 Y=0.163, remap=(0.000, 0.000, 0.000, 0.000)/(0.730, 0.827, 0.817, 1.000), smoothness=0.000, tileSize=(1.80, 1.80)
+레이어 NorthCliff: Cliff_Albedo linearRGB=0.606/0.604/0.606 Y=0.605, remap=(0.000, 0.000, 0.000, 0.000)/(0.280, 0.330, 0.390, 1.000), smoothness=0.050, tileSize=(44.00, 44.00)
+레이어 WeatheredRock: T_Farm_Rocks_CH linearRGB=0.204/0.180/0.150 Y=0.183, remap=(0.000, 0.000, 0.000, 0.000)/(0.740, 0.640, 0.480, 1.000), smoothness=0.030, tileSize=(40.00, 29.00)
+Terrain_0_3 / Universal Render Pipeline/Terrain/Lit / 90m / InstanceCountMode / 관측 최대 2, API 상한 16 / 인스턴스 65261 / Meadow=29.6%, Forest=70.3%, Sandstone=0.0%, Rock=0.0%, Snow=0.0%, Shore=0.1%, NorthCliff=0.0%, WeatheredRock=0.0%
+Terrain_1_3 / Universal Render Pipeline/Terrain/Lit / 90m / InstanceCountMode / 관측 최대 2, API 상한 16 / 인스턴스 428784 / Meadow=50.9%, Forest=48.1%, Sandstone=0.0%, Rock=0.0%, Snow=0.0%, Shore=1.0%, NorthCliff=0.0%, WeatheredRock=0.0%
+Terrain_2_3 / Universal Render Pipeline/Terrain/Lit / 90m / InstanceCountMode / 관측 최대 2, API 상한 16 / 인스턴스 382659 / Meadow=73.4%, Forest=26.6%, Sandstone=0.0%, Rock=0.0%, Snow=0.0%, Shore=0.0%, NorthCliff=0.0%, WeatheredRock=0.0%
+Terrain_0_4 / Universal Render Pipeline/Terrain/Lit / 90m / InstanceCountMode / 관측 최대 2, API 상한 16 / 인스턴스 39340 / Meadow=14.4%, Forest=60.2%, Sandstone=0.0%, Rock=3.4%, Snow=0.0%, Shore=22.0%, NorthCliff=0.0%, WeatheredRock=0.0%
+Terrain_1_4 / Universal Render Pipeline/Terrain/Lit / 90m / InstanceCountMode / 관측 최대 2, API 상한 16 / 인스턴스 311990 / Meadow=33.5%, Forest=33.0%, Sandstone=0.0%, Rock=3.9%, Snow=0.0%, Shore=29.6%, NorthCliff=0.0%, WeatheredRock=0.0%
+Terrain_2_4 / Universal Render Pipeline/Terrain/Lit / 90m / InstanceCountMode / 관측 최대 2, API 상한 16 / 인스턴스 431843 / Meadow=56.9%, Forest=43.1%, Sandstone=0.0%, Rock=0.0%, Snow=0.0%, Shore=0.0%, NorthCliff=0.0%, WeatheredRock=0.0%
+Terrain_0_5 / UPlayGround/Terrain/Sand Lit / 90m / InstanceCountMode / 관측 최대 2, API 상한 16 / 인스턴스 32024 / Meadow=33.8%, Forest=37.0%, Sandstone=0.0%, Rock=29.2%, Snow=0.0%, Shore=0.0%, NorthCliff=0.0%, WeatheredRock=0.0%
+Terrain_1_5 / UPlayGround/Terrain/Sand Lit / 90m / InstanceCountMode / 관측 최대 2, API 상한 16 / 인스턴스 330753 / Meadow=45.0%, Forest=48.1%, Sandstone=0.0%, Rock=6.9%, Snow=0.0%, Shore=0.0%, NorthCliff=0.0%, WeatheredRock=0.0%
+Terrain_2_5 / Universal Render Pipeline/Terrain/Lit / 90m / InstanceCountMode / 관측 최대 2, API 상한 16 / 인스턴스 282026 / Meadow=63.8%, Forest=36.1%, Sandstone=0.0%, Rock=0.1%, Snow=0.0%, Shore=0.0%, NorthCliff=0.0%, WeatheredRock=0.0%
+숲 사각형에 저장된 인스턴스 합 2304680
+interior (1000.00, 113.03, 2450.00) pitch/yaw 5/260 전방 12m 알파맵 Terrain_1_4 Meadow=48.6%, Forest=51.4%, Sandstone=0.0%, Rock=0.0%, Snow=0.0%, Shore=0.0%, NorthCliff=0.0%, WeatheredRock=0.0%
+FW_MI_Grass_Autumn_Small / UPlayGround/Foliage/Grass / 밑동 RGBA(0.420, 0.460, 0.210, 1.000) / 디더 True / 바람 0.2/0.2
+FW_MI_Grass_Autumn_Medium / UPlayGround/Foliage/Grass / 밑동 RGBA(0.380, 0.420, 0.190, 1.000) / 디더 True / 바람 0.2/0.2
+FW_MI_Grass_Tall_Autumn / UPlayGround/Foliage/Grass / 밑동 RGBA(0.400, 0.420, 0.200, 1.000) / 디더 True / 바람 0.2/0.2
+FW_MI_Grass_Lush / UPlayGround/Foliage/Grass / 밑동 RGBA(0.280, 0.380, 0.150, 1.000) / 디더 True / 바람 0.2/0.2
+FW_MI_Grass_Shade / UPlayGround/Foliage/Grass / 밑동 RGBA(0.330, 0.380, 0.170, 1.000) / 디더 True / 바람 0.2/0.2
+FW_MI_Grass_Dry / UPlayGround/Foliage/Grass / 밑동 RGBA(0.440, 0.420, 0.200, 1.000) / 디더 True / 바람 0.2/0.2
+ridge (1360.00, 53.45, 2850.00) pitch/yaw 7/35 전방 12m 알파맵 Terrain_2_5 Meadow=76.9%, Forest=23.1%, Sandstone=0.0%, Rock=0.0%, Snow=0.0%, Shore=0.0%, NorthCliff=0.0%, WeatheredRock=0.0%
+clearing (1130.00, 74.45, 2330.00) pitch/yaw 6/185 전방 12m 알파맵 Terrain_2_4 Meadow=71.0%, Forest=29.0%, Sandstone=0.0%, Rock=0.0%, Snow=0.0%, Shore=0.0%, NorthCliff=0.0%, WeatheredRock=0.0%
+low-meadow (1143.00, 69.62, 2320.00) pitch/yaw 1/185 전방 12m 알파맵 Terrain_2_4 Meadow=72.2%, Forest=27.8%, Sandstone=0.0%, Rock=0.0%, Snow=0.0%, Shore=0.0%, NorthCliff=0.0%, WeatheredRock=0.0%
+캡처 중 Unity 로그 오류 0, 경고 0

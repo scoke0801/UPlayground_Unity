@@ -35,6 +35,7 @@ Shader "UPlayGround/Environment/Vegetation/4fb6b4160e35c0045b7026aa2ad95152"
 		[Header(Wind)][Toggle(_USEGLOBALWINDSETTINGS_ON)] _UseGlobalWindSettings("Use Global Wind Settings?", Float) = 0
 		[HideInInspector]_WindNoiseTexture("Wind Noise Texture", 2D) = "white" {}
 		_LockPositionGradient("Lock Position Gradient", Range( 0 , 10)) = 2
+		_WindDirectionalBend("Directional Bend (m)", Range(0, 0.5)) = 0
 		_WindNoise01Size("Wind Noise 01 Size", Range( 0 , 100)) = 0
 		_WindNoise01Multiplier("Wind Noise 01 Multiplier", Range( -3 , 3)) = 1
 		_WindNoise02Size("Wind Noise 02 Size", Range( 0 , 100)) = 0
@@ -390,6 +391,7 @@ float _UseEnvironmentCells;
 			float4 _ColorTop;
 			float4 _ColorTopVariation;
 			float4 _ColorBottom;
+			float _WindDirectionalBend;
 			float _WindNoise01Size;
 			float _DitherBottomLevel;
 			float _FoliageRoughness;
@@ -436,11 +438,6 @@ float _UseEnvironmentCells;
 				int _PassValue;
 			#endif
 
-			sampler2D _WindNoiseTexture;
-			float WindNoise01;
-			float WindNoise01Multiplier;
-			float WindNoise02;
-			float WindNoise02Multiplier;
 			sampler2D _VariationMask;
 			sampler2D _MainTex;
 			float DitherBottomLevel;
@@ -493,7 +490,7 @@ float _UseEnvironmentCells;
 			}
 			
 
-			#include "Assets/06.Shaders/Foliage/UPG_FoliageInteraction.hlsl"
+			#include "Assets/06.Shaders/Foliage/UPG_GrassDeformation.hlsl"
 			PackedVaryings VertexFunction( Attributes input  )
 			{
 				PackedVaryings output = (PackedVaryings)0;
@@ -501,41 +498,6 @@ float _UseEnvironmentCells;
 				UNITY_TRANSFER_INSTANCE_ID(input, output);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
-				float4 color128 = IsGammaSpace() ? float4(0,0,0,0) : float4(0,0,0,0);
-				float3 ase_positionWS = TransformObjectToWorld( ( input.positionOS ).xyz );
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch30_g12 = WindNoise01;
-				#else
-				float staticSwitch30_g12 = _WindNoise01Size;
-				#endif
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch31_g12 = WindNoise01Multiplier;
-				#else
-				float staticSwitch31_g12 = _WindNoise01Multiplier;
-				#endif
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch33_g12 = WindNoise02;
-				#else
-				float staticSwitch33_g12 = _WindNoise02Size;
-				#endif
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch38_g12 = WindNoise02Multiplier;
-				#else
-				float staticSwitch38_g12 = _WindNoise02Multiplier;
-				#endif
-				float4 lerpResult27_g12 = lerp( ( tex2Dlod( _WindNoiseTexture, float4( ( ( float2( 0,0.2 ) * _TimeParameters.x ) + ( (ase_positionWS).xz / staticSwitch30_g12 ) ), 0, 0.0) ) * staticSwitch31_g12 ) , ( tex2Dlod( _WindNoiseTexture, float4( ( ( float2( 0,0.1 ) * _TimeParameters.x ) + ( (ase_positionWS).xz / staticSwitch33_g12 ) ), 0, 0.0) ) * staticSwitch38_g12 ) , 0.5);
-				Gradient gradient111 = NewGradient( 0, 2, 2, float4( 0, 0, 0, 0 ), float4( 1, 1, 1, 0.6294194 ), 0, 0, 0, 0, 0, 0, float2( 1, 0 ), float2( 1, 1 ), 0, 0, 0, 0, 0, 0 );
-				float2 texCoord110 = input.texcoord.xy * float2( 1,1 ) + float2( 0,0 );
-				float saferPower113 = abs( SampleGradient( gradient111, texCoord110.y ).r );
-				float saferPower194 = abs( ( input.ase_color.r + _VertexColorOffset ) );
-				float vVertexColor197 = pow( saferPower194 , _VertexColorGradient );
-				#ifdef _USEVERTEXCOLOR_ON
-				float staticSwitch191 = vVertexColor197;
-				#else
-				float staticSwitch191 = pow( saferPower113 , _LockPositionGradient );
-				#endif
-				float4 lerpResult108 = lerp( color128 , lerpResult27_g12 , staticSwitch191);
-				float4 vWind116 = lerpResult108;
 				
 				output.ase_texcoord8 = input.positionOS;
 				output.ase_texcoord9.xy = input.texcoord.xy;
@@ -549,7 +511,7 @@ float _UseEnvironmentCells;
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
 
-				float3 vertexValue = vWind116.rgb + UPG_FoliageBendOffsetOS( ase_positionWS, staticSwitch191 ); // UPG 풀 밟기
+				float3 vertexValue = UPG_GrassCurrentOffsetOS(input.positionOS.xyz, input.texcoord.y, input.ase_color.r);
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
 					input.positionOS.xyz = vertexValue;
@@ -1136,6 +1098,7 @@ float _UseEnvironmentCells;
 			float4 _ColorTop;
 			float4 _ColorTopVariation;
 			float4 _ColorBottom;
+			float _WindDirectionalBend;
 			float _WindNoise01Size;
 			float _DitherBottomLevel;
 			float _FoliageRoughness;
@@ -1182,11 +1145,6 @@ float _UseEnvironmentCells;
 				int _PassValue;
 			#endif
 
-			sampler2D _WindNoiseTexture;
-			float WindNoise01;
-			float WindNoise01Multiplier;
-			float WindNoise02;
-			float WindNoise02Multiplier;
 			sampler2D _MainTex;
 			float DitherBottomLevel;
 			float DitherFade;
@@ -1241,7 +1199,7 @@ float _UseEnvironmentCells;
 			float3 _LightDirection;
 			float3 _LightPosition;
 
-			#include "Assets/06.Shaders/Foliage/UPG_FoliageInteraction.hlsl"
+			#include "Assets/06.Shaders/Foliage/UPG_GrassDeformation.hlsl"
 			PackedVaryings VertexFunction( Attributes input )
 			{
 				PackedVaryings output;
@@ -1249,41 +1207,6 @@ float _UseEnvironmentCells;
 				UNITY_TRANSFER_INSTANCE_ID(input, output);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO( output );
 
-				float4 color128 = IsGammaSpace() ? float4(0,0,0,0) : float4(0,0,0,0);
-				float3 ase_positionWS = TransformObjectToWorld( ( input.positionOS ).xyz );
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch30_g12 = WindNoise01;
-				#else
-				float staticSwitch30_g12 = _WindNoise01Size;
-				#endif
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch31_g12 = WindNoise01Multiplier;
-				#else
-				float staticSwitch31_g12 = _WindNoise01Multiplier;
-				#endif
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch33_g12 = WindNoise02;
-				#else
-				float staticSwitch33_g12 = _WindNoise02Size;
-				#endif
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch38_g12 = WindNoise02Multiplier;
-				#else
-				float staticSwitch38_g12 = _WindNoise02Multiplier;
-				#endif
-				float4 lerpResult27_g12 = lerp( ( tex2Dlod( _WindNoiseTexture, float4( ( ( float2( 0,0.2 ) * _TimeParameters.x ) + ( (ase_positionWS).xz / staticSwitch30_g12 ) ), 0, 0.0) ) * staticSwitch31_g12 ) , ( tex2Dlod( _WindNoiseTexture, float4( ( ( float2( 0,0.1 ) * _TimeParameters.x ) + ( (ase_positionWS).xz / staticSwitch33_g12 ) ), 0, 0.0) ) * staticSwitch38_g12 ) , 0.5);
-				Gradient gradient111 = NewGradient( 0, 2, 2, float4( 0, 0, 0, 0 ), float4( 1, 1, 1, 0.6294194 ), 0, 0, 0, 0, 0, 0, float2( 1, 0 ), float2( 1, 1 ), 0, 0, 0, 0, 0, 0 );
-				float2 texCoord110 = input.ase_texcoord.xy * float2( 1,1 ) + float2( 0,0 );
-				float saferPower113 = abs( SampleGradient( gradient111, texCoord110.y ).r );
-				float saferPower194 = abs( ( input.ase_color.r + _VertexColorOffset ) );
-				float vVertexColor197 = pow( saferPower194 , _VertexColorGradient );
-				#ifdef _USEVERTEXCOLOR_ON
-				float staticSwitch191 = vVertexColor197;
-				#else
-				float staticSwitch191 = pow( saferPower113 , _LockPositionGradient );
-				#endif
-				float4 lerpResult108 = lerp( color128 , lerpResult27_g12 , staticSwitch191);
-				float4 vWind116 = lerpResult108;
 				
 				output.ase_texcoord3.xy = input.ase_texcoord.xy;
 				output.ase_texcoord4 = input.positionOS;
@@ -1297,7 +1220,7 @@ float _UseEnvironmentCells;
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
 
-				float3 vertexValue = vWind116.rgb + UPG_FoliageBendOffsetOS( ase_positionWS, staticSwitch191 ); // UPG 풀 밟기
+				float3 vertexValue = UPG_GrassCurrentOffsetOS(input.positionOS.xyz, input.ase_texcoord.y, input.ase_color.r);
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
 					input.positionOS.xyz = vertexValue;
 				#else
@@ -1619,6 +1542,7 @@ float _UseEnvironmentCells;
 			float4 _ColorTop;
 			float4 _ColorTopVariation;
 			float4 _ColorBottom;
+			float _WindDirectionalBend;
 			float _WindNoise01Size;
 			float _DitherBottomLevel;
 			float _FoliageRoughness;
@@ -1665,11 +1589,6 @@ float _UseEnvironmentCells;
 				int _PassValue;
 			#endif
 
-			sampler2D _WindNoiseTexture;
-			float WindNoise01;
-			float WindNoise01Multiplier;
-			float WindNoise02;
-			float WindNoise02Multiplier;
 			sampler2D _MainTex;
 			float DitherBottomLevel;
 			float DitherFade;
@@ -1721,7 +1640,7 @@ float _UseEnvironmentCells;
 			}
 			
 
-			#include "Assets/06.Shaders/Foliage/UPG_FoliageInteraction.hlsl"
+			#include "Assets/06.Shaders/Foliage/UPG_GrassDeformation.hlsl"
 			PackedVaryings VertexFunction( Attributes input  )
 			{
 				PackedVaryings output = (PackedVaryings)0;
@@ -1729,41 +1648,6 @@ float _UseEnvironmentCells;
 				UNITY_TRANSFER_INSTANCE_ID(input, output);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
-				float4 color128 = IsGammaSpace() ? float4(0,0,0,0) : float4(0,0,0,0);
-				float3 ase_positionWS = TransformObjectToWorld( ( input.positionOS ).xyz );
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch30_g12 = WindNoise01;
-				#else
-				float staticSwitch30_g12 = _WindNoise01Size;
-				#endif
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch31_g12 = WindNoise01Multiplier;
-				#else
-				float staticSwitch31_g12 = _WindNoise01Multiplier;
-				#endif
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch33_g12 = WindNoise02;
-				#else
-				float staticSwitch33_g12 = _WindNoise02Size;
-				#endif
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch38_g12 = WindNoise02Multiplier;
-				#else
-				float staticSwitch38_g12 = _WindNoise02Multiplier;
-				#endif
-				float4 lerpResult27_g12 = lerp( ( tex2Dlod( _WindNoiseTexture, float4( ( ( float2( 0,0.2 ) * _TimeParameters.x ) + ( (ase_positionWS).xz / staticSwitch30_g12 ) ), 0, 0.0) ) * staticSwitch31_g12 ) , ( tex2Dlod( _WindNoiseTexture, float4( ( ( float2( 0,0.1 ) * _TimeParameters.x ) + ( (ase_positionWS).xz / staticSwitch33_g12 ) ), 0, 0.0) ) * staticSwitch38_g12 ) , 0.5);
-				Gradient gradient111 = NewGradient( 0, 2, 2, float4( 0, 0, 0, 0 ), float4( 1, 1, 1, 0.6294194 ), 0, 0, 0, 0, 0, 0, float2( 1, 0 ), float2( 1, 1 ), 0, 0, 0, 0, 0, 0 );
-				float2 texCoord110 = input.ase_texcoord.xy * float2( 1,1 ) + float2( 0,0 );
-				float saferPower113 = abs( SampleGradient( gradient111, texCoord110.y ).r );
-				float saferPower194 = abs( ( input.ase_color.r + _VertexColorOffset ) );
-				float vVertexColor197 = pow( saferPower194 , _VertexColorGradient );
-				#ifdef _USEVERTEXCOLOR_ON
-				float staticSwitch191 = vVertexColor197;
-				#else
-				float staticSwitch191 = pow( saferPower113 , _LockPositionGradient );
-				#endif
-				float4 lerpResult108 = lerp( color128 , lerpResult27_g12 , staticSwitch191);
-				float4 vWind116 = lerpResult108;
 				
 				output.ase_texcoord3.xy = input.ase_texcoord.xy;
 				output.ase_texcoord4 = input.positionOS;
@@ -1777,7 +1661,7 @@ float _UseEnvironmentCells;
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
 
-				float3 vertexValue = vWind116.rgb + UPG_FoliageBendOffsetOS( ase_positionWS, staticSwitch191 ); // UPG 풀 밟기
+				float3 vertexValue = UPG_GrassCurrentOffsetOS(input.positionOS.xyz, input.ase_texcoord.y, input.ase_color.r);
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
 					input.positionOS.xyz = vertexValue;
@@ -1956,6 +1840,173 @@ ClipVegetationFuel(WorldPosition);
 		}
 
 		
+
+		Pass
+		{
+			Name "MotionVectors"
+			Tags { "LightMode" = "MotionVectors" }
+			ColorMask RG
+			AlphaToMask Off
+
+			HLSLPROGRAM
+#pragma multi_compile _ _ENVIRONMENT_REACTION_BUFFER
+#pragma target 4.5 _ENVIRONMENT_REACTION_BUFFER
+
+			#pragma vertex vert
+			#pragma fragment frag
+			#pragma multi_compile_instancing
+			#pragma multi_compile _ALPHATEST_ON
+			#pragma multi_compile_fragment _ LOD_FADE_CROSSFADE
+			#pragma shader_feature_local_vertex _USEGLOBALWINDSETTINGS_ON
+			#pragma shader_feature_local_vertex _USEVERTEXCOLOR_ON
+			#pragma shader_feature_fragment _USEDITHERING_ON
+			#pragma shader_feature_local_fragment _USEGLOBALSETTING_ON
+			#include_with_pragmas "Packages/com.unity.render-pipelines.universal/ShaderLibrary/DOTS.hlsl"
+			#include_with_pragmas "Packages/com.unity.render-pipelines.core/ShaderLibrary/FoveatedRenderingKeywords.hlsl"
+			#include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Color.hlsl"
+			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+			#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/MotionVectorsCommon.hlsl"
+			#if defined(LOD_FADE_CROSSFADE)
+				#include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/LODCrossFade.hlsl"
+			#endif
+
+			CBUFFER_START(UnityPerMaterial)
+
+float _EnvironmentReactionSupported;
+float _EnvironmentReactionBufferSupported, _EnvironmentReactionIndex;
+float4 _EnvState0, _EnvState1;
+float _FuelCoverage, _AllowFuelCoverage;
+float4 _WetTint, _CharTint, _FireColor;
+float4 _EnvironmentCellBounds;
+float _UseEnvironmentCells;
+
+			float4 _MainTex_ST;
+			float4 _ColorTop;
+			float4 _ColorTopVariation;
+			float4 _ColorBottom;
+			float _WindDirectionalBend;
+			float _WindNoise01Size;
+			float _DitherBottomLevel;
+			float _FoliageRoughness;
+			float _SpecularIntensity;
+			float _ColorBottomMaskFade;
+			float _ColorBottomLevel;
+			float _VariationMapScale;
+			float _VertexColorGradient;
+			float _VertexColorOffset;
+			float _LockPositionGradient;
+			float _WindNoise02Multiplier;
+			float _WindNoise02Size;
+			float _WindNoise01Multiplier;
+			float _DitherFade;
+			float _MaskClip;
+			#ifdef ASE_TRANSMISSION
+				float _TransmissionShadow;
+			#endif
+			#ifdef ASE_TRANSLUCENCY
+				float _TransStrength;
+				float _TransNormal;
+				float _TransScattering;
+				float _TransDirect;
+				float _TransAmbient;
+				float _TransShadow;
+			#endif
+			#ifdef ASE_TESSELLATION
+				float _TessPhongStrength;
+				float _TessValue;
+				float _TessMin;
+				float _TessMax;
+				float _TessEdgeLength;
+				float _TessMaxDisp;
+			#endif
+			CBUFFER_END
+#include "Assets/06.Shaders/Environment/VegetationReaction.hlsl"
+			#include "Assets/06.Shaders/Foliage/UPG_GrassDeformation.hlsl"
+
+			sampler2D _MainTex;
+			float DitherBottomLevel;
+			float DitherFade;
+
+			struct Attributes
+			{
+				float3 positionOS : POSITION;
+				float2 uv : TEXCOORD0;
+				float3 previousOS : TEXCOORD4;
+				float4 color : COLOR;
+				UNITY_VERTEX_INPUT_INSTANCE_ID
+			};
+
+			struct Varyings
+			{
+				float4 positionCS : SV_POSITION;
+				float3 positionWS : TEXCOORD0;
+				float3 uvHeight : TEXCOORD1;
+				float4 currentCS : TEXCOORD2;
+				float4 previousCS : TEXCOORD3;
+				float4 screenPos : TEXCOORD4;
+				UNITY_VERTEX_INPUT_INSTANCE_ID
+				UNITY_VERTEX_OUTPUT_STEREO
+			};
+
+			Varyings vert(Attributes input)
+			{
+				Varyings output = (Varyings)0;
+				UNITY_SETUP_INSTANCE_ID(input);
+				UNITY_TRANSFER_INSTANCE_ID(input, output);
+				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
+
+				float rootMask = UPG_GrassRootMask(input.uv.y, input.color.r);
+				float3 originalWS = TransformObjectToWorld(input.positionOS);
+				float3 contactWS = UPG_FoliageBendOffsetWS(originalWS, rootMask);
+				float3 currentWS = originalWS + UPG_GrassWindOffsetWS(originalWS, rootMask, _LW_Wind, _TimeParameters.x, GetObjectToWorldMatrix()) + contactWS;
+				float3 previousOS = unity_MotionVectorsParams.x == 1 ? input.previousOS : input.positionOS;
+				float3 previousWS = mul(UNITY_PREV_MATRIX_M, float4(previousOS, 1)).xyz;
+				previousWS += UPG_GrassWindOffsetWS(previousWS, rootMask, _LW_PreviousWind, _LastTimeParameters.x, UNITY_PREV_MATRIX_M) + contactWS;
+
+				output.positionWS = currentWS;
+				output.positionCS = TransformWorldToHClip(currentWS);
+				output.currentCS = mul(_NonJitteredViewProjMatrix, float4(currentWS, 1));
+				output.previousCS = mul(_PrevViewProjMatrix, float4(previousWS, 1));
+				output.uvHeight = float3(input.uv * _MainTex_ST.xy + _MainTex_ST.zw, input.positionOS.y);
+				output.screenPos = ComputeScreenPos(output.positionCS);
+				return output;
+			}
+
+			float4 frag(Varyings input) : SV_Target
+			{
+				UNITY_SETUP_INSTANCE_ID(input);
+				UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
+				float3 WorldPosition = input.positionWS;
+				float staticSwitch182 = tex2D(_MainTex, input.uvHeight.xy).a;
+				#if defined(_USEDITHERING_ON)
+					float2 pixel = input.screenPos.xy * _ScreenParams.xy / input.screenPos.w;
+					#if UNITY_UV_STARTS_AT_TOP
+						if (_ProjectionParams.x < 0) pixel.y = _ScreenParams.y - pixel.y;
+					#else
+						if (_ProjectionParams.x > 0) pixel.y = _ScreenParams.y - pixel.y;
+					#endif
+					uint2 ditherIndex = uint2(pixel) & 3;
+					const float bayer[16] = { 1, 9, 3, 11, 13, 5, 15, 7, 4, 12, 2, 10, 16, 8, 14, 6 };
+					#if defined(_USEGLOBALSETTING_ON)
+						float coverage = (input.uvHeight.z + DitherBottomLevel) * DitherFade * 2;
+					#else
+						float coverage = (input.uvHeight.z + _DitherBottomLevel) * _DitherFade * 2;
+					#endif
+					staticSwitch182 *= step(bayer[ditherIndex.y * 4 + ditherIndex.x] / 16, saturate(coverage) * 1.00001);
+				#endif
+				float Alpha = staticSwitch182;
+ClipVegetationFuel(WorldPosition);
+				#if defined(_ALPHATEST_ON)
+					clip(Alpha - _MaskClip);
+				#endif
+				#if defined(LOD_FADE_CROSSFADE)
+					LODFadeCrossFade(input.positionCS);
+				#endif
+				return float4(CalcNdcMotionVectorFromCsPositions(input.currentCS, input.previousCS), 0, 0);
+			}
+			ENDHLSL
+		}
+
 		Pass
 		{
 			
@@ -2061,6 +2112,7 @@ float _UseEnvironmentCells;
 			float4 _ColorTop;
 			float4 _ColorTopVariation;
 			float4 _ColorBottom;
+			float _WindDirectionalBend;
 			float _WindNoise01Size;
 			float _DitherBottomLevel;
 			float _FoliageRoughness;
@@ -2107,11 +2159,6 @@ float _UseEnvironmentCells;
 				int _PassValue;
 			#endif
 
-			sampler2D _WindNoiseTexture;
-			float WindNoise01;
-			float WindNoise01Multiplier;
-			float WindNoise02;
-			float WindNoise02Multiplier;
 			sampler2D _VariationMask;
 			sampler2D _MainTex;
 			float DitherBottomLevel;
@@ -2164,7 +2211,7 @@ float _UseEnvironmentCells;
 			}
 			
 
-			#include "Assets/06.Shaders/Foliage/UPG_FoliageInteraction.hlsl"
+			#include "Assets/06.Shaders/Foliage/UPG_GrassDeformation.hlsl"
 			PackedVaryings VertexFunction( Attributes input  )
 			{
 				PackedVaryings output = (PackedVaryings)0;
@@ -2172,41 +2219,6 @@ float _UseEnvironmentCells;
 				UNITY_TRANSFER_INSTANCE_ID(input, output);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
-				float4 color128 = IsGammaSpace() ? float4(0,0,0,0) : float4(0,0,0,0);
-				float3 ase_positionWS = TransformObjectToWorld( ( input.positionOS ).xyz );
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch30_g12 = WindNoise01;
-				#else
-				float staticSwitch30_g12 = _WindNoise01Size;
-				#endif
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch31_g12 = WindNoise01Multiplier;
-				#else
-				float staticSwitch31_g12 = _WindNoise01Multiplier;
-				#endif
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch33_g12 = WindNoise02;
-				#else
-				float staticSwitch33_g12 = _WindNoise02Size;
-				#endif
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch38_g12 = WindNoise02Multiplier;
-				#else
-				float staticSwitch38_g12 = _WindNoise02Multiplier;
-				#endif
-				float4 lerpResult27_g12 = lerp( ( tex2Dlod( _WindNoiseTexture, float4( ( ( float2( 0,0.2 ) * _TimeParameters.x ) + ( (ase_positionWS).xz / staticSwitch30_g12 ) ), 0, 0.0) ) * staticSwitch31_g12 ) , ( tex2Dlod( _WindNoiseTexture, float4( ( ( float2( 0,0.1 ) * _TimeParameters.x ) + ( (ase_positionWS).xz / staticSwitch33_g12 ) ), 0, 0.0) ) * staticSwitch38_g12 ) , 0.5);
-				Gradient gradient111 = NewGradient( 0, 2, 2, float4( 0, 0, 0, 0 ), float4( 1, 1, 1, 0.6294194 ), 0, 0, 0, 0, 0, 0, float2( 1, 0 ), float2( 1, 1 ), 0, 0, 0, 0, 0, 0 );
-				float2 texCoord110 = input.texcoord0.xy * float2( 1,1 ) + float2( 0,0 );
-				float saferPower113 = abs( SampleGradient( gradient111, texCoord110.y ).r );
-				float saferPower194 = abs( ( input.ase_color.r + _VertexColorOffset ) );
-				float vVertexColor197 = pow( saferPower194 , _VertexColorGradient );
-				#ifdef _USEVERTEXCOLOR_ON
-				float staticSwitch191 = vVertexColor197;
-				#else
-				float staticSwitch191 = pow( saferPower113 , _LockPositionGradient );
-				#endif
-				float4 lerpResult108 = lerp( color128 , lerpResult27_g12 , staticSwitch191);
-				float4 vWind116 = lerpResult108;
 				
 				float4 ase_positionCS = TransformObjectToHClip( ( input.positionOS ).xyz );
 				float4 screenPos = ComputeScreenPos( ase_positionCS );
@@ -2224,7 +2236,7 @@ float _UseEnvironmentCells;
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
 
-				float3 vertexValue = vWind116.rgb + UPG_FoliageBendOffsetOS( ase_positionWS, staticSwitch191 ); // UPG 풀 밟기
+				float3 vertexValue = UPG_GrassCurrentOffsetOS(input.positionOS.xyz, input.texcoord0.y, input.ase_color.r);
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
 					input.positionOS.xyz = vertexValue;
@@ -2526,6 +2538,7 @@ float _UseEnvironmentCells;
 			float4 _ColorTop;
 			float4 _ColorTopVariation;
 			float4 _ColorBottom;
+			float _WindDirectionalBend;
 			float _WindNoise01Size;
 			float _DitherBottomLevel;
 			float _FoliageRoughness;
@@ -2572,11 +2585,6 @@ float _UseEnvironmentCells;
 				int _PassValue;
 			#endif
 
-			sampler2D _WindNoiseTexture;
-			float WindNoise01;
-			float WindNoise01Multiplier;
-			float WindNoise02;
-			float WindNoise02Multiplier;
 			sampler2D _VariationMask;
 			sampler2D _MainTex;
 			float DitherBottomLevel;
@@ -2629,7 +2637,7 @@ float _UseEnvironmentCells;
 			}
 			
 
-			#include "Assets/06.Shaders/Foliage/UPG_FoliageInteraction.hlsl"
+			#include "Assets/06.Shaders/Foliage/UPG_GrassDeformation.hlsl"
 			PackedVaryings VertexFunction( Attributes input  )
 			{
 				PackedVaryings output = (PackedVaryings)0;
@@ -2637,41 +2645,6 @@ float _UseEnvironmentCells;
 				UNITY_TRANSFER_INSTANCE_ID( input, output );
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO( output );
 
-				float4 color128 = IsGammaSpace() ? float4(0,0,0,0) : float4(0,0,0,0);
-				float3 ase_positionWS = TransformObjectToWorld( ( input.positionOS ).xyz );
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch30_g12 = WindNoise01;
-				#else
-				float staticSwitch30_g12 = _WindNoise01Size;
-				#endif
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch31_g12 = WindNoise01Multiplier;
-				#else
-				float staticSwitch31_g12 = _WindNoise01Multiplier;
-				#endif
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch33_g12 = WindNoise02;
-				#else
-				float staticSwitch33_g12 = _WindNoise02Size;
-				#endif
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch38_g12 = WindNoise02Multiplier;
-				#else
-				float staticSwitch38_g12 = _WindNoise02Multiplier;
-				#endif
-				float4 lerpResult27_g12 = lerp( ( tex2Dlod( _WindNoiseTexture, float4( ( ( float2( 0,0.2 ) * _TimeParameters.x ) + ( (ase_positionWS).xz / staticSwitch30_g12 ) ), 0, 0.0) ) * staticSwitch31_g12 ) , ( tex2Dlod( _WindNoiseTexture, float4( ( ( float2( 0,0.1 ) * _TimeParameters.x ) + ( (ase_positionWS).xz / staticSwitch33_g12 ) ), 0, 0.0) ) * staticSwitch38_g12 ) , 0.5);
-				Gradient gradient111 = NewGradient( 0, 2, 2, float4( 0, 0, 0, 0 ), float4( 1, 1, 1, 0.6294194 ), 0, 0, 0, 0, 0, 0, float2( 1, 0 ), float2( 1, 1 ), 0, 0, 0, 0, 0, 0 );
-				float2 texCoord110 = input.ase_texcoord.xy * float2( 1,1 ) + float2( 0,0 );
-				float saferPower113 = abs( SampleGradient( gradient111, texCoord110.y ).r );
-				float saferPower194 = abs( ( input.ase_color.r + _VertexColorOffset ) );
-				float vVertexColor197 = pow( saferPower194 , _VertexColorGradient );
-				#ifdef _USEVERTEXCOLOR_ON
-				float staticSwitch191 = vVertexColor197;
-				#else
-				float staticSwitch191 = pow( saferPower113 , _LockPositionGradient );
-				#endif
-				float4 lerpResult108 = lerp( color128 , lerpResult27_g12 , staticSwitch191);
-				float4 vWind116 = lerpResult108;
 				
 				float4 ase_positionCS = TransformObjectToHClip( ( input.positionOS ).xyz );
 				float4 screenPos = ComputeScreenPos( ase_positionCS );
@@ -2689,7 +2662,7 @@ float _UseEnvironmentCells;
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
 
-				float3 vertexValue = vWind116.rgb + UPG_FoliageBendOffsetOS( ase_positionWS, staticSwitch191 ); // UPG 풀 밟기
+				float3 vertexValue = UPG_GrassCurrentOffsetOS(input.positionOS.xyz, input.ase_texcoord.y, input.ase_color.r);
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
 					input.positionOS.xyz = vertexValue;
@@ -2999,6 +2972,7 @@ float _UseEnvironmentCells;
 			float4 _ColorTop;
 			float4 _ColorTopVariation;
 			float4 _ColorBottom;
+			float _WindDirectionalBend;
 			float _WindNoise01Size;
 			float _DitherBottomLevel;
 			float _FoliageRoughness;
@@ -3045,11 +3019,6 @@ float _UseEnvironmentCells;
 				int _PassValue;
 			#endif
 
-			sampler2D _WindNoiseTexture;
-			float WindNoise01;
-			float WindNoise01Multiplier;
-			float WindNoise02;
-			float WindNoise02Multiplier;
 			sampler2D _MainTex;
 			float DitherBottomLevel;
 			float DitherFade;
@@ -3101,7 +3070,7 @@ float _UseEnvironmentCells;
 			}
 			
 
-			#include "Assets/06.Shaders/Foliage/UPG_FoliageInteraction.hlsl"
+			#include "Assets/06.Shaders/Foliage/UPG_GrassDeformation.hlsl"
 			PackedVaryings VertexFunction( Attributes input  )
 			{
 				PackedVaryings output = (PackedVaryings)0;
@@ -3109,41 +3078,6 @@ float _UseEnvironmentCells;
 				UNITY_TRANSFER_INSTANCE_ID(input, output);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
-				float4 color128 = IsGammaSpace() ? float4(0,0,0,0) : float4(0,0,0,0);
-				float3 ase_positionWS = TransformObjectToWorld( ( input.positionOS ).xyz );
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch30_g12 = WindNoise01;
-				#else
-				float staticSwitch30_g12 = _WindNoise01Size;
-				#endif
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch31_g12 = WindNoise01Multiplier;
-				#else
-				float staticSwitch31_g12 = _WindNoise01Multiplier;
-				#endif
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch33_g12 = WindNoise02;
-				#else
-				float staticSwitch33_g12 = _WindNoise02Size;
-				#endif
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch38_g12 = WindNoise02Multiplier;
-				#else
-				float staticSwitch38_g12 = _WindNoise02Multiplier;
-				#endif
-				float4 lerpResult27_g12 = lerp( ( tex2Dlod( _WindNoiseTexture, float4( ( ( float2( 0,0.2 ) * _TimeParameters.x ) + ( (ase_positionWS).xz / staticSwitch30_g12 ) ), 0, 0.0) ) * staticSwitch31_g12 ) , ( tex2Dlod( _WindNoiseTexture, float4( ( ( float2( 0,0.1 ) * _TimeParameters.x ) + ( (ase_positionWS).xz / staticSwitch33_g12 ) ), 0, 0.0) ) * staticSwitch38_g12 ) , 0.5);
-				Gradient gradient111 = NewGradient( 0, 2, 2, float4( 0, 0, 0, 0 ), float4( 1, 1, 1, 0.6294194 ), 0, 0, 0, 0, 0, 0, float2( 1, 0 ), float2( 1, 1 ), 0, 0, 0, 0, 0, 0 );
-				float2 texCoord110 = input.ase_texcoord.xy * float2( 1,1 ) + float2( 0,0 );
-				float saferPower113 = abs( SampleGradient( gradient111, texCoord110.y ).r );
-				float saferPower194 = abs( ( input.ase_color.r + _VertexColorOffset ) );
-				float vVertexColor197 = pow( saferPower194 , _VertexColorGradient );
-				#ifdef _USEVERTEXCOLOR_ON
-				float staticSwitch191 = vVertexColor197;
-				#else
-				float staticSwitch191 = pow( saferPower113 , _LockPositionGradient );
-				#endif
-				float4 lerpResult108 = lerp( color128 , lerpResult27_g12 , staticSwitch191);
-				float4 vWind116 = lerpResult108;
 				
 				output.ase_texcoord5.xy = input.ase_texcoord.xy;
 				output.ase_texcoord6 = input.positionOS;
@@ -3156,7 +3090,7 @@ float _UseEnvironmentCells;
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
 
-				float3 vertexValue = vWind116.rgb + UPG_FoliageBendOffsetOS( ase_positionWS, staticSwitch191 ); // UPG 풀 밟기
+				float3 vertexValue = UPG_GrassCurrentOffsetOS(input.positionOS.xyz, input.ase_texcoord.y, input.ase_color.r);
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
 					input.positionOS.xyz = vertexValue;
@@ -3553,6 +3487,7 @@ float _UseEnvironmentCells;
 			float4 _ColorTop;
 			float4 _ColorTopVariation;
 			float4 _ColorBottom;
+			float _WindDirectionalBend;
 			float _WindNoise01Size;
 			float _DitherBottomLevel;
 			float _FoliageRoughness;
@@ -3599,11 +3534,6 @@ float _UseEnvironmentCells;
 				int _PassValue;
 			#endif
 
-			sampler2D _WindNoiseTexture;
-			float WindNoise01;
-			float WindNoise01Multiplier;
-			float WindNoise02;
-			float WindNoise02Multiplier;
 			sampler2D _VariationMask;
 			sampler2D _MainTex;
 			float DitherBottomLevel;
@@ -3658,7 +3588,7 @@ float _UseEnvironmentCells;
 			}
 			
 
-			#include "Assets/06.Shaders/Foliage/UPG_FoliageInteraction.hlsl"
+			#include "Assets/06.Shaders/Foliage/UPG_GrassDeformation.hlsl"
 			PackedVaryings VertexFunction( Attributes input  )
 			{
 				PackedVaryings output = (PackedVaryings)0;
@@ -3666,41 +3596,6 @@ float _UseEnvironmentCells;
 				UNITY_TRANSFER_INSTANCE_ID(input, output);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
-				float4 color128 = IsGammaSpace() ? float4(0,0,0,0) : float4(0,0,0,0);
-				float3 ase_positionWS = TransformObjectToWorld( ( input.positionOS ).xyz );
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch30_g12 = WindNoise01;
-				#else
-				float staticSwitch30_g12 = _WindNoise01Size;
-				#endif
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch31_g12 = WindNoise01Multiplier;
-				#else
-				float staticSwitch31_g12 = _WindNoise01Multiplier;
-				#endif
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch33_g12 = WindNoise02;
-				#else
-				float staticSwitch33_g12 = _WindNoise02Size;
-				#endif
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch38_g12 = WindNoise02Multiplier;
-				#else
-				float staticSwitch38_g12 = _WindNoise02Multiplier;
-				#endif
-				float4 lerpResult27_g12 = lerp( ( tex2Dlod( _WindNoiseTexture, float4( ( ( float2( 0,0.2 ) * _TimeParameters.x ) + ( (ase_positionWS).xz / staticSwitch30_g12 ) ), 0, 0.0) ) * staticSwitch31_g12 ) , ( tex2Dlod( _WindNoiseTexture, float4( ( ( float2( 0,0.1 ) * _TimeParameters.x ) + ( (ase_positionWS).xz / staticSwitch33_g12 ) ), 0, 0.0) ) * staticSwitch38_g12 ) , 0.5);
-				Gradient gradient111 = NewGradient( 0, 2, 2, float4( 0, 0, 0, 0 ), float4( 1, 1, 1, 0.6294194 ), 0, 0, 0, 0, 0, 0, float2( 1, 0 ), float2( 1, 1 ), 0, 0, 0, 0, 0, 0 );
-				float2 texCoord110 = input.texcoord.xy * float2( 1,1 ) + float2( 0,0 );
-				float saferPower113 = abs( SampleGradient( gradient111, texCoord110.y ).r );
-				float saferPower194 = abs( ( input.ase_color.r + _VertexColorOffset ) );
-				float vVertexColor197 = pow( saferPower194 , _VertexColorGradient );
-				#ifdef _USEVERTEXCOLOR_ON
-				float staticSwitch191 = vVertexColor197;
-				#else
-				float staticSwitch191 = pow( saferPower113 , _LockPositionGradient );
-				#endif
-				float4 lerpResult108 = lerp( color128 , lerpResult27_g12 , staticSwitch191);
-				float4 vWind116 = lerpResult108;
 				
 				output.ase_texcoord8 = input.positionOS;
 				output.ase_texcoord9.xy = input.texcoord.xy;
@@ -3713,7 +3608,7 @@ float _UseEnvironmentCells;
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
 
-				float3 vertexValue = vWind116.rgb + UPG_FoliageBendOffsetOS( ase_positionWS, staticSwitch191 ); // UPG 풀 밟기
+				float3 vertexValue = UPG_GrassCurrentOffsetOS(input.positionOS.xyz, input.texcoord.y, input.ase_color.r);
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
 					input.positionOS.xyz = vertexValue;
@@ -4155,6 +4050,7 @@ float _UseEnvironmentCells;
 			float4 _ColorTop;
 			float4 _ColorTopVariation;
 			float4 _ColorBottom;
+			float _WindDirectionalBend;
 			float _WindNoise01Size;
 			float _DitherBottomLevel;
 			float _FoliageRoughness;
@@ -4201,11 +4097,6 @@ float _UseEnvironmentCells;
 				int _PassValue;
 			#endif
 
-			sampler2D _WindNoiseTexture;
-			float WindNoise01;
-			float WindNoise01Multiplier;
-			float WindNoise02;
-			float WindNoise02Multiplier;
 			sampler2D _MainTex;
 			float DitherBottomLevel;
 			float DitherFade;
@@ -4263,7 +4154,7 @@ float _UseEnvironmentCells;
 				float AlphaClipThreshold;
 			};
 
-			#include "Assets/06.Shaders/Foliage/UPG_FoliageInteraction.hlsl"
+			#include "Assets/06.Shaders/Foliage/UPG_GrassDeformation.hlsl"
 			PackedVaryings VertexFunction(Attributes input  )
 			{
 				PackedVaryings output;
@@ -4273,41 +4164,6 @@ float _UseEnvironmentCells;
 				UNITY_TRANSFER_INSTANCE_ID(input, output);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
-				float4 color128 = IsGammaSpace() ? float4(0,0,0,0) : float4(0,0,0,0);
-				float3 ase_positionWS = TransformObjectToWorld( ( input.positionOS ).xyz );
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch30_g12 = WindNoise01;
-				#else
-				float staticSwitch30_g12 = _WindNoise01Size;
-				#endif
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch31_g12 = WindNoise01Multiplier;
-				#else
-				float staticSwitch31_g12 = _WindNoise01Multiplier;
-				#endif
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch33_g12 = WindNoise02;
-				#else
-				float staticSwitch33_g12 = _WindNoise02Size;
-				#endif
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch38_g12 = WindNoise02Multiplier;
-				#else
-				float staticSwitch38_g12 = _WindNoise02Multiplier;
-				#endif
-				float4 lerpResult27_g12 = lerp( ( tex2Dlod( _WindNoiseTexture, float4( ( ( float2( 0,0.2 ) * _TimeParameters.x ) + ( (ase_positionWS).xz / staticSwitch30_g12 ) ), 0, 0.0) ) * staticSwitch31_g12 ) , ( tex2Dlod( _WindNoiseTexture, float4( ( ( float2( 0,0.1 ) * _TimeParameters.x ) + ( (ase_positionWS).xz / staticSwitch33_g12 ) ), 0, 0.0) ) * staticSwitch38_g12 ) , 0.5);
-				Gradient gradient111 = NewGradient( 0, 2, 2, float4( 0, 0, 0, 0 ), float4( 1, 1, 1, 0.6294194 ), 0, 0, 0, 0, 0, 0, float2( 1, 0 ), float2( 1, 1 ), 0, 0, 0, 0, 0, 0 );
-				float2 texCoord110 = input.ase_texcoord.xy * float2( 1,1 ) + float2( 0,0 );
-				float saferPower113 = abs( SampleGradient( gradient111, texCoord110.y ).r );
-				float saferPower194 = abs( ( input.ase_color.r + _VertexColorOffset ) );
-				float vVertexColor197 = pow( saferPower194 , _VertexColorGradient );
-				#ifdef _USEVERTEXCOLOR_ON
-				float staticSwitch191 = vVertexColor197;
-				#else
-				float staticSwitch191 = pow( saferPower113 , _LockPositionGradient );
-				#endif
-				float4 lerpResult108 = lerp( color128 , lerpResult27_g12 , staticSwitch191);
-				float4 vWind116 = lerpResult108;
 				
 				float4 ase_positionCS = TransformObjectToHClip( ( input.positionOS ).xyz );
 				float4 screenPos = ComputeScreenPos( ase_positionCS );
@@ -4325,7 +4181,7 @@ float _UseEnvironmentCells;
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
 
-				float3 vertexValue = vWind116.rgb + UPG_FoliageBendOffsetOS( ase_positionWS, staticSwitch191 ); // UPG 풀 밟기
+				float3 vertexValue = UPG_GrassCurrentOffsetOS(input.positionOS.xyz, input.ase_texcoord.y, input.ase_color.r);
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
 					input.positionOS.xyz = vertexValue;
@@ -4586,6 +4442,7 @@ float _UseEnvironmentCells;
 			float4 _ColorTop;
 			float4 _ColorTopVariation;
 			float4 _ColorBottom;
+			float _WindDirectionalBend;
 			float _WindNoise01Size;
 			float _DitherBottomLevel;
 			float _FoliageRoughness;
@@ -4632,11 +4489,6 @@ float _UseEnvironmentCells;
 				int _PassValue;
 			#endif
 
-			sampler2D _WindNoiseTexture;
-			float WindNoise01;
-			float WindNoise01Multiplier;
-			float WindNoise02;
-			float WindNoise02Multiplier;
 			sampler2D _MainTex;
 			float DitherBottomLevel;
 			float DitherFade;
@@ -4694,7 +4546,7 @@ float _UseEnvironmentCells;
 				float AlphaClipThreshold;
 			};
 
-			#include "Assets/06.Shaders/Foliage/UPG_FoliageInteraction.hlsl"
+			#include "Assets/06.Shaders/Foliage/UPG_GrassDeformation.hlsl"
 			PackedVaryings VertexFunction(Attributes input  )
 			{
 				PackedVaryings output;
@@ -4704,41 +4556,6 @@ float _UseEnvironmentCells;
 				UNITY_TRANSFER_INSTANCE_ID(input, output);
 				UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
-				float4 color128 = IsGammaSpace() ? float4(0,0,0,0) : float4(0,0,0,0);
-				float3 ase_positionWS = TransformObjectToWorld( ( input.positionOS ).xyz );
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch30_g12 = WindNoise01;
-				#else
-				float staticSwitch30_g12 = _WindNoise01Size;
-				#endif
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch31_g12 = WindNoise01Multiplier;
-				#else
-				float staticSwitch31_g12 = _WindNoise01Multiplier;
-				#endif
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch33_g12 = WindNoise02;
-				#else
-				float staticSwitch33_g12 = _WindNoise02Size;
-				#endif
-				#ifdef _USEGLOBALWINDSETTINGS_ON
-				float staticSwitch38_g12 = WindNoise02Multiplier;
-				#else
-				float staticSwitch38_g12 = _WindNoise02Multiplier;
-				#endif
-				float4 lerpResult27_g12 = lerp( ( tex2Dlod( _WindNoiseTexture, float4( ( ( float2( 0,0.2 ) * _TimeParameters.x ) + ( (ase_positionWS).xz / staticSwitch30_g12 ) ), 0, 0.0) ) * staticSwitch31_g12 ) , ( tex2Dlod( _WindNoiseTexture, float4( ( ( float2( 0,0.1 ) * _TimeParameters.x ) + ( (ase_positionWS).xz / staticSwitch33_g12 ) ), 0, 0.0) ) * staticSwitch38_g12 ) , 0.5);
-				Gradient gradient111 = NewGradient( 0, 2, 2, float4( 0, 0, 0, 0 ), float4( 1, 1, 1, 0.6294194 ), 0, 0, 0, 0, 0, 0, float2( 1, 0 ), float2( 1, 1 ), 0, 0, 0, 0, 0, 0 );
-				float2 texCoord110 = input.ase_texcoord.xy * float2( 1,1 ) + float2( 0,0 );
-				float saferPower113 = abs( SampleGradient( gradient111, texCoord110.y ).r );
-				float saferPower194 = abs( ( input.ase_color.r + _VertexColorOffset ) );
-				float vVertexColor197 = pow( saferPower194 , _VertexColorGradient );
-				#ifdef _USEVERTEXCOLOR_ON
-				float staticSwitch191 = vVertexColor197;
-				#else
-				float staticSwitch191 = pow( saferPower113 , _LockPositionGradient );
-				#endif
-				float4 lerpResult108 = lerp( color128 , lerpResult27_g12 , staticSwitch191);
-				float4 vWind116 = lerpResult108;
 				
 				float4 ase_positionCS = TransformObjectToHClip( ( input.positionOS ).xyz );
 				float4 screenPos = ComputeScreenPos( ase_positionCS );
@@ -4756,7 +4573,7 @@ float _UseEnvironmentCells;
 					float3 defaultVertexValue = float3(0, 0, 0);
 				#endif
 
-				float3 vertexValue = vWind116.rgb + UPG_FoliageBendOffsetOS( ase_positionWS, staticSwitch191 ); // UPG 풀 밟기
+				float3 vertexValue = UPG_GrassCurrentOffsetOS(input.positionOS.xyz, input.ase_texcoord.y, input.ase_color.r);
 
 				#ifdef ASE_ABSOLUTE_VERTEX_POS
 					input.positionOS.xyz = vertexValue;

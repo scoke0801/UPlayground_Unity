@@ -1,0 +1,372 @@
+﻿// Unity MCP execute_code 본문. preview는 복제 지형에서만 수정하고, apply는 같은 패치의 해시를 확인한 뒤 저장한다.
+const string stage = "preview";
+const string scenePath = "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Preview/RiverBasin4km.unity";
+const string output = "output/RiverBasinWorld/GrassReferencePhase3";
+var active = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (active.path != scenePath || active.isDirty || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("저장된 제작 씬의 편집 모드에서 실행합니다.");
+var center = new Vector2(1170, 2270);
+var preview = UnityEditor.SceneManagement.EditorSceneManager.OpenPreviewScene(scenePath);
+var oldTarget = RenderTexture.active;
+var oldWind = Shader.GetGlobalVector("_LW_Wind");
+var oldPrevWind = Shader.GetGlobalVector("_LW_PreviousWind");
+RenderTexture targetTexture = null;
+Texture2D pixels = null;
+TerrainData copy = null;
+int errors = 0;
+Application.LogCallback trackErrors = (message, stack, type) => {
+    if (type == LogType.Error || type == LogType.Exception || type == LogType.Assert) errors++;
+};
+Application.logMessageReceived += trackErrors;
+try
+{
+    System.IO.Directory.CreateDirectory(output);
+    var terrains = preview.GetRootGameObjects().SelectMany(root => root.GetComponentsInChildren<Terrain>()).ToArray();
+    var crowns = new System.Collections.Generic.List<Vector3>();
+    var radii = new System.Collections.Generic.Dictionary<GameObject, float>();
+    Func<GameObject, float> crownRadius = prefab => {
+        float radius;
+        if (radii.TryGetValue(prefab, out radius)) return radius;
+        var lod = prefab.GetComponentInChildren<LODGroup>(true);
+        var renderers = lod != null && lod.lodCount > 0 ? lod.GetLODs()[0].renderers : prefab.GetComponentsInChildren<Renderer>();
+        foreach (var renderer in renderers)
+        {
+            if (!renderer) continue;
+            var filter = renderer.GetComponent<MeshFilter>();
+            if (!filter || !filter.sharedMesh) continue;
+            var bounds = filter.sharedMesh.bounds;
+            var scale = renderer.transform.lossyScale;
+            radius = Mathf.Max(radius, Mathf.Abs(bounds.min.x * scale.x), Mathf.Abs(bounds.max.x * scale.x),
+                Mathf.Abs(bounds.min.z * scale.z), Mathf.Abs(bounds.max.z * scale.z));
+        }
+        radius *= 0.85f;
+        radii.Add(prefab, radius);
+        return radius;
+    };
+    foreach (var treeTile in terrains)
+    {
+        var pos = treeTile.GetPosition();
+        var data = treeTile.terrainData;
+        if (pos.x >= 1240 || pos.z >= 2420 || pos.x + data.size.x < 1010 || pos.z + data.size.z < 2160) continue;
+        var prototypes = data.treePrototypes;
+        foreach (var instance in data.treeInstances)
+        {
+            var wp = pos + Vector3.Scale(instance.position, data.size);
+            if (wp.x < 1010 || wp.x > 1240 || wp.z < 2160 || wp.z > 2420) continue;
+            var prefab = prototypes[instance.prototypeIndex].prefab;
+            if (!prefab) throw new InvalidOperationException(treeTile.name + " 나무 프리팹 누락");
+            var radius = crownRadius(prefab) * instance.widthScale;
+            if (radius >= 1.2f) crowns.Add(new Vector3(wp.x, wp.z, radius));
+        }
+    }
+    var separateTrees = preview.GetRootGameObjects().SelectMany(root => root.GetComponentsInChildren<Transform>())
+        .SingleOrDefault(node => node.name == "ForestWest 반응형 수목");
+    if (separateTrees != null)
+        foreach (Transform tree in separateTrees)
+        {
+            var p = tree.position;
+            if (p.x < 1010 || p.x > 1240 || p.z < 2160 || p.z > 2420) continue;
+            var sourcePrefab = PrefabUtility.GetCorrespondingObjectFromSource(tree.gameObject);
+            float radius = (sourcePrefab ? crownRadius(sourcePrefab) : 4f) * tree.lossyScale.x;
+            if (radius >= 1.2f) crowns.Add(new Vector3(p.x, p.z, radius));
+        }
+
+
+    int totalSamples = 0, covered = 0;
+    for (int dx = -18; dx <= 18; dx += 3)
+        for (int dz = -24; dz <= 24; dz += 3)
+        {
+            if (dx * dx / 324f + dz * dz / 576f > 1) continue;
+            totalSamples++;
+            var point = center + new Vector2(dx, dz);
+            if (crowns.Any(c => (point - new Vector2(c.x, c.y)).sqrMagnitude < c.z * c.z)) covered++;
+        }
+    float cover = 100f * covered / totalSamples;
+    if (cover < 20 || cover > 30) throw new InvalidOperationException("후보의 예상 수관 피복 범위를 벗어났습니다. " + cover);
+
+    var tile = terrains.Single(t => t.name == "Terrain_2_4");
+    var origin = tile.GetPosition();
+    var sourceData = tile.terrainData;
+    if (sourceData.detailScatterMode != DetailScatterMode.InstanceCountMode)
+        throw new InvalidOperationException("저장된 값이 인스턴스 수인 지형에서 실행합니다.");
+    var detailPrototypes = sourceData.detailPrototypes;
+    if (detailPrototypes.Any(d => !d.prototype || d.prototype.GetComponent<MeshRenderer>() == null ||
+        d.prototype.GetComponent<MeshRenderer>().sharedMaterials.Any(m => !m || !m.shader)))
+        throw new InvalidOperationException("풀 프리팹 또는 재질 참조 누락");
+    int tallIndex = Array.FindIndex(detailPrototypes, p => p.prototype.name == "PF_FW_TallGrass_02_Autumn_Detail" && p.maxHeight < 0.34f);
+    if (tallIndex < 0) throw new InvalidOperationException("Phase 2 키 큰 풀 배율을 먼저 적용합니다.");
+    float step = sourceData.size.x / sourceData.detailWidth;
+    float stepZ = sourceData.size.z / sourceData.detailHeight;
+    int x0 = Mathf.FloorToInt((center.x - 65 - origin.x) / step);
+    int z0 = Mathf.FloorToInt((center.y - 75 - origin.z) / stepZ);
+    int width = Mathf.CeilToInt(130 / step), height = Mathf.CeilToInt(150 / stepZ);
+    if (x0 < 0 || z0 < 0 || x0 + width > sourceData.detailWidth || z0 + height > sourceData.detailHeight)
+        throw new InvalidOperationException("풀밭과 주변 회수 영역은 한 타일 안에서 끝나야 합니다.");
+    var layerValues = Enumerable.Range(0, detailPrototypes.Length)
+        .Select(i => sourceData.GetDetailLayer(x0, z0, width, height, i)).ToArray();
+    var original = layerValues[tallIndex];
+    var pending = (int[,])original.Clone();
+    var routeSource = System.IO.File.ReadAllText("Tools/RiverBasinWorld/Rebuild/forest-west-grass.cs.txt");
+    var routes = new System.Collections.Generic.List<Vector4>();
+    foreach (System.Text.RegularExpressions.Match match in System.Text.RegularExpressions.Regex.Matches(routeSource,
+        @"AddPath\(new float\[\] \{ ([0-9, ]+) \}\);"))
+    {
+        var coords = match.Groups[1].Value.Split(',').Select(v => float.Parse(v, System.Globalization.CultureInfo.InvariantCulture)).ToArray();
+        for (int i = 0; i + 3 < coords.Length; i += 2)
+            routes.Add(new Vector4(coords[i], coords[i + 1], coords[i + 2], coords[i + 3]));
+    }
+    if (routes.Count == 0) throw new InvalidOperationException("서부 숲 동선 원본 누락");
+    Func<Vector2, float> distanceToRoute = point => {
+        float closest = float.PositiveInfinity;
+        foreach (var route in routes)
+        {
+            var a = new Vector2(route.x, route.y);
+            var segment = new Vector2(route.z, route.w) - a;
+            float t = Mathf.Clamp01(Vector2.Dot(point - a, segment) / segment.sqrMagnitude);
+            closest = Mathf.Min(closest, (point - (a + segment * t)).sqrMagnitude);
+        }
+        return Mathf.Sqrt(closest);
+    };
+    Func<Vector2, bool> reserved = point => {
+        float px = (point.x - 1310) / 70.15f, pz = (point.y - 2060) / 57.5f;
+        return px * px + pz * pz <= 1 ||
+            (point.x >= 826 && point.x <= 1024 && point.y >= 2172 && point.y <= 2412);
+    };
+
+    var waters = new System.Collections.Generic.List<MeshCollider>();
+    var waterRoot = preview.GetRootGameObjects().Single(o => o.name == "RiverBasin 수면");
+    foreach (Transform water in waterRoot.transform)
+    {
+        var renderer = water.GetComponent<MeshRenderer>();
+        var filter = water.GetComponent<MeshFilter>();
+        if (!renderer || !filter || !filter.sharedMesh) continue;
+        var bounds = renderer.bounds;
+        if (bounds.min.x > center.x + 65 || bounds.max.x < center.x - 65 ||
+            bounds.min.z > center.y + 75 || bounds.max.z < center.y - 75) continue;
+        var collider = water.gameObject.AddComponent<MeshCollider>();
+        collider.sharedMesh = filter.sharedMesh;
+        waters.Add(collider);
+    }
+    Physics.SyncTransforms();
+    float[] offsets = { -0.26f, 0, 0.26f };
+    Func<Vector2, bool> dry = point => {
+        foreach (var water in waters)
+            foreach (float ox in offsets)
+                foreach (float oz in offsets)
+                {
+                    var ray = new Ray(new Vector3(point.x + ox, 900, point.y + oz), Vector3.down);
+                    RaycastHit hit;
+                    if (!water.Raycast(ray, out hit, 1000)) continue;
+                    if (tile.SampleHeight(hit.point) + origin.y < hit.point.y + 0.10f) return false;
+                }
+        return true;
+    };
+
+    var localCrowns = crowns.Where(c => Mathf.Abs(c.x - center.x) < 75 && Mathf.Abs(c.y - center.y) < 85).ToArray();
+    Func<Vector2, float> sun = point => {
+        float shade = 0;
+        foreach (var crown in localCrowns)
+        {
+            float dx = crown.x - point.x, dz = crown.y - point.y;
+            float r = crown.z;
+            if (Mathf.Abs(dx) > r * 1.25f || Mathf.Abs(dz) > r * 1.25f) continue;
+            float distance = Mathf.Sqrt(dx * dx + dz * dz);
+            shade = Mathf.Max(shade, 1 - Mathf.SmoothStep(0, 1, Mathf.InverseLerp(r * 0.46f, r * 1.25f, distance)));
+        }
+        return 1 - shade;
+    };
+    var recipients = new System.Collections.Generic.List<Vector3>();
+    var donors = new System.Collections.Generic.List<Vector3>();
+    long before = 0;
+    for (int z = 0; z < height; z++)
+        for (int x = 0; x < width; x++)
+        {
+            before += original[z, x];
+            var point = new Vector2(origin.x + (x0 + x + 0.5f) * step, origin.z + (z0 + z + 0.5f) * stepZ);
+            if (point.x < 440 || point.x >= 1450 || point.y < 1600 || point.y >= 2900 || reserved(point)) continue;
+            float nx = (point.x - center.x) / 18, nz = (point.y - center.y) / 24;
+            float radial = Mathf.Sqrt(nx * nx + nz * nz);
+            float patch = Mathf.PerlinNoise(point.x * 0.13f + 17.1f, point.y * 0.13f + 2.6f);
+            float exposure = sun(point);
+            float envelope = Mathf.SmoothStep(0, 1, Mathf.InverseLerp(1.18f, 0.30f, radial + (patch - 0.5f) * 0.28f));
+            if (envelope > 0 && exposure > 0.35f)
+            {
+                int grass = 0, total = 0;
+                for (int i = 0; i < layerValues.Length; i++)
+                {
+                    int count = layerValues[i][z, x];
+                    total += count;
+                    if (i <= 6 || i == tallIndex) grass += count;
+                }
+                if (grass > 0 && total < 2 && distanceToRoute(point) >= 4.75f && dry(point) &&
+                    sourceData.GetSteepness((point.x - origin.x) / sourceData.size.x, (point.y - origin.z) / sourceData.size.z) <= 24f)
+                {
+                    float weight = envelope * exposure * Mathf.Lerp(0.55f, 1f, patch);
+                    if (weight > 0.11f) recipients.Add(new Vector3(x, z, weight));
+                }
+            }
+            else if (radial >= 1.50f && radial <= 3.20f && original[z, x] > 0 && distanceToRoute(point) >= 4.75f)
+            {
+                float band = 1 - Mathf.Abs(radial - 2.35f) / 0.85f;
+                float weight = (0.60f * (1 - exposure) + 0.40f * patch) * Mathf.Lerp(0.45f, 1, band);
+                donors.Add(new Vector3(x, z, weight));
+            }
+        }
+
+    var targets = recipients.OrderByDescending(v => v.z).ToArray();
+    var supply = donors.OrderByDescending(v => v.z).ToArray();
+    int transfer = Mathf.Min(targets.Length, Mathf.FloorToInt(supply.Length * 0.45f));
+    if (transfer < 100) throw new InvalidOperationException("초지 후보의 기존 풀 또는 주변 회수 여유 부족");
+    long meadowBefore = 0;
+    long meadowAfter = 0;
+    for (int i = 0; i < transfer; i++)
+    {
+        int tx = (int)targets[i].x, tz = (int)targets[i].y;
+        meadowBefore += pending[tz, tx];
+        meadowAfter += ++pending[tz, tx];
+        pending[(int)supply[i].y, (int)supply[i].x]--;
+    }
+    long after = 0;
+    int added = 0, removed = 0;
+    float minimumRouteDistance = float.PositiveInfinity;
+    for (int z = 0; z < height; z++)
+        for (int x = 0; x < width; x++)
+        {
+            int change = pending[z, x] - original[z, x];
+            after += pending[z, x];
+            if (change > 0)
+            {
+                var point = new Vector2(origin.x + (x0 + x + .5f) * step, origin.z + (z0 + z + .5f) * stepZ);
+                minimumRouteDistance = Mathf.Min(minimumRouteDistance, distanceToRoute(point));
+                if (minimumRouteDistance < 4.75f || !dry(point) || reserved(point))
+                    throw new InvalidOperationException("길·수면·부지 보호 검사 실패");
+                added += change;
+            }
+            if (change < 0) removed -= change;
+        }
+    if (before != after || added != removed || added != transfer)
+        throw new InvalidOperationException("풀 인스턴스 예산 불일치");
+    var log = new System.Text.StringBuilder();
+    log.AppendLine("중심 X/Z=" + center.ToString("F2") + " / 수관 " + cover + "% / 분포 반경 X18m Z24m");
+    log.AppendLine(tile.name + " / 레이어 " + tallIndex + " / 패치 X " + x0 + " Z " + z0 + " W " + width + " H " + height);
+    log.AppendLine("키 큰 풀 추가/회수 " + added + "/" + removed + " / 패치 내 해당 층 " + before + " → " + after);
+    log.AppendLine("밀도 조정 셀의 키 큰 풀 " + meadowBefore + " → " + meadowAfter + " / 기존 식생 셀만 사용");
+    log.AppendLine("변경 양수 셀의 길 중심 최소 " + minimumRouteDistance.ToString("F2") + "m / 수면과 부지 침범 0 / 수면 메시 후보 " + waters.Count);
+    log.AppendLine("나무와 퀘스트 배치 원본 사용");
+
+    Func<TerrainData, bool> verifyLayer = d => {
+        var observed = d.GetDetailLayer(x0, z0, width, height, tallIndex);
+        for (int z = 0; z < height; z++)
+            for (int x = 0; x < width; x++)
+                if (observed[z, x] != pending[z, x]) return false;
+        return true;
+    };
+
+    var bytes = new byte[Buffer.ByteLength(pending)];
+    Buffer.BlockCopy(pending, 0, bytes, 0, bytes.Length);
+    string digest;
+    using (var sha = System.Security.Cryptography.SHA256.Create())
+        digest = BitConverter.ToString(sha.ComputeHash(bytes)).Replace("-", "");
+    log.AppendLine("패치 SHA-256 " + digest);
+    string previewAudit = output + "/preview-meadow.txt";
+    if (stage == "apply")
+    {
+        if (!System.IO.File.Exists(previewAudit) || !System.IO.File.ReadAllText(previewAudit).Contains("패치 SHA-256 " + digest))
+            throw new InvalidOperationException("검증한 복제 패치와 제작 적용 예정 값이 다릅니다.");
+        string path = AssetDatabase.GetAssetPath(sourceData);
+        var liveTile = active.GetRootGameObjects().SelectMany(root => root.GetComponentsInChildren<Terrain>())
+            .Single(t => t.terrainData == sourceData);
+        var trees = sourceData.treeInstances;
+        var treePrototypes = sourceData.treePrototypes.Select(p => p.prefab).ToArray();
+        string backup = output + "/backup-" + DateTime.Now.ToString("yyyyMMdd-HHmmss-fff");
+        System.IO.Directory.CreateDirectory(backup);
+        System.IO.File.Copy(path, backup + "/" + System.IO.Path.GetFileName(path));
+        System.IO.File.Copy(path + ".meta", backup + "/" + System.IO.Path.GetFileName(path) + ".meta");
+        Undo.IncrementCurrentGroup();
+        int group = Undo.GetCurrentGroup();
+        Undo.RegisterCompleteObjectUndo(sourceData, "서부 숲 풀밭 밀도");
+        try
+        {
+            sourceData.SetDetailLayer(x0, z0, tallIndex, pending);
+            if (!verifyLayer(sourceData) || !trees.SequenceEqual(sourceData.treeInstances) ||
+                !treePrototypes.SequenceEqual(sourceData.treePrototypes.Select(p => p.prefab)))
+                throw new InvalidOperationException("제작 지형의 풀 값 또는 나무 원본 불일치");
+            if (errors != 0) throw new InvalidOperationException("저작 중 Unity 오류 " + errors);
+            EditorUtility.SetDirty(sourceData);
+            AssetDatabase.SaveAssetIfDirty(sourceData);
+            liveTile.Flush();
+            Undo.CollapseUndoOperations(group);
+        }
+        catch
+        {
+            Undo.RevertAllDownToGroup(group);
+            AssetDatabase.SaveAssetIfDirty(sourceData);
+            liveTile.Flush();
+            throw;
+        }
+        log.AppendLine("제작 에셋 " + path + " / 원본 백업 " + backup);
+        System.IO.File.WriteAllText(output + "/apply-meadow.txt", log.ToString());
+        return log.ToString();
+    }
+
+    targetTexture = RenderTexture.GetTemporary(1280, 720, 24);
+    pixels = new Texture2D(targetTexture.width, targetTexture.height, TextureFormat.RGB24, false);
+    var cameraRoot = new GameObject("서부 숲 풀밭 검증 카메라");
+    UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(cameraRoot, preview);
+    var camera = cameraRoot.AddComponent<Camera>();
+    camera.enabled = false;
+    camera.scene = preview;
+    camera.cameraType = CameraType.Game;
+    camera.fieldOfView = 54;
+    camera.nearClipPlane = 0.1f;
+    camera.farClipPlane = 1100;
+    camera.targetTexture = targetTexture;
+    cameraRoot.AddComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>().renderPostProcessing = true;
+    var names = new[] { "meadow-low-south", "meadow-low-north", "meadow-edge" };
+    var poses = new[] {
+        new Vector4(1170, 2250, 1.1f, 0),
+        new Vector4(1174, 2288, 1.05f, 190),
+        new Vector4(1161, 2256, 2.1f, 32)
+    };
+    var pitches = new[] { 2f, 3f, 7f };
+    Shader.SetGlobalVector("_LW_Wind", new Vector4(0.6f, 0f, 0.35f, 0.695f));
+    Shader.SetGlobalVector("_LW_PreviousWind", new Vector4(0.6f, 0f, 0.35f, 0.695f));
+    Action<string> shots = suffix => {
+        for (int i = 0; i < poses.Length; i++)
+        {
+            var pose = poses[i];
+            var position = new Vector3(pose.x, 0, pose.y);
+            position.y = tile.SampleHeight(position) + origin.y + pose.z;
+            camera.transform.SetPositionAndRotation(position, Quaternion.Euler(pitches[i], pose.w, 0));
+            camera.Render();
+            RenderTexture.active = targetTexture;
+            pixels.ReadPixels(new Rect(0, 0, targetTexture.width, targetTexture.height), 0, 0);
+            pixels.Apply();
+            System.IO.File.WriteAllBytes(output + "/" + names[i] + "-" + suffix + ".png", pixels.EncodeToPNG());
+        }
+    };
+    shots("before");
+    copy = UnityEngine.Object.Instantiate(sourceData);
+    copy.SetDetailLayer(x0, z0, tallIndex, pending);
+    if (!verifyLayer(copy) || !sourceData.treeInstances.SequenceEqual(copy.treeInstances))
+        throw new InvalidOperationException("복제 지형의 풀 값 또는 나무 원본 불일치");
+    tile.terrainData = copy;
+    tile.GetComponent<TerrainCollider>().terrainData = copy;
+    tile.Flush();
+    shots("after");
+    if (errors != 0) throw new InvalidOperationException("풀밭 캡처 중 Unity 오류 " + errors);
+    log.AppendLine("복제본 적용·재읽기 성공 / 고정 구도 전후 6장 / Unity 오류 0");
+    System.IO.File.WriteAllText(previewAudit, log.ToString());
+    return log.ToString();
+}
+finally
+{
+    Application.logMessageReceived -= trackErrors;
+    RenderTexture.active = oldTarget;
+    Shader.SetGlobalVector("_LW_Wind", oldWind);
+    Shader.SetGlobalVector("_LW_PreviousWind", oldPrevWind);
+    UnityEditor.SceneManagement.EditorSceneManager.ClosePreviewScene(preview);
+    if (targetTexture) RenderTexture.ReleaseTemporary(targetTexture);
+    if (pixels) UnityEngine.Object.DestroyImmediate(pixels);
+    if (copy) UnityEngine.Object.DestroyImmediate(copy);
+}

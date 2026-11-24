@@ -1,0 +1,96 @@
+// Unity MCP execute_code 본문. 승인된 서부 숲·사당 능선의 풀 재질 6개만 저장한다.
+const string folder = "Assets/10.Datas/World/RiverBasinWorld/ForestWest";
+const string source = "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Preview/RiverBasin4km.unity";
+const string output = "output/RiverBasinWorld/GrassReferencePhase1/grass-bottom";
+const string property = "_ColorBottom";
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (scene.path != source || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("저장된 제작 씬의 편집 모드에서 실행합니다.");
+
+var names = new[] { "Autumn_Small", "Autumn_Medium", "Tall_Autumn", "Lush", "Shade", "Dry" };
+var original = new[] {
+    new Color(0.42f, 0.46f, 0.21f, 1),
+    new Color(0.38f, 0.42f, 0.19f, 1),
+    new Color(0.40f, 0.42f, 0.20f, 1),
+    new Color(0.28f, 0.38f, 0.15f, 1),
+    new Color(0.33f, 0.38f, 0.17f, 1),
+    new Color(0.44f, 0.42f, 0.20f, 1)
+};
+var multiplier = new Color(0.94f, 0.89f, 0.95f, 1);
+var materials = new Material[names.Length];
+var paths = new string[names.Length];
+for (int i = 0; i < names.Length; i++)
+{
+    paths[i] = folder + "/FW_MI_Grass_" + names[i] + ".mat";
+    var material = AssetDatabase.LoadAssetAtPath<Material>(paths[i]);
+    if (!material || material.shader.name != "UPlayGround/Foliage/Grass" || !material.HasProperty(property) ||
+        EditorUtility.IsDirty(material) || material.GetColor(property) != original[i])
+        throw new InvalidOperationException("재질의 경로, 셰이더 또는 원래 색을 확인합니다. " + paths[i]);
+    materials[i] = material;
+}
+
+var expected = new System.Collections.Generic.HashSet<string>();
+for (int x = 0; x <= 2; x++)
+    for (int z = 3; z <= 6; z++)
+        expected.Add("Terrain_" + x + "_" + z);
+var observed = new System.Collections.Generic.HashSet<string>();
+foreach (var terrain in Terrain.activeTerrains)
+{
+    var used = new System.Collections.Generic.HashSet<Material>();
+    foreach (var detail in terrain.terrainData.detailPrototypes)
+    {
+        if (!detail.prototype) continue;
+        var renderer = detail.prototype.GetComponent<MeshRenderer>();
+        if (renderer && Array.IndexOf(materials, renderer.sharedMaterial) >= 0) used.Add(renderer.sharedMaterial);
+    }
+    if (used.Count == 0) continue;
+    if (terrain.gameObject.scene != scene || used.Count != materials.Length)
+        throw new InvalidOperationException("검증한 재질 사용처가 바뀌었습니다. " + terrain.name);
+    observed.Add(terrain.name);
+}
+if (!observed.SetEquals(expected)) throw new InvalidOperationException("재질을 참조하는 타일이 승인 범위와 다릅니다.");
+
+var report = new System.Text.StringBuilder();
+var consumers = new System.Collections.Generic.List<string>(observed);
+consumers.Sort(StringComparer.Ordinal);
+report.AppendLine("제작 타일 12장: " + string.Join(", ", consumers.ToArray()));
+var backup = output + "/backup-" + DateTime.Now.ToString("yyyyMMdd-HHmmss-fff");
+System.IO.Directory.CreateDirectory(backup);
+foreach (var path in paths)
+{
+    var file = backup + "/" + System.IO.Path.GetFileName(path);
+    System.IO.File.Copy(path, file);
+    System.IO.File.Copy(path + ".meta", file + ".meta");
+}
+Undo.IncrementCurrentGroup();
+int undoGroup = Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName("서부 숲 풀 밑동 색");
+Undo.RegisterCompleteObjectUndo(materials, "서부 숲 풀 밑동 색");
+try
+{
+    for (int i = 0; i < materials.Length; i++)
+    {
+        var material = materials[i];
+        var target = original[i] * multiplier;
+        material.SetColor(property, target);
+        EditorUtility.SetDirty(material);
+        AssetDatabase.SaveAssetIfDirty(material);
+        if (material.GetColor(property) != target || EditorUtility.IsDirty(material))
+            throw new InvalidOperationException("저장 확인에 실패했습니다. " + material.name);
+        report.AppendLine(material.name + " " + original[i].ToString("F3") + " → " + target.ToString("F3"));
+    }
+    report.AppendLine("백업 " + backup);
+    System.IO.File.WriteAllText(output + "/apply.txt", report.ToString());
+    Undo.CollapseUndoOperations(undoGroup);
+    return report.ToString();
+}
+catch
+{
+    Undo.RevertAllDownToGroup(undoGroup);
+    foreach (var path in paths)
+    {
+        System.IO.File.Copy(backup + "/" + System.IO.Path.GetFileName(path), path, true);
+        AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport);
+    }
+    throw;
+}

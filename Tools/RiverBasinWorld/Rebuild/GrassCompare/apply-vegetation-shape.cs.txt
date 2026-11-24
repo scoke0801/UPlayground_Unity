@@ -1,0 +1,150 @@
+﻿// 이름으로 식별하는 두 에디터 저작 프로토타입의 배율을 변경한다.
+Func<TerrainData, Vector3, string> shapeDetails = (data, origin) => {
+    int width = data.detailWidth, height = data.detailHeight;
+    float cellX = data.size.x / width, cellZ = data.size.z / height;
+    var existing = data.detailPrototypes;
+    var prototypes = existing.ToList();
+    var layers = new int[existing.Length][,];
+    for (int i = 0; i < existing.Length; i++)
+        layers[i] = data.GetDetailLayer(0, 0, width, height, i);
+
+    var updates = new System.Collections.Generic.Dictionary<int, int[,]>();
+    var shapeReport = new System.Text.StringBuilder();
+    for (int index = 0; index < existing.Length; index++)
+    {
+        var prefab = existing[index].prototype;
+        if (!prefab) throw new InvalidOperationException(data.name + " 풀 프리팹 누락");
+        bool tall = prefab.name == "PF_FW_TallGrass_02_Autumn_Detail";
+        if (!tall && prefab.name != "PF_FW_Silvergrass_03_Detail") continue;
+        var shaped = data.detailPrototypes[index];
+        float meshHeight = prefab.GetComponent<MeshFilter>().sharedMesh.bounds.size.y;
+        shaped.minWidth = tall ? 0.34f : 0.40f;
+        shaped.maxWidth = tall ? 0.56f : 0.61f;
+        shaped.minHeight = (tall ? 0.50f : 0.56f) / meshHeight;
+        shaped.maxHeight = 0.90f / meshHeight;
+        var inner = new int[height, width];
+        var outer = new int[height, width];
+        long inside = 0, outside = 0;
+        for (int z = 0; z < height; z++)
+            for (int x = 0; x < width; x++)
+            {
+                int value = layers[index][z, x];
+                if (value == 0) continue;
+                float wx = origin.x + (x + 0.5f) * cellX;
+                float wz = origin.z + (z + 0.5f) * cellZ;
+                if (wx >= 440 && wx < 1450 && wz >= 1600 && wz < 2900)
+                {
+                    inside += value;
+                    inner[z, x] = value;
+                }
+                else
+                {
+                    outside += value;
+                    outer[z, x] = value;
+                }
+            }
+
+        if (inside == 0) continue;
+        if (outside == 0)
+            prototypes[index] = shaped;
+        else
+        {
+            updates[index] = outer;
+            updates[prototypes.Count] = inner;
+            prototypes.Add(shaped);
+        }
+        shapeReport.AppendLine(data.name + " " + prefab.name + " 숲 안 배율 조정 " + inside +
+            " / 밖 기존 배율 " + outside + " / 높이 " + (shaped.minHeight * meshHeight) + "–0.90m");
+    }
+
+    data.detailPrototypes = prototypes.ToArray();
+    for (int i = 0; i < prototypes.Count; i++)
+    {
+        int[,] expected;
+        if (!updates.TryGetValue(i, out expected)) expected = layers[i];
+        data.SetDetailLayer(0, 0, i, expected);
+        var actual = data.GetDetailLayer(0, 0, width, height, i);
+        for (int z = 0; z < height; z++)
+            for (int x = 0; x < width; x++)
+                if (expected[z, x] != actual[z, x])
+                    throw new InvalidOperationException(data.name + " 디테일 값 불일치 " + i + " @ " + x + "," + z);
+    }
+
+    return shapeReport.ToString();
+};
+
+var active = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+const string scenePath = "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Preview/RiverBasin4km.unity";
+if (active.path != scenePath || active.isDirty || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("저장된 제작 씬 편집 모드가 필요합니다.");
+var allTiles = active.GetRootGameObjects().SelectMany(root => root.GetComponentsInChildren<Terrain>()).ToArray();
+var tiles = allTiles.Where(tile => {
+    var p = tile.GetPosition();
+    var size = tile.terrainData.size;
+    return p.x < 1450 && p.z < 2900 && p.x + size.x > 440 && p.z + size.z > 1600;
+}).ToArray();
+var sourceShader = AssetDatabase.LoadAssetAtPath<Shader>("Assets/06.Shaders/Foliage/UPG_Grass.shader");
+var materials = tiles.SelectMany(tile => tile.terrainData.detailPrototypes)
+    .Select(d => d.prototype ? d.prototype.GetComponent<MeshRenderer>() : null)
+    .Where(r => r).Select(r => r.sharedMaterial).Where(m => m && m.shader == sourceShader &&
+        AssetDatabase.GetAssetPath(m).StartsWith("Assets/10.Datas/World/RiverBasinWorld/ForestWest/FW_MI_Grass_", StringComparison.Ordinal))
+    .Distinct().ToArray();
+if (tiles.Length != 9 || materials.Length != 6 || materials.Any(m => !m.HasProperty("_WindDirectionalBend")))
+    throw new InvalidOperationException("Phase 2 복제본 검증 범위와 제작 에셋이 다릅니다.");
+if (tiles.Any(tile => tile.GetComponents<Component>().Any(c => c && c.GetType().Name == "TerrainDetailReaction")))
+    throw new InvalidOperationException("반응형 셀의 레이어 계약을 먼저 검사해야 합니다.");
+if (tiles.Any(tile => tile.terrainData.detailPrototypes.Length != 11))
+    throw new InvalidOperationException("이미 적용했거나 디테일 프로토타입 구성이 바뀌었습니다.");
+
+const string output = "output/RiverBasinWorld/GrassReferencePhase2";
+string backup = output + "/terrain-backup-" + DateTime.Now.ToString("yyyyMMdd-HHmmss-fff");
+System.IO.Directory.CreateDirectory(backup);
+var assets = tiles.Select(tile => (UnityEngine.Object)tile.terrainData).Concat(materials).ToArray();
+var paths = assets.Select(AssetDatabase.GetAssetPath).ToArray();
+for (int i = 0; i < paths.Length; i++)
+{
+    if (string.IsNullOrEmpty(AssetDatabase.AssetPathToGUID(paths[i])))
+        throw new InvalidOperationException("에셋 GUID 누락 " + paths[i]);
+    System.IO.File.Copy(paths[i], backup + "/" + System.IO.Path.GetFileName(paths[i]));
+    System.IO.File.Copy(paths[i] + ".meta", backup + "/" + System.IO.Path.GetFileName(paths[i]) + ".meta");
+}
+
+Undo.IncrementCurrentGroup();
+int group = Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName("서부 숲 풀 형태와 바람");
+Undo.RegisterCompleteObjectUndo(assets, "서부 숲 풀 형태와 바람");
+var report = new System.Text.StringBuilder();
+try
+{
+    foreach (var tile in tiles)
+    {
+        var data = tile.terrainData;
+        var trees = data.treeInstances;
+        var treePrototypes = data.treePrototypes.Select(p => p.prefab).ToArray();
+        report.Append(shapeDetails(data, tile.GetPosition()));
+        if (!trees.SequenceEqual(data.treeInstances) || !treePrototypes.SequenceEqual(data.treePrototypes.Select(p => p.prefab)))
+            throw new InvalidOperationException(tile.name + " 나무 배열 값이 바뀌었습니다.");
+        EditorUtility.SetDirty(data);
+    }
+    foreach (var material in materials)
+    {
+        material.SetFloat("_WindDirectionalBend", material.name == "FW_MI_Grass_Tall_Autumn" ? 0.32f : 0.23f);
+        EditorUtility.SetDirty(material);
+        report.AppendLine(material.name + " 바람 " + material.GetFloat("_WindDirectionalBend"));
+    }
+    foreach (var asset in assets) AssetDatabase.SaveAssetIfDirty(asset);
+    foreach (var tile in tiles) tile.Flush();
+    Undo.CollapseUndoOperations(group);
+}
+catch
+{
+    Undo.RevertAllDownToGroup(group);
+    foreach (var asset in assets) AssetDatabase.SaveAssetIfDirty(asset);
+    foreach (var tile in tiles) tile.Flush();
+    throw;
+}
+report.AppendLine("원본 백업 " + backup);
+report.AppendLine("저장 풀의 셀별 합 유지, 나무 배열과 나무 프리팹 순서 확인");
+report.AppendLine("활성 씬 저장 필요 " + active.isDirty);
+System.IO.File.WriteAllText(output + "/apply-shape.txt", report.ToString());
+return report.ToString();

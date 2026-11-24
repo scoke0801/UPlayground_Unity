@@ -1,0 +1,162 @@
+// Unity MCP execute_code 본문. 기본은 메모리 복제본 검사이며 적용할 때만 apply를 true로 바꾼다.
+const bool apply = false;
+const string world = "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34";
+const string variantFolder = world + "/Authoring/ForestWestGround";
+const string savedRoot = "output/RiverBasinWorld/GrassReferencePhase1";
+const float xMin = 440, xMax = 1450, zMin = 1600, zMax = 2900, feather = 40;
+
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (scene.path != world + "/Preview/RiverBasin4km.unity" || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("저장된 제작 씬의 편집 모드에서 실행합니다.");
+var forest = AssetDatabase.LoadAssetAtPath<TerrainLayer>(world + "/Production/Layers/Forest.terrainlayer");
+var meadow = AssetDatabase.LoadAssetAtPath<TerrainLayer>(world + "/Production/Layers/Meadow.terrainlayer");
+if (!forest || !meadow) throw new InvalidOperationException("원본 지표 레이어를 찾지 못했습니다.");
+var forestPath = variantFolder + "/ForestWestForest.terrainlayer";
+var meadowPath = variantFolder + "/ForestWestMeadow.terrainlayer";
+if (AssetDatabase.LoadMainAssetAtPath(forestPath) || AssetDatabase.LoadMainAssetAtPath(meadowPath))
+    throw new InvalidOperationException("보정 에셋이 이미 있습니다. 적용 상태를 먼저 확인합니다.");
+
+var tiles = new System.Collections.Generic.List<Terrain>();
+foreach (var tile in Terrain.activeTerrains)
+{
+    if (tile.gameObject.scene != scene) continue;
+    var p = tile.GetPosition();
+    var data = tile.terrainData;
+    var size = data.size;
+    if (p.x >= xMax || p.z >= zMax || p.x + size.x <= xMin || p.z + size.z <= zMin) continue;
+    if (!AssetDatabase.GetAssetPath(data).StartsWith(world + "/Production/Terrain/", StringComparison.Ordinal) ||
+        EditorUtility.IsDirty(data) || data.alphamapLayers != 8)
+        throw new InvalidOperationException("타일 경로, 저장 상태 또는 레이어 수를 확인합니다. " + tile.name);
+    tiles.Add(tile);
+}
+if (tiles.Count != 9) throw new InvalidOperationException("검증한 타일 구성이 바뀌었습니다.");
+tiles.Sort((a, b) => string.CompareOrdinal(a.name, b.name));
+
+var forestTone = UnityEngine.Object.Instantiate(forest);
+var meadowTone = UnityEngine.Object.Instantiate(meadow);
+forestTone.name = "ForestWestForest";
+meadowTone.name = "ForestWestMeadow";
+forestTone.diffuseRemapMax = new Vector4(0.231f, 0.30f, 0.52f, 1);
+meadowTone.diffuseRemapMax = new Vector4(0.260f, 0.286f, 0.64f, 1);
+var report = new System.Text.StringBuilder();
+var targets = new System.Collections.Generic.List<UnityEngine.Object>();
+foreach (var tile in tiles) targets.Add(tile.terrainData);
+var backups = apply ? savedRoot + "/backup-" + DateTime.Now.ToString("yyyyMMdd-HHmmss-fff") : "";
+int undoGroup = -1;
+try
+{
+    if (apply)
+    {
+        foreach (var asset in targets)
+        {
+            var path = AssetDatabase.GetAssetPath(asset);
+            var backup = backups + "/" + path;
+            System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(backup));
+            System.IO.File.Copy(path, backup);
+            System.IO.File.Copy(path + ".meta", backup + ".meta");
+        }
+        if (!AssetDatabase.IsValidFolder(variantFolder) &&
+            string.IsNullOrEmpty(AssetDatabase.CreateFolder(world + "/Authoring", "ForestWestGround")))
+            throw new InvalidOperationException("보정 레이어 폴더를 만들 수 없습니다.");
+        Undo.IncrementCurrentGroup();
+        undoGroup = Undo.GetCurrentGroup();
+        Undo.SetCurrentGroupName("서부 숲 지표 색 보정");
+        Undo.RegisterCompleteObjectUndo(targets.ToArray(), "서부 숲 지표 색 보정");
+        AssetDatabase.CreateAsset(forestTone, forestPath);
+        AssetDatabase.CreateAsset(meadowTone, meadowPath);
+    }
+    foreach (var tile in tiles)
+    {
+        var source = tile.terrainData;
+        var data = apply ? source : UnityEngine.Object.Instantiate(source);
+        try
+        {
+            if (!apply)
+                foreach (var map in data.alphamapTextures)
+                    if (Array.IndexOf(source.alphamapTextures, map) >= 0)
+                        throw new InvalidOperationException("복제 알파맵이 원본과 공유됩니다. " + tile.name);
+            var layers = data.terrainLayers;
+            int forestSlot = Array.IndexOf(layers, forest), meadowSlot = Array.IndexOf(layers, meadow);
+            const int forestToneSlot = 2, meadowToneSlot = 7;
+            if (forestSlot != 1 || meadowSlot != 0 || layers[forestToneSlot].name != "Sandstone" ||
+                layers[meadowToneSlot].name != "WeatheredRock")
+                throw new InvalidOperationException("기존 슬롯 구성이 다릅니다. " + tile.name);
+            int width = data.alphamapWidth, height = data.alphamapHeight;
+            var before = data.GetAlphamaps(0, 0, width, height);
+            var after = (float[,,])before.Clone();
+            var p = tile.GetPosition();
+            int changed = 0;
+            var directions = new[] { forestSlot, meadowSlot, forestToneSlot, meadowToneSlot };
+            for (int z = 0; z < height; z++)
+                for (int x = 0; x < width; x++)
+                {
+                    if (before[z, x, forestToneSlot] != 0 || before[z, x, meadowToneSlot] != 0)
+                        throw new InvalidOperationException("보정 슬롯에 기존 도색이 있습니다. " + tile.name);
+                    // Terrain 셰이더의 알파맵 UV에 맞춰 인접 타일의 끝 표본을 같은 좌표에서 계산한다.
+                    float wx = p.x + x * data.size.x / (width - 1), wz = p.z + z * data.size.z / (height - 1);
+                    float edge = Mathf.Min(Mathf.Min(wx - xMin, xMax - wx), Mathf.Min(wz - zMin, zMax - wz));
+                    float mask = Mathf.SmoothStep(0, 1, Mathf.Clamp01(edge / feather));
+                    if (mask <= 0) continue;
+                    bool painted = false;
+                    for (int kind = 0; kind < 2; kind++)
+                    {
+                        int original = directions[kind], variant = directions[kind + 2];
+                        float moved = Mathf.Round(before[z, x, original] * mask * 255) / 255f;
+                        after[z, x, original] = before[z, x, original] - moved;
+                        after[z, x, variant] = moved;
+                        painted |= moved > 0;
+                    }
+                    if (painted) changed++;
+                }
+            layers[forestToneSlot] = forestTone;
+            layers[meadowToneSlot] = meadowTone;
+            data.terrainLayers = layers;
+            data.SetAlphamaps(0, 0, after);
+            var saved = data.GetAlphamaps(0, 0, width, height);
+            if (data.alphamapLayers != 8 || data.terrainLayers[forestToneSlot] != forestTone ||
+                data.terrainLayers[meadowToneSlot] != meadowTone)
+                throw new InvalidOperationException("레이어 보존에 실패했습니다. " + tile.name);
+            for (int z = 0; z < height; z++)
+                for (int x = 0; x < width; x++)
+                    for (int l = 0; l < 8; l++)
+                        if (Mathf.RoundToInt(saved[z, x, l] * 255) != Mathf.RoundToInt(after[z, x, l] * 255))
+                            throw new InvalidOperationException("알파맵 재읽기 결과가 다릅니다. " + tile.name +
+                                " (" + x + "," + z + "," + l + ") " + saved[z, x, l] + " != " + after[z, x, l]);
+            if (apply) EditorUtility.SetDirty(data);
+            report.AppendLine(tile.name + " 변경 표본=" + changed + " / 레이어=8 / 알파맵 채널 검증 통과");
+        }
+        finally
+        {
+            if (!apply) UnityEngine.Object.DestroyImmediate(data);
+        }
+    }
+    if (apply)
+    {
+        foreach (var asset in targets) AssetDatabase.SaveAssetIfDirty(asset);
+        Undo.CollapseUndoOperations(undoGroup);
+        report.AppendLine("백업 " + backups);
+    }
+    System.IO.Directory.CreateDirectory(savedRoot);
+    System.IO.File.WriteAllText(savedRoot + (apply ? "/apply.txt" : "/dry.txt"), report.ToString());
+    return report.ToString();
+}
+catch
+{
+    if (undoGroup >= 0)
+    {
+        Undo.RevertAllDownToGroup(undoGroup);
+        // TerrainData의 알파맵은 하위 에셋이므로 저장 직전의 파일 백업으로 함께 복구한다.
+        foreach (var asset in targets)
+        {
+            var path = AssetDatabase.GetAssetPath(asset);
+            System.IO.File.Copy(backups + "/" + path, path, true);
+            AssetDatabase.ImportAsset(path, ImportAssetOptions.ForceSynchronousImport);
+        }
+    }
+    throw;
+}
+finally
+{
+    if (forestTone && !EditorUtility.IsPersistent(forestTone)) UnityEngine.Object.DestroyImmediate(forestTone);
+    if (meadowTone && !EditorUtility.IsPersistent(meadowTone)) UnityEngine.Object.DestroyImmediate(meadowTone);
+}

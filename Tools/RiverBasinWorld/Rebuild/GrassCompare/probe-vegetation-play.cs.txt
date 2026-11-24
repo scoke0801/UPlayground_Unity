@@ -1,0 +1,124 @@
+﻿// RiverBasin4km Play 중 실행한다. 촬영 구간과 계측 구간을 분리한다.
+const string stage = "baseline";
+bool meadow = stage.StartsWith("phase3", StringComparison.Ordinal);
+string output = "output/RiverBasinWorld/GrassReferencePhase" + (meadow ? "3" : "2");
+if (!EditorApplication.isPlaying) throw new InvalidOperationException("RiverBasin4km Play가 필요합니다.");
+var actor = UnityEngine.Object.FindFirstObjectByType<UPlayGround.PlayerActor>();
+var weather = UnityEngine.Object.FindFirstObjectByType<UPlayGround.Gameplay.World.LivingWorld.EnvironmentController>();
+if (!actor || !weather || !Camera.main) throw new InvalidOperationException("플레이어, 카메라, 날씨가 준비될 때 실행합니다.");
+var motor = actor.GetComponent<KinematicCharacterController.KinematicCharacterMotor>();
+var point = meadow ? new Vector3(1170, 0, 2250) : new Vector3(1143, 0, 2320);
+var terrain = Terrain.activeTerrains.First(t => {
+    var p = t.GetPosition();
+    return point.x >= p.x && point.x < p.x + t.terrainData.size.x &&
+        point.z >= p.z && point.z < p.z + t.terrainData.size.z;
+});
+point.y = terrain.SampleHeight(point) + terrain.GetPosition().y + 0.15f;
+var direction = Quaternion.Euler(0, meadow ? 0 : 185, 0) * Vector3.forward;
+motor.SetPositionAndRotation(point, Quaternion.LookRotation(direction));
+weather.SetWeatherPreview(new UPlayGround.Gameplay.World.LivingWorld.EnvironmentSchedule.Sample {
+    Wind = new Vector2(0.6f, 0.35f), Cloud = 0.3f
+});
+
+string folder = output + "/" + stage + "-game-frames";
+System.IO.Directory.CreateDirectory(folder);
+var pad = UnityEngine.InputSystem.InputSystem.AddDevice<UnityEngine.InputSystem.Gamepad>();
+var drawCalls = Unity.Profiling.ProfilerRecorder.StartNew(Unity.Profiling.ProfilerCategory.Render, "Draw Calls Count");
+var cpu = new System.Collections.Generic.List<double>();
+var gpu = new System.Collections.Generic.List<double>();
+var draw = new System.Collections.Generic.List<double>();
+var wall = new System.Collections.Generic.List<double>();
+var timing = new FrameTiming[1];
+var log = new System.Text.StringBuilder();
+log.AppendLine(Application.unityVersion + " " + SystemInfo.graphicsDeviceType + " " + SystemInfo.graphicsDeviceName +
+    " " + Screen.width + "x" + Screen.height + " quality " + QualitySettings.GetQualityLevel() + " vsync " + QualitySettings.vSyncCount);
+log.AppendLine("시작 " + point.ToString("F2") + " / 5초 예열, 8초 정지 계측, 촬영 5초(정지 1.5초) / 목표 풍향 (0.6,0,0.35)");
+int previousFrame = -1, previousSample = 0, images = 0, errors = 0;
+float start = Time.realtimeSinceStartup;
+float nextImage = 13;
+float contactPeak = 0;
+Application.LogCallback captureError = (message, stack, type) => {
+    if (type == LogType.Error || type == LogType.Exception || type == LogType.Assert)
+    {
+        errors++;
+        log.AppendLine(type + " " + message);
+    }
+};
+Application.logMessageReceived += captureError;
+EditorApplication.CallbackFunction tick = null;
+Action<bool> close = completed => {
+    EditorApplication.update -= tick;
+    Application.logMessageReceived -= captureError;
+    if (pad.added) UnityEngine.InputSystem.InputSystem.RemoveDevice(pad);
+    drawCalls.Dispose();
+    Func<System.Collections.Generic.List<double>, string> summary = samples => {
+        if (samples.Count == 0) return "미측정";
+        samples.Sort();
+        return "n=" + samples.Count + " p50=" + samples[samples.Count / 2].ToString("F2") +
+            " p95=" + samples[Mathf.CeilToInt(samples.Count * 0.95f) - 1].ToString("F2");
+    };
+    log.AppendLine("CPU ms " + summary(cpu) + " / GPU ms " + summary(gpu) + " / 프레임 ms " + summary(wall));
+    log.AppendLine("Draw Calls Count " + summary(draw));
+    log.AppendLine("완료 " + completed + " / Game 화면 " + images + "장 / Unity 오류 " + errors +
+        " / 최대 플레이어 밟기 입력 " + contactPeak.ToString("F3"));
+    System.IO.File.WriteAllText(output + "/" + stage + "-play.txt", log.ToString());
+};
+tick = () => {
+    if (!EditorApplication.isPlaying || !actor) { close(false); return; }
+    if (previousFrame == Time.frameCount) return;
+    previousFrame = Time.frameCount;
+    float elapsed = Time.realtimeSinceStartup - start;
+    try
+    {
+        if (elapsed < 5) return;
+        if (elapsed < 13)
+        {
+            if (wall.Count == 0)
+            {
+                var cam = Camera.main;
+                log.AppendLine("계측 카메라 " + cam.transform.position.ToString("F2") + " / " + cam.transform.eulerAngles.ToString("F2") +
+                    " / FOV " + cam.fieldOfView + " / _LW_Wind " + Shader.GetGlobalVector("_LW_Wind").ToString("F3"));
+            }
+            wall.Add(Time.unscaledDeltaTime * 1000);
+            FrameTimingManager.CaptureFrameTimings();
+            if (FrameTimingManager.GetLatestTimings(1, timing) > 0 &&
+                previousSample != unchecked((int)timing[0].frameStartTimestamp))
+            {
+                previousSample = unchecked((int)timing[0].frameStartTimestamp);
+                if (timing[0].cpuFrameTime > 0) cpu.Add(timing[0].cpuFrameTime);
+                if (timing[0].gpuFrameTime > 0) gpu.Add(timing[0].gpuFrameTime);
+            }
+            if (drawCalls.Valid && drawCalls.LastValue > 0) draw.Add(drawCalls.LastValue);
+            return;
+        }
+        if (elapsed >= 18) { close(true); return; }
+        if (elapsed >= 14.5f)
+        {
+            var cam = Camera.main;
+            var right = Vector3.ProjectOnPlane(cam.transform.right, Vector3.up).normalized;
+            var forward = Vector3.ProjectOnPlane(cam.transform.forward, Vector3.up).normalized;
+            UnityEngine.InputSystem.InputSystem.QueueStateEvent(pad, new UnityEngine.InputSystem.LowLevel.GamepadState {
+                leftStick = new Vector2(Vector3.Dot(direction, right), Vector3.Dot(direction, forward)) * 0.65f
+            });
+            var slots = Shader.GetGlobalVectorArray("_UPG_FoliageActors");
+            var parameters = Shader.GetGlobalVectorArray("_UPG_FoliageActorParams");
+            int count = Mathf.Min(Mathf.RoundToInt(Shader.GetGlobalFloat("_UPG_FoliageActorCount")), slots.Length, parameters.Length);
+            for (int i = 0; i < count; i++)
+                if ((actor.transform.position - (Vector3)slots[i]).sqrMagnitude < 0.05f)
+                    contactPeak = Mathf.Max(contactPeak, parameters[i].x);
+        }
+        if (elapsed >= nextImage)
+        {
+            ScreenCapture.CaptureScreenshot(folder + "/" + images.ToString("D3") + ".png");
+            images++;
+            nextImage = elapsed + 1f / 12f;
+        }
+    }
+    catch (Exception ex)
+    {
+        log.AppendLine(ex.ToString());
+        close(false);
+    }
+};
+EditorApplication.update += tick;
+return "Game 뷰 계측·촬영 시작 " + stage;

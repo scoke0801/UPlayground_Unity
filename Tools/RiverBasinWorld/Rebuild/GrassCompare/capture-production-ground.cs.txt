@@ -1,0 +1,73 @@
+// Unity MCP execute_code 본문. stage를 before 또는 after로 지정해 동일 구도의 제작 저장본을 렌더한다.
+const string stage = "after";
+const string source = "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Preview/RiverBasin4km.unity";
+const string output = "output/RiverBasinWorld/GrassReferencePhase1/grass-bottom";
+var active = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (active.path != source || active.isDirty || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("저장된 제작 씬의 편집 모드에서 실행합니다.");
+var preview = UnityEditor.SceneManagement.EditorSceneManager.OpenPreviewScene(source);
+var oldTarget = RenderTexture.active;
+var target = RenderTexture.GetTemporary(1280, 720, 24);
+var pixels = new Texture2D(target.width, target.height, TextureFormat.RGB24, false);
+int errors = 0;
+Application.LogCallback countErrors = (message, stack, type) => {
+    if (type == LogType.Error || type == LogType.Exception || type == LogType.Assert) errors++;
+};
+Application.logMessageReceived += countErrors;
+try
+{
+    System.IO.Directory.CreateDirectory(output);
+    var tiles = new System.Collections.Generic.List<Terrain>();
+    foreach (var root in preview.GetRootGameObjects()) tiles.AddRange(root.GetComponentsInChildren<Terrain>());
+    var names = new[] { "interior", "ridge", "clearing", "low-meadow", "tile-seam", "outside", "shrine-ridge", "upper-west" };
+    var poses = new[] {
+        new Vector4(1000, 2450, 2.0f, 260),
+        new Vector4(1360, 2850, 2.1f, 35),
+        new Vector4(1130, 2330, 2.0f, 185),
+        new Vector4(1143, 2320, 0.95f, 185),
+        new Vector4(1034, 2415, 9, 270),
+        new Vector4(1459, 2520, 6, 90),
+        new Vector4(1310, 3235, 1.6f, 125),
+        new Vector4(940, 3240, 2f, 120)
+    };
+    var pitch = new[] { 5f, 7f, 6f, 1f, 17f, 15f, 5f, 8f };
+    var rootObject = new GameObject("서부 숲 보정 검증 카메라");
+    UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(rootObject, preview);
+    var camera = rootObject.AddComponent<Camera>();
+    camera.enabled = false;
+    camera.scene = preview;
+    camera.cameraType = CameraType.Game;
+    camera.fieldOfView = 54;
+    camera.nearClipPlane = 0.1f;
+    camera.farClipPlane = 1100;
+    camera.targetTexture = target;
+    rootObject.AddComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>().renderPostProcessing = true;
+    for (int shot = 0; shot < poses.Length; shot++)
+    {
+        var pose = poses[shot];
+        var point = new Vector3(pose.x, 0, pose.y);
+        var tile = tiles.Find(t => {
+            var p = t.GetPosition();
+            var size = t.terrainData.size;
+            return point.x >= p.x && point.x < p.x + size.x && point.z >= p.z && point.z < p.z + size.z;
+        });
+        if (!tile) throw new InvalidOperationException("카메라 아래 지형을 찾지 못했습니다. " + names[shot]);
+        point.y = tile.SampleHeight(point) + tile.GetPosition().y + pose.z;
+        camera.transform.SetPositionAndRotation(point, Quaternion.Euler(pitch[shot], pose.w, 0));
+        camera.Render();
+        RenderTexture.active = target;
+        pixels.ReadPixels(new Rect(0, 0, target.width, target.height), 0, 0);
+        pixels.Apply();
+        System.IO.File.WriteAllBytes(output + "/" + names[shot] + "-" + stage + ".png", pixels.EncodeToPNG());
+    }
+    if (errors != 0) throw new InvalidOperationException("보정 확인 캡처에서 Unity 오류 " + errors + "건이 발생했습니다.");
+    return stage + " 캡처 " + poses.Length + "장 / Unity 오류 0건";
+}
+finally
+{
+    Application.logMessageReceived -= countErrors;
+    RenderTexture.active = oldTarget;
+    RenderTexture.ReleaseTemporary(target);
+    UnityEngine.Object.DestroyImmediate(pixels);
+    UnityEditor.SceneManagement.EditorSceneManager.ClosePreviewScene(preview);
+}

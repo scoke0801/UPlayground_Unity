@@ -1,0 +1,362 @@
+// Unity MCP execute_code 본문. 제작 씬을 미리보기로 열고, 각 구도의 비교에 쓰는 데이터만 메모리에서 복제한다.
+const string source = "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Preview/RiverBasin4km.unity";
+const string output = "output/RiverBasinWorld/GrassReferencePhase0";
+var active = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (active.path != source || active.isDirty || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("다른 씬 작업, 저장 대기 또는 Play가 끝난 뒤 실행합니다.");
+
+var preview = UnityEditor.SceneManagement.EditorSceneManager.OpenPreviewScene(source);
+var scratch = new System.Collections.Generic.List<UnityEngine.Object>();
+var previousTarget = RenderTexture.active;
+RenderTexture target = null;
+var log = new System.Text.StringBuilder();
+var culture = System.Globalization.CultureInfo.InvariantCulture;
+try
+{
+    System.IO.Directory.CreateDirectory(output);
+    var terrains = new System.Collections.Generic.List<Terrain>();
+    foreach (var root in preview.GetRootGameObjects())
+        terrains.AddRange(root.GetComponentsInChildren<Terrain>());
+    var poses = new[] {
+        new Vector4(1000, 2450, 2.0f, 260),
+        new Vector4(1360, 2850, 2.1f, 35),
+        new Vector4(1130, 2330, 2.0f, 185),
+        new Vector4(1143, 2320, 0.95f, 185)
+    };
+    var names = new[] { "interior", "ridge", "clearing", "low-meadow" };
+    var pitch = new[] { 5f, 7f, 6f, 1f };
+    var samples = new System.Collections.Generic.Dictionary<Texture2D, string>();
+    System.Func<Texture2D, string> textureAverage = texture => {
+        if (!texture) return "없음";
+        string value;
+        if (samples.TryGetValue(texture, out value)) return value;
+        var small = RenderTexture.GetTemporary(64, 64, 0, RenderTextureFormat.ARGBFloat, RenderTextureReadWrite.Linear);
+        var pixels = new Texture2D(64, 64, TextureFormat.RGBAFloat, false, true);
+        var current = RenderTexture.active;
+        try
+        {
+            Graphics.Blit(texture, small);
+            RenderTexture.active = small;
+            pixels.ReadPixels(new Rect(0, 0, 64, 64), 0, 0);
+            var rgb = Vector3.zero;
+            foreach (var color in pixels.GetPixels()) rgb += new Vector3(color.r, color.g, color.b);
+            rgb /= 4096;
+            value = string.Format(culture, "{0} linearRGB={1:F3}/{2:F3}/{3:F3} Y={4:F3}", texture.name,
+                rgb.x, rgb.y, rgb.z, Vector3.Dot(rgb, new Vector3(0.2126f, 0.7152f, 0.0722f)));
+            samples.Add(texture, value);
+            return value;
+        }
+        finally
+        {
+            RenderTexture.active = current;
+            RenderTexture.ReleaseTemporary(small);
+            UnityEngine.Object.DestroyImmediate(pixels);
+        }
+    };
+
+    long instanceTotal = 0;
+    log.AppendLine("Unity " + Application.unityVersion + " / " + SystemInfo.graphicsDeviceType + " / " + QualitySettings.activeColorSpace);
+    log.AppendLine("편집 모드 CameraType.Game, 1280×720, FOV 54, 원거리 1100, 제작 씬의 조명");
+    log.AppendLine("숲 사각형 X440–1450 / Z1600–2900. 인스턴스는 셀 중심 기준, 타일 셰이더 및 레이어는 교차하는 전체 타일 기준.");
+    var seenLayers = new System.Collections.Generic.HashSet<TerrainLayer>();
+    foreach (var terrain in terrains)
+    {
+        var p = terrain.GetPosition();
+        var data = terrain.terrainData;
+        if (p.x >= 1450 || p.z >= 2900 || p.x + data.size.x <= 440 || p.z + data.size.z <= 1600) continue;
+        var namesAndWeights = new System.Collections.Generic.List<string>();
+        var weights = data.GetAlphamaps(0, 0, data.alphamapWidth, data.alphamapHeight);
+        var sums = new double[data.alphamapLayers];
+        for (int y = 0; y < data.alphamapHeight; y += 8)
+            for (int x = 0; x < data.alphamapWidth; x += 8)
+            {
+                var wx = p.x + (x + 0.5f) * data.size.x / data.alphamapWidth;
+                var wz = p.z + (y + 0.5f) * data.size.z / data.alphamapHeight;
+                if (wx < 440 || wx >= 1450 || wz < 1600 || wz >= 2900) continue;
+                for (int l = 0; l < sums.Length; l++) sums[l] += weights[y, x, l];
+            }
+        double sum = 0;
+        foreach (var weight in sums) sum += weight;
+        for (int l = 0; l < sums.Length; l++)
+        {
+            var layer = data.terrainLayers[l];
+            namesAndWeights.Add(layer.name + "=" + (100 * sums[l] / sum).ToString("F1", culture) + "%");
+            if (seenLayers.Add(layer))
+                log.AppendLine(string.Format(culture, "레이어 {0}: {1}, remap={2}/{3}, smoothness={4:F3}, tileSize={5}",
+                    layer.name, textureAverage(layer.diffuseTexture), layer.diffuseRemapMin.ToString("F3"),
+                    layer.diffuseRemapMax.ToString("F3"), layer.smoothness, layer.tileSize));
+        }
+        int x0 = Mathf.Clamp(Mathf.CeilToInt((440 - p.x) * data.detailWidth / data.size.x - 0.5f), 0, data.detailWidth);
+        int z0 = Mathf.Clamp(Mathf.CeilToInt((1600 - p.z) * data.detailHeight / data.size.z - 0.5f), 0, data.detailHeight);
+        int x1 = Mathf.Clamp(Mathf.CeilToInt((1450 - p.x) * data.detailWidth / data.size.x - 0.5f), 0, data.detailWidth);
+        int z1 = Mathf.Clamp(Mathf.CeilToInt((2900 - p.z) * data.detailHeight / data.size.z - 0.5f), 0, data.detailHeight);
+        long count = 0;
+        int maxCell = 0;
+        for (int l = 0; l < data.detailPrototypes.Length && x1 > x0 && z1 > z0; l++)
+        {
+            var counts = data.GetDetailLayer(x0, z0, x1 - x0, z1 - z0, l);
+            foreach (var cell in counts)
+            {
+                count += cell;
+                maxCell = Mathf.Max(maxCell, cell);
+            }
+        }
+        instanceTotal += count;
+        log.AppendLine(terrain.name + " / " + terrain.materialTemplate.shader.name + " / " + terrain.detailObjectDistance +
+            "m / " + data.detailScatterMode + " / 관측 최대 " + maxCell + ", API 상한 " + data.maxDetailScatterPerRes +
+            " / 인스턴스 " + count + " / " + string.Join(", ", namesAndWeights.ToArray()));
+    }
+    log.AppendLine("숲 사각형에 저장된 인스턴스 합 " + instanceTotal);
+
+    var cameraRoot = new GameObject("지면 식생 검증 카메라");
+    UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(cameraRoot, preview);
+    var camera = cameraRoot.AddComponent<Camera>();
+    camera.enabled = false;
+    camera.scene = preview;
+    camera.cameraType = CameraType.Game;
+    camera.fieldOfView = 54;
+    camera.nearClipPlane = 0.1f;
+    camera.farClipPlane = 1100;
+    var cameraData = cameraRoot.AddComponent<UnityEngine.Rendering.Universal.UniversalAdditionalCameraData>();
+    cameraData.renderPostProcessing = true;
+    target = RenderTexture.GetTemporary(1280, 720, 24);
+    camera.targetTexture = target;
+    var capture = new Texture2D(target.width, target.height, TextureFormat.RGB24, false);
+    scratch.Add(capture);
+    int warnings = 0;
+    int errors = 0;
+    Application.LogCallback countLog = (message, stack, type) => {
+        if (type == LogType.Warning) warnings++;
+        if (type == LogType.Error || type == LogType.Exception || type == LogType.Assert)
+        {
+            errors++;
+            log.AppendLine(type + " " + message);
+        }
+    };
+    Application.logMessageReceived += countLog;
+    System.Action<string> save = file => {
+        camera.Render();
+        RenderTexture.active = target;
+        capture.ReadPixels(new Rect(0, 0, target.width, target.height), 0, 0);
+        capture.Apply();
+        System.IO.File.WriteAllBytes(output + "/" + file + ".png", capture.EncodeToPNG());
+    };
+    try
+    {
+        var reportedMaterials = new System.Collections.Generic.HashSet<Material>();
+        for (int shot = 0; shot < poses.Length; shot++)
+        {
+            var pose = poses[shot];
+            var point = new Vector3(pose.x, 0, pose.y);
+            var nearTiles = new System.Collections.Generic.List<Terrain>();
+            Terrain center = null;
+            foreach (var terrain in terrains)
+            {
+                var origin = terrain.GetPosition();
+                var size = terrain.terrainData.size;
+                var nearest = new Vector2(Mathf.Clamp(point.x, origin.x, origin.x + size.x),
+                    Mathf.Clamp(point.z, origin.z, origin.z + size.z));
+                if (Vector2.Distance(nearest, new Vector2(point.x, point.z)) <= 110) nearTiles.Add(terrain);
+                if (point.x >= origin.x && point.x < origin.x + size.x && point.z >= origin.z && point.z < origin.z + size.z)
+                    center = terrain;
+            }
+            if (!center) throw new InvalidOperationException("검증 좌표에 지형이 없습니다.");
+            point.y = center.SampleHeight(point) + center.GetPosition().y + pose.z;
+            camera.transform.SetPositionAndRotation(point, Quaternion.Euler(pitch[shot], pose.w, 0));
+            var centerData = center.terrainData;
+            var local = point - center.GetPosition();
+            int ax = Mathf.Clamp(Mathf.FloorToInt(local.x / centerData.size.x * centerData.alphamapWidth), 0, centerData.alphamapWidth - 1);
+            int az = Mathf.Clamp(Mathf.FloorToInt(local.z / centerData.size.z * centerData.alphamapHeight), 0, centerData.alphamapHeight - 1);
+            int forwardX = Mathf.Clamp(ax + Mathf.RoundToInt(camera.transform.forward.x * 12 * centerData.alphamapWidth / centerData.size.x), 0, centerData.alphamapWidth - 1);
+            int forwardZ = Mathf.Clamp(az + Mathf.RoundToInt(camera.transform.forward.z * 12 * centerData.alphamapHeight / centerData.size.z), 0, centerData.alphamapHeight - 1);
+            var localWeights = centerData.GetAlphamaps(forwardX, forwardZ, 1, 1);
+            var localNames = new System.Collections.Generic.List<string>();
+            for (int l = 0; l < centerData.alphamapLayers; l++)
+                localNames.Add(centerData.terrainLayers[l].name + "=" + (100 * localWeights[0, 0, l]).ToString("F1", culture) + "%");
+            log.AppendLine(names[shot] + " " + point.ToString("F2") + " pitch/yaw " + pitch[shot] + "/" + pose.w +
+                " 전방 12m 알파맵 " + center.name + " " + string.Join(", ", localNames.ToArray()));
+            save(names[shot] + "-baseline");
+            save(names[shot] + "-baseline-repeat");
+
+            var distances = new float[nearTiles.Count];
+            for (int i = 0; i < nearTiles.Count; i++)
+            {
+                distances[i] = nearTiles[i].detailObjectDistance;
+                nearTiles[i].detailObjectDistance = 80;
+            }
+            save(names[shot] + "-80m");
+            for (int i = 0; i < nearTiles.Count; i++) nearTiles[i].detailObjectDistance = distances[i];
+
+            cameraData.renderPostProcessing = false;
+            save(names[shot] + "-post-off");
+            cameraData.renderPostProcessing = true;
+
+            // 나머지 비교에서는 같은 구도의 원본 TerrainData와 구매 재질을 계속 읽기 전용으로 둔다.
+            var originalData = new TerrainData[nearTiles.Count];
+            var copies = new TerrainData[nearTiles.Count];
+            var temporary = new System.Collections.Generic.List<UnityEngine.Object>();
+            var materialPairs = new System.Collections.Generic.Dictionary<Material, Material>();
+            var prefabCopies = new System.Collections.Generic.Dictionary<GameObject, GameObject>();
+            var originalFoliage = new bool[nearTiles.Count];
+            try
+            {
+                for (int i = 0; i < nearTiles.Count; i++)
+                {
+                    originalData[i] = nearTiles[i].terrainData;
+                    originalFoliage[i] = nearTiles[i].drawTreesAndFoliage;
+                    copies[i] = UnityEngine.Object.Instantiate(originalData[i]);
+                    temporary.Add(copies[i]);
+                    var originalMaps = originalData[i].alphamapTextures;
+                    var copiedMaps = copies[i].alphamapTextures;
+                    for (int a = 0; a < copiedMaps.Length; a++)
+                        if (Array.IndexOf(originalMaps, copiedMaps[a]) >= 0)
+                            throw new InvalidOperationException("알파맵 텍스처가 원본과 공유됩니다.");
+                    nearTiles[i].terrainData = copies[i];
+                    var prototypes = copies[i].detailPrototypes;
+                    foreach (var detail in prototypes)
+                    {
+                        if (!detail.prototype) continue;
+                        var prefab = detail.prototype;
+                        var renderer = prefab.GetComponent<MeshRenderer>();
+                        if (!renderer || !renderer.sharedMaterial || !renderer.sharedMaterial.HasProperty("_WindNoise01Multiplier")) continue;
+                        var sourceMaterial = renderer.sharedMaterial;
+                        if (reportedMaterials.Add(sourceMaterial))
+                            log.AppendLine(sourceMaterial.name + " / " + sourceMaterial.shader.name +
+                                " / 밑동 " + sourceMaterial.GetColor("_ColorBottom").ToString("F3") +
+                                " / 디더 " + sourceMaterial.IsKeywordEnabled("_USEDITHERING_ON") +
+                                " / 바람 " + sourceMaterial.GetFloat("_WindNoise01Multiplier") + "/" + sourceMaterial.GetFloat("_WindNoise02Multiplier"));
+                        Material material;
+                        if (!materialPairs.TryGetValue(sourceMaterial, out material))
+                        {
+                            material = new Material(sourceMaterial);
+                            materialPairs.Add(sourceMaterial, material);
+                            temporary.Add(material);
+                        }
+                        GameObject prefabCopy;
+                        if (!prefabCopies.TryGetValue(prefab, out prefabCopy))
+                        {
+                            prefabCopy = (GameObject)PrefabUtility.InstantiatePrefab(prefab, preview);
+                            prefabCopy.transform.position = new Vector3(0, -5000, 0);
+                            prefabCopy.GetComponent<MeshRenderer>().sharedMaterial = material;
+                            prefabCopies.Add(prefab, prefabCopy);
+                            temporary.Add(prefabCopy);
+                        }
+                        detail.prototype = prefabCopy;
+                    }
+                    copies[i].detailPrototypes = prototypes;
+                    nearTiles[i].Flush();
+                }
+                if (materialPairs.Count == 0) throw new InvalidOperationException("비교용 풀 재질을 찾지 못했습니다.");
+                save(names[shot] + "-copy-control");
+                foreach (var pair in materialPairs)
+                {
+                    pair.Value.SetFloat("_UseDithering", 0);
+                    pair.Value.DisableKeyword("_USEDITHERING_ON");
+                }
+                save(names[shot] + "-dither-off");
+                foreach (var pair in materialPairs)
+                {
+                    pair.Value.SetFloat("_UseDithering", pair.Key.GetFloat("_UseDithering"));
+                    if (pair.Key.IsKeywordEnabled("_USEDITHERING_ON")) pair.Value.EnableKeyword("_USEDITHERING_ON");
+                    pair.Value.SetFloat("_WindNoise01Multiplier", pair.Key.GetFloat("_WindNoise01Multiplier") * 2);
+                    pair.Value.SetFloat("_WindNoise02Multiplier", pair.Key.GetFloat("_WindNoise02Multiplier") * 2);
+                }
+                save(names[shot] + "-noise-x2");
+                foreach (var pair in materialPairs)
+                {
+                    pair.Value.SetFloat("_WindNoise01Multiplier", pair.Key.GetFloat("_WindNoise01Multiplier"));
+                    pair.Value.SetFloat("_WindNoise02Multiplier", pair.Key.GetFloat("_WindNoise02Multiplier"));
+                }
+                foreach (var tile in nearTiles) tile.drawTreesAndFoliage = false;
+                save(names[shot] + "-ground-control");
+                for (int i = 0; i < nearTiles.Count; i++)
+                {
+                    var layers = copies[i].terrainLayers;
+                    for (int l = 0; l < layers.Length; l++)
+                    {
+                        if (layers[l].name != "Forest" && layers[l].name != "Meadow") continue;
+                        var layer = UnityEngine.Object.Instantiate(layers[l]);
+                        layer.diffuseRemapMax *= 0.65f;
+                        layers[l] = layer;
+                        temporary.Add(layer);
+                    }
+                    copies[i].terrainLayers = layers;
+                    nearTiles[i].Flush();
+                }
+                save(names[shot] + "-ground-albedo-65pct");
+                for (int i = 0; i < nearTiles.Count; i++) nearTiles[i].drawTreesAndFoliage = originalFoliage[i];
+                save(names[shot] + "-albedo-65pct");
+                foreach (var tile in nearTiles) tile.drawTreesAndFoliage = false;
+                for (int i = 0; i < nearTiles.Count; i++)
+                {
+                    copies[i].terrainLayers = originalData[i].terrainLayers;
+                    var data = copies[i];
+                    var layers = data.terrainLayers;
+                    int forest = Array.FindIndex(layers, l => l.name == "Forest");
+                    int meadow = Array.FindIndex(layers, l => l.name == "Meadow");
+                    if (forest < 0 || meadow < 0) continue;
+                    var weights = data.GetAlphamaps(0, 0, data.alphamapWidth, data.alphamapHeight);
+                    for (int z = 0; z < data.alphamapHeight; z++)
+                        for (int x = 0; x < data.alphamapWidth; x++)
+                        {
+                            weights[z, x, forest] += weights[z, x, meadow];
+                            weights[z, x, meadow] = 0;
+                        }
+                    data.SetAlphamaps(0, 0, weights);
+                    nearTiles[i].Flush();
+                }
+                save(names[shot] + "-ground-meadow-to-forest");
+                for (int i = 0; i < nearTiles.Count; i++) nearTiles[i].drawTreesAndFoliage = originalFoliage[i];
+                save(names[shot] + "-meadow-to-forest");
+
+                // Phase 1 후보. 같은 프로토타입을 그대로 두고 지표와 밑동을 함께 맞춘다.
+                for (int i = 0; i < nearTiles.Count; i++)
+                {
+                    var sourceData = originalData[i];
+                    var data = copies[i];
+                    var layers = sourceData.terrainLayers;
+                    int forest = Array.FindIndex(layers, l => l.name == "Forest");
+                    int meadow = Array.FindIndex(layers, l => l.name == "Meadow");
+                    if (forest < 0 || meadow < 0) continue;
+                    var originalForest = layers[forest];
+                    var originalMeadow = layers[meadow];
+                    layers[forest] = UnityEngine.Object.Instantiate(originalForest);
+                    layers[meadow] = UnityEngine.Object.Instantiate(originalMeadow);
+                    temporary.Add(layers[forest]);
+                    temporary.Add(layers[meadow]);
+                    layers[forest].diffuseRemapMax = Vector4.Scale(originalForest.diffuseRemapMax, new Vector4(0.91f, 0.92f, 0.92f, 1));
+                    layers[meadow].diffuseRemapMax = Vector4.Scale(originalMeadow.diffuseRemapMax, new Vector4(0.82f, 0.78f, 0.88f, 1));
+                    var weights = sourceData.GetAlphamaps(0, 0, sourceData.alphamapWidth, sourceData.alphamapHeight);
+                    data.terrainLayers = layers;
+                    data.SetAlphamaps(0, 0, weights);
+                    nearTiles[i].Flush();
+                }
+                foreach (var pair in materialPairs)
+                    pair.Value.SetColor("_ColorBottom", pair.Key.GetColor("_ColorBottom") * new Color(0.94f, 0.89f, 0.95f, 1));
+                save(names[shot] + "-tone-candidate");
+            }
+            finally
+            {
+                for (int i = 0; i < nearTiles.Count; i++)
+                    if (originalData[i]) nearTiles[i].terrainData = originalData[i];
+                for (int i = temporary.Count - 1; i >= 0; i--)
+                    UnityEngine.Object.DestroyImmediate(temporary[i]);
+            }
+        }
+    }
+    finally
+    {
+        Application.logMessageReceived -= countLog;
+        log.AppendLine("캡처 중 Unity 로그 오류 " + errors + ", 경고 " + warnings);
+        System.IO.File.WriteAllText(output + "/measurements.txt", log.ToString());
+    }
+    if (errors != 0) throw new InvalidOperationException("비교 캡처에 오류가 있습니다. measurements.txt를 확인합니다.");
+    return log.ToString();
+}
+finally
+{
+    RenderTexture.active = previousTarget;
+    if (target) RenderTexture.ReleaseTemporary(target);
+    foreach (var item in scratch) UnityEngine.Object.DestroyImmediate(item);
+    UnityEditor.SceneManagement.EditorSceneManager.ClosePreviewScene(preview);
+}

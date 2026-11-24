@@ -1,0 +1,82 @@
+﻿// Unity MCP execute_code 본문. 기존 수관으로 열리는 풀밭을 찾는다.
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (scene.name != "RiverBasin4km" || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("저장된 RiverBasin4km 편집 모드에서 실행합니다.");
+
+var terrains = scene.GetRootGameObjects().SelectMany(root => root.GetComponentsInChildren<Terrain>()).ToArray();
+var crowns = new System.Collections.Generic.List<Vector3>();
+var radii = new System.Collections.Generic.Dictionary<GameObject, float>();
+Func<GameObject, float> crownRadius = prefab => {
+    float radius;
+    if (radii.TryGetValue(prefab, out radius)) return radius;
+    var lod = prefab.GetComponentInChildren<LODGroup>(true);
+    var renderers = lod != null && lod.lodCount > 0 ? lod.GetLODs()[0].renderers : prefab.GetComponentsInChildren<Renderer>();
+    foreach (var renderer in renderers)
+    {
+        if (!renderer) continue;
+        var filter = renderer.GetComponent<MeshFilter>();
+        if (!filter || !filter.sharedMesh) continue;
+        var bounds = filter.sharedMesh.bounds;
+        var scale = renderer.transform.lossyScale;
+        radius = Mathf.Max(radius, Mathf.Abs(bounds.min.x * scale.x), Mathf.Abs(bounds.max.x * scale.x),
+            Mathf.Abs(bounds.min.z * scale.z), Mathf.Abs(bounds.max.z * scale.z));
+    }
+    radius *= 0.85f;
+    radii.Add(prefab, radius);
+    return radius;
+};
+foreach (var tile in terrains)
+{
+    var pos = tile.GetPosition();
+    var data = tile.terrainData;
+    if (pos.x >= 1240 || pos.z >= 2420 || pos.x + data.size.x < 1010 || pos.z + data.size.z < 2160) continue;
+    var prototypes = data.treePrototypes;
+    foreach (var instance in data.treeInstances)
+    {
+        var wp = pos + Vector3.Scale(instance.position, data.size);
+        if (wp.x < 1010 || wp.x > 1240 || wp.z < 2160 || wp.z > 2420) continue;
+        var prefab = prototypes[instance.prototypeIndex].prefab;
+        if (!prefab) throw new InvalidOperationException(tile.name + " 나무 프리팹 누락");
+        var radius = crownRadius(prefab) * instance.widthScale;
+        if (radius >= 1.2f) crowns.Add(new Vector3(wp.x, wp.z, radius));
+    }
+}
+var separateTrees = scene.GetRootGameObjects().SelectMany(root => root.GetComponentsInChildren<Transform>())
+    .SingleOrDefault(node => node.name == "ForestWest 반응형 수목");
+if (separateTrees != null)
+    foreach (Transform tree in separateTrees)
+    {
+        var p = tree.position;
+        if (p.x < 1010 || p.x > 1240 || p.z < 2160 || p.z > 2420) continue;
+        var sourcePrefab = PrefabUtility.GetCorrespondingObjectFromSource(tree.gameObject);
+        float radius = (sourcePrefab ? crownRadius(sourcePrefab) : 4f) * tree.lossyScale.x;
+        if (radius >= 1.2f) crowns.Add(new Vector3(p.x, p.z, radius));
+    }
+
+var target = terrains.Single(t => t.name == "Terrain_2_4");
+var origin = target.GetPosition();
+var dataTarget = target.terrainData;
+var sites = new System.Collections.Generic.List<Vector4>();
+for (int x = 1080; x <= 1190; x += 5)
+    for (int z = 2220; z <= 2360; z += 5)
+    {
+        int measured = 0, covered = 0, steep = 0;
+        var nearby = crowns.Where(c => Mathf.Abs(c.x - x) < 40 && Mathf.Abs(c.y - z) < 45).ToArray();
+        for (int dx = -18; dx <= 18; dx += 3)
+            for (int dz = -24; dz <= 24; dz += 3)
+            {
+                if (dx * dx / 324f + dz * dz / 576f > 1) continue;
+                measured++;
+                var sample = new Vector2(x + dx, z + dz);
+                if (nearby.Any(c => (sample - new Vector2(c.x, c.y)).sqrMagnitude < c.z * c.z)) covered++;
+                if (dataTarget.GetSteepness((sample.x - origin.x) / dataTarget.size.x, (sample.y - origin.z) / dataTarget.size.z) > 24) steep++;
+            }
+        float cover = (float)covered / measured;
+        float steepShare = (float)steep / measured;
+        if (cover >= 0.20f && cover <= 0.30f && steepShare <= 0.15f)
+            sites.Add(new Vector4(x, z, cover, steepShare));
+    }
+var ranked = sites.OrderBy(site => Vector2.Distance(new Vector2(site.x, site.y), new Vector2(1143, 2296)))
+    .Take(15).Select(site => site.ToString("F3")).ToArray();
+return new { canopyCount = crowns.Count, candidateCount = sites.Count, previewCandidates = ranked };
+

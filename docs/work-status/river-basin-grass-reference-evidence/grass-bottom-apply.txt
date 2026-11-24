@@ -1,0 +1,14 @@
+제작 타일 12장: Terrain_0_3, Terrain_0_4, Terrain_0_5, Terrain_0_6, Terrain_1_3, Terrain_1_4, Terrain_1_5, Terrain_1_6, Terrain_2_3, Terrain_2_4, Terrain_2_5, Terrain_2_6
+FW_MI_Grass_Autumn_Small RGBA(0.420, 0.460, 0.210, 1.000) → RGBA(0.395, 0.409, 0.200, 1.000)
+FW_MI_Grass_Autumn_Medium RGBA(0.380, 0.420, 0.190, 1.000) → RGBA(0.357, 0.374, 0.181, 1.000)
+FW_MI_Grass_Tall_Autumn RGBA(0.400, 0.420, 0.200, 1.000) → RGBA(0.376, 0.374, 0.190, 1.000)
+FW_MI_Grass_Lush RGBA(0.280, 0.380, 0.150, 1.000) → RGBA(0.263, 0.338, 0.143, 1.000)
+FW_MI_Grass_Shade RGBA(0.330, 0.380, 0.170, 1.000) → RGBA(0.310, 0.338, 0.162, 1.000)
+FW_MI_Grass_Dry RGBA(0.440, 0.420, 0.200, 1.000) → RGBA(0.414, 0.374, 0.190, 1.000)
+백업 output/RiverBasinWorld/GrassReferencePhase1/grass-bottom/backup-20261123-215750-096
+FW_MI_Grass_Autumn_Medium.mat _ColorBottom 1개 변경 / meta 동일
+FW_MI_Grass_Autumn_Small.mat _ColorBottom 1개 변경 / meta 동일
+FW_MI_Grass_Dry.mat _ColorBottom 1개 변경 / meta 동일
+FW_MI_Grass_Lush.mat _ColorBottom 1개 변경 / meta 동일
+FW_MI_Grass_Shade.mat _ColorBottom 1개 변경 / meta 동일
+FW_MI_Grass_Tall_Autumn.mat _ColorBottom 1개 변경 / meta 동일

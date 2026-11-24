@@ -1,0 +1,26 @@
+Terrain_0_3(Clone) PF_FW_TallGrass_02_Autumn_Detail 숲 안 배율 조정 9040 / 밖 기존 배율 8251 / 높이 0.5–0.90m
+Terrain_0_3(Clone) PF_FW_Silvergrass_03_Detail 숲 안 배율 조정 36 / 밖 기존 배율 65 / 높이 0.56–0.90m
+FW_MI_Grass_Autumn_Small 방향성 휨 0.23m
+FW_MI_Grass_Autumn_Medium 방향성 휨 0.23m
+FW_MI_Grass_Autumn_Medium 방향성 휨 0.23m
+FW_MI_Grass_Tall_Autumn 방향성 휨 0.32m
+FW_MI_Grass_Lush 방향성 휨 0.23m
+FW_MI_Grass_Shade 방향성 휨 0.23m
+FW_MI_Grass_Dry 방향성 휨 0.23m
+Terrain_1_3(Clone) PF_FW_TallGrass_02_Autumn_Detail 숲 안 배율 조정 57882 / 밖 기존 배율 5183 / 높이 0.5–0.90m
+Terrain_1_3(Clone) PF_FW_Silvergrass_03_Detail 숲 안 배율 조정 364 / 밖 기존 배율 4 / 높이 0.56–0.90m
+Terrain_2_3(Clone) PF_FW_TallGrass_02_Autumn_Detail 숲 안 배율 조정 58743 / 밖 기존 배율 8876 / 높이 0.5–0.90m
+Terrain_2_3(Clone) PF_FW_Silvergrass_03_Detail 숲 안 배율 조정 329 / 밖 기존 배율 20 / 높이 0.56–0.90m
+Terrain_0_4(Clone) PF_FW_TallGrass_02_Autumn_Detail 숲 안 배율 조정 6047 / 밖 기존 배율 6332 / 높이 0.5–0.90m
+Terrain_0_4(Clone) PF_FW_Silvergrass_03_Detail 숲 안 배율 조정 59 / 밖 기존 배율 40 / 높이 0.56–0.90m
+Terrain_1_4(Clone) PF_FW_TallGrass_02_Autumn_Detail 숲 안 배율 조정 48847 / 밖 기존 배율 0 / 높이 0.5–0.90m
+Terrain_1_4(Clone) PF_FW_Silvergrass_03_Detail 숲 안 배율 조정 310 / 밖 기존 배율 0 / 높이 0.56–0.90m
+Terrain_2_4(Clone) PF_FW_TallGrass_02_Autumn_Detail 숲 안 배율 조정 64832 / 밖 기존 배율 4899 / 높이 0.5–0.90m
+Terrain_2_4(Clone) PF_FW_Silvergrass_03_Detail 숲 안 배율 조정 203 / 밖 기존 배율 15 / 높이 0.56–0.90m
+Terrain_0_5(Clone) PF_FW_TallGrass_02_Autumn_Detail 숲 안 배율 조정 4592 / 밖 기존 배율 4845 / 높이 0.5–0.90m
+Terrain_0_5(Clone) PF_FW_Silvergrass_03_Detail 숲 안 배율 조정 61 / 밖 기존 배율 7 / 높이 0.56–0.90m
+Terrain_1_5(Clone) PF_FW_TallGrass_02_Autumn_Detail 숲 안 배율 조정 45512 / 밖 기존 배율 5655 / 높이 0.5–0.90m
+Terrain_1_5(Clone) PF_FW_Silvergrass_03_Detail 숲 안 배율 조정 403 / 밖 기존 배율 4 / 높이 0.56–0.90m
+Terrain_2_5(Clone) PF_FW_TallGrass_02_Autumn_Detail 숲 안 배율 조정 36596 / 밖 기존 배율 18898 / 높이 0.5–0.90m
+Terrain_2_5(Clone) PF_FW_Silvergrass_03_Detail 숲 안 배율 조정 153 / 밖 기존 배율 84 / 높이 0.56–0.90m
+렌더 오류 0

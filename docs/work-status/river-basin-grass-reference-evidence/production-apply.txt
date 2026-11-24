@@ -1,0 +1,16 @@
+Terrain_0_3 변경 표본=1998 / 레이어=8 / 알파맵 채널 검증 통과
+Terrain_0_4 변경 표본=2304 / 레이어=8 / 알파맵 채널 검증 통과
+Terrain_0_5 변경 표본=1505 / 레이어=8 / 알파맵 채널 검증 통과
+Terrain_1_3 변경 표본=14208 / 레이어=8 / 알파맵 채널 검증 통과
+Terrain_1_4 변경 표본=15343 / 레이어=8 / 알파맵 채널 검증 통과
+Terrain_1_5 변경 표본=10818 / 레이어=8 / 알파맵 채널 검증 통과
+Terrain_2_3 변경 표본=11766 / 레이어=8 / 알파맵 채널 검증 통과
+Terrain_2_4 변경 표본=13568 / 레이어=8 / 알파맵 채널 검증 통과
+Terrain_2_5 변경 표본=9009 / 레이어=8 / 알파맵 채널 검증 통과
+백업 output/RiverBasinWorld/GrassReferencePhase1/backup-20261123-215356-731
+interior RGB_mean_abs=5.809 Yprime_mean_delta=-2.214
+ridge RGB_mean_abs=9.408 Yprime_mean_delta=-0.064
+clearing RGB_mean_abs=8.018 Yprime_mean_delta=-0.285
+low-meadow RGB_mean_abs=7.464 Yprime_mean_delta=-0.966
+tile-seam RGB_mean_abs=9.851 Yprime_mean_delta=-1.415
+outside RGB_mean_abs=2.799 Yprime_mean_delta=-0.027

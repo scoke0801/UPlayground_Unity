@@ -1039,10 +1039,50 @@ MonoBehaviour:
     patch: {fileID: 4900000, guid: 303ad61c139c28047bebf25111dd4ae1, type: 3}
     patchSha256: c9720707ef278603bbe7bed1e30700e5200a2e858df066ff695fbd68907d7adc
     sourceRevision: 4ef5b515bb3eb9e6a0c859c9287e609215162f28c544c1b281d56412f326445c
+  - operationGuid: 074e9019b07e4cd58956c3b026459ede
+    ownerPlanGuid: 
+    ownerElementGuid: 
+    kind: 0
+    x: 1227
+    z: 2302
+    width: 33
+    height: 7
+    value: 0
+    stage: 40
+    priority: 0
+    sequence: 48
+    enabled: 1
+    automatic: 0
+    radius: 1
+    iterations: 1
+    protection: 1
+    patch: {fileID: 4900000, guid: 2ee58efb1641efd47876500c79e6b2df, type: 3}
+    patchSha256: bc9544ee92a153455836973923cf7649444f751492b018b89922332d9fd60071
+    sourceRevision: 4ef5b515bb3eb9e6a0c859c9287e609215162f28c544c1b281d56412f326445c
+  - operationGuid: 1fc44fb15a29446b9848687a68fe351f
+    ownerPlanGuid: 
+    ownerElementGuid: 
+    kind: 0
+    x: 2068
+    z: 1286
+    width: 54
+    height: 44
+    value: 0
+    stage: 40
+    priority: 0
+    sequence: 49
+    enabled: 1
+    automatic: 0
+    radius: 1
+    iterations: 1
+    protection: 1
+    patch: {fileID: 4900000, guid: 43d47c401c23a284a915d2eb511ace32, type: 3}
+    patchSha256: e3ca9dc887b1774a773cc3c510e2f70e07d79109304bdfffc42e33f6a84080c2
+    sourceRevision: 4ef5b515bb3eb9e6a0c859c9287e609215162f28c544c1b281d56412f326445c
   _activeSession:
     rid: -2
-  _appliedTerrainHash: 99cc2f576cb80cdbab3edda059835f86e68a67c3408acac31b26eee1d7d43d69
-  _appliedStackHash: 03ab14766ec0a390a0c11d7972aa896d0d845839a711394b2bf5904d3fe9267b
+  _appliedTerrainHash: 692b57a3f9720964eedc3effc34054005986edc59d77d0e5ef1c7ca3a5203543
+  _appliedStackHash: 71355fcc9c2b795d813a8756cb804231c7a6875865617c40a12514c684d8a6eb
   _dirtyLayers: 767
   _dirtyX: 20
   _dirtyZ: 138

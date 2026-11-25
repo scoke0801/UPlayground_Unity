@@ -4354,7 +4354,7 @@ MonoBehaviour:
     prototype: 2
     sourcePrototype: {fileID: 4372436331418431252, guid: b338b12bace64ae4881201028c4c813b, type: 3}
   - id: d859c4357b3348939b64270349245211
-    position: {x: 0.43744206, y: 0.11301439, z: 0.49919748}
+    position: {x: 0.43744206, y: 0.11246943, z: 0.49919748}
     prototype: 1
     sourcePrototype: {fileID: 3757809286283294350, guid: 0bf19fb1ce47460459f6dfd05590da90, type: 3}
   - id: 298ab1f5ef0c4dcb8bfb1a46e61f7bb0
@@ -9234,7 +9234,7 @@ MonoBehaviour:
     prototype: 11
     sourcePrototype: {fileID: 0}
   - id: 
-    position: {x: 0.4234209, y: 0.113790505, z: 0.504272}
+    position: {x: 0.4234209, y: 0.11336312, z: 0.504272}
     prototype: 11
     sourcePrototype: {fileID: 0}
   - id: 

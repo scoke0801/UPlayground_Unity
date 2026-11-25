@@ -1,0 +1,7 @@
+sceneDirty=False renderers=36
+마을→B3 True/True True PathComplete 955m
+B3 횡단 True/True True PathComplete 72m
+B3 갈림길→E2 상단 True/True True PathComplete 196m
+(1656.0, 48.8, 1555.0) → (1491.6, 34.7, 1450.1)
+E2 오르내리기 True/True True PathComplete 35m
+B1→문루 True/False False PathInvalid 0m

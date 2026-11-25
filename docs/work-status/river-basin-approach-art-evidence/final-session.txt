@@ -1,0 +1,10 @@
+scene=Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Preview/RiverBasin4km.unity
+loaded=1
+playing=False
+dirty=True
+existing_save_files=5
+existing_save_hashes_match=True
+PF_EastLands_MedBoulder_01 (2098.25900, 39.14083, 1308.65300) disk localY=38.87029 open localY=39.14083
+PF_EastLands_BigBoulder_02 (2091.56400, 38.28332, 1309.17100) disk localY=38.23009 open localY=38.28332
+PF_EastLands_BigBoulder_01 (2095.09600, 39.05764, 1305.48100) disk localY=38.71002 open localY=39.05764
+PF_EastLands_MedBoulder_05 (2091.53100, 38.69161, 1308.39200) disk localY=38.58033 open localY=38.69161

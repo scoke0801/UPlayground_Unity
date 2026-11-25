@@ -1,0 +1,11 @@
+gate-west-east capsules=576 affected_hits=0
+harbor-dusk capsules=855 affected_hits=0
+lake-exit capsules=342 affected_hits=0
+b3-east-fork capsules=798 affected_hits=0
+b1-keep-vista capsules=330 affected_hits=0
+desert-access capsules=435 affected_hits=0
+capsules=3336 affected_hits=0 deck_samples_excluded=78
+prop_instances=39 prop_colliders=25 wear_meshes=15 wear_colliders=0 missing_scripts=0
+gate source=Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Castle_Gate.prefab mesh matches collider=True roof ray=True (2270.000, 99.270, 2088.000) grouped_renderers=7
+footing source=Assets/03.Prefabs/Environment/PoorVillage/PoorHouse_LHouse.prefab render and collider match=True
+lights=14 emissions=23 empty_bindings=0

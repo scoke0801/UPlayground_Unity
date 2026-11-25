@@ -1,0 +1,4 @@
+PoorHouse_Dugout (3631.000, 63.204, 1525.000)
+PF_Farm_Canopy_01 disabled (3632.000, 65.069, 1521.000)
+(3620.000, 65.442, 1516.000) foundation vertices=36 max extension metres=0.872 
+Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinDesertFooting.asset

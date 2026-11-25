@@ -1,0 +1,95 @@
+Editor Play | virtual gamepad | continuous lower hall and chamber | upper unlock via original normal route
+START (3169.500, 103.250, 2174.600) stable=False flag=False camera=(1703.894, 54.525, 1829.911) camDistance=1506.38 cameraYaw=50.19
+AT LOCK (3170.543, 103.225, 2172.513) stable=True flag=False camera=(3170.543, 105.106, 2170.177) camDistance=3.00 cameraYaw=0.00
+SAMPLE LOCK 0.22 (3170.543, 103.225, 2172.513) stable=True flag=False camera=(3170.543, 105.106, 2170.177) camDistance=3.00 cameraYaw=0.00
+SAMPLE LOCK 0.49 (3170.543, 103.225, 2172.513) stable=True flag=False camera=(3170.543, 105.106, 2170.177) camDistance=3.00 cameraYaw=0.00
+SAMPLE LOCK 0.74 (3170.543, 103.225, 2172.513) stable=True flag=False camera=(3170.543, 105.106, 2170.177) camDistance=3.00 cameraYaw=0.00
+SAMPLE LOCK 1.08 (3170.543, 103.225, 2172.513) stable=True flag=False camera=(3170.543, 105.106, 2170.177) camDistance=3.00 cameraYaw=0.00
+SAMPLE LOCK 1.34 (3170.543, 103.225, 2172.513) stable=True flag=False camera=(3170.543, 105.106, 2170.177) camDistance=3.00 cameraYaw=0.00
+SAMPLE LOCK 1.60 (3170.543, 103.225, 2172.513) stable=True flag=False camera=(3170.543, 105.106, 2170.177) camDistance=3.00 cameraYaw=0.00
+SAMPLE LOCK 1.84 (3170.543, 103.225, 2172.513) stable=True flag=False camera=(3170.543, 105.106, 2170.177) camDistance=3.00 cameraYaw=0.00
+SAMPLE LOCK 2.12 (3170.543, 103.225, 2172.513) stable=True flag=False camera=(3170.543, 105.106, 2170.177) camDistance=3.00 cameraYaw=0.00
+SAMPLE LOCK 2.37 (3170.543, 103.225, 2172.513) stable=True flag=False camera=(3170.543, 105.106, 2170.177) camDistance=3.00 cameraYaw=0.00
+SAMPLE LOCK 2.62 (3170.543, 103.225, 2172.513) stable=True flag=False camera=(3170.543, 105.106, 2170.177) camDistance=3.00 cameraYaw=0.00
+PASS LOCK (3170.543, 103.225, 2172.513) stable=True flag=False camera=(3170.543, 105.106, 2170.177) camDistance=3.00 cameraYaw=0.00
+LOWER START (3210.000, 94.050, 2202.000) stable=True flag=False camera=(3210.000, 96.560, 2197.148) camDistance=5.46 cameraYaw=0.00
+AT LOWER_ENTRY (3212.331, 93.814, 2204.072) stable=True flag=False camera=(3212.331, 96.472, 2199.301) camDistance=5.46 cameraYaw=0.00
+SAMPLE LOWER_ENTRY 0.31 (3225.000, -71.994, 2204.000) stable=True flag=False camera=(3229.334, -69.510, 2204.000) camDistance=5.00 cameraYaw=270.00
+SAMPLE LOWER_ENTRY 0.70 (3225.000, -71.994, 2204.000) stable=True flag=False camera=(3229.334, -69.510, 2204.000) camDistance=5.00 cameraYaw=270.00
+SAMPLE LOWER_ENTRY 1.05 (3225.000, -71.994, 2204.000) stable=True flag=False camera=(3229.334, -69.510, 2204.000) camDistance=5.00 cameraYaw=270.00
+SAMPLE LOWER_ENTRY 1.40 (3225.000, -71.994, 2204.000) stable=True flag=False camera=(3229.334, -69.510, 2204.000) camDistance=5.00 cameraYaw=270.00
+SAMPLE LOWER_ENTRY 1.86 (3225.000, -71.994, 2204.000) stable=True flag=False camera=(3229.334, -69.510, 2204.000) camDistance=5.00 cameraYaw=270.00
+SAMPLE LOWER_ENTRY 2.27 (3225.000, -71.994, 2204.000) stable=True flag=False camera=(3229.334, -69.510, 2204.000) camDistance=5.00 cameraYaw=270.00
+SAMPLE LOWER_ENTRY 2.68 (3225.000, -71.994, 2204.000) stable=True flag=False camera=(3229.334, -69.510, 2204.000) camDistance=5.00 cameraYaw=270.00
+PASS LOWER_ENTRY (3225.000, -71.994, 2204.000) stable=True flag=False camera=(3229.334, -69.510, 2204.000) camDistance=5.00 cameraYaw=270.00
+AT CHAMBER (3207.854, -71.994, 2204.000) stable=True flag=False camera=(3212.555, -69.418, 2204.000) camDistance=5.36 cameraYaw=270.00
+SAMPLE CHAMBER 0.35 (3207.854, -71.994, 2204.000) stable=True flag=False camera=(3212.669, -69.390, 2204.000) camDistance=5.47 cameraYaw=270.00
+PASS CHAMBER (3207.854, -71.994, 2204.000) stable=True flag=False camera=(3212.669, -69.390, 2204.000) camDistance=5.47 cameraYaw=270.00
+AT LOWER_RETURN (3227.858, -71.994, 2204.000) stable=True flag=False camera=(3229.334, -70.222, 2204.000) camDistance=2.31 cameraYaw=270.00
+SAMPLE LOWER_RETURN 0.47 (3210.000, 93.897, 2202.000) stable=True flag=False camera=(3213.682, 96.213, 2202.000) camDistance=4.35 cameraYaw=270.00
+SAMPLE LOWER_RETURN 0.94 (3210.000, 93.897, 2202.000) stable=True flag=False camera=(3214.682, 96.462, 2202.000) camDistance=5.34 cameraYaw=270.00
+SAMPLE LOWER_RETURN 1.38 (3210.000, 93.897, 2202.000) stable=True flag=False camera=(3214.813, 96.495, 2202.000) camDistance=5.47 cameraYaw=270.00
+SAMPLE LOWER_RETURN 1.76 (3210.000, 93.897, 2202.000) stable=True flag=False camera=(3214.813, 96.495, 2202.000) camDistance=5.47 cameraYaw=270.00
+SAMPLE LOWER_RETURN 2.14 (3210.000, 93.897, 2202.000) stable=True flag=False camera=(3214.813, 96.495, 2202.000) camDistance=5.47 cameraYaw=270.00
+SAMPLE LOWER_RETURN 2.55 (3210.000, 93.897, 2202.000) stable=True flag=False camera=(3214.813, 96.495, 2202.000) camDistance=5.47 cameraYaw=270.00
+PASS LOWER_RETURN (3210.000, 93.897, 2202.000) stable=True flag=False camera=(3214.813, 96.495, 2202.000) camDistance=5.47 cameraYaw=270.00
+AT LOWER_ENTRY_AGAIN (3212.331, 93.814, 2204.072) stable=True flag=False camera=(3216.789, 96.393, 2204.072) camDistance=5.15 cameraYaw=270.00
+SAMPLE LOWER_ENTRY_AGAIN 0.32 (3225.000, -71.994, 2204.000) stable=True flag=False camera=(3229.334, -69.512, 2204.000) camDistance=4.99 cameraYaw=270.00
+SAMPLE LOWER_ENTRY_AGAIN 0.74 (3225.000, -71.994, 2204.000) stable=True flag=False camera=(3229.334, -69.512, 2204.000) camDistance=4.99 cameraYaw=270.00
+SAMPLE LOWER_ENTRY_AGAIN 1.10 (3225.000, -71.994, 2204.000) stable=True flag=False camera=(3229.334, -69.512, 2204.000) camDistance=4.99 cameraYaw=270.00
+SAMPLE LOWER_ENTRY_AGAIN 1.47 (3225.000, -71.994, 2204.000) stable=True flag=False camera=(3229.334, -69.512, 2204.000) camDistance=4.99 cameraYaw=270.00
+SAMPLE LOWER_ENTRY_AGAIN 1.92 (3225.000, -71.994, 2204.000) stable=True flag=False camera=(3229.334, -69.512, 2204.000) camDistance=4.99 cameraYaw=270.00
+SAMPLE LOWER_ENTRY_AGAIN 2.34 (3225.000, -71.994, 2204.000) stable=True flag=False camera=(3229.334, -69.512, 2204.000) camDistance=4.99 cameraYaw=270.00
+SAMPLE LOWER_ENTRY_AGAIN 2.71 (3225.000, -71.994, 2204.000) stable=True flag=False camera=(3229.334, -69.512, 2204.000) camDistance=4.99 cameraYaw=270.00
+PASS LOWER_ENTRY_AGAIN (3225.000, -71.994, 2204.000) stable=True flag=False camera=(3229.334, -69.512, 2204.000) camDistance=4.99 cameraYaw=270.00
+AT CHAMBER_TO_UPPER (3207.854, -71.994, 2204.000) stable=True flag=False camera=(3212.561, -69.419, 2204.000) camDistance=5.36 cameraYaw=270.00
+SAMPLE CHAMBER_TO_UPPER 0.36 (3207.854, -71.994, 2204.000) stable=True flag=False camera=(3212.667, -69.393, 2204.000) camDistance=5.47 cameraYaw=270.00
+PASS CHAMBER_TO_UPPER (3207.854, -71.994, 2204.000) stable=True flag=False camera=(3212.667, -69.393, 2204.000) camDistance=5.47 cameraYaw=270.00
+AT UPPER_UNLOCK (3184.474, -71.994, 2204.000) stable=True flag=False camera=(3189.288, -69.393, 2204.000) camDistance=5.47 cameraYaw=270.00
+SAMPLE UPPER_UNLOCK 0.51 (3184.474, -71.994, 2204.000) stable=True flag=True camera=(3189.288, -69.393, 2204.000) camDistance=5.47 cameraYaw=270.00
+SAMPLE UPPER_UNLOCK 0.92 (3184.474, -71.994, 2204.000) stable=True flag=True camera=(3189.288, -69.393, 2204.000) camDistance=5.47 cameraYaw=270.00
+SAMPLE UPPER_UNLOCK 1.31 (3184.474, -71.994, 2204.000) stable=True flag=True camera=(3189.288, -69.393, 2204.000) camDistance=5.47 cameraYaw=270.00
+SAMPLE UPPER_UNLOCK 1.64 (3184.474, -71.994, 2204.000) stable=True flag=True camera=(3189.288, -69.393, 2204.000) camDistance=5.47 cameraYaw=270.00
+SAMPLE UPPER_UNLOCK 1.99 (3184.474, -71.994, 2204.000) stable=True flag=True camera=(3189.288, -69.393, 2204.000) camDistance=5.47 cameraYaw=270.00
+SAMPLE UPPER_UNLOCK 2.32 (3184.474, -71.994, 2204.000) stable=True flag=True camera=(3189.288, -69.393, 2204.000) camDistance=5.47 cameraYaw=270.00
+SAMPLE UPPER_UNLOCK 2.65 (3184.474, -71.994, 2204.000) stable=True flag=True camera=(3189.288, -69.393, 2204.000) camDistance=5.47 cameraYaw=270.00
+PASS UPPER_UNLOCK (3184.474, -71.994, 2204.000) stable=True flag=True camera=(3189.288, -69.393, 2204.000) camDistance=5.47 cameraYaw=270.00
+AT UPPER_EXIT (3184.474, -71.994, 2204.000) stable=True flag=True camera=(3189.288, -69.393, 2204.000) camDistance=5.47 cameraYaw=270.00
+SAMPLE UPPER_EXIT 0.32 (3169.500, 103.044, 2174.600) stable=True flag=True camera=(3172.261, 105.650, 2170.657) camDistance=5.47 cameraYaw=325.00
+SAMPLE UPPER_EXIT 0.66 (3169.500, 103.044, 2174.600) stable=True flag=True camera=(3172.261, 105.650, 2170.657) camDistance=5.47 cameraYaw=325.00
+SAMPLE UPPER_EXIT 0.94 (3169.500, 103.044, 2174.600) stable=True flag=True camera=(3172.261, 105.650, 2170.657) camDistance=5.47 cameraYaw=325.00
+SAMPLE UPPER_EXIT 1.30 (3169.500, 103.044, 2174.600) stable=True flag=True camera=(3172.261, 105.650, 2170.657) camDistance=5.47 cameraYaw=325.00
+SAMPLE UPPER_EXIT 1.62 (3169.500, 103.044, 2174.600) stable=True flag=True camera=(3172.261, 105.650, 2170.657) camDistance=5.47 cameraYaw=325.00
+SAMPLE UPPER_EXIT 2.03 (3169.500, 103.044, 2174.600) stable=True flag=True camera=(3172.261, 105.650, 2170.657) camDistance=5.47 cameraYaw=325.00
+SAMPLE UPPER_EXIT 2.40 (3169.500, 103.044, 2174.600) stable=True flag=True camera=(3172.261, 105.650, 2170.657) camDistance=5.47 cameraYaw=325.00
+PASS UPPER_EXIT (3169.500, 103.044, 2174.600) stable=True flag=True camera=(3172.261, 105.650, 2170.657) camDistance=5.47 cameraYaw=325.00
+AT UPPER_REENTRY (3170.544, 103.225, 2172.513) stable=True flag=True camera=(3173.305, 105.650, 2168.570) camDistance=5.39 cameraYaw=325.00
+SAMPLE UPPER_REENTRY 0.42 (3187.500, -71.994, 2204.000) stable=True flag=True camera=(3182.686, -69.363, 2204.000) camDistance=5.49 cameraYaw=90.00
+SAMPLE UPPER_REENTRY 0.68 (3187.500, -71.994, 2204.000) stable=True flag=True camera=(3182.686, -69.363, 2204.000) camDistance=5.49 cameraYaw=90.00
+SAMPLE UPPER_REENTRY 0.95 (3187.500, -71.994, 2204.000) stable=True flag=True camera=(3182.686, -69.363, 2204.000) camDistance=5.49 cameraYaw=90.00
+SAMPLE UPPER_REENTRY 1.20 (3187.500, -71.994, 2204.000) stable=True flag=True camera=(3182.686, -69.363, 2204.000) camDistance=5.49 cameraYaw=90.00
+SAMPLE UPPER_REENTRY 1.45 (3187.500, -71.994, 2204.000) stable=True flag=True camera=(3182.686, -69.363, 2204.000) camDistance=5.49 cameraYaw=90.00
+SAMPLE UPPER_REENTRY 1.69 (3187.500, -71.994, 2204.000) stable=True flag=True camera=(3182.686, -69.363, 2204.000) camDistance=5.49 cameraYaw=90.00
+SAMPLE UPPER_REENTRY 1.92 (3187.500, -71.994, 2204.000) stable=True flag=True camera=(3182.686, -69.363, 2204.000) camDistance=5.49 cameraYaw=90.00
+SAMPLE UPPER_REENTRY 2.14 (3187.500, -71.994, 2204.000) stable=True flag=True camera=(3182.686, -69.363, 2204.000) camDistance=5.49 cameraYaw=90.00
+SAMPLE UPPER_REENTRY 2.36 (3187.500, -71.994, 2204.000) stable=True flag=True camera=(3182.686, -69.363, 2204.000) camDistance=5.49 cameraYaw=90.00
+SAMPLE UPPER_REENTRY 2.55 (3187.500, -71.994, 2204.000) stable=True flag=True camera=(3182.686, -69.363, 2204.000) camDistance=5.49 cameraYaw=90.00
+PASS UPPER_REENTRY (3187.500, -71.994, 2204.000) stable=True flag=True camera=(3182.686, -69.363, 2204.000) camDistance=5.49 cameraYaw=90.00
+SAVE True path=C:\UsingProject\UnityProject\UPlayground\output\RiverBasinWorld\RegionArt\qa-save-3c90b173734b4045bc846861d4d8a7ca\save_slot_0.sav failures=0
+RESET_FLAG flag=False
+LOAD True flag=True scene=RiverBasin4km
+SAVE FOLDER RESTORED slot=
+RELOAD CHECK START (3169.500, 103.250, 2174.600) stable=True flag=True camera=(3164.648, 105.760, 2174.600) camDistance=5.46 cameraYaw=90.00
+AT RELOADED_REENTRY (3170.544, 103.225, 2172.513) stable=True flag=True camera=(3165.730, 105.724, 2172.513) camDistance=5.42 cameraYaw=90.00
+SAMPLE RELOADED_REENTRY 0.24 (3187.500, -71.994, 2204.000) stable=True flag=True camera=(3182.686, -69.357, 2204.000) camDistance=5.49 cameraYaw=90.00
+SAMPLE RELOADED_REENTRY 0.50 (3187.500, -71.994, 2204.000) stable=True flag=True camera=(3182.686, -69.357, 2204.000) camDistance=5.49 cameraYaw=90.00
+SAMPLE RELOADED_REENTRY 0.69 (3187.500, -71.994, 2204.000) stable=True flag=True camera=(3182.686, -69.357, 2204.000) camDistance=5.49 cameraYaw=90.00
+SAMPLE RELOADED_REENTRY 0.90 (3187.500, -71.994, 2204.000) stable=True flag=True camera=(3182.686, -69.357, 2204.000) camDistance=5.49 cameraYaw=90.00
+SAMPLE RELOADED_REENTRY 1.12 (3187.500, -71.994, 2204.000) stable=True flag=True camera=(3182.686, -69.357, 2204.000) camDistance=5.49 cameraYaw=90.00
+SAMPLE RELOADED_REENTRY 1.31 (3187.500, -71.994, 2204.000) stable=True flag=True camera=(3182.686, -69.357, 2204.000) camDistance=5.49 cameraYaw=90.00
+SAMPLE RELOADED_REENTRY 1.61 (3187.500, -71.994, 2204.000) stable=True flag=True camera=(3182.686, -69.357, 2204.000) camDistance=5.49 cameraYaw=90.00
+SAMPLE RELOADED_REENTRY 1.94 (3187.500, -71.994, 2204.000) stable=True flag=True camera=(3182.686, -69.357, 2204.000) camDistance=5.49 cameraYaw=90.00
+SAMPLE RELOADED_REENTRY 2.30 (3187.500, -71.994, 2204.000) stable=True flag=True camera=(3182.686, -69.357, 2204.000) camDistance=5.49 cameraYaw=90.00
+SAMPLE RELOADED_REENTRY 2.55 (3187.500, -71.994, 2204.000) stable=True flag=True camera=(3182.686, -69.357, 2204.000) camDistance=5.49 cameraYaw=90.00
+PASS RELOADED_REENTRY (3187.500, -71.994, 2204.000) stable=True flag=True camera=(3182.686, -69.357, 2204.000) camDistance=5.49 cameraYaw=90.00
+END

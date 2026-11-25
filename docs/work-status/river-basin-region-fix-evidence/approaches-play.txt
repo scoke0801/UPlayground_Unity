@@ -1,0 +1,84 @@
+Editor Play | Unity 6000.3.21f1 | KCC / Gamepad left stick
+START keep-walk (2238.000, 83.656, 2096.000) waypoints=(2238.00, 2096.00) > (2252.00, 2091.50) > (2262.00, 2089.55) > (2270.00, 2088.00) > (2278.00, 2086.45) > (2284.00, 2086.00) > (2320.00, 2088.00)
+  REACHED (2251.323, 84.825, 2091.718) target=(2252.00, 2091.50) stable=True swimming=False
+  REACHED (2261.290, 85.968, 2089.691) target=(2262.00, 2089.55) stable=True swimming=False
+  REACHED (2269.264, 86.824, 2088.143) target=(2270.00, 2088.00) stable=True swimming=False
+  REACHED (2277.317, 87.557, 2086.582) target=(2278.00, 2086.45) stable=True swimming=False
+  REACHED (2283.317, 87.965, 2086.053) target=(2284.00, 2086.00) stable=True swimming=False
+  REACHED (2319.256, 89.429, 2087.960) target=(2320.00, 2088.00) stable=True swimming=False
+PASS keep-walk (2319.256, 89.429, 2087.960) ground=1143/1143 swimFrames=0 wetFrames=0 profile= yRange=83.66..89.43 maxYStep=0.04 camDistMin=3.47 camFrameMax=2.10
+START keep-walk-reverse (2320.000, 89.419, 2088.000) waypoints=(2320.00, 2088.00) > (2284.00, 2086.00) > (2278.00, 2086.45) > (2270.00, 2088.00) > (2262.00, 2089.55) > (2252.00, 2091.50)
+  REACHED (2284.770, 88.071, 2086.043) target=(2284.00, 2086.00) stable=True swimming=False
+  REACHED (2278.690, 87.666, 2086.403) target=(2278.00, 2086.45) stable=True swimming=False
+  REACHED (2270.671, 86.954, 2087.873) target=(2270.00, 2088.00) stable=True swimming=False
+  REACHED (2262.673, 86.130, 2089.420) target=(2262.00, 2089.55) stable=True swimming=False
+  REACHED (2252.565, 84.968, 2091.389) target=(2252.00, 2091.50) stable=True swimming=False
+PASS keep-walk-reverse (2252.565, 84.968, 2091.389) ground=968/968 swimFrames=0 wetFrames=0 profile= yRange=84.97..89.43 maxYStep=0.03 camDistMin=3.55 camFrameMax=0.43
+START forest-south (1260.000, 58.045, 2232.000) waypoints=(1260.00, 2232.00) > (1257.00, 2252.00) > (1251.00, 2274.00) > (1248.00, 2292.00) > (1244.80, 2300.40)
+  REACHED (1257.083, 58.198, 2251.389) target=(1257.00, 2252.00) stable=True swimming=False
+  REACHED (1251.218, 58.518, 2273.388) target=(1251.00, 2274.00) stable=True swimming=False
+  REACHED (1248.124, 58.851, 2291.268) target=(1248.00, 2292.00) stable=True swimming=False
+  REACHED (1245.065, 58.677, 2299.691) target=(1244.80, 2300.40) stable=True swimming=False
+PASS forest-south (1245.065, 58.677, 2299.691) ground=544/544 swimFrames=0 wetFrames=0 profile= yRange=57.96..58.96 maxYStep=0.02 camDistMin=1.24 camFrameMax=4.74
+START forest-bridge-SN (1245.550, 58.654, 2299.200) waypoints=(1245.55, 2299.20) > (1244.42, 2302.00) > (1243.20, 2305.00) > (1241.75, 2308.60) > (1240.80, 2311.00)
+  REACHED (1244.677, 58.656, 2301.370) target=(1244.42, 2302.00) stable=True swimming=False
+  REACHED (1243.460, 58.893, 2304.360) target=(1243.20, 2305.00) stable=True swimming=False
+  REACHED (1242.001, 58.911, 2307.976) target=(1241.75, 2308.60) stable=True swimming=False
+  REACHED (1241.084, 59.033, 2310.282) target=(1240.80, 2311.00) stable=True swimming=False
+PASS forest-bridge-SN (1241.084, 59.033, 2310.282) ground=87/87 swimFrames=0 wetFrames=0 profile= yRange=58.65..59.03 maxYStep=0.09 camDistMin=5.30 camFrameMax=1.64
+START forest-bridge-NS (1240.800, 59.060, 2311.000) waypoints=(1240.80, 2311.00) > (1241.75, 2308.60) > (1243.20, 2305.00) > (1244.42, 2302.00) > (1245.55, 2299.20)
+  REACHED (1241.495, 58.991, 2309.245) target=(1241.75, 2308.60) stable=True swimming=False
+  REACHED (1242.984, 58.893, 2305.538) target=(1243.20, 2305.00) stable=True swimming=False
+  REACHED (1244.149, 58.893, 2302.666) target=(1244.42, 2302.00) stable=True swimming=False
+  REACHED (1245.272, 58.649, 2299.889) target=(1245.55, 2299.20) stable=True swimming=False
+PASS forest-bridge-NS (1245.272, 58.649, 2299.889) ground=103/103 swimFrames=0 wetFrames=0 profile= yRange=58.65..59.08 maxYStep=0.11 camDistMin=5.50 camFrameMax=0.19
+START forest-shallows-west (1229.700, 60.266, 2304.700) waypoints=(1229.70, 2304.70) > (1229.70, 2306.90) > (1231.50, 2306.40) > (1233.00, 2306.00) > (1234.00, 2305.80) > (1236.20, 2304.70) > (1238.20, 2304.50)
+  FOOTSTEP 6 Surface_ShallowWater (1229.679, 60.161, 2306.747)
+  REACHED (1229.714, 59.959, 2306.613) target=(1229.70, 2306.90) stable=True swimming=False
+  FOOTSTEP 7 Surface_ShallowWater (1231.229, 59.963, 2306.514)
+  REACHED (1231.170, 59.765, 2306.531) target=(1231.50, 2306.40) stable=True swimming=False
+  FOOTSTEP 8 Surface_ShallowWater (1232.548, 59.797, 2306.162)
+  REACHED (1232.645, 59.561, 2306.098) target=(1233.00, 2306.00) stable=True swimming=False
+  FOOTSTEP 9 Surface_ShallowWater (1233.853, 59.634, 2305.800)
+  REACHED (1233.651, 59.452, 2305.867) target=(1234.00, 2305.80) stable=True swimming=False
+  REACHED (1235.904, 60.205, 2304.852) target=(1236.20, 2304.70) stable=False swimming=False
+  FOOTSTEP 10 Surface_ShallowWater (1237.848, 59.084, 2304.312)
+  REACHED (1237.913, 58.857, 2304.319) target=(1238.20, 2304.50) stable=True swimming=False
+PASS forest-shallows-west (1237.913, 58.857, 2304.319) ground=92/114 swimFrames=0 wetFrames=69 profile=Surface_ShallowWater yRange=58.86..60.34 maxYStep=0.20 camDistMin=5.28 camFrameMax=0.18
+START forest-shallows-east (1249.600, 58.286, 2301.700) waypoints=(1249.60, 2301.70) > (1249.60, 2304.20) > (1252.00, 2304.00) > (1256.00, 2304.30) > (1258.00, 2305.00)
+  REACHED (1249.628, 57.931, 2303.825) target=(1249.60, 2304.20) stable=True swimming=False
+  FOOTSTEP 11 Surface_ShallowWater (1249.626, 58.163, 2304.135)
+  FOOTSTEP 12 Surface_ShallowWater (1251.534, 58.114, 2304.050)
+  REACHED (1251.646, 57.883, 2304.043) target=(1252.00, 2304.00) stable=True swimming=False
+  FOOTSTEP 13 Surface_ShallowWater (1252.958, 58.077, 2304.111)
+  REACHED (1255.662, 58.430, 2304.275) target=(1256.00, 2304.30) stable=False swimming=False
+  REACHED (1257.651, 58.420, 2304.877) target=(1258.00, 2305.00) stable=True swimming=False
+PASS forest-shallows-east (1257.651, 58.420, 2304.877) ground=96/117 swimFrames=0 wetFrames=50 profile=Surface_ShallowWater yRange=57.87..58.65 maxYStep=0.10 camDistMin=1.81 camFrameMax=3.54
+START B3-E2 (1656.000, 48.718, 1555.000) waypoints=(1656.00, 1555.00) > (1638.00, 1546.00) > (1612.00, 1529.00) > (1585.00, 1511.00) > (1558.00, 1494.00) > (1531.00, 1477.00) > (1504.00, 1460.00) > (1491.60, 1450.10) > (1504.00, 1460.00) > (1531.00, 1477.00)
+  REACHED (1638.655, 48.850, 1546.326) target=(1638.00, 1546.00) stable=True swimming=False
+  REACHED (1612.622, 48.013, 1529.406) target=(1612.00, 1529.00) stable=True swimming=False
+  REACHED (1585.515, 47.623, 1511.344) target=(1585.00, 1511.00) stable=True swimming=False
+  REACHED (1558.646, 46.099, 1494.407) target=(1558.00, 1494.00) stable=True swimming=False
+  REACHED (1531.629, 41.004, 1477.397) target=(1531.00, 1477.00) stable=True swimming=False
+  REACHED (1504.629, 36.565, 1460.395) target=(1504.00, 1460.00) stable=True swimming=False
+  REACHED (1492.161, 34.534, 1450.547) target=(1491.60, 1450.10) stable=True swimming=False
+  REACHED (1503.439, 36.366, 1459.552) target=(1504.00, 1460.00) stable=True swimming=False
+  REACHED (1530.483, 40.799, 1476.674) target=(1531.00, 1477.00) stable=True swimming=False
+PASS B3-E2 (1530.483, 40.799, 1476.674) ground=2474/2474 swimFrames=0 wetFrames=0 profile= yRange=34.53..48.90 maxYStep=0.05 camDistMin=5.31 camFrameMax=0.32
+START E2-ramp (1492.000, 34.532, 1450.000) waypoints=(1492.00, 1450.00) > (1481.00, 1459.00) > (1464.00, 1471.00) > (1481.00, 1459.00) > (1492.00, 1450.00)
+  REACHED (1481.602, 32.603, 1458.524) target=(1481.00, 1459.00) stable=True swimming=False
+  REACHED (1464.572, 29.518, 1470.596) target=(1464.00, 1471.00) stable=True swimming=False
+  REACHED (1480.441, 32.389, 1459.394) target=(1481.00, 1459.00) stable=True swimming=False
+  REACHED (1491.418, 34.465, 1450.475) target=(1492.00, 1450.00) stable=True swimming=False
+PASS E2-ramp (1491.418, 34.465, 1450.475) ground=673/673 swimFrames=0 wetFrames=0 profile= yRange=29.50..34.56 maxYStep=0.04 camDistMin=5.30 camFrameMax=0.19
+START harbor-dock (2790.000, 11.118, 270.000) waypoints=(2790.00, 270.00) > (2803.00, 266.00) > (2816.00, 248.00) > (2826.00, 218.00) > (2828.00, 193.00) > (2826.00, 170.00) > (2826.00, 161.00) > (2826.00, 151.00) > (2826.00, 128.00)
+  REACHED (2802.419, 10.472, 266.173) target=(2803.00, 266.00) stable=True swimming=False
+  REACHED (2815.499, 10.005, 248.452) target=(2816.00, 248.00) stable=True swimming=False
+  REACHED (2825.752, 10.695, 218.734) target=(2826.00, 218.00) stable=True swimming=False
+  REACHED (2827.942, 7.895, 193.694) target=(2828.00, 193.00) stable=True swimming=False
+  REACHED (2826.062, 2.913, 170.734) target=(2826.00, 170.00) stable=True swimming=False
+  REACHED (2826.002, 1.812, 161.631) target=(2826.00, 161.00) stable=True swimming=False
+  REACHED (2826.001, 0.850, 151.674) target=(2826.00, 151.00) stable=True swimming=False
+  REACHED (2826.001, 0.850, 128.746) target=(2826.00, 128.00) stable=True swimming=False
+PASS harbor-dock (2826.001, 0.850, 128.746) ground=2071/2075 swimFrames=0 wetFrames=0 profile= yRange=0.84..11.12 maxYStep=0.10 camDistMin=4.13 camFrameMax=1.10
+END

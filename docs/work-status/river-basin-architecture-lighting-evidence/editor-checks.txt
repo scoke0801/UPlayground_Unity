@@ -1,0 +1,5 @@
+scene=Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Preview/RiverBasin4km.unity fixtures=13 emitters=22 materials=19
+lights configured=13 / missing=0 / new colliders=0 / shader error=False
+moon=River Basin 달 방향광 enabled before play=False / sun=블록아웃 햇빛
+saved=True
+dirty=False

@@ -1,0 +1,9 @@
+RiverBasin4km 중앙 본선 | Unity 6000.3.21f1 | 2560x1440
+START 호수 마을 B3 출구 (2320.00, 36.14, 970.00) → (2320.0, 970.0) → (2312.0, 981.0) → (2298.0, 998.0)
+  reached (2312.73, 36.01, 980.00) swimming=False
+  reached (2298.74, 36.43, 997.10) swimming=False
+  PASS 호수 마을 B3 출구 pos=(2298.74, 36.43, 997.10) swimFrames=0 grounded=412/412 time=8.0
+START B3 현수교 (1645.05, 47.53, 1592.35) → (1645.0, 1592.3) → (1622.0, 1620.0) → (1599.0, 1647.7)
+  reached (1622.78, 47.36, 1619.07) swimming=False
+Editor frame ms p50=16.5 p95=24.3 samples=941
+FAIL 0

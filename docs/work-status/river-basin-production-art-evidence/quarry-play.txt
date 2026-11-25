@@ -1,0 +1,21 @@
+Editor Play | virtual gamepad | lower chamber and return after production dressing
+START (3210.000, 94.050, 2202.000) stable=False flag=False camera=(3210.000, 96.560, 2197.148) camDistance=5.46 cameraYaw=0.00
+AT LOWER_ENTRY (3212.331, 93.814, 2204.072) stable=True flag=False camera=(3212.331, 96.492, 2199.220) camDistance=5.54 cameraYaw=0.00
+SAMPLE LOWER_ENTRY 0.37 (3225.000, -71.994, 2204.000) stable=True flag=False camera=(3229.334, -69.510, 2204.000) camDistance=5.00 cameraYaw=270.00
+SAMPLE LOWER_ENTRY 0.74 (3225.000, -71.994, 2204.000) stable=True flag=False camera=(3229.334, -69.510, 2204.000) camDistance=5.00 cameraYaw=270.00
+SAMPLE LOWER_ENTRY 1.07 (3225.000, -71.994, 2204.000) stable=True flag=False camera=(3229.334, -69.510, 2204.000) camDistance=5.00 cameraYaw=270.00
+SAMPLE LOWER_ENTRY 1.51 (3225.000, -71.994, 2204.000) stable=True flag=False camera=(3229.334, -69.510, 2204.000) camDistance=5.00 cameraYaw=270.00
+SAMPLE LOWER_ENTRY 1.89 (3225.000, -71.994, 2204.000) stable=True flag=False camera=(3229.334, -69.510, 2204.000) camDistance=5.00 cameraYaw=270.00
+SAMPLE LOWER_ENTRY 2.33 (3225.000, -71.994, 2204.000) stable=True flag=False camera=(3229.334, -69.510, 2204.000) camDistance=5.00 cameraYaw=270.00
+PASS LOWER_ENTRY (3225.000, -71.994, 2204.000) stable=True flag=False camera=(3229.334, -69.510, 2204.000) camDistance=5.00 cameraYaw=270.00
+AT CHAMBER (3207.985, -71.996, 2204.000) stable=True flag=False camera=(3212.680, -69.420, 2204.000) camDistance=5.36 cameraYaw=270.00
+SAMPLE CHAMBER 0.34 (3207.985, -71.996, 2204.000) stable=True flag=False camera=(3212.798, -69.391, 2204.000) camDistance=5.47 cameraYaw=270.00
+PASS CHAMBER (3207.985, -71.996, 2204.000) stable=True flag=False camera=(3212.798, -69.391, 2204.000) camDistance=5.47 cameraYaw=270.00
+AT LOWER_RETURN (3227.858, -71.994, 2204.000) stable=True flag=False camera=(3229.334, -70.223, 2204.000) camDistance=2.31 cameraYaw=270.00
+SAMPLE LOWER_RETURN 0.51 (3210.000, 93.897, 2202.000) stable=True flag=False camera=(3213.887, 96.265, 2202.000) camDistance=4.55 cameraYaw=270.00
+SAMPLE LOWER_RETURN 1.00 (3210.000, 93.897, 2202.000) stable=True flag=False camera=(3214.724, 96.474, 2202.000) camDistance=5.38 cameraYaw=270.00
+SAMPLE LOWER_RETURN 1.51 (3210.000, 93.897, 2202.000) stable=True flag=False camera=(3214.816, 96.497, 2202.000) camDistance=5.47 cameraYaw=270.00
+SAMPLE LOWER_RETURN 2.00 (3210.000, 93.897, 2202.000) stable=True flag=False camera=(3214.816, 96.497, 2202.000) camDistance=5.47 cameraYaw=270.00
+SAMPLE LOWER_RETURN 2.40 (3210.000, 93.897, 2202.000) stable=True flag=False camera=(3214.816, 96.497, 2202.000) camDistance=5.47 cameraYaw=270.00
+PASS LOWER_RETURN (3210.000, 93.897, 2202.000) stable=True flag=False camera=(3214.816, 96.497, 2202.000) camDistance=5.47 cameraYaw=270.00
+END

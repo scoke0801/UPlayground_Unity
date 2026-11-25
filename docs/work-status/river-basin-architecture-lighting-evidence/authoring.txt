@@ -1,0 +1,32 @@
+표면 LakeHouse_Roof_Shingle · 근접 Assets/10.Datas/World/LakeVillage/Houses/LakeHouse_Roof_Shingle.mat / Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Textures/Buildings/Tileables/T_Farm_RoofTiles_N.tga
+표면 LakeHouse_Wall_Wood · 근접 Assets/10.Datas/World/LakeVillage/Houses/LakeHouse_Wall_Wood.mat / Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Textures/Buildings/Tileables/T_Farm_WoodFloor_01_N.png
+표면 LakeHouse_Foundation_Stone · 근접 Assets/10.Datas/World/LakeVillage/Houses/LakeHouse_Foundation_Stone.mat / Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Textures/Stones/Stone_Medium_01_Normal.png
+표면 LakeHouse_Wall_Plaster · 근접 Assets/10.Datas/World/LakeVillage/Houses/LakeHouse_Wall_Plaster.mat / Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Textures/Ground/Dirt/Dirt_Normal.png
+표면 LakeHouse_Trim_Wood · 근접 Assets/10.Datas/World/LakeVillage/Houses/LakeHouse_Trim_Wood.mat / Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Textures/Buildings/Tileables/T_Farm_WoodFloor_01_N.png
+표면 PoorHouse_Thatch_Roof · 근접 Assets/10.Datas/World/PoorVillage/Houses/PoorHouse_Thatch_Roof.mat / Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Textures/Buildings/Tileables/T_Farm_WoodFloor_01_N.png
+표면 PoorHouse_Wall_Mud · 근접 Assets/10.Datas/World/PoorVillage/Houses/PoorHouse_Wall_Mud.mat / Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Textures/Ground/Dirt/Dirt_Normal.png
+표면 PoorHouse_Foundation_Stone · 근접 Assets/10.Datas/World/PoorVillage/Houses/PoorHouse_Foundation_Stone.mat / Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Textures/Stones/Stone_Medium_01_Normal.png
+표면 PoorHouse_Wood_Weathered · 근접 Assets/10.Datas/World/PoorVillage/Houses/PoorHouse_Wood_Weathered.mat / Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Textures/Buildings/Tileables/T_Farm_WoodFloor_01_N.png
+표면 CityAtlas · 근접 Assets/10.Datas/World/WorldCities/CityAtlas.mat / Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Textures/Ground/Dirt/Dirt_Normal.png
+표면 StonegateEast · 근접 Assets/03.Prefabs/Environment/WorldCities/StonegateEast/StonegateEast.mat / Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Textures/Stones/Stone_Medium_01_Normal.png
+표면 Dng_Stone_Wall · 근접 Assets/08.Models/Dungeon/Materials/Dng_Stone_Wall.mat / Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Textures/Stones/Stone_Medium_01_Normal.png
+표면 Dng_Stone_Trim · 근접 Assets/08.Models/Dungeon/Materials/Dng_Stone_Trim.mat / Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Textures/Stones/Stone_Medium_01_Normal.png
+건축 근접 재질 연결 렌더러 125개, 시각 연동 창 9곳
+건축 항구 창고 환기 덧문 왼쪽 (2814.793, 13.549, 253.423)
+건축 항구 창고 환기 덧문 오른쪽 (2810.250, 13.549, 255.258)
+건축 성채 상가 목제 덧문 (2294.280, 92.821, 2076.351)
+건축 숲 오두막 낮은 덧문 (1260.302, 60.300, 2294.017)
+생활 등잔 호수 어부집 (2319.276, 37.955, 951.774) range 7.2 max 1.85
+생활 등잔 호수 가게 (2335.229, 38.153, 963.804) range 7.2 max 1.9
+생활 등잔 숲 오두막 (1260.628, 60.740, 2295.640) range 7.2 max 1.5
+생활 등잔 문루 남측 (2265.155, 89.209, 2085.325) range 7.2 max 2.2
+생활 등잔 문루 북측 (2266.509, 89.209, 2092.295) range 7.2 max 2.2
+생활 등잔 성채 장터 (2297.400, 91.871, 2076.023) range 7.2 max 1.8
+생활 등잔 사막 흙집 (3622.461, 67.402, 1513.671) range 7.2 max 1.55
+생활 등잔 항구 창고 (2814.370, 12.499, 253.179) range 7.2 max 2.1
+생활 등잔 채석장 갱도 (3213.950, 95.569, 2205.101) range 7.2 max 2.1
+생활 등잔 호수 북서 출구 (2309.400, 38.014, 980.700) range 8.3 max 1.42
+생활 등잔 사막 샘터 (3637.100, 64.991, 1518.800) range 8.3 max 1.46
+생활 등잔 부두 경사 상단 (2832.300, 10.325, 196.100) range 8.3 max 1.82
+생활 등잔 부두 경사 하단 (2821.900, 4.389, 167.500) range 8.3 max 1.7
+시간 연결 등잔 13 발광 22 달 River Basin 달 방향광 태양 블록아웃 햇빛

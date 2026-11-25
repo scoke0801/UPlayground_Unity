@@ -1,0 +1,10 @@
+Editor Play | virtual right stick sweep | obscuration probe ray to upper body
+ORBIT dungeon actor=(3225.000, -71.994, 2204.000) yaw=375.0 samples=175 rayBlocked=0 minDist=2.12 maxDist=3.59 minCam=(3224.451, -70.349, 2202.784) blockers=
+ORBIT forest-R1 actor=(1253.101, 58.237, 2268.655) yaw=380.2 samples=54 rayBlocked=0 minDist=2.12 maxDist=5.52 minCam=(1252.839, 59.891, 2267.354) blockers=
+ORBIT forest-bridge actor=(1243.200, 58.893, 2305.000) yaw=375.9 samples=83 rayBlocked=0 minDist=4.57 maxDist=5.52 minCam=(1246.091, 61.194, 2302.315) blockers=
+ORBIT forest-fork actor=(1152.000, 78.376, 2640.000) yaw=377.1 samples=119 rayBlocked=0 minDist=3.69 maxDist=5.52 minCam=(1154.585, 80.460, 2638.382) blockers=
+ORBIT keep actor=(2265.650, 86.410, 2088.850) yaw=378.6 samples=102 rayBlocked=0 minDist=3.56 maxDist=5.39 minCam=(2266.824, 88.466, 2086.187) blockers=
+ORBIT quarry-portal actor=(3210.000, 93.897, 2202.000) yaw=377.0 samples=223 rayBlocked=0 minDist=4.31 maxDist=5.52 minCam=(3213.558, 96.147, 2202.930) blockers=
+ORBIT harbor-market actor=(2816.000, 10.005, 248.000) yaw=377.5 samples=182 rayBlocked=0 minDist=4.15 maxDist=5.55 minCam=(2818.219, 12.267, 250.678) blockers=
+ORBIT alpine-path actor=(3220.140, 195.845, 3299.270) yaw=375.1 samples=194 rayBlocked=0 minDist=5.52 maxDist=5.53 minCam=(3224.734, 198.418, 3297.614) blockers=
+END

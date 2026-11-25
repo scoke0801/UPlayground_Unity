@@ -1,0 +1,57 @@
+RiverBasin4km | Unity MCP | 권역 길 표면과 생활 흔적
+기존 길 lake-loop 671개 단면 성채와 채석 · 밟힌 자갈
+기존 길 R1 1485개 단면 숲 · 낙엽 흙과 잔돌
+기존 길 R1b 562개 단면 숲 · 낙엽 흙과 잔돌
+기존 길 alpine-approach 492개 단면 성채와 채석 · 밟힌 자갈
+기존 길 quarry-approach 820개 단면 성채와 채석 · 밟힌 자갈
+기존 길 R3 1835개 단면 사막 · 단단한 모랫길
+기존 길 R5 1358개 단면 사막 · 단단한 모랫길
+기존 길 R4a 658개 단면 사막 · 단단한 모랫길
+기존 길 R4b 544개 단면 사막 · 단단한 모랫길
+기존 길 coast-dock 434개 단면 해안 · 소금기 밴 자갈
+기존 길 coast 1154개 단면 해안 · 소금기 밴 자갈
+지역 접속 호수 마을 북서 출구 단면 73
+지역 접속 E2 협곡 하강길 단면 289
+지역 접속 사막 마을 골목 단면 63
+지역 접속 항구 하역길 단면 112
+지역 접속 채석장 갱도 운반길 단면 33
+지역 접속 폐성 옆 오르막 단면 119
+소품 호수 북서 출구/TGV_Wood_Fence_01A (2310.200, 35.962, 976.500) Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Wood_Fence_01A.prefab
+소품 호수 북서 출구/TGV_Wood_Fence_02A (2307.800, 35.982, 979.800) Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Wood_Fence_02A.prefab
+소품 호수 북서 출구/PF_Farm_Cart_01 (2306.100, 36.011, 983.200) Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Props/FarmTools/PF_Farm_Cart_01.prefab
+소품 호수 북서 출구/TGV_Sack_02A (2305.100, 36.011, 982.200) Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Sack_02A.prefab
+소품 성채 장터/Prop_Market_Stall_East (2286.700, 88.326, 2079.800) Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Market_Stall_East.prefab
+소품 성채 장터/Deco_Jar_Terrace (2296.400, 88.944, 2078.400) Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Deco_Jar_Terrace.prefab
+소품 성채 장터/TGV_Sack_03A (2289.800, 88.641, 2078.600) Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Sack_03A.prefab
+소품 숲 개울가/PF_Farm_GenTree_LogBundle_01 (1251.400, 58.693, 2295.200) Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/PF_Farm_GenTree_LogBundle_01.prefab
+소품 숲 개울가/Prop_Stone_Lantern (1251.800, 58.591, 2297.000) Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Prop_Stone_Lantern.prefab
+소품 숲 개울가/TGV_Sack_01A (1252.200, 58.752, 2294.400) Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Sack_01A.prefab
+소품 채석장 작업 자리/P_PROP_cart_dungeon_01 (3205.800, 93.957, 2197.700) Assets/ExternalAssets/Environment/Fantastic Dungeon Pack/prefabs/PROPS/misc/P_PROP_cart_dungeon_01.prefab
+소품 채석장 작업 자리/TGV_Sack_02B (3207.000, 93.966, 2196.300) Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Sack_02B.prefab
+소품 채석장 작업 자리/PF_Farm_StoneFence_Stone_01 (3202.500, 93.966, 2198.300) Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Props/StoneFences/PF_Farm_StoneFence_Stone_01.prefab
+소품 던전 묘실/Dng_Sarcophagus (3205.400, -72.000, 2200.400) Assets/03.Prefabs/Environment/Dungeon/Dng_Sarcophagus.prefab
+소품 던전 묘실/Dng_Candelabra (3209.700, -72.000, 2207.900) Assets/03.Prefabs/Environment/Dungeon/Dng_Candelabra.prefab
+소품 던전 묘실/Dng_Candelabra (3206.300, -72.000, 2208.000) Assets/03.Prefabs/Environment/Dungeon/Dng_Candelabra.prefab
+소품 사막 샘터/PF_Farm_Canopy_01 (3639.900, 62.710, 1517.300) Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/BuildingModules/Decoration/PF_Farm_Canopy_01.prefab
+소품 사막 샘터/Deco_Jar_Terrace (3636.800, 63.195, 1517.200) Assets/03.Prefabs/Environment/WorldCities/StonegateEast/Deco_Jar_Terrace.prefab
+소품 사막 샘터/TGV_Sack_02A (3637.600, 62.868, 1518.900) Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Sack_02A.prefab
+소품 항구 하역장/CargoCrate (2811.400, 9.960, 245.800) Assets/03.Prefabs/Environment/WorldCities/CargoCrate.prefab
+소품 항구 하역장/CargoBarrel (2810.300, 9.960, 246.600) Assets/03.Prefabs/Environment/WorldCities/CargoBarrel.prefab
+소품 항구 하역장/PF_Farm_Cart_Wheel_01 (2809.900, 9.960, 244.800) Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Props/FarmTools/PF_Farm_Cart_Wheel_01.prefab
+소품 항구 하역장/PF_EastLands_Rope_02 (2813.200, 9.960, 244.300) Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Ropes/PF_EastLands_Rope_02.prefab
+소품 설산 폐성/PF_Farm_StoneFence_Damaged_01 (3204.700, 196.246, 3292.300) Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Props/StoneFences/PF_Farm_StoneFence_Damaged_01.prefab
+소품 설산 폐성/PF_Farm_StoneFence_Stone_01 (3206.100, 196.109, 3291.600) Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Props/StoneFences/PF_Farm_StoneFence_Stone_01.prefab
+소품 설산 폐성/PF_Farm_StoneFence_Stone_01 (3205.800, 196.287, 3293.100) Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Props/StoneFences/PF_Farm_StoneFence_Stone_01.prefab
+소품 B1 너머 낮은 노두/PF_EastLands_MedBoulder_04 (1909.100, 61.038, 2004.700) Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Boulders/PF_EastLands_MedBoulder_04.prefab
+소품 B1 너머 낮은 노두/PF_EastLands_FlatStone_02 (1911.500, 61.202, 2005.800) Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Flat/PF_EastLands_FlatStone_02.prefab
+소품 B1 너머 낮은 노두/PF_EastLands_FlatStone_02 (1907.700, 61.002, 2006.000) Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Flat/PF_EastLands_FlatStone_02.prefab
+소품 B1 너머 낮은 노두/PF_Farm_GrassTall_01 (1906.100, 60.865, 2003.800) Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Grass/PF_Farm_GrassTall_01.prefab
+소품 B1 너머 낮은 노두/PF_Farm_GrassTall_01 (1912.600, 61.222, 2004.200) Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Grass/PF_Farm_GrassTall_01.prefab
+소품 B3 갈림길 어깨/PF_EastLands_MedBoulder_04 (1660.600, 48.833, 1548.900) Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Boulders/PF_EastLands_MedBoulder_04.prefab
+소품 B3 갈림길 어깨/PF_EastLands_FlatStone_02 (1658.100, 48.811, 1548.000) Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Flat/PF_EastLands_FlatStone_02.prefab
+소품 B3 갈림길 어깨/PF_Farm_GrassTall_01 (1661.800, 48.858, 1548.200) Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Grass/PF_Farm_GrassTall_01.prefab
+소품 항구 경사 옆 자갈밭/PF_EastLands_FlatStone_02 (2819.100, 9.170, 199.700) Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Flat/PF_EastLands_FlatStone_02.prefab
+소품 항구 경사 옆 자갈밭/PF_EastLands_FlatStone_02 (2817.900, 8.821, 197.900) Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Flat/PF_EastLands_FlatStone_02.prefab
+소품 항구 경사 옆 자갈밭/PF_Farm_GrassTall_01 (2816.800, 9.119, 199.300) Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Grass/PF_Farm_GrassTall_01.prefab
+소품 항구 경사 옆 자갈밭/PF_Farm_GrassTall_01 (2835.100, 4.641, 181.400) Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Grass/PF_Farm_GrassTall_01.prefab
+최종 조정 PF_EastLands_Rope_02 상자 위 (2811.460, 11.468, 245.730) 상판 Y 11.495 크기 (0.451, 0.451, 0.451)

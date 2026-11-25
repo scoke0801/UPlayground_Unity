@@ -22,7 +22,117 @@
 | 항구마을 | 기존 선착장 앵커 Y 9.99에서 남쪽 해안까지 육상 연결이 필요하다. X 2826에서 Z 160은 지면 Y 1.33, Z 145는 지면 Y −1.55이고 수면은 Y 0.04였다. 시장은 기존 길과 이어지는 X 2790 / Z 270에 두고, 해안의 얕은 굽이를 방파제로 감싸는 배치를 택했다. |
 | 설산 밑 폐성 | 기존 유적 남쪽 20m의 바위턱에서 40 × 32m 표본의 높이 범위는 Y 195.21~198.21, 최대 경사는 15.0°다. 기존 유적 중심 표본의 최대 경사는 25.8°였다. 폐성 중심을 바위턱에 두면 기존 오르막 중심선과 약 22m 떨어지고, 남쪽 접근에서 가설 8m 문루까지 지형 시선이 열린다. |
 
-**검증 범위.** 위 높이·경사·수면은 저장 씬의 Editor 실측이다. 지형 시선은 2m 간격으로 Terrain 높이와 비교했으며 고정 화면은 카메라로 촬영했다. Unity 씬 저장 상태는 촬영 전후 깨끗했다. 회색 매스 배치, 최초 노출 시점의 양방향 플레이, 갱도 연결, 사막 배수, 항구 정박 수심은 미수행이다. 다음 블록아웃에서는 호수 마을 → B3 → B1에서 다리 첫 노출과 협곡 하강 선택, 성채 문루 재노출을 먼저 비교한다. 개별 촬영 파일은 비교 시트로 합친 뒤 정리했다. [월드와 아트 위키](../wiki/world-art.md)
+**부지 확정 단계의 검증 범위.** 높이·경사·수면은 저장 씬의 Editor 실측이다. 지형 시선은 2m 간격으로 Terrain 높이와 비교했다. 고정 화면은 비교 시트로 합쳤다. 첫 회색 매스 반영은 [중앙 본선 블록아웃](#호수-마을에서-성채까지-첫-블록아웃)에 기록한다. 갱도 연결, 사막 배수, 항구 정박 수심은 미수행이다. [월드와 아트 위키](../wiki/world-art.md)
+
+### 호수 마을에서 성채까지 첫 블록아웃
+
+**2026-11-24 구현 반영.** [RiverBasin4km 프리뷰 씬](../../Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Preview/RiverBasin4km.unity)의 `RiverBasin · 호수 마을–B3–성채 블록아웃` 아래에 Unity 기본 큐브로 만든 36개 매스를 저장했다. 호수 마을은 주택 다섯 채와 북서 육상 출구·동북 물가 방향을 잡았다. B3 앞 갈림길에 표식과 E2 하강 방향 돌을 놓았다. 성채에는 기존 본채를 살려 남서 문루와 성벽, 시장 매스 세 동을 배치했다. 처음 잡은 문루 축은 기존 본채의 충돌체에 막혀 20m 남쪽의 기존 도로로 옮겼다. 씬에서 이 루트를 접어 두면 배치 전체를 찾아 편집할 수 있다. [지역 설계](../../Assets/docs/design/world-art/open-world/RIVER_BASIN_REGION_CONCEPT_DESIGN.md)
+
+| 검사 | 결과 |
+|---|---|
+| Unity 고정 카메라 | [마을 출구](river-basin-mainline-blockout-evidence/01-village.jpg) · [B3 굽이 전](river-basin-mainline-blockout-evidence/02-b3-before.jpg) · [교대 약 36m 전](river-basin-mainline-blockout-evidence/03-b3-first.jpg) · [E2 갈림길](river-basin-mainline-blockout-evidence/04-b3-fork.jpg) · [다리 위에서 본 폭포](river-basin-mainline-blockout-evidence/05-b3-overlook.jpg) · [B1 뒤 성채 원경](river-basin-mainline-blockout-evidence/06-keep-after-b1.jpg) · [문루 통과 구도](river-basin-mainline-blockout-evidence/07-keep-gate.jpg) · [마을 귀환 구도](river-basin-mainline-blockout-evidence/08-village-return.jpg) |
+| Editor 경로·충돌 | 기존 NavMesh에서 마을→B3 955m, B3 횡단 72m, B3 갈림길→E2 상단 196m, E2 경사로 35m `PathComplete`. 성채 문루는 현재 NavMesh에서 끝점을 찾지 못했다. 대신 기존 도로를 따라 X 2238~2320의 문루 통과 구간을 플레이어 치수에 가까운 캡슐로 87곳 검사했고 장애물에 걸린 표본은 0곳이었다. [경로 검사 로그](river-basin-mainline-blockout-evidence/editor-checks.txt) |
+| Editor Play 가상 패드 | 마을 북서 출구, B3 현수교, B1 석교, 성채 새 문루를 각각 시작점에서 통과했다. **4/4 통과**, 수영 전환 0회. 전체 경로의 연속 조작과 카메라 체감은 사용자 테스트 대기다. [가상 입력 로그](river-basin-mainline-blockout-evidence/play-checks.txt) |
+
+#### 사용자 테스트 대기
+
+저장된 4km 프리뷰 씬을 단독 Play로 열고 기본 TPS 카메라를 사용한다. 지도 마커 없이 접근 순서와 귀환 방향을 본다.
+
+| 항목 | 재현과 기대 결과 |
+|---|---|
+| RB-MAIN-01 | 호수 마을 X 2320 / Z 970에서 북서 출구로 나와 B3까지 간다. 멀리서부터 계속 보이는 대신 굽이 뒤에 다리가 드러나는지, 귀로에서 마을 지붕이 방향을 잡아 주는지 확인한다. |
+| RB-MAIN-02 | B3 직전 X 1656 / Z 1555에서 직진과 왼쪽 하강을 비교한다. 하강 표식을 따라 E2 상단 X 1492 / Z 1450을 찾고 협곡을 본 뒤 같은 경사로로 돌아온다. 교대의 절벽을 곧장 내려갈 길로 오인하거나 복귀 방향을 놓치면 실패다. |
+| RB-MAIN-03 | B1을 건너 X 1896 / Z 1992의 갈림길에서 성채 지붕을 보고 문루 X 2270 / Z 2088까지 간다. 문루 중앙을 통과해 돌아오며 충돌이나 TPS 카메라 급당김이 있는지 확인한다. |
+
+### 여덟 지역 회색 매스 배치
+
+**2026-11-24 구현 반영.** 중앙 본선에 이어 [RiverBasin4km 프리뷰 씬](../../Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Preview/RiverBasin4km.unity)의 `RiverBasin · 권역 여섯 곳 블록아웃` 아래에 Unity 기본 메시 매스 103개를 저장했다. 지역별 하위 루트에서 각각 편집할 수 있다. [지역 설계](../../Assets/docs/design/world-art/open-world/RIVER_BASIN_REGION_CONCEPT_DESIGN.md) · [확정 부지 지도](river-basin-region-sites-evidence/site-map.jpg)
+
+| 지역 | 저장한 배치 |
+|---|---|
+| 깊은 숲 마을 | R1 양옆에서 기존 수목 사이를 골라 주택 세 채를 배치했다. 실개천 윤곽, 목교, 연못·사당 방향 표식을 놓았다. |
+| 채석장 | 하단 작업 단구에 인양틀을 놓고 상부 요새 접근로 양쪽에 통제 시설 매스를 세웠다. |
+| 던전 | 기존 절개 암석 앞 X 3215.4 / Z 2204에 서향 갱도 입면과 끊긴 운반 흔적을 배치했다. 상부 운반길 옆에 귀환 문턱 위치를 잡았다. |
+| 사막 마을 | 평지붕 건물 다섯 채, 굽은 입구 양쪽 사암 매스, 골목 그늘막과 R4 하강 표식을 놓았다. |
+| 항구마을 | 시장과 창고를 해안 접근로에 맞춰 배치했다. 해안 경사 끝에 부두를 잇고 방파제 두 줄, 정박선과 돛대, 등대를 놓았다. |
+| 설산 밑 버려진 성채 | 고갯길 서편에 낮은 무너진 문루와 끊긴 성벽을 놓고 안뜰과 고원 오르막 분기를 표시했다. |
+
+이번 저장 범위는 프리뷰 씬의 공간 배치다. 실개천은 윤곽 매스, 던전은 입구와 귀환 위치까지 반영했다. 내부 연결, 수계 조형, 최종 아트는 후속 작업이다. 사용자 지시에 따라 새 배치의 조망·보행·카메라·충돌·수면 검증과 캡처는 미수행이다. 작업 중 생성한 임시 파일은 없다. [월드와 아트 위키](../wiki/world-art.md)
+
+### 여덟 권역 실물 배치와 연결
+
+**2026-11-24 아트 배치 반영.** [RiverBasin4km 프리뷰 씬](../../Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Preview/RiverBasin4km.unity)에 기존 환경 프리팹 35종을 연결했다. 호수·숲·사막 주거, 성채 문루와 시장, 채석 인양틀, 항구 부두·정박선·등대, 설산 폐성과 B3 방향 표식을 `RiverBasin · 지역 아트` 아래에 저장했다. 이전 회색 매스를 비활성 상태로 보관했다.
+
+**채석장 던전 연결 저장.** 하단 입구를 절개 암석 앞 X 3214.65 / Z 2204에 배치했다. 프리뷰 씬 지하에 4m 모듈 바닥 18칸, 낮은 양쪽 회랑, 높은 중앙 묘실과 등잔을 배치했다. 하단 왕복과 상부 운반길 왕복에 기존 `PortalActor`를 쓴다. 상부 지름길은 던전 안에서 상호작용해 해금하며 이후 운반길에서도 들어올 수 있게 기존 포탈 활성화 플래그에 연결했다. 기존 시나리오와 퀘스트는 그대로 유지한다.
+
+**R1 숲 물길 연결 저장.** X 1224 / Z 2308의 샘에서 시작해 X 1243 / Z 2305의 목교 아래를 지나 X 1258 / Z 2305의 자갈 여울까지 약 35m의 실개천을 조형했다. 기존 얕은 물 프로필을 수면에 연결했고, WorldBuilder 조형 명령 `074e9019b07e4cd58956c3b026459ede`에 강바닥 높이를 기록했다. [수면 메시](../../Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/R1_ForestCreekSurface.asset) · [지역 설계](../../Assets/docs/design/world-art/open-world/RIVER_BASIN_REGION_CONCEPT_DESIGN.md)
+
+**배치 전 백업.** 씬·Terrain·월드 정의와 조형 직전 씬 사본은 `output/RiverBasinWorld/RegionArt/before`에 약 25.2MiB로 보존했다. 조형 세션 스냅샷은 WorldBuilder 저작 기록에 남겼다.
+
+**2026-11-24 실물 배치 독립 검증.** 하단 귀환, 상부 포탈 해금·왕복과 격리 저장 재진입, 숲 목교 양방향·얕은 물 발소리 반응을 Editor Play 입력으로 확인했다. 하단에서 묘실로 향하는 회랑이 소품에 막혀 상부 포탈은 서쪽 회랑에서 별도로 시작했다. 호수 마을부터 B3·B1을 건너는 연속 입력은 성채 문루 문턱에서 막혔다. 숲 개울 두 나무의 ID 표 불일치가 수목 승격 초기화를 중단했다. 재현 좌표, 고정 화면, 입출력 로그와 사용자 테스트 대기 항목은 [독립 검증 보고](river-basin-region-verification.md)에 기록했다. [월드와 아트 위키](../wiki/world-art.md)
+
+**2026-11-24 결함 개선·재검증.** 던전 소품을 묘실 남쪽으로 옮기고 바닥·천장 이음부와 도착 카메라를 보완했다. 하단 입장부터 묘실, 상부 해금·왕복, 격리 저장 재진입까지 걸어서 확인했다. 문루 문턱, E2 표식과 숲 표지를 보정해 기존 차단 구간을 통과했다. 수목 ID 표 두 높이를 동기화했고 목교 상판을 덮던 R1 메시와 항구 원경 돛대를 보완했다. [항목별 재검증과 비교 화면](river-basin-region-verification.md#개선-및-재검증) · [월드와 아트 위키](../wiki/world-art.md)
+
+### 여덟 권역 1차 제작 아트 패스
+
+**2026-11-24 프리뷰 씬 반영.** 기존 접근로 11개의 표시 메시를 지형에 맞춰 다시 입히고 권역 연결길 6개를 저작했다. 호수의 황갈색 흙, 숲의 낙엽 흙, 성채·채석장의 자갈, 사막의 단단한 모래, 해안 자갈, 설산의 눈 섞인 길에 서로 다른 바닥 재질을 적용했다. 길 가장자리에서 지형과 섞이도록 하고, 조망에서 보인 그림자 경계선을 셰이더에서 보정했다. 목교와 부두에서 길 표면이 교량 상판과 겹치지 않도록 경계를 유지했다. [지면 셰이더](../../Assets/06.Shaders/RiverBasinTrail.shader) · [메시와 재질](../../Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinTrailSurfaces.asset)
+
+**접근 조망과 생활 흔적.** 호수 출구의 수레·울타리, B1 너머의 낮은 노두, B3 갈림길 어깨, 성채 장터, 숲 개울가의 장작, 채석장의 운반 자리, 던전 묘실의 석관·촛대, 사막 샘터의 그늘과 항아리, 항구 하역장과 폐성의 붕괴 흔적을 기존 프리팹 38개로 배치했다. 중심 보행선은 열어 두고 전경과 가장자리에서 목적지가 보이게 했다. [프리팹·좌표·원본 경로](river-basin-production-art-evidence/asset-placement.txt) · [같은 구도 전후](river-basin-production-art-evidence/before-after.jpg) · [13개 고정 화면](river-basin-production-art-evidence/contact-sheet-1.jpg)
+
+**Editor 정적 검증 통과.** 길 렌더러 17개와 재질 6종, 길 충돌체 0개, 기존 길 메시의 삼각형 연결 11/11 일치를 확인했다. 아트 배치 계층의 Missing Script는 0개였고, 9개 동선의 중심선과 좌우에 보행 캡슐 8,064개를 대조해 새 소품 충돌 0개를 확인했다. [정적 검사](river-basin-production-art-evidence/editor-checks.txt) · [카메라 좌표](river-basin-production-art-evidence/fixed-camera.txt)
+
+**Editor Play 통과.** 호수 출구, B1 이후, 성채 문루, 숲 목교, 채석 단구, 사막 진입, 항구 하강, 폐성 옆 오르막, E2 하강 접근 9/9를 가상 패드로 통과했다. 던전 입장·묘실·하단 귀환 3/3과 Console 오류 0건을 확인했다. 이후 항구 상자 위 밧줄만 조정해 같은 정적 충돌 검사를 다시 통과했다. Play 종료 후 목교 상판 위 길 겹침 표본 0/335, 수목 ID 표 3,264/3,264와 기존 저장 파일 해시 일치를 확인했다. [접근로 입력](river-basin-production-art-evidence/approaches-play.txt) · [던전 입력](river-basin-production-art-evidence/quarry-play.txt) · [Console](river-basin-production-art-evidence/console.json) · [종료 검사](river-basin-production-art-evidence/final-session.txt)
+
+작업 직전 프리뷰 씬은 `output/RiverBasinWorld/RegionArt/before-production-art-pass`에 보존했다. 미술 인수는 플레이어 시점의 초견 흐름과 시간대별 화면을 직접 확인하는 단계다. [지역별 설계](../../Assets/docs/design/world-art/open-world/RIVER_BASIN_REGION_CONCEPT_DESIGN.md) · [월드와 아트 위키](../wiki/world-art.md)
+
+### 건축 근접 디테일과 시간대별 조명
+
+**2026-11-24 프리뷰 씬 반영.** 건축 렌더러 125개에 근접 재질을 연결해 목재, 지붕, 회벽, 기단과 던전 석재의 표면 차이를 살렸다. 숲 오두막·성채 상가·항구 창고에 목제 덧문 4곳을 배치했다. 재질은 씬용 복제본을 만들고 프로젝트에 있는 노멀 맵을 참조했다. [건축 전후 비교](river-basin-architecture-lighting-evidence/architecture-before-after.jpg) · [재질 출처와 배치 좌표](river-basin-architecture-lighting-evidence/authoring.txt)
+
+호수 마을 북서 출구, 성채 문루와 장터, 숲 오두막, 사막 샘터, 갱도 입구, 항구 창고와 부두 경사에 등잔 13개를 배치했다. 등잔과 창 발광면 22개를 기존 게임 시계에 연결했다. 폐성은 기존 월드 조명에 연결한 달 방향광으로 윤곽을 드러냈다. 부두 경사와 문루의 길 표면에는 등잔 빛이 닿도록 기존 길 셰이더에 URP 추가 광원 처리를 넣었다. [시계 연동 컴포넌트](../../Assets/02.Scripts/Gameplay/World/WorldTimeFixtureGroup.cs) · [씬용 근접 아트 에셋](../../Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinArchitectureDetails.asset)
+
+| 판정 | 확인 방식 | 재현과 결과 |
+|---|---|---|
+| 통과 | Editor 정적 | 저장한 프리뷰 씬의 `RiverBasin · 처마와 생활 조명`을 확인했다. 씬용 재질 19개, 등잔 13개, 발광면 22개를 읽었고 새 충돌체·Missing Script·길 셰이더 오류는 각각 0개였다. [정적 검사](river-basin-architecture-lighting-evidence/editor-checks.txt) |
+| 통과 | Editor Play | 맑은 날씨로 고정한 뒤 기존 게임 시계를 12:00 → 18:30 → 22:00 → 06:00 → 12:00으로 설정했다. 정오 소등, 해질녘 부분 점등, 야간 완전 점등과 달 활성, 새벽 감광, 정오 재소등을 5/5 확인했다. 런타임 Console 오류는 0건이다. [시간 전환](river-basin-architecture-lighting-evidence/time-play.txt) · [Console](river-basin-architecture-lighting-evidence/console.json) |
+| 통과 | 고정 화면 | 9개 시점을 같은 위치로 비교했다. 성채 문루 양옆과 부두 하강 시작·끝을 밤에도 구분할 수 있고, 항구 창고 벽에 등잔 빛이 닿는다. 폐성은 달빛에서 석벽 윤곽을 확인했다. [시간대 비교](river-basin-architecture-lighting-evidence/lighting-comparison.jpg) · [폐성 야간](river-basin-architecture-lighting-evidence/night-08-alpine.jpg) |
+| 실패 | 고정 화면 | X 2259.000 / Y 87.883 / Z 2090.500에서 성채 문루 안쪽을 보면 붉은 가로 부재 끝이 기둥과 떨어져 보인다. 작업 전 화면에도 나타난다. [작업 전](river-basin-architecture-lighting-evidence/before-03-keep.jpg) · [야간](river-basin-architecture-lighting-evidence/night-03-keep.jpg) |
+| 미수행 | Editor Play | 이번 근접 아트 작업에서는 실제 입력 동선 재검증, 강우·안개에서의 시인성, 야간 조명 성능 실측은 수행하지 않았다. |
+| 사용자 테스트 대기 | Editor Play | 마커 없는 야간 초견 동선과 플레이어 카메라의 근접 가림, 권역별 아트 인수. |
+
+Play를 종료하고 대상 씬 한 개, 미저장 변경 0건, 기존 저장 파일 3개의 해시 일치를 확인했다. 작업 전 씬은 `output/RiverBasinWorld/RegionArt/before-architecture-lighting-pass`에 보존했다. [종료 검사](river-basin-architecture-lighting-evidence/final-session.txt) · [월드와 아트 위키](../wiki/world-art.md)
+
+### 접근로 접지와 성채 문루 보정
+
+**2026-11-24 프리뷰 씬 반영.** 성채 문루의 동쪽 붉은 부재는 `StonegateEast/Castle_Gate.prefab` 모델에 포함된 문패다. 동쪽 아치의 안쪽 면이 비어 있어 서쪽에서 문패 뒷면이 하늘 위로 노출됐다. 이 인스턴스에 파생 메시를 연결해 문패 양끝을 석재까지 연장하고 안쪽 아치 면을 채웠다. 측면 TPS 시점에서 문루가 페이드될 때 따로 남던 등잔 두 개를 기존 문루 가림 그룹에 포함했다. [문루 파생 메시](../../Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinGateLintel.asset) · [등잔 연결 근거](river-basin-approach-art-evidence/fixture-links.txt)
+
+호수 북서 출구부터 B3·B1과 성채 문루까지 길 옆에 흙 마모·낮은 돌·풀을 붙였다. 항구는 창고 하역 자리의 상자와 밧줄이 부두 입구의 적재 자리로 이어지게 배치하고, 경사 입구 표지에 등잔을 추가했다. 기존 프리팹 인스턴스 39개와 기존 길 재질을 참조하는 마모 메시 15개를 적용했다. 사막 마을에서는 흙집 석재 기단 밑면을 경사에 맞춰 최대 0.872m 연장했다. 반지하 가옥은 0.57m 올리고 외벽에서 분리돼 있던 장식 차양을 비활성화했다. [소품 배치와 좌표](river-basin-approach-art-evidence/placements.txt) · [돌·밧줄 최종 배치](river-basin-approach-art-evidence/refined-props.txt) · [지면 마모](river-basin-approach-art-evidence/wear-surfaces.txt) · [사막 접지](river-basin-approach-art-evidence/desert-contact.txt)
+
+| 주요 지점 | 월드 X / Y / Z | 확인 방법과 관찰 결과 | 근거 |
+|---|---|---|---|
+| 문루 서쪽 접근과 동쪽 문패 | 촬영 2259.000 / 87.883 / 2090.500, 문패 2274.086 / 91.980 / 2087.206 | 서쪽에서 붉은 뒷면 대신 석재 아치가 보인다. 동쪽은 문패가 석재에 붙어 읽힌다. 서쪽에서 올려 보면 아치 모서리에 작은 틈이 남는다. | [서쪽 전](river-basin-approach-art-evidence/before-gate.jpg) · [서쪽 후](river-basin-approach-art-evidence/after-gate.jpg) · [동쪽 전](river-basin-approach-art-evidence/before-gate-east.jpg) · [동쪽 후](river-basin-approach-art-evidence/after-gate-east.jpg) |
+| 호수 북서 출구 | 돌 2312.900 / 36.039 / 976.500 | 길이 울타리와 흙 마모 사이에서 이어지는 것을 고정 시점으로 확인했다. 가상 패드로 마을에서 출구까지 걸었다. | [전](river-basin-approach-art-evidence/before-lake.jpg) · [후](river-basin-approach-art-evidence/after-lake.jpg) |
+| B3 갈림길과 현수교 | 갈림길 돌 1654.100 / 48.870 / 1549.400, 첫 조망 1648.000 / 50.700 / 1580.000 | 갈림길 표지와 낮은 길 어깨가 함께 보인다. 첫 조망에서 현수교 입구와 상판이 보인다. E2 접근과 현수교 횡단을 개별 입력 경로로 확인했다. | [갈림길 전](river-basin-approach-art-evidence/before-fork.jpg) · [갈림길 후](river-basin-approach-art-evidence/after-fork.jpg) · [현수교 전](river-basin-approach-art-evidence/before-b3-first.jpg) · [현수교 후](river-basin-approach-art-evidence/after-b3-first.jpg) |
+| B1 너머 성채 방향 | 돌 1900.800 / 60.290 / 1991.700, 촬영 1896.000 / 62.422 / 1992.000 | 길 옆 접지 디테일 위로 성채 지붕이 보인다. B1 이후 접근 일부를 가상 패드로 걸었다. | [전](river-basin-approach-art-evidence/before-b1.jpg) · [후](river-basin-approach-art-evidence/after-b1.jpg) |
+| 항구 창고·시장 진입 | 통 2811.800 / 9.980 / 249.350, 등잔 2820.250 / 11.915 / 245.200 | 하역 소품이 창고 옆의 일하는 자리를 만든다. 어둠에서 실루엣만 잡히던 시장 표지에 월드 시계 연동 등잔을 배치했다. | [시장 전](river-basin-approach-art-evidence/before-harbor-top.jpg) · [시장 후](river-basin-approach-art-evidence/after-harbor-top.jpg) |
+| 항구 경사와 부두 입구 | 경사 돌 2829.900 / 8.739 / 197.600, 부두 상자 2821.200 / 1.721 / 162.000 | 경사 끝에 인접한 하역 소품과 입구 등잔을 고정 화면에서 확인했다. 가상 패드로 상판까지 내려갔다. 상판에 보이는 작은 얼룩은 작업 전후에 남는다. | [경사 전](river-basin-approach-art-evidence/before-harbor-mid.jpg) · [경사 후](river-basin-approach-art-evidence/after-harbor-mid.jpg) · [입구 전](river-basin-approach-art-evidence/before-harbor-entry.jpg) · [입구 후](river-basin-approach-art-evidence/after-harbor-entry.jpg) |
+| 사막 흙집 | 기단 3620.000 / 65.442 / 1516.000, 반지하 가옥 3631.000 / 63.204 / 1525.000 | 고정 시점에서 흙집 기단 아래의 틈이 닫혔다. 반지하 가옥의 사면 교차와 이웃 원경 소품에는 추가 확인이 필요하다. | [기단 전](river-basin-approach-art-evidence/before-desert-footing.jpg) · [기단 후](river-basin-approach-art-evidence/after-desert-footing.jpg) · [반지하 가옥 전](river-basin-approach-art-evidence/before-desert-awning.jpg) · [반지하 가옥 후](river-basin-approach-art-evidence/after-desert-awning.jpg) |
+
+깊은 숲 남쪽 접근, 채석장 작업 단구, 던전 묘실, 설산 폐성 오르막은 대표 고정 화면으로 검토했다. 전수 배치 검사와 수관 아래 전 구간의 근접 확인은 남아 있다. 주 동선과 조망 앵커는 기존 콘셉트의 위치를 사용했다. [숲](river-basin-approach-art-evidence/before-forest.jpg) · [채석장](river-basin-approach-art-evidence/before-quarry.jpg) · [묘실](river-basin-approach-art-evidence/before-dungeon.jpg) · [폐성](river-basin-approach-art-evidence/before-alpine.jpg) · [권역 설계](../../Assets/docs/design/world-art/open-world/RIVER_BASIN_REGION_CONCEPT_DESIGN.md)
+
+**Editor 정적 검사.** 변경한 충돌체를 기준으로 접근로 여섯 곳에서 보행 캡슐 3,336개를 대조해 교차 0건을 확인했다. 지형 높이 기준 검사의 부두 상판 표본 78개는 제외하고 입력 테스트에서 확인했다. 마모 메시 충돌체·누락 스크립트·조명 참조 누락은 각각 0개다. 문루와 흙집 기단의 렌더·충돌 메시가 일치하고, 문루 중심 위쪽 레이가 지붕 충돌체에 닿았다. [정적 검사](river-basin-approach-art-evidence/editor-checks.txt)
+
+**Editor Play 1차.** 시작 위치를 옮긴 뒤 가상 패드 왼쪽 스틱을 실제 Input System에 넣었다. 호수 북서 출구, E2 갈림길, B3 횡단, B1 이후, 문루 양방향, 항구 해질녘·야간 진입, 사막 마을 접근 9/9를 통과했다. 문루 양방향 입력에서 문루의 페이드 동작과 등잔 분리를 관찰했다. [1차 입력 로그](river-basin-approach-art-evidence/approaches-play.txt)
+
+**Editor Play 최종.** 문루 양방향, 해질녘·야간 항구, 사막 진입 5/5를 재통과했다. 문루의 가림이 걸린 프레임에서 캐릭터가 보였고 등잔도 문루와 함께 페이드됐다. 두 방향에서 카메라와 캐릭터 머리 사이의 레이가 문루에 닿은 프레임은 19개와 20개였다. 기존 페이드의 희미한 등잔 윤곽은 남는다. [최종 입력 로그](river-basin-approach-art-evidence/final-approaches-play.txt) · [가림 수정 전](river-basin-approach-art-evidence/tps-gate-west-east-2.jpg) · [서→동 가림 수정 후](river-basin-approach-art-evidence/tps-final-gate-west-east-2.jpg) · [동→서 가림 수정 후](river-basin-approach-art-evidence/tps-final-gate-east-west-2.jpg)
+
+**항구 시간대 비교.** 맑은 날씨로 게임 시계를 18:30과 22:00에 맞췄다. 시장 등잔이 표지판과 길 가장자리를 비추며 경사 표지, 부두 입구 등잔과 상판이 이어서 보인다. 시장에서 상판까지 입력으로 내려간 위치는 각각 (2825.995, 0.974, 153.663), (2825.994, 0.975, 153.670)이다. 1차와 최종 Unity Console에서 오류는 각각 0건이었다. [야간 표지 전](river-basin-approach-art-evidence/pre-sign-night-harbor-sign.jpg) · [야간 표지 후](river-basin-approach-art-evidence/final-night-harbor-sign.jpg) · [해질녘 표지](river-basin-approach-art-evidence/final-dusk-harbor-sign.jpg) · [해질녘 부두 입구](river-basin-approach-art-evidence/final-dusk-harbor-entry.jpg) · [야간 부두 입구](river-basin-approach-art-evidence/final-night-harbor-entry.jpg) · [시간대·시점 로그](river-basin-approach-art-evidence/final-harbor-time.txt) · [Console](river-basin-approach-art-evidence/console.json)
+
+**미수행·사용자 테스트 대기.** 강우·안개 시인성, 조명 성능 실측과 중앙 본선 전체 연속 주행은 미수행이다. 마커 없는 야간 초견 길 찾기와 권역별 미술 인수는 사용자 테스트 대기다.
+
+사용자 테스트 `RB-NIGHT-01`은 RiverBasin4km Editor Play의 맑은 22시와 기본 TPS 카메라에서 지도 마커를 끄고 시작한다. 호수 북서 출구에서 B3 본선·E2 분기를 읽고 현수교와 B1을 거쳐 성채를 찾는다. 항구에서는 시장에서 배가 있는 부두를 찾아 내려간다. 되돌아가거나 지도를 열게 된 첫 지점, 문루 가까이에서 캐릭터가 가려진 지점이 있으면 입력 장치와 화면을 함께 남긴다.
+
+작업 시작 시 열린 Editor에서 대상 씬 한 개와 Play 종료 상태를 확인했다. 디스크와 열린 씬 사본을 대조해 사용자가 조정 중이던 바위 인스턴스 네 곳의 Y 차이를 식별했다. 이번 아트 변경만 디스크에 저장하고 네 곳의 열린 값은 Editor에 다시 적용했다. 두 사본은 `output/RiverBasinWorld/RegionArt/before-approach-contact-pass/`에 보관했다. 최종 대조에서 이 네 곳의 높이만 저장본과 열린 씬 사이에 차이가 났다. Editor Play를 종료했고 게임 저장 파일 5개의 해시가 일치했다. [종료 검사](river-basin-approach-art-evidence/final-session.txt) · [주간 전후 모음](river-basin-approach-art-evidence/day-before-after.jpg) · [촬영 좌표](river-basin-approach-art-evidence/fixed-camera.txt) · [월드와 아트 위키](../wiki/world-art.md)
 
 ### 4km 저지대 전역 기복
 
@@ -46,6 +156,12 @@
 사용자 제보 “이 인위적인 파임은 뭐임”의 형태와 같은 홈을 서부 숲 남쪽에서 확인했다. 전역 기복 패스가 능선 한쪽에 적용한 절토가 떠 있는 물길처럼 길고 좁게 드러났다. 비교 위치 X/Z `(832, 1616)`은 전역 조형 전 56.87m에서 52.87m로 내려갔다. 첨부 이미지 각각의 좌표는 확인하지 못했다.
 
 전역 기복 패치의 음수 높이값만 취소하는 AddDelta 패치 15개를 저장했다. Terrain 45장의 1m 표본 753,678개를 복원했고, 비교 지점은 56.87m로 돌아왔다. 조형 규격의 절토 입력을 0m로 갱신하고 수목 높이와 미니맵을 다시 맞췄다. Editor 검사에서 복원 격자 최대 편차 2.29cm, 보정 영역 밖 검사 표본의 높이 변화 0m, 타일 경계 112곳의 오차 0m를 확인했다. NavMesh 경로 4개와 수목 배치 18,666개가 통과했다. 사용자 제보 구도의 재확인과 실제 조작은 대기다. [검사 수치](river-basin-world-relief-evidence/groove-checks.json) · [갱신한 미니맵](../../Assets/10.Datas/Map/RiverBasin4km/Minimap.png)
+
+#### Terrain_3_2 선택 화면의 동쪽 홈 보정
+
+첨부 구도를 Unity에서 재현했다. 선택 윤곽은 `Terrain_3_2`이지만, 원으로 표시된 홈은 동쪽 이웃 `Terrain_4_2`의 X 2094.79 / Y 40.20 / Z 1304.83 부근에 있다. 홈 양쪽 사면의 높이와 경사를 연결하는 WorldBuilder AddDelta 패치를 적용했다. 주변 바위 네 개는 당시 지면 대비 높이차를 유지하도록 Y를 맞췄다. [조감·근접 전후](river-basin-tile-3-2-evidence/before-after.jpg) · [WorldBuilder 패치](../../Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Authoring/Patches/Terrain_4_2_ShallowGroove_2095_1305.bytes)
+
+**Editor 정적·고정 화면 통과.** 1m 높이 표본 544개를 보정했다. 대표 횡단면의 1m당 최대 높이차는 0.656m에서 0.072m로 낮아졌다. 보정 마스크 밖 높이 변화와 인접 타일 네 변의 경계 오차는 0m다. 지형 충돌체 수직 Raycast 15/15와 `Terrain_3_2` 에셋 해시 일치를 확인했다. 씬 파일은 백업 대비 바위 네 개의 Y만 달라졌다. Editor Play 보행은 미수행이다. [보정 수치](river-basin-tile-3-2-evidence/checks.txt) · [경계와 충돌체 검사](river-basin-tile-3-2-evidence/final-editor-check.txt) · [월드와 아트 위키](../wiki/world-art.md)
 
 ### 4km 남부 호수 섬
 

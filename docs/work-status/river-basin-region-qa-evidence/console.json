@@ -1,0 +1,155 @@
+{
+  "scope": "RiverBasin4km Editor Play",
+  "errorsBeforePlay": 0,
+  "playErrors": [
+    {
+      "type": "Exception",
+      "message": "InvalidOperationException: Terrain_2_4의 나무 1074가 ID 표와 다릅니다.",
+      "file": "Assets/02.Scripts/Gameplay/World/ReactiveEnvironment/TerrainTreePromotion.cs",
+      "line": 100,
+      "stackTrace": "UPlayGround.Gameplay.World.ReactiveEnvironment.TerrainTreePromotion.InitializeTile (UnityEngine.Terrain terrain, UPlayGround.Gameplay.World.ReactiveEnvironment.TerrainTreePromotionTileSO authoring, System.Collections.Generic.HashSet`1[T] ids) (at Assets/02.Scripts/Gameplay/World/ReactiveEnvironment/TerrainTreePromotion.cs:157)\nUPlayGround.Gameplay.World.ReactiveEnvironment.TerrainTreePromotion.Initialize () (at Assets/02.Scripts/Gameplay/World/ReactiveEnvironment/TerrainTreePromotion.cs:120)\nUPlayGround.Gameplay.World.ReactiveEnvironment.TerrainTreePromotion.Update () (at Assets/02.Scripts/Gameplay/World/ReactiveEnvironment/TerrainTreePromotion.cs:99)\nUnityEngine.Debug:LogException(Exception, Object)\nUPlayGround.Gameplay.World.ReactiveEnvironment.TerrainTreePromotion:Update() (at Assets/02.Scripts/Gameplay/World/ReactiveEnvironment/TerrainTreePromotion.cs:100)\n"
+    },
+    {
+      "type": "Error",
+      "message": "CalculatePolygonPath: invalid input position(s). Source position { 1764.000000, 52.723469, 1880.000000 }. Target position { Infinity, Infinity, Infinity }",
+      "file": "./Library/PackageCache/com.coplaydev.unity-mcp@da7b9ae4aeeb/Editor/Tools/ExecuteCode.cs",
+      "line": 275,
+      "stackTrace": "UnityEngine.AI.NavMesh:CalculatePath (UnityEngine.Vector3,UnityEngine.Vector3,int,UnityEngine.AI.NavMeshPath)\nMCPDynamicCode:Execute ()\nSystem.Reflection.MethodBase:Invoke (object,object[])\nMCPForUnity.Editor.Tools.ExecuteCode:InvokeCompiled (System.Reflection.Assembly,string) (at ./Library/PackageCache/com.coplaydev.unity-mcp@da7b9ae4aeeb/Editor/Tools/ExecuteCode.cs:275)\nMCPForUnity.Editor.Tools.ExecuteCode:CompileAndExecute (string,string) (at ./Library/PackageCache/com.coplaydev.unity-mcp@da7b9ae4aeeb/Editor/Tools/ExecuteCode.cs:257)\nMCPForUnity.Editor.Tools.ExecuteCode:HandleExecute (Newtonsoft.Json.Linq.JObject) (at ./Library/PackageCache/com.coplaydev.unity-mcp@da7b9ae4aeeb/Editor/Tools/ExecuteCode.cs:130)\nMCPForUnity.Editor.Tools.ExecuteCode:HandleCommand (Newtonsoft.Json.Linq.JObject) (at ./Library/PackageCache/com.coplaydev.unity-mcp@da7b9ae4aeeb/Editor/Tools/ExecuteCode.cs:95)\nMCPForUnity.Editor.Tools.CommandRegistry:ExecuteCommand (string,Newtonsoft.Json.Linq.JObject,System.Threading.Tasks.TaskCompletionSource`1<string>) (at ./Library/PackageCache/com.coplaydev.unity-mcp@da7b9ae4aeeb/Editor/Tools/CommandRegistry.cs:295)\nMCPForUnity.Editor.Services.Transport.TransportCommandDispatcher:ProcessCommand (string,MCPForUnity.Editor.Services.Transport.TransportCommandDispatcher/PendingCommand) (at ./Library/PackageCache/com.coplaydev.unity-mcp@da7b9ae4aeeb/Editor/Services/Transport/TransportCommandDispatcher.cs:366)\nMCPForUnity.Editor.Services.Transport.TransportCommandDispatcher:ProcessQueue () (at ./Library/PackageCache/com.coplaydev.unity-mcp@da7b9ae4aeeb/Editor/Services/Transport/TransportCommandDispatcher.cs:262)\nMCPForUnity.Editor.Services.Transport.TransportCommandDispatcher:<RequestMainThreadPump>g__Pump|11_0 () (at ./Library/PackageCache/com.coplaydev.unity-mcp@da7b9ae4aeeb/Editor/Services/Transport/TransportCommandDispatcher.cs:184)\nMCPForUnity.Editor.Services.Transport.TransportCommandDispatcher:RequestMainThreadPump () (at ./Library/PackageCache/com.coplaydev.unity-mcp@da7b9ae4aeeb/Editor/Services/Transport/TransportCommandDispatcher.cs:193)\nMCPForUnity.Editor.Services.Transport.TransportCommandDispatcher:ExecuteCommandJsonAsync (string,System.Threading.CancellationToken) (at ./Library/PackageCache/com.coplaydev.unity-mcp@da7b9ae4aeeb/Editor/Services/Transport/TransportCommandDispatcher.cs:116)\nMCPForUnity.Editor.Services.Transport.Transports.StdioBridgeHost/<>c__DisplayClass59_0/<<ExecuteQueuedCommand>g__Runner|0>d:MoveNext () (at ./Library/PackageCache/com.coplaydev.unity-mcp@da7b9ae4aeeb/Editor/Services/Transport/Transports/StdioBridgeHost.cs:1009)\nSystem.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start<MCPForUnity.Editor.Services.Transport.Transports.StdioBridgeHost/<>c__DisplayClass59_0/<<ExecuteQueuedCommand>g__Runner|0>d> (MCPForUnity.Editor.Services.Transport.Transports.StdioBridgeHost/<>c__DisplayClass59_0/<<ExecuteQueuedCommand>g__Runner|0>d&)\nMCPForUnity.Editor.Services.Transport.Transports.StdioBridgeHost/<>c__DisplayClass59_0:<ExecuteQueuedCommand>g__Runner|0 ()\nMCPForUnity.Editor.Services.Transport.Transports.StdioBridgeHost:ExecuteQueuedCommand (string,string,System.Threading.Tasks.TaskCompletionSource`1<string>) (at ./Library/PackageCache/com.coplaydev.unity-mcp@da7b9ae4aeeb/Editor/Services/Transport/Transports/StdioBridgeHost.cs:1043)\nMCPForUnity.Editor.Services.Transport.Transports.StdioBridgeHost:ProcessCommands () (at ./Library/PackageCache/com.coplaydev.unity-mcp@da7b9ae4aeeb/Editor/Services/Transport/Transports/StdioBridgeHost.cs:993)\nUnityEditor.EditorApplication:Internal_CallUpdateFunctions ()\n"
+    }
+  ],
+  "selectedWarnings": [
+    {
+      "type": "Warning",
+      "message": "TerrainCollider: MeshCollider is not supported on terrain at the moment.\n",
+      "file": "",
+      "line": 0,
+      "stackTrace": null
+    },
+    {
+      "type": "Warning",
+      "message": "Renderer 'B3_Deck_Dark_LOD0' is registered with more than one LODGroup ('WB_P04_Bridge_B3_Suspension' and '현수교 렌더링').\n",
+      "file": "",
+      "line": 0,
+      "stackTrace": null
+    },
+    {
+      "type": "Warning",
+      "message": "Renderer 'B3_Deck_Pale_LOD0' is registered with more than one LODGroup ('WB_P04_Bridge_B3_Suspension' and '현수교 렌더링').\n",
+      "file": "",
+      "line": 0,
+      "stackTrace": null
+    },
+    {
+      "type": "Warning",
+      "message": "Renderer 'B3_Deck_Warm_LOD0' is registered with more than one LODGroup ('WB_P04_Bridge_B3_Suspension' and '현수교 렌더링').\n",
+      "file": "",
+      "line": 0,
+      "stackTrace": null
+    },
+    {
+      "type": "Warning",
+      "message": "Renderer 'B3_Hemp_LOD0' is registered with more than one LODGroup ('WB_P04_Bridge_B3_Suspension' and '현수교 렌더링').\n",
+      "file": "",
+      "line": 0,
+      "stackTrace": null
+    },
+    {
+      "type": "Warning",
+      "message": "Renderer 'B3_Iron_LOD0' is registered with more than one LODGroup ('WB_P04_Bridge_B3_Suspension' and '현수교 렌더링').\n",
+      "file": "",
+      "line": 0,
+      "stackTrace": null
+    },
+    {
+      "type": "Warning",
+      "message": "Renderer 'B3_Timber_LOD0' is registered with more than one LODGroup ('WB_P04_Bridge_B3_Suspension' and '현수교 렌더링').\n",
+      "file": "",
+      "line": 0,
+      "stackTrace": null
+    },
+    {
+      "type": "Warning",
+      "message": "Renderer 'B3_Deck_Dark_LOD1' is registered with more than one LODGroup ('WB_P04_Bridge_B3_Suspension' and '현수교 렌더링').\n",
+      "file": "",
+      "line": 0,
+      "stackTrace": null
+    },
+    {
+      "type": "Warning",
+      "message": "Renderer 'B3_Deck_Pale_LOD1' is registered with more than one LODGroup ('WB_P04_Bridge_B3_Suspension' and '현수교 렌더링').\n",
+      "file": "",
+      "line": 0,
+      "stackTrace": null
+    },
+    {
+      "type": "Warning",
+      "message": "Renderer 'B3_Deck_Warm_LOD1' is registered with more than one LODGroup ('WB_P04_Bridge_B3_Suspension' and '현수교 렌더링').\n",
+      "file": "",
+      "line": 0,
+      "stackTrace": null
+    },
+    {
+      "type": "Warning",
+      "message": "Renderer 'B3_Hemp_LOD1' is registered with more than one LODGroup ('WB_P04_Bridge_B3_Suspension' and '현수교 렌더링').\n",
+      "file": "",
+      "line": 0,
+      "stackTrace": null
+    },
+    {
+      "type": "Warning",
+      "message": "Renderer 'B3_Iron_LOD1' is registered with more than one LODGroup ('WB_P04_Bridge_B3_Suspension' and '현수교 렌더링').\n",
+      "file": "",
+      "line": 0,
+      "stackTrace": null
+    },
+    {
+      "type": "Warning",
+      "message": "Renderer 'B3_Timber_LOD1' is registered with more than one LODGroup ('WB_P04_Bridge_B3_Suspension' and '현수교 렌더링').\n",
+      "file": "",
+      "line": 0,
+      "stackTrace": null
+    },
+    {
+      "type": "Warning",
+      "message": "Renderer 'B3_Deck_Dark_LOD2' is registered with more than one LODGroup ('WB_P04_Bridge_B3_Suspension' and '현수교 렌더링').\n",
+      "file": "",
+      "line": 0,
+      "stackTrace": null
+    },
+    {
+      "type": "Warning",
+      "message": "Renderer 'B3_Deck_Pale_LOD2' is registered with more than one LODGroup ('WB_P04_Bridge_B3_Suspension' and '현수교 렌더링').\n",
+      "file": "",
+      "line": 0,
+      "stackTrace": null
+    },
+    {
+      "type": "Warning",
+      "message": "Renderer 'B3_Deck_Warm_LOD2' is registered with more than one LODGroup ('WB_P04_Bridge_B3_Suspension' and '현수교 렌더링').\n",
+      "file": "",
+      "line": 0,
+      "stackTrace": null
+    },
+    {
+      "type": "Warning",
+      "message": "Renderer 'B3_Hemp_LOD2' is registered with more than one LODGroup ('WB_P04_Bridge_B3_Suspension' and '현수교 렌더링').\n",
+      "file": "",
+      "line": 0,
+      "stackTrace": null
+    },
+    {
+      "type": "Warning",
+      "message": "Renderer 'B3_Iron_LOD2' is registered with more than one LODGroup ('WB_P04_Bridge_B3_Suspension' and '현수교 렌더링').\n",
+      "file": "",
+      "line": 0,
+      "stackTrace": null
+    },
+    {
+      "type": "Warning",
+      "message": "Renderer 'B3_Timber_LOD2' is registered with more than one LODGroup ('WB_P04_Bridge_B3_Suspension' and '현수교 렌더링').\n",
+      "file": "",
+      "line": 0,
+      "stackTrace": null
+    }
+  ]
+}

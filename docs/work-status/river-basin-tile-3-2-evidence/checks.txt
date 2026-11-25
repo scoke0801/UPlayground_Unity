@@ -1,0 +1,27 @@
+tile=Terrain_4_2 selected_in_user_view=Terrain_3_2 center=(2094.790, 40.204, 1304.830)
+operation=Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Authoring/Patches/Terrain_4_2_ShallowGroove_2095_1305.bytes
+planned_samples=552 actual_changed_samples=544
+raise_max=0.610 cut_max=-0.684 outside_max=0.000000 west_edge_gap_max=0.000000 hole_changes=0
+affected_prefab_roots=4
+active_session=False
+PF_EastLands_BigBoulder_01 (2095.096, 38.710, 1305.481) yOffset=0.348
+PF_EastLands_MedBoulder_01 (2098.259, 38.870, 1308.653) yOffset=0.271
+PF_EastLands_MedBoulder_05 (2091.531, 38.580, 1308.392) yOffset=0.111
+PF_EastLands_BigBoulder_02 (2091.564, 38.230, 1309.171) yOffset=0.053
+section_m=-7 before=40.493 after=40.493
+section_m=-6 before=40.554 after=40.526
+section_m=-5 before=40.605 after=40.481
+section_m=-4 before=40.657 after=40.410
+section_m=-3 before=40.708 after=40.357
+section_m=-2 before=40.759 after=40.304
+section_m=-1 before=40.638 after=40.251
+section_m=0 before=39.982 after=40.201
+section_m=1 before=39.647 after=40.146
+section_m=2 before=39.685 after=40.103
+section_m=3 before=39.753 after=40.050
+section_m=4 before=39.804 after=40.014
+section_m=5 before=39.854 after=39.949
+section_m=6 before=39.902 after=39.915
+section_m=7 before=39.956 after=39.956
+max_step_before_per_meter=0.656 max_step_after_per_meter=0.072
+scene_dirty=False play=False definition_dirty=False terrain_dirty=False

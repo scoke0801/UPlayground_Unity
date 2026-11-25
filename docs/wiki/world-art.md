@@ -1,6 +1,20 @@
 # 월드와 아트
 
-**RiverBasin4km 여덟 지역 부지 확정.** 호수 마을과 중앙 성채는 기존 앵커, 깊은 숲 마을은 R1 수관 안쪽, 항구는 `coast-dock` 끝과 남쪽 해안, 폐성은 고산 유적 남쪽 턱에 둔다. 기존 채석 단구 아래 갱도 입구와 R5→R4 이음부 서쪽의 사막 마을 부지를 확정했다. Unity 지형 실측과 고정 화면 비교를 마쳤다. 호수 마을 → B3 → B1 회색 매스와 실제 보행 검증은 미수행이다. [지역 설계](../../Assets/docs/design/world-art/open-world/RIVER_BASIN_REGION_CONCEPT_DESIGN.md) · [부지 지도](../work-status/river-basin-region-sites-evidence/site-map.jpg) · [실측과 다음 제작](../work-status/river-basin-world.md#4km-지역-콘셉트-재검토)
+**RiverBasin4km 접근로 접지와 성채 문루.** 문루 안쪽에서 떠 보이던 붉은 문패를 보정하고, 통과 시 등잔도 문루와 함께 페이드되도록 연결했다. 호수 북서 출구·B3·B1·성채와 항구 시장·부두에 지면 마모와 소품을 더했고, 사막 흙집의 기단을 사면에 맞췄다. 최종 Editor Play에서 문루 양방향과 해질녘·야간 항구, 사막 접근 5/5를 재확인했다. 마커 없는 야간 초견 길 찾기는 사용자 테스트 대기다. [좌표·비교 화면·검증](../work-status/river-basin-world.md#접근로-접지와-성채-문루-보정)
+
+**RiverBasin4km 국소 지형 보정.** `Terrain_3_2` 선택 화면에 표시된 동쪽 홈은 이웃 `Terrain_4_2` 안에서 확인했다. 기존 양 사면을 이어 홈을 완화했고 인접 타일 네 변의 높이차는 0m를 확인했다. [좌표·비교 화면·검사](../work-status/river-basin-world.md#terrain_3_2-선택-화면의-동쪽-홈-보정)
+
+**RiverBasin4km 건축 근접 디테일과 시간대별 조명.** 건축 렌더러 125개에 근접 재질을 적용하고 숲 오두막·성채 상가·항구 창고에 목제 덧문을 배치했다. 기존 월드 시계에 연결한 등잔 13개와 발광면 22개의 시간 전환을 Editor Play에서 확인했다. [작업 상태와 비교 화면](../work-status/river-basin-world.md#건축-근접-디테일과-시간대별-조명)
+
+**RiverBasin4km 1차 제작 아트 패스.** 권역 접근로 11개와 짧은 접속로 6곳에 권역별 흙·낙엽·자갈·모래·눈 재질을 적용했다. B1 원경, 성채 장터, 채석 작업장, 항구 하역장 등 주요 조망에 소품과 식생을 배치했다. 정적 보행 캡슐 8,064개에서 새 충돌이 없었고 대표 접근로 9/9와 던전 3/3을 가상 입력으로 통과했다. [작업 상태와 비교 화면](../work-status/river-basin-world.md#여덟-권역-1차-제작-아트-패스)
+
+**RiverBasin4km 권역 아트 개선·재검증.** 채석장 묘실과 상부 지름길의 정상 보행, 성채 문루 양방향, E2 직진과 숲 R1 접근을 복구하고 가상 입력으로 확인했다. 숲 수목 ID 표 동기화, 목교 상판과 던전 이음부 정리, 포탈 도착 카메라와 항구 첫 돛대 조망을 적용했다. 초견 길 찾기와 청감은 사용자 테스트 대기다. [개선·재검증 로그와 화면](../work-status/river-basin-region-verification.md#개선-및-재검증) · [씬 반영 상태](../work-status/river-basin-world.md#여덟-권역-실물-배치와-연결)
+
+**RiverBasin4km 여덟 지역 회색 매스 배치 완료.** 호수 마을·중앙 성채에 이어 깊은 숲 마을, 채석장, 던전 입구, 사막 마을, 항구마을, 설산 밑 폐성까지 프리뷰 씬에 저장했다. 이번 배치의 검증은 사용자 지시에 따라 미수행이다. [지역별 배치 내역](../work-status/river-basin-world.md#여덟-지역-회색-매스-배치)
+
+**RiverBasin4km 중앙 본선 첫 블록아웃.** 호수 마을 주거와 출구, B3·E2의 갈림길, 성채 남서 문루와 시장을 프리뷰 씬에 저장했다. 고정 화면에서 B3 접근과 다리 아래 폭포, B1 뒤 성채 지붕, 문루 구도를 확인했다. Editor Play 가상 패드로 마을 출구·B3·B1·문루 통과 4/4 확인. 마커 없는 연속 왕복은 사용자 테스트 대기다. [화면·검증·테스트 명세](../work-status/river-basin-world.md#호수-마을에서-성채까지-첫-블록아웃)
+
+**RiverBasin4km 여덟 지역 부지 확정.** 호수 마을과 중앙 성채는 기존 앵커, 깊은 숲 마을은 R1 수관 안쪽, 항구는 `coast-dock` 끝과 남쪽 해안, 폐성은 고산 유적 남쪽 턱에 둔다. 기존 채석 단구 아래 갱도 입구와 R5→R4 이음부 서쪽의 사막 마을 부지를 확정했다. [지역 설계](../../Assets/docs/design/world-art/open-world/RIVER_BASIN_REGION_CONCEPT_DESIGN.md) · [부지 지도](../work-status/river-basin-region-sites-evidence/site-map.jpg) · [실측](../work-status/river-basin-world.md#4km-지역-콘셉트-재검토)
 
 **RiverBasin4km 저지대 전역 기복.** 남부 해안, 서부 숲, 중앙 분지, 동부 사막·산기슭에 비대칭 능선과 안부 24곳을 조형했다. 가늘고 긴 홈 제보 후 전역 패스에서 새로 낮춘 표본을 복원하고 지상 수목과 미니맵을 갱신했다. Unity에서 보정 영역 밖 표본과 타일 경계 112곳의 높이를 확인했다. 시야 변화와 실제 탐험 경로는 사용자 테스트 대기다. [권역별 비교·검사](../work-status/river-basin-world.md#4km-저지대-전역-기복)
 

@@ -1,0 +1,1 @@
+checked buildings=31 trees in bounding XZ=0 vertical hits=0 (tree axes, no canopy intersection test)

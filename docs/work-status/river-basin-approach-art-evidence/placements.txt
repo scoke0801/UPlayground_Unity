@@ -1,0 +1,39 @@
+호수 북서 출구 / PF_EastLands_FlatStone_02 (2312.900, 35.965, 976.500) ground 35.997 / Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Flat/PF_EastLands_FlatStone_02.prefab
+호수 북서 출구 / PF_Farm_GrassTall_01 (2312.100, 35.982, 977.400) ground 35.997 / Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Grass/PF_Farm_GrassTall_01.prefab
+호수 북서 출구 / PF_Farm_GrassTall_01 (2303.900, 36.056, 984.800) ground 36.071 / Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Grass/PF_Farm_GrassTall_01.prefab
+호수 북서 출구 / PF_EastLands_FlatStone_02 (2300.600, 36.104, 990.000) ground 36.193 / Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Flat/PF_EastLands_FlatStone_02.prefab
+호수 북서 출구 / PF_Farm_GrassTall_01 (2300.900, 36.197, 990.800) ground 36.212 / Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Grass/PF_Farm_GrassTall_01.prefab
+호수 북서 출구 / PF_Farm_GrassTall_01 (2306.800, 36.163, 992.200) ground 36.178 / Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Grass/PF_Farm_GrassTall_01.prefab
+호수 북서 출구 / PF_EastLands_FlatStone_02 (2307.400, 36.101, 992.900) ground 36.180 / Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Flat/PF_EastLands_FlatStone_02.prefab
+B3 갈림길 / PF_EastLands_FlatStone_02 (1654.100, 48.787, 1549.400) ground 48.840 / Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Flat/PF_EastLands_FlatStone_02.prefab
+B3 갈림길 / PF_Farm_GrassTall_01 (1654.800, 48.849, 1548.500) ground 48.864 / Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Grass/PF_Farm_GrassTall_01.prefab
+B3 갈림길 / PF_EastLands_FlatStone_02 (1660.000, 48.699, 1553.800) ground 48.796 / Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Flat/PF_EastLands_FlatStone_02.prefab
+B1 너머 / PF_EastLands_FlatStone_02 (1900.800, 60.078, 1991.700) ground 60.266 / Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Flat/PF_EastLands_FlatStone_02.prefab
+B1 너머 / PF_Farm_GrassTall_01 (1901.500, 60.268, 1991.350) ground 60.283 / Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Grass/PF_Farm_GrassTall_01.prefab
+B1 너머 / PF_Farm_GrassTall_01 (1903.100, 60.395, 1992.600) ground 60.410 / Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Grass/PF_Farm_GrassTall_01.prefab
+B1 너머 / PF_EastLands_FlatStone_02 (1914.500, 60.921, 1997.300) ground 61.128 / Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Flat/PF_EastLands_FlatStone_02.prefab
+B1 너머 / PF_Farm_GrassTall_01 (1915.100, 61.138, 1997.100) ground 61.153 / Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Grass/PF_Farm_GrassTall_01.prefab
+문루 서쪽 기단 / PF_EastLands_FlatStone_02 (2263.600, 85.921, 2084.950) ground 86.257 / Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Flat/PF_EastLands_FlatStone_02.prefab
+문루 서쪽 기단 / PF_EastLands_FlatStone_02 (2262.800, 85.881, 2084.500) ground 86.201 / Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Flat/PF_EastLands_FlatStone_02.prefab
+문루 서쪽 기단 / PF_Farm_GrassTall_01 (2263.450, 86.266, 2084.160) ground 86.281 / Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Grass/PF_Farm_GrassTall_01.prefab
+문루 서쪽 기단 / PF_EastLands_FlatStone_02 (2265.350, 86.241, 2093.720) ground 86.609 / Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Flat/PF_EastLands_FlatStone_02.prefab
+문루 서쪽 기단 / PF_Farm_GrassTall_01 (2264.700, 86.568, 2094.450) ground 86.583 / Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Grass/PF_Farm_GrassTall_01.prefab
+문루 동쪽 시장 / PF_EastLands_FlatStone_02 (2277.700, 87.407, 2090.350) ground 87.673 / Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Flat/PF_EastLands_FlatStone_02.prefab
+문루 동쪽 시장 / PF_Farm_GrassTall_01 (2278.250, 87.755, 2091.370) ground 87.770 / Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Grass/PF_Farm_GrassTall_01.prefab
+문루 동쪽 시장 / PF_EastLands_FlatStone_02 (2276.700, 87.236, 2082.700) ground 87.524 / Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Flat/PF_EastLands_FlatStone_02.prefab
+문루 동쪽 시장 / PF_Farm_GrassTall_01 (2277.900, 87.626, 2082.500) ground 87.641 / Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Grass/PF_Farm_GrassTall_01.prefab
+항구 하역 / CargoBarrel (2811.800, 9.980, 249.350) ground 9.995 / Assets/03.Prefabs/Environment/WorldCities/CargoBarrel.prefab
+항구 하역 / CargoCrate (2809.650, 9.993, 249.000) ground 9.995 / Assets/03.Prefabs/Environment/WorldCities/CargoCrate.prefab
+항구 하역 / PF_EastLands_Rope_02 (2812.700, 10.516, 247.700) ground 9.995 / Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Ropes/PF_EastLands_Rope_02.prefab
+항구 하역 / PF_EastLands_FlatStone_02 (2815.700, 9.959, 244.300) ground 9.995 / Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Flat/PF_EastLands_FlatStone_02.prefab
+항구 경사 / PF_EastLands_FlatStone_02 (2830.000, 9.989, 233.500) ground 10.153 / Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Flat/PF_EastLands_FlatStone_02.prefab
+항구 경사 / PF_EastLands_FlatStone_02 (2829.500, 10.068, 231.900) ground 10.183 / Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Flat/PF_EastLands_FlatStone_02.prefab
+항구 경사 / PF_Farm_GrassTall_01 (2830.800, 10.180, 232.600) ground 10.195 / Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Grass/PF_Farm_GrassTall_01.prefab
+항구 경사 / PF_EastLands_FlatStone_02 (2829.900, 8.263, 197.600) ground 8.696 / Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Flat/PF_EastLands_FlatStone_02.prefab
+항구 경사 / PF_EastLands_FlatStone_02 (2831.100, 7.743, 196.050) ground 8.343 / Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Flat/PF_EastLands_FlatStone_02.prefab
+항구 경사 / PF_Farm_GrassTall_01 (2831.050, 8.606, 197.350) ground 8.621 / Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Grass/PF_Farm_GrassTall_01.prefab
+부두 입구 / CargoCrate (2821.200, 1.721, 162.000) ground 1.786 / Assets/03.Prefabs/Environment/WorldCities/CargoCrate.prefab
+부두 입구 / CargoBarrel (2820.000, 1.795, 162.450) ground 1.884 / Assets/03.Prefabs/Environment/WorldCities/CargoBarrel.prefab
+부두 입구 / PF_EastLands_Rope_02 (2821.300, 2.152, 163.200) ground 1.901 / Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/Ropes/PF_EastLands_Rope_02.prefab
+부두 입구 / PF_EastLands_FlatStone_02 (2831.600, 0.501, 160.200) ground 1.112 / Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Flat/PF_EastLands_FlatStone_02.prefab
+부두 입구 / PF_EastLands_FlatStone_02 (2832.400, 0.783, 161.000) ground 1.210 / Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Flat/PF_EastLands_FlatStone_02.prefab

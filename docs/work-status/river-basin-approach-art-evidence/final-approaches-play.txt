@@ -1,0 +1,35 @@
+Editor Play / 가상 Gamepad 왼쪽 스틱 / KCC와 TPS 카메라 / 지점 이동 후 입력
+START gate-west-east (2248.000, 84.602, 2092.500) clock=720.00
+  REACHED (2261.294, 85.968, 2089.699) camera=(2261.244, 88.317, 2084.858)
+  REACHED (2269.287, 86.825, 2088.137) camera=(2269.162, 89.002, 2084.046)
+  REACHED (2283.254, 87.961, 2086.103) camera=(2283.219, 90.325, 2081.292)
+  REACHED (2306.324, 89.127, 2085.030) camera=(2306.225, 91.453, 2080.219)
+PASS gate-west-east (2306.324, 89.127, 2085.030) ground=483/490 swim=0 camDistMin=3.45 camFrameMax=2.48 gateLineHits=19 cameraSphereHits=55
+START gate-east-west (2307.000, 89.290, 2085.000) clock=720.00
+  REACHED (2284.656, 88.061, 2085.971) camera=(2284.694, 90.730, 2081.154)
+  REACHED (2270.668, 86.954, 2087.904) camera=(2270.745, 89.619, 2083.078)
+  REACHED (2262.538, 86.114, 2089.439) camera=(2262.659, 88.453, 2085.823)
+  REACHED (2248.753, 84.547, 2092.341) camera=(2248.841, 87.177, 2087.508)
+PASS gate-east-west (2248.753, 84.547, 2092.341) ground=492/492 swim=0 camDistMin=3.62 camFrameMax=2.00 gateLineHits=20 cameraSphereHits=49
+START harbor-dusk (2816.000, 10.135, 248.000) clock=1110.00
+  REACHED (2819.903, 10.005, 237.721) camera=(2819.875, 12.588, 232.976)
+  REACHED (2825.779, 10.695, 218.746) camera=(2825.742, 13.037, 214.057)
+  REACHED (2827.911, 7.899, 193.713) camera=(2827.897, 10.547, 189.017)
+  REACHED (2826.073, 2.912, 170.721) camera=(2826.081, 5.482, 165.988)
+  REACHED (2825.995, 0.974, 153.663) camera=(2825.995, 3.598, 148.864)
+PASS harbor-dusk (2825.995, 0.974, 153.663) ground=669/669 swim=0 camDistMin=5.23 camFrameMax=1.55 gateLineHits=0 cameraSphereHits=0
+START harbor-night (2816.000, 10.135, 248.000) clock=1320.00
+  REACHED (2819.925, 10.005, 237.697) camera=(2819.914, 12.320, 232.910)
+  REACHED (2825.786, 10.695, 218.716) camera=(2825.753, 13.038, 214.014)
+  REACHED (2827.913, 7.892, 193.679) camera=(2827.900, 10.537, 188.972)
+  REACHED (2826.069, 2.907, 170.691) camera=(2826.076, 5.476, 165.944)
+  REACHED (2825.994, 0.975, 153.670) camera=(2825.993, 3.614, 148.921)
+PASS harbor-night (2825.994, 0.975, 153.670) ground=668/678 swim=0 camDistMin=5.23 camFrameMax=1.55 gateLineHits=0 cameraSphereHits=0
+START desert-access (3676.000, 61.334, 1500.000) clock=720.00
+  REACHED (3664.602, 61.503, 1504.731) camera=(3664.641, 63.841, 1499.886)
+  REACHED (3657.562, 61.805, 1509.597) camera=(3657.562, 64.137, 1504.769)
+  REACHED (3652.677, 62.105, 1508.271) camera=(3652.724, 64.417, 1503.462)
+  REACHED (3644.631, 62.485, 1509.845) camera=(3644.754, 64.769, 1504.988)
+  REACHED (3635.627, 64.039, 1511.860) camera=(3635.657, 66.414, 1507.027)
+PASS desert-access (3635.627, 64.039, 1511.860) ground=338/338 swim=0 camDistMin=5.31 camFrameMax=0.59 gateLineHits=0 cameraSphereHits=0
+END 지점 검사 5/5

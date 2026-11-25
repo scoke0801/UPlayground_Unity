@@ -1,0 +1,60 @@
+Editor Play | Unity 6000.3.21f1 | KCC / Gamepad left stick
+START mainline-continuous (2320.000, 35.997, 970.000) waypoints=(2320.00, 970.00) > (2312.00, 981.00) > (2298.00, 998.00) > (2267.68, 1028.36) > (2188.00, 1089.00) > (2117.95, 1143.37) > (2095.32, 1166.62) > (2042.00, 1242.00) > (1995.81, 1309.53) > (1970.08, 1325.96) > (1880.00, 1356.00) > (1791.52, 1385.48) > (1746.00, 1433.00) > (1697.59, 1484.06) > (1682.71, 1503.90) > (1668.14, 1549.78) > (1645.20, 1572.10) > (1643.96, 1579.54) > (1645.00, 1592.35) > (1622.00, 1620.00) > (1599.00, 1647.70) > (1604.28, 1658.28) > (1607.07, 1663.55) > (1617.61, 1684.32) > (1662.30, 1757.80) > (1707.00, 1832.00) > (1717.70, 1841.40) > (1740.00, 1860.00) > (1763.80, 1879.80) > (1808.00, 1916.00) > (1856.00, 1956.00) > (1896.00, 1992.00) > (1952.00, 2024.00) > (2008.00, 2056.00) > (2060.00, 2088.00) > (2080.00, 2100.00) > (2144.00, 2100.00) > (2208.00, 2100.00) > (2238.00, 2096.00) > (2252.00, 2091.50) > (2262.00, 2089.55) > (2270.00, 2088.00) > (2278.00, 2086.45) > (2284.00, 2086.00) > (2307.00, 2085.00) > (2320.00, 2088.00)
+  REACHED (2312.432, 36.007, 980.408) target=(2312.00, 981.00) stable=True swimming=False
+  REACHED (2298.451, 36.458, 997.452) target=(2298.00, 998.00) stable=True swimming=False
+  REACHED (2268.161, 37.566, 1027.876) target=(2267.68, 1028.36) stable=True swimming=False
+  REACHED (2188.565, 39.870, 1088.569) target=(2188.00, 1089.00) stable=True swimming=False
+  REACHED (2118.554, 40.071, 1142.902) target=(2117.95, 1143.37) stable=True swimming=False
+  REACHED (2095.814, 41.638, 1166.115) target=(2095.32, 1166.62) stable=True swimming=False
+  REACHED (2042.431, 45.092, 1241.392) target=(2042.00, 1242.00) stable=True swimming=False
+  REACHED (1996.230, 50.016, 1308.916) target=(1995.81, 1309.53) stable=True swimming=False
+  REACHED (1970.683, 48.562, 1325.571) target=(1970.08, 1325.96) stable=True swimming=False
+  REACHED (1880.733, 48.044, 1355.755) target=(1880.00, 1356.00) stable=True swimming=False
+  REACHED (1792.208, 50.322, 1385.251) target=(1791.52, 1385.48) stable=True swimming=False
+  REACHED (1746.528, 49.356, 1432.452) target=(1746.00, 1433.00) stable=True swimming=False
+  REACHED (1698.038, 48.737, 1483.587) target=(1697.59, 1484.06) stable=True swimming=False
+  REACHED (1683.163, 48.781, 1503.297) target=(1682.71, 1503.90) stable=True swimming=False
+  REACHED (1668.367, 49.111, 1549.073) target=(1668.14, 1549.78) stable=True swimming=False
+  REACHED (1645.752, 47.411, 1571.557) target=(1645.20, 1572.10) stable=True swimming=False
+  REACHED (1644.002, 45.680, 1578.799) target=(1643.96, 1579.54) stable=True swimming=False
+  REACHED (1644.943, 47.371, 1591.645) target=(1645.00, 1592.35) stable=True swimming=False
+  REACHED (1622.477, 47.363, 1619.420) target=(1622.00, 1620.00) stable=True swimming=False
+  REACHED (1599.478, 47.833, 1647.124) target=(1599.00, 1647.70) stable=True swimming=False
+  REACHED (1603.947, 48.402, 1657.575) target=(1604.28, 1658.28) stable=True swimming=False
+  REACHED (1606.734, 48.664, 1662.911) target=(1607.07, 1663.55) stable=True swimming=False
+  REACHED (1617.270, 49.097, 1683.650) target=(1617.61, 1684.32) stable=True swimming=False
+  REACHED (1661.929, 50.580, 1757.190) target=(1662.30, 1757.80) stable=True swimming=False
+  REACHED (1706.606, 51.762, 1831.346) target=(1707.00, 1832.00) stable=True swimming=False
+  REACHED (1717.160, 52.221, 1840.921) target=(1717.70, 1841.40) stable=True swimming=False
+  REACHED (1739.428, 52.260, 1859.523) target=(1740.00, 1860.00) stable=True swimming=False
+  REACHED (1763.244, 52.395, 1879.337) target=(1763.80, 1879.80) stable=True swimming=False
+  REACHED (1807.407, 55.465, 1915.514) target=(1808.00, 1916.00) stable=True swimming=False
+  REACHED (1855.459, 57.898, 1955.549) target=(1856.00, 1956.00) stable=True swimming=False
+  REACHED (1895.448, 59.994, 1991.503) target=(1896.00, 1992.00) stable=True swimming=False
+  REACHED (1951.334, 63.873, 2023.619) target=(1952.00, 2024.00) stable=True swimming=False
+  REACHED (2007.419, 67.712, 2055.669) target=(2008.00, 2056.00) stable=True swimming=False
+  REACHED (2059.365, 71.477, 2087.610) target=(2060.00, 2088.00) stable=True swimming=False
+  REACHED (2079.382, 72.958, 2099.630) target=(2080.00, 2100.00) stable=True swimming=False
+  REACHED (2143.345, 77.433, 2099.999) target=(2144.00, 2100.00) stable=True swimming=False
+  REACHED (2207.274, 81.629, 2099.999) target=(2208.00, 2100.00) stable=True swimming=False
+  REACHED (2237.252, 83.615, 2096.099) target=(2238.00, 2096.00) stable=True swimming=False
+  REACHED (2251.286, 84.821, 2091.726) target=(2252.00, 2091.50) stable=True swimming=False
+  REACHED (2261.282, 85.967, 2089.693) target=(2262.00, 2089.55) stable=True swimming=False
+STOP mainline-continuous (2265.673, 86.413, 2088.847) ground=24185/24186 swimFrames=0 wetFrames=0 profile= yRange=36.00..86.41 maxYStep=0.09 camDistMin=3.45 camFrameMax=1.00
+  TARGET (2270.00, 2088.00)
+  AHEAD Castle_Gate (2266.026, 86.736, 2088.779) normal=(-0.949, 0.257, 0.185)
+  AHEAD Terrain_4_4 (2266.614, 86.515, 2088.670) normal=(-0.121, 0.993, 0.000)
+START keep-gate-jump (2260.000, 85.804, 2089.950) waypoints=(2260.00, 2089.95) > (2264.60, 2089.05) > (2271.40, 2087.73) > (2278.00, 2086.45) > (2284.00, 2086.00)
+  REACHED (2263.931, 86.254, 2089.181) target=(2264.60, 2089.05) stable=True swimming=False
+  INPUT JUMP (2265.222, 86.357, 2088.929)
+  REACHED (2270.670, 86.953, 2087.874) target=(2271.40, 2087.73) stable=True swimming=False
+  REACHED (2277.264, 87.552, 2086.594) target=(2278.00, 2086.45) stable=True swimming=False
+  REACHED (2283.431, 87.973, 2086.047) target=(2284.00, 2086.00) stable=True swimming=False
+PASS keep-gate-jump (2283.431, 87.973, 2086.047) ground=537/591 swimFrames=0 wetFrames=0 profile= yRange=85.80..87.97 maxYStep=0.20 camDistMin=3.10 camFrameMax=0.98
+START keep-gate-reverse (2284.000, 88.002, 2086.000) waypoints=(2284.00, 2086.00) > (2278.00, 2086.45) > (2270.00, 2088.00) > (2262.00, 2089.55) > (2252.00, 2091.50)
+  REACHED (2278.721, 87.669, 2086.396) target=(2278.00, 2086.45) stable=True swimming=False
+  REACHED (2270.747, 86.959, 2087.859) target=(2270.00, 2088.00) stable=True swimming=False
+  REACHED (2262.763, 86.140, 2089.402) target=(2262.00, 2089.55) stable=True swimming=False
+  REACHED (2252.735, 84.988, 2091.356) target=(2252.00, 2091.50) stable=True swimming=False
+PASS keep-gate-reverse (2252.735, 84.988, 2091.356) ground=550/550 swimFrames=0 wetFrames=0 profile= yRange=84.99..88.03 maxYStep=0.03 camDistMin=3.63 camFrameMax=2.07
+END

@@ -1,0 +1,41 @@
+{
+  "mode": "PlayMode",
+  "jobId": "cb978c044dbb4c6997020887f9fc10f2",
+  "summary": {
+    "total": 3,
+    "passed": 3,
+    "failed": 0,
+    "skipped": 0,
+    "durationSeconds": 0.1480872,
+    "resultState": "Passed"
+  },
+  "results": [
+    {
+      "name": "결말_전_저장을_불러오면_다시_닫힌다",
+      "fullName": "UPlayGround.FlowGraph.PlayModeTests.PortalProgressGateTests.결말_전_저장을_불러오면_다시_닫힌다",
+      "state": "Passed",
+      "durationSeconds": 0.0493491,
+      "message": null,
+      "stackTrace": null,
+      "output": "[Services] 등록되지 않은 서비스 계약 요청: UPlayGround.Manager.IInputService\r\n[Services] 등록되지 않은 서비스 계약 요청: UPlayGround.Manager.IDialogueService\r\n"
+    },
+    {
+      "name": "조건_플래그가_켜지기_전에는_표식을_숨기고_이용을_막는다",
+      "fullName": "UPlayGround.FlowGraph.PlayModeTests.PortalProgressGateTests.조건_플래그가_켜지기_전에는_표식을_숨기고_이용을_막는다",
+      "state": "Passed",
+      "durationSeconds": 0.0176318,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    },
+    {
+      "name": "조건_플래그가_켜지면_즉시_표식을_보이고_이용을_허용한다",
+      "fullName": "UPlayGround.FlowGraph.PlayModeTests.PortalProgressGateTests.조건_플래그가_켜지면_즉시_표식을_보이고_이용을_허용한다",
+      "state": "Passed",
+      "durationSeconds": 0.0306983,
+      "message": null,
+      "stackTrace": null,
+      "output": ""
+    }
+  ]
+}

@@ -1,0 +1,5 @@
+seam_matches_4_edges_2052_samples_max_m=0.000000
+terrain_collider_rays=15/15
+terrain_collider_sample_max_deviation_m=0.000008
+scene_dirty=True
+play=False

@@ -1,0 +1,33 @@
+(3222.600, -70.400, 2203.950) floor=Dng_Floor_4x4 Y=-72.000 roof=Dng_Floor_4x4 Y=-68.400
+(3222.600, -70.400, 2203.960) floor=Dng_Floor_4x4 Y=-72.004 roof=Dng_Floor_4x4 Y=-68.396
+(3222.600, -70.400, 2203.970) floor=Dng_Floor_4x4 Y=-72.008 roof=Dng_Floor_4x4 Y=-68.392
+(3222.600, -70.400, 2203.980) floor=miss roof=miss
+(3222.600, -70.400, 2203.990) floor=miss roof=miss
+(3222.600, -70.400, 2204.000) floor=miss roof=miss
+(3222.600, -70.400, 2204.010) floor=miss roof=miss
+(3222.600, -70.400, 2204.020) floor=miss roof=miss
+(3222.600, -70.400, 2204.030) floor=Dng_Floor_4x4 Y=-72.008 roof=Dng_Floor_4x4 Y=-68.392
+(3222.600, -70.400, 2204.040) floor=Dng_Floor_4x4 Y=-72.004 roof=Dng_Floor_4x4 Y=-68.396
+(3222.600, -70.400, 2204.050) floor=Dng_Floor_4x4 Y=-72.000 roof=Dng_Floor_4x4 Y=-68.400
+(3223.850, -70.400, 2203.950) floor=Dng_Floor_4x4 Y=-72.000 roof=Dng_Floor_4x4 Y=-68.400
+(3223.850, -70.400, 2203.960) floor=Dng_Floor_4x4 Y=-72.004 roof=Dng_Floor_4x4 Y=-68.396
+(3223.850, -70.400, 2203.970) floor=Dng_Floor_4x4 Y=-72.008 roof=Dng_Floor_4x4 Y=-68.392
+(3223.850, -70.400, 2203.980) floor=miss roof=miss
+(3223.850, -70.400, 2203.990) floor=miss roof=miss
+(3223.850, -70.400, 2204.000) floor=miss roof=miss
+(3223.850, -70.400, 2204.010) floor=miss roof=miss
+(3223.850, -70.400, 2204.020) floor=miss roof=miss
+(3223.850, -70.400, 2204.030) floor=Dng_Floor_4x4 Y=-72.008 roof=Dng_Floor_4x4 Y=-68.392
+(3223.850, -70.400, 2204.040) floor=Dng_Floor_4x4 Y=-72.004 roof=Dng_Floor_4x4 Y=-68.396
+(3223.850, -70.400, 2204.050) floor=Dng_Floor_4x4 Y=-72.000 roof=Dng_Floor_4x4 Y=-68.400
+(3225.100, -70.400, 2203.950) floor=Dng_Floor_4x4 Y=-72.000 roof=Dng_Floor_4x4 Y=-68.400
+(3225.100, -70.400, 2203.960) floor=Dng_Floor_4x4 Y=-72.004 roof=Dng_Floor_4x4 Y=-68.396
+(3225.100, -70.400, 2203.970) floor=Dng_Floor_4x4 Y=-72.008 roof=Dng_Floor_4x4 Y=-68.392
+(3225.100, -70.400, 2203.980) floor=miss roof=miss
+(3225.100, -70.400, 2203.990) floor=miss roof=miss
+(3225.100, -70.400, 2204.000) floor=miss roof=miss
+(3225.100, -70.400, 2204.010) floor=miss roof=miss
+(3225.100, -70.400, 2204.020) floor=miss roof=miss
+(3225.100, -70.400, 2204.030) floor=Dng_Floor_4x4 Y=-72.008 roof=Dng_Floor_4x4 Y=-68.392
+(3225.100, -70.400, 2204.040) floor=Dng_Floor_4x4 Y=-72.004 roof=Dng_Floor_4x4 Y=-68.396
+(3225.100, -70.400, 2204.050) floor=Dng_Floor_4x4 Y=-72.000 roof=Dng_Floor_4x4 Y=-68.400

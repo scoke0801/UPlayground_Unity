@@ -1,0 +1,6 @@
+scene=Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Preview/RiverBasin4km.unity
+loaded=1
+playing=False
+dirty=False
+save_files=3
+save_hashes_match=True

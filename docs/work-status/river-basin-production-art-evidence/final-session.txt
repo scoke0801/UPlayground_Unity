@@ -1,0 +1,8 @@
+scene=Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Preview/RiverBasin4km.unity guid=2a857c3a0529ef44c961a9d2c630a22f single=True play=False dirtyBefore=False
+dungeon floor/ceiling mesh bound=36/36 region missing scripts=0
+dungeon module centers where floor and ceiling both seal=18/18
+aligned portals=4/4
+Terrain_2_4 id alignment=3264/3264 source=True
+road covers bridge top=0/335
+harbor mast worldY=13.391 same collision mesh=True
+isDirty=False

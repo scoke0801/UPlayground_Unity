@@ -1,0 +1,7 @@
+RiverBasin4km Editor Play | 실제 게임 시간 설정과 씬 바인딩
+PASS noon minute=720.0 fixtures=0/13 max=0.000 glow=0/22 emission=0.000 sun=True 1.213 moon=False 0.000
+PASS dusk minute=1110.0 fixtures=13/13 max=0.774 glow=22/22 emission=0.598 sun=True 0.495 moon=True 0.203
+PASS night minute=1320.0 fixtures=13/13 max=2.200 glow=22/22 emission=1.700 sun=False 0.000 moon=True 0.548
+PASS dawn minute=360.0 fixtures=13/13 max=1.100 glow=22/22 emission=0.850 sun=True 0.354 moon=True 0.252
+PASS reset-noon minute=720.0 fixtures=0/13 max=0.000 glow=0/22 emission=0.000 sun=True 1.213 moon=False 0.000
+END

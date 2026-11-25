@@ -35,6 +35,9 @@ namespace UPlayGround
         [Tooltip("이동할 목적지 Transform. (PortalType.InMapTeleport 전용)")]
         [SerializeField] private Transform _destinationPoint;
 
+        [Tooltip("맵 내 이동 직후 플레이어 카메라가 도착 지점의 정면을 바라보게 한다.")]
+        [SerializeField] private bool _alignCameraToArrival;
+
         [Header("맵 클릭 텔레포트 설정")]
         [Tooltip("맵 UI에서 포탈 아이콘 클릭 시 플레이어가 도착할 위치. 미설정 시 포탈 자체 위치 사용.")]
         [SerializeField] private Transform _mapArrivalPoint;
@@ -243,8 +246,7 @@ namespace UPlayGround
             // 이전 애니메이션 이어짐 방지: 상태를 Idle로 강제 전환
             actor.ActorController?.TransitionToState(ActorStateId.Idle);
 
-            // 카메라 튀는 현상 방지: SmoothDamp 속도를 초기화하고 목적지로 즉시 스냅
-            CameraManager.Instance?.SnapToTarget(_destinationPoint.position);
+            SnapArrivalCamera(_destinationPoint.position, _destinationPoint.rotation);
 
             StartCoroutine(ResetActivatingAfterDelay());
         }
@@ -303,9 +305,20 @@ namespace UPlayGround
                 actor.transform.SetPositionAndRotation(targetPos, targetRot);
 
             actor.ActorController?.TransitionToState(ActorStateId.Idle);
-            CameraManager.Instance?.SnapToTarget(targetPos);
+            SnapArrivalCamera(targetPos, targetRot);
 
             StartCoroutine(ResetActivatingAfterDelay());
+        }
+
+        private void SnapArrivalCamera(Vector3 position, Quaternion rotation)
+        {
+            var camera = CameraManager.Instance;
+            if (camera == null) return;
+
+            if (_alignCameraToArrival)
+                camera.SetRotation(rotation.eulerAngles.y, camera.GetCurrentPitch());
+
+            camera.SnapToTarget(position);
         }
 
         private bool CanUsePortal()

@@ -1,0 +1,9 @@
+save_slot_0.sav match
+save_slot_0.sav.bak match
+save_slot_1.sav match
+thumb_slot_0.png match
+thumb_slot_1.png match
+save files before=5 after=5
+disk/open after True sha256=C2-87-C7-21-F4-98-CF-A1-47-0C-32-D3-74-90-A4-7E-19-13-15-3B-BF-CD-01-66-ED-65-1A-7A-3A-26-E4-AD
+disk after clear dirty still matches True
+scene=Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Preview/RiverBasin4km.unity loaded=1 dirty=False playing=False

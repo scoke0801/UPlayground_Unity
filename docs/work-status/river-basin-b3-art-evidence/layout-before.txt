@@ -1,0 +1,81 @@
+B3 협곡/root/B3 협곡 (0.000, 0.000, 0.000) yaw=0.0  children=8 cols=0 
+B3 협곡/B3 협곡/E2 · 중류 (1464.347, 29.441, 1471.065) yaw=0.0  children=0 cols=0 
+B3 협곡/B3 협곡/WB_P04_Bridge_B3_Suspension (1622.000, 48.000, 1620.000) yaw=140.2  children=39 cols=0 
+B3 협곡/현수교 렌더링/B3_Deck_Dark_LOD0 (1622.000, 48.000, 1620.000) yaw=140.2 (1606.45, 47.21, 1603.64)..(1635.93, 47.98, 1638.31) mat=B3_Deck_Dark children=0 cols=0 B3_Deck_Dark_LOD0
+B3 협곡/현수교 렌더링/B3_Deck_Dark_LOD1 (1622.000, 48.000, 1620.000) yaw=140.2 (1608.43, 47.21, 1605.80)..(1634.13, 47.81, 1635.93) mat=B3_Deck_Dark children=0 cols=0 B3_Deck_Dark_LOD1
+B3 협곡/현수교 렌더링/B3_Deck_Dark_LOD2 (1622.000, 48.000, 1620.000) yaw=140.2 (1617.86, 47.23, 1606.12)..(1633.85, 47.67, 1624.63) mat=B3_Deck_Dark children=0 cols=0 B3_Deck_Dark_LOD2
+B3 협곡/현수교 렌더링/B3_Deck_Pale_LOD0 (1622.000, 48.000, 1620.000) yaw=140.2 (1608.44, 47.21, 1601.70)..(1637.56, 47.98, 1635.93) mat=B3_Deck_Pale children=0 cols=0 B3_Deck_Pale_LOD0
+B3 협곡/현수교 렌더링/B3_Deck_Pale_LOD1 (1622.000, 48.000, 1620.000) yaw=140.2 (1606.28, 47.21, 1601.92)..(1637.37, 47.99, 1638.52) mat=B3_Deck_Pale children=0 cols=0 B3_Deck_Pale_LOD1
+B3 협곡/현수교 렌더링/B3_Deck_Pale_LOD2 (1622.000, 48.000, 1620.000) yaw=140.2 (1608.86, 47.21, 1604.57)..(1635.14, 47.75, 1635.43) mat=B3_Deck_Pale children=0 cols=0 B3_Deck_Pale_LOD2
+B3 협곡/현수교 렌더링/B3_Deck_Warm_LOD0 (1622.000, 48.000, 1620.000) yaw=140.2 (1606.26, 47.21, 1601.47)..(1637.73, 48.00, 1638.52) mat=B3_Deck_Warm children=0 cols=0 B3_Deck_Warm_LOD0
+B3 협곡/현수교 렌더링/B3_Deck_Warm_LOD1 (1622.000, 48.000, 1620.000) yaw=140.2 (1606.99, 47.21, 1601.48)..(1637.73, 47.99, 1637.66) mat=B3_Deck_Warm children=0 cols=0 B3_Deck_Warm_LOD1
+B3 협곡/현수교 렌더링/B3_Deck_Warm_LOD2 (1622.000, 48.000, 1620.000) yaw=140.2 (1606.28, 47.25, 1601.49)..(1637.72, 47.95, 1638.51) mat=B3_Deck_Warm children=0 cols=0 B3_Deck_Warm_LOD2
+B3 협곡/현수교 렌더링/B3_Hemp_LOD0 (1622.000, 48.000, 1620.000) yaw=140.2 (1603.69, 47.14, 1598.51)..(1640.31, 50.94, 1641.49) mat=B3_Hemp children=0 cols=0 B3_Hemp_LOD0
+B3 협곡/현수교 렌더링/B3_Hemp_LOD1 (1622.000, 48.000, 1620.000) yaw=140.2 (1603.69, 47.14, 1598.51)..(1640.31, 50.78, 1641.49) mat=B3_Hemp children=0 cols=0 B3_Hemp_LOD1
+B3 협곡/현수교 렌더링/B3_Hemp_LOD2 (1622.000, 48.000, 1620.000) yaw=140.2 (1603.69, 47.85, 1598.50)..(1640.31, 50.78, 1641.50) mat=B3_Hemp children=0 cols=0 B3_Hemp_LOD2
+B3 협곡/현수교 렌더링/B3_Iron_LOD0 (1622.000, 48.000, 1620.000) yaw=140.2 (1603.51, 48.10, 1598.31)..(1640.49, 50.78, 1641.69) mat=B3_Iron children=0 cols=0 B3_Iron_LOD0
+B3 협곡/현수교 렌더링/B3_Iron_LOD1 (1622.000, 48.000, 1620.000) yaw=140.2 (1603.51, 48.10, 1598.31)..(1640.49, 50.78, 1641.69) mat=B3_Iron children=0 cols=0 B3_Iron_LOD1
+B3 협곡/현수교 렌더링/B3_Iron_LOD2 (1622.000, 48.000, 1620.000) yaw=140.2 (1603.51, 48.10, 1598.31)..(1640.49, 50.78, 1641.69) mat=B3_Iron children=0 cols=0 B3_Iron_LOD2
+B3 협곡/현수교 렌더링/B3_Timber_LOD0 (1622.000, 48.000, 1620.000) yaw=140.2 (1603.42, 47.01, 1598.21)..(1640.58, 51.13, 1641.79) mat=B3_Timber children=0 cols=0 B3_Timber_LOD0
+B3 협곡/현수교 렌더링/B3_Timber_LOD1 (1622.000, 48.000, 1620.000) yaw=140.2 (1603.41, 47.01, 1598.20)..(1640.59, 51.13, 1641.80) mat=B3_Timber children=0 cols=0 B3_Timber_LOD1
+B3 협곡/현수교 렌더링/B3_Timber_LOD2 (1622.000, 48.000, 1620.000) yaw=140.2 (1603.41, 47.01, 1598.20)..(1640.59, 51.13, 1641.80) mat=B3_Timber children=0 cols=0 B3_Timber_LOD2
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_01_Gold_1 (1644.711, 45.507, 1578.580) yaw=301.8  children=4 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_Bush_02_Green_25 (1647.125, 46.692, 1574.509) yaw=164.7  children=3 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_01_Copper_4 (1667.359, 48.926, 1548.670) yaw=125.0  children=4 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_Bush_01_Copper_23 (1666.432, 49.013, 1550.361) yaw=185.9  children=3 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_Bush_02_Green_25 (1666.237, 49.041, 1548.295) yaw=9.7  children=3 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_02_Copper_6 (1646.951, 48.641, 1553.744) yaw=20.3  children=4 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_Bush_02_Green_25 (1647.319, 48.840, 1548.815) yaw=303.2  children=3 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_Bush_03_Green_24 (1648.019, 48.774, 1553.702) yaw=310.1  children=3 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_01_Gold_1 (1635.870, 47.105, 1578.240) yaw=89.4  children=4 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_03_Gold_11 (1661.362, 48.445, 1559.006) yaw=42.2  children=4 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_Bush_02_Green_25 (1659.349, 48.632, 1557.765) yaw=3.1  children=3 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_Bush_03_Green_24 (1659.820, 48.525, 1559.954) yaw=13.2  children=3 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_01_Copper_4 (1666.884, 48.034, 1566.185) yaw=357.3  children=4 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_Bush_03_Green_24 (1665.186, 48.284, 1564.317) yaw=63.0  children=3 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_Bush_01_Copper_23 (1663.642, 47.882, 1568.466) yaw=151.5  children=3 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_02_Copper_6 (1645.904, 46.824, 1573.403) yaw=229.1  children=4 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_Bush_02_Green_25 (1644.839, 47.286, 1572.166) yaw=37.7  children=3 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_02_Gold_10 (1629.920, 48.568, 1554.736) yaw=88.1  children=4 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_Bush_02_Green_25 (1626.891, 48.715, 1554.590) yaw=134.1  children=3 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_Bush_03_Green_24 (1628.254, 48.717, 1556.271) yaw=243.2  children=3 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_Bush_02_Green_25 (1624.876, 48.666, 1556.934) yaw=24.9  children=3 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_02_Copper_6 (1648.391, 48.763, 1533.257) yaw=41.8  children=4 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_Bush_02_Green_25 (1649.327, 48.913, 1529.605) yaw=142.1  children=3 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_Bush_03_Green_24 (1644.675, 48.889, 1535.383) yaw=200.6  children=3 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_03_Gold_11 (1654.509, 48.798, 1528.901) yaw=162.8  children=4 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_Bush_02_Green_25 (1655.964, 48.938, 1533.470) yaw=122.4  children=3 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_Bush_03_Green_24 (1651.931, 48.960, 1532.124) yaw=116.6  children=3 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_02_Copper_6 (1637.446, 48.739, 1531.363) yaw=66.5  children=4 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_Bush_01_Copper_23 (1634.121, 48.877, 1531.487) yaw=33.7  children=3 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_Bush_02_Green_25 (1634.630, 48.917, 1528.842) yaw=284.0  children=3 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_02_Copper_6 (1659.733, 48.770, 1529.443) yaw=13.9  children=4 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_Bush_02_Green_25 (1658.521, 48.913, 1533.306) yaw=309.0  children=3 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_Bush_03_Green_24 (1660.769, 48.938, 1525.335) yaw=341.2  children=3 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_02_Gold_10 (1492.966, 35.211, 1445.814) yaw=21.8  children=4 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_Bush_03_Green_24 (1496.038, 36.859, 1441.046) yaw=42.3  children=3 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_Bush_01_Copper_23 (1494.234, 35.631, 1446.503) yaw=268.2  children=3 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_01_Copper_4 (1500.099, 38.495, 1437.835) yaw=150.9  children=4 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_Bush_02_Green_25 (1497.378, 38.020, 1436.067) yaw=183.4  children=3 cols=0 
+B3 협곡/목서와 물가 식생/PF_EastLands_Osmanthus_Bush_03_Green_24 (1498.120, 38.225, 1436.346) yaw=245.2  children=3 cols=0 
+B3 협곡/B3 협곡/호수 마을과 B3 사이 단구 (0.000, 0.000, 0.000) yaw=0.0  children=160 cols=0 
+B3 협곡/B3 협곡/B3 보행 내비게이션 (1732.000, 45.000, 1445.000) yaw=0.0  children=59 cols=0 
+RiverBasin · 지역 아트/RiverBasin · 지역 아트/B3 본선과 E2 (0.000, 0.000, 0.000) yaw=0.0  children=7 cols=0 
+RiverBasin · 지역 아트/B3 본선과 E2/TGV_Wood_Signpost_01A (1652.300, 48.728, 1551.700) yaw=238.0  children=3 cols=0 
+RiverBasin · 지역 아트/TGV_Wood_Signpost_01A/TGV_Wood_Pillar_01A (1652.300, 49.528, 1551.700) yaw=238.0  children=2 cols=1 
+RiverBasin · 지역 아트/TGV_Wood_Signpost_01A/TGV_Wood_Sign_01A (1652.229, 50.236, 1551.690) yaw=58.0  children=2 cols=1 
+RiverBasin · 지역 아트/TGV_Wood_Signpost_01A/TGV_Wood_Sign_01A (1652.325, 49.960, 1551.630) yaw=188.8  children=2 cols=1 
+RiverBasin · 지역 아트/B3 본선과 E2/Deco_Stone_Cairn (1639.480, 48.770, 1543.710) yaw=27.0 (1638.70, 48.77, 1542.91)..(1640.27, 51.26, 1544.48) mat=StonegateEast children=0 cols=1 Combined Mesh (root: scene) 3
+RiverBasin · 지역 아트/B3 본선과 E2/Deco_Stone_Cairn (1505.480, 37.143, 1457.710) yaw=27.0 (1504.70, 37.14, 1456.91)..(1506.27, 39.64, 1458.48) mat=StonegateEast children=0 cols=1 Combined Mesh (root: scene) 3
+RiverBasin · 길과 생활 흔적/권역 안쪽의 짧은 길/E2 협곡 하강길 (0.000, 0.000, 0.000) yaw=0.0 (1463.99, 29.64, 1448.55)..(1656.39, 48.92, 1556.90) mat=성채와 채석 · 밟힌 자갈 children=0 cols=0 E2 협곡 하강길
+RiverBasin · 길과 생활 흔적/권역 안쪽의 짧은 길/호수 북서 출구에서 B3 동쪽 교대 (0.000, 0.000, 0.000) yaw=0.0 (1636.59, 36.68, 1000.01)..(2294.45, 51.03, 1602.16) mat=호수 · 밟힌 황갈색 흙 children=0 cols=0 RiverBasinLakeToB3Trail
+RiverBasin · 길과 생활 흔적/권역 안쪽의 짧은 길/B3 서쪽 교대에서 B1 (0.000, 0.000, 0.000) yaw=0.0 (1597.17, 47.78, 1646.02)..(1721.59, 52.30, 1845.87) mat=성채와 채석 · 밟힌 자갈 children=0 cols=0 RiverBasinB3ToB1Trail
+RiverBasin · 길과 생활 흔적/RiverBasin · 길과 생활 흔적/B3 갈림길 어깨 (0.000, 0.000, 0.000) yaw=0.0  children=3 cols=0 
+RiverBasin · 길과 생활 흔적/B3 갈림길 어깨/PF_EastLands_MedBoulder_04 (1664.100, 48.853, 1551.300) yaw=80.0  children=3 cols=1 
+RiverBasin · 길과 생활 흔적/B3 갈림길 어깨/PF_EastLands_FlatStone_02 (1658.100, 48.811, 1548.000) yaw=35.0  children=4 cols=0 
+RiverBasin · 길과 생활 흔적/B3 갈림길 어깨/PF_Farm_GrassTall_01 (1661.800, 48.858, 1548.200) yaw=155.0  children=3 cols=0 
+RiverBasin · 접근로 접지와 하역/RiverBasin · 접근로 접지와 하역/B3 갈림길 (0.000, 0.000, 0.000) yaw=0.0  children=4 cols=0 
+RiverBasin · 접근로 접지와 하역/B3 갈림길/PF_Farm_GrassTall_01 (1654.800, 48.849, 1548.500) yaw=130.0  children=3 cols=0 
+RiverBasin · 접근로 접지와 하역/B3 갈림길/밟힌 길 가장자리 4 (1654.200, 48.840, 1549.500) yaw=0.0 (1651.09, 48.84, 1547.05)..(1657.22, 48.90, 1552.16) mat=성채와 채석 · 밟힌 자갈 children=0 cols=0 B3 갈림길 4
+RiverBasin · 접근로 접지와 하역/B3 갈림길/PF_Farm_StoneFence_Stone_01 (1654.100, 48.870, 1549.400) yaw=35.0 (1653.89, 48.77, 1549.19)..(1654.31, 48.96, 1549.61) mat=M_Farm_StoneFences children=0 cols=1 SM_Farm_StoneFence_Stone_01
+RiverBasin · 접근로 접지와 하역/B3 갈림길/PF_Farm_StoneFence_Stone_01 (1660.000, 48.820, 1553.800) yaw=54.0 (1659.79, 48.73, 1553.59)..(1660.21, 48.91, 1554.01) mat=M_Farm_StoneFences children=0 cols=1 SM_Farm_StoneFence_Stone_01

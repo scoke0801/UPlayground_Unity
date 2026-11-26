@@ -1,0 +1,65 @@
+(1740.000, 52.250, 1860.000) fwd=(0.768, 0.000, 0.640)
+Castle_Moat_Bridge (B1) local=(1.000, 1.000, 1.000)    
+B1_BridgeArtR1 local=(1.000, 1.000, 1.333)    BoxCollider Center: (1740.00, 51.90, 1860.00), Extents: (20.23, 0.35, 17.52),BoxCollider Center: (1738.28, 52.70, 1862.06), Extents: (18.00, 0.45, 15.03),BoxCollider Center: (1741.72, 52.70, 1857.94), Extents: (18.00, 0.45, 15.03)
+SM_B1_ArtR1_LOD0 local=(1.000, 1.000, 1.000) Center: (1739.98, 46.78, 1859.99), Extents: (20.41, 6.51, 17.72) B1_4km_SM_B1_ArtR1_LOD0 v=31392 sub=2 uv=31392 asset=Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Authoring/B1_4km_SM_B1_ArtR1_LOD0.asset BridgeGranite,BridgeGraniteMoss_R2 
+SM_B1_ArtR1_LOD1 local=(1.000, 1.000, 1.000) Center: (1740.00, 46.78, 1860.00), Extents: (20.39, 6.51, 17.71) B1_4km_SM_B1_ArtR1_LOD1 v=2544 sub=2 uv=2544 asset=Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Authoring/B1_4km_SM_B1_ArtR1_LOD1.asset BridgeGranite,BridgeGraniteMoss_R2 
+SM_B1_ArtR1_LOD2 local=(1.000, 1.000, 1.000) Center: (1740.00, 46.78, 1860.00), Extents: (20.39, 6.51, 17.71) B1_4km_SM_B1_ArtR1_LOD2 v=1968 sub=2 uv=1968 asset=Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Authoring/B1_4km_SM_B1_ArtR1_LOD2.asset BridgeGranite,BridgeGraniteMoss_R2 
+Castle_Moat_Bridge local=(1.000, 1.000, 1.000)    MeshCollider Center: (1740.00, 45.91, 1860.00), Extents: (20.36, 5.64, 17.69)
+fork object 갈림길과 전망 쉼터/석교 동쪽 갈림길 (1896.143, 60.822, 1994.296) (0.160, 1.650, 0.160) prefab=
+fork object 갈림길과 전망 쉼터/석교 동쪽 갈림길 표지판 (1896.423, 61.492, 1994.278) (0.120, 0.240, 0.940) prefab=
+fork object B1 너머/PF_Farm_GrassTall_01 (1901.500, 60.268, 1991.350) (1.100, 0.700, 0.860) prefab=
+fork object PF_Farm_GrassTall_01/SM_Farm_GrassTall_01_LOD0 (1901.500, 60.268, 1991.350) (1.000, 1.000, 1.000) prefab=
+fork object PF_Farm_GrassTall_01/SM_Farm_GrassTall_01_LOD1 (1901.500, 60.268, 1991.350) (1.000, 1.000, 1.000) prefab=
+fork object PF_Farm_GrassTall_01/SM_Farm_GrassTall_01_LOD2 (1901.500, 60.268, 1991.350) (1.000, 1.000, 1.000) prefab=
+fork object B1 너머/PF_Farm_GrassTall_01 (1903.100, 60.395, 1992.600) (0.670, 0.480, 0.700) prefab=
+fork object PF_Farm_GrassTall_01/SM_Farm_GrassTall_01_LOD0 (1903.100, 60.395, 1992.600) (1.000, 1.000, 1.000) prefab=
+fork object PF_Farm_GrassTall_01/SM_Farm_GrassTall_01_LOD1 (1903.100, 60.395, 1992.600) (1.000, 1.000, 1.000) prefab=
+fork object PF_Farm_GrassTall_01/SM_Farm_GrassTall_01_LOD2 (1903.100, 60.395, 1992.600) (1.000, 1.000, 1.000) prefab=
+fork object B1 너머/밟힌 길 가장자리 5 (1902.050, 60.341, 1992.000) (1.000, 1.000, 1.000) prefab=
+fork object B1 너머/PF_Farm_StoneFence_Stone_01 (1900.800, 60.290, 1991.700) (0.829, 0.351, 0.649) prefab=
+s -19.0 (1725.404, 52.250, 1847.837) B1_BridgeArtR1:52.250 | B1_BridgeArtR1:52.250 | B1_BridgeArtR1:52.250
+s -19.5 (1725.020, 52.250, 1847.516) B1_BridgeArtR1:52.250 | B1_BridgeArtR1:52.250 | B1_BridgeArtR1:52.250
+s -20.0 (1724.636, 52.250, 1847.196) B1_BridgeArtR1:52.250 | B1_BridgeArtR1:52.250 | B1_BridgeArtR1:52.250
+s -20.5 (1724.251, 52.250, 1846.876) B1_BridgeArtR1:52.250,Terrain_3_3:49.475 | B1_BridgeArtR1:52.250,Terrain_3_3:50.539 | B1_BridgeArtR1:52.250,Terrain_3_3:49.899
+s -21.0 (1723.867, 52.250, 1846.556) B1_BridgeArtR1:52.250,Terrain_3_3:51.587 | B1_BridgeArtR1:52.250,Terrain_3_3:52.231 | B1_BridgeArtR1:52.250,Terrain_3_3:52.053
+s -21.5 (1723.483, 52.250, 1846.236) B1_BridgeArtR1:52.250,Terrain_3_3:52.215 | B1_BridgeArtR1:52.250,Terrain_3_3:52.247 | B1_BridgeArtR1:52.250,Terrain_3_3:52.221
+s -22.0 (1723.099, 52.250, 1845.916) B1_BridgeArtR1:52.250,Terrain_3_3:52.236 | Terrain_3_3:52.258,B1_BridgeArtR1:52.250 | B1_BridgeArtR1:52.250,Terrain_3_3:52.240
+s -22.5 (1722.715, 52.250, 1845.596) Terrain_3_3:52.252,B1_BridgeArtR1:52.250 | Terrain_3_3:52.258,B1_BridgeArtR1:52.250 | Terrain_3_3:52.258,B1_BridgeArtR1:52.250
+s -23.0 (1722.331, 52.250, 1845.276) Terrain_3_3:52.258,B1_BridgeArtR1:52.250 | Terrain_3_3:52.258,B1_BridgeArtR1:52.250 | Terrain_3_3:52.258,B1_BridgeArtR1:52.250
+s -23.5 (1721.947, 52.250, 1844.956) Terrain_3_3:52.258,B1_BridgeArtR1:52.250 | Terrain_3_3:52.258,B1_BridgeArtR1:52.250 | Terrain_3_3:52.258,B1_BridgeArtR1:52.250
+s -24.0 (1721.563, 52.250, 1844.636) Terrain_3_3:52.258,B1_BridgeArtR1:52.250 | Terrain_3_3:52.258,B1_BridgeArtR1:52.250 | Terrain_3_3:52.258
+s -24.5 (1721.179, 52.250, 1844.315) Terrain_3_3:52.258 | Terrain_3_3:52.258 | Terrain_3_3:52.258
+s -25.0 (1720.794, 52.250, 1843.995) Terrain_3_3:52.258 | Terrain_3_3:52.258 | Terrain_3_3:52.258
+s -25.5 (1720.410, 52.250, 1843.675) Terrain_3_3:52.258 | Terrain_3_3:52.258 | Terrain_3_3:52.258
+s -26.0 (1720.026, 52.250, 1843.355) Terrain_3_3:52.252 | Terrain_3_3:52.258 | Terrain_3_3:52.254
+s -26.5 (1719.642, 52.250, 1843.035) Terrain_3_3:52.242 | Terrain_3_3:52.258 | Terrain_3_3:52.246
+s -27.0 (1719.258, 52.250, 1842.715) Terrain_3_3:52.234 | Terrain_3_3:52.258 | Terrain_3_3:52.238
+s -27.5 (1718.874, 52.250, 1842.395) Terrain_3_3:52.234 | Terrain_3_3:52.255 | Terrain_3_3:52.234
+s -28.0 (1718.490, 52.250, 1842.075) Terrain_3_3:52.234 | Terrain_3_3:52.246 | Terrain_3_3:52.228
+s -28.5 (1718.106, 52.250, 1841.755) Terrain_3_3:52.229 | Terrain_3_3:52.236 | Terrain_3_3:52.219
+s -29.0 (1717.722, 52.250, 1841.435) Terrain_3_3:52.219 | Terrain_3_3:52.227 | Terrain_3_3:52.207
+s -29.5 (1717.338, 52.250, 1841.115) Terrain_3_3:52.202 | Terrain_3_3:52.217 | Terrain_3_3:52.199
+s -30.0 (1716.953, 52.250, 1840.794) Terrain_3_3:52.185 | Terrain_3_3:52.203 | Terrain_3_3:52.191
+s 19.0 (1754.596, 52.250, 1872.163) B1_BridgeArtR1:52.250 | B1_BridgeArtR1:52.250 | B1_BridgeArtR1:52.250
+s 19.5 (1754.980, 52.250, 1872.484) B1_BridgeArtR1:52.250 | B1_BridgeArtR1:52.250 | B1_BridgeArtR1:52.250
+s 20.0 (1755.364, 52.250, 1872.804) B1_BridgeArtR1:52.250 | B1_BridgeArtR1:52.250 | B1_BridgeArtR1:52.250
+s 20.5 (1755.749, 52.250, 1873.124) B1_BridgeArtR1:52.250,Terrain_3_3:49.907 | B1_BridgeArtR1:52.250,Terrain_3_3:50.533 | B1_BridgeArtR1:52.250,Terrain_3_3:49.404
+s 21.0 (1756.133, 52.250, 1873.444) B1_BridgeArtR1:52.250,Terrain_3_3:52.053 | B1_BridgeArtR1:52.250,Terrain_3_3:52.231 | B1_BridgeArtR1:52.250,Terrain_3_3:51.571
+s 21.5 (1756.517, 52.250, 1873.764) B1_BridgeArtR1:52.250,Terrain_3_3:52.221 | B1_BridgeArtR1:52.250,Terrain_3_3:52.247 | B1_BridgeArtR1:52.250,Terrain_3_3:52.215
+s 22.0 (1756.901, 52.250, 1874.084) B1_BridgeArtR1:52.250,Terrain_3_3:52.240 | Terrain_3_3:52.258,B1_BridgeArtR1:52.250 | B1_BridgeArtR1:52.250,Terrain_3_3:52.236
+s 22.5 (1757.285, 52.250, 1874.404) Terrain_3_3:52.258,B1_BridgeArtR1:52.250 | Terrain_3_3:52.258,B1_BridgeArtR1:52.250 | Terrain_3_3:52.252,B1_BridgeArtR1:52.250
+s 23.0 (1757.669, 52.250, 1874.724) Terrain_3_3:52.258,B1_BridgeArtR1:52.250 | Terrain_3_3:52.258,B1_BridgeArtR1:52.250 | Terrain_3_3:52.258,B1_BridgeArtR1:52.250
+s 23.5 (1758.053, 52.250, 1875.044) Terrain_3_3:52.258,B1_BridgeArtR1:52.250 | Terrain_3_3:52.258,B1_BridgeArtR1:52.250 | Terrain_3_3:52.258,B1_BridgeArtR1:52.250
+s 24.0 (1758.437, 52.250, 1875.364) Terrain_3_3:52.258 | Terrain_3_3:52.258,B1_BridgeArtR1:52.250 | Terrain_3_3:52.258,B1_BridgeArtR1:52.250
+s 24.5 (1758.821, 52.250, 1875.685) Terrain_3_3:52.258 | Terrain_3_3:52.258 | Terrain_3_3:52.258
+s 25.0 (1759.206, 52.250, 1876.005) Terrain_3_3:52.258 | Terrain_3_3:52.258 | Terrain_3_3:52.258
+s 25.5 (1759.590, 52.250, 1876.325) Terrain_3_3:52.258 | Terrain_3_3:52.258 | Terrain_3_3:52.258
+s 26.0 (1759.974, 52.250, 1876.645) Terrain_3_3:52.258 | Terrain_3_3:52.258 | Terrain_3_3:52.255
+s 26.5 (1760.358, 52.250, 1876.965) Terrain_3_3:52.258 | Terrain_3_3:52.258 | Terrain_3_3:52.253
+s 27.0 (1760.742, 52.250, 1877.285) Terrain_3_3:52.258 | Terrain_3_3:52.258 | Terrain_3_3:52.252
+s 27.5 (1761.126, 52.250, 1877.605) Terrain_3_3:52.265 | Terrain_3_3:52.261 | Terrain_3_3:52.268
+s 28.0 (1761.510, 52.250, 1877.925) Terrain_3_3:52.281 | Terrain_3_3:52.271 | Terrain_3_3:52.277
+s 28.5 (1761.894, 52.250, 1878.245) Terrain_3_3:52.296 | Terrain_3_3:52.286 | Terrain_3_3:52.291
+s 29.0 (1762.278, 52.250, 1878.565) Terrain_3_3:52.314 | Terrain_3_3:52.310 | Terrain_3_3:52.310
+s 29.5 (1762.662, 52.250, 1878.885) Terrain_3_3:52.347 | Terrain_3_3:52.336 | Terrain_3_3:52.337
+s 30.0 (1763.047, 52.250, 1879.206) Terrain_3_3:52.381 | Terrain_3_3:52.368 | Terrain_3_3:52.372

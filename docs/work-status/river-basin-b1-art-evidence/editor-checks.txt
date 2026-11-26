@@ -1,0 +1,7 @@
+LOD0 끝 판석 5열 10cm 표본 150 terrain cover before=146 after=0 max before=0.0121m signed clearance after=0.0119..0.0271m
+교량 및 접속부 지지면 5열 0.25m 레이 1045 missing=0 maximum adjacent height change=0.0081m
+B1 colliders Box=3 Mesh=1
+missing scripts 0
+sign (1904.741, 61.993, 1995.826) tip=(0.180, 0.000, 0.984) stone bridge RiverBasinB1LandingPass
+NavMesh 0 PathComplete
+NavMesh 1 endpoints True/False

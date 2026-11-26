@@ -1,0 +1,1 @@
+Scene saved, no position or look input | player=(2311.000, 36.068, 953.000) yaw=0 | camera=(2311.000, 38.578, 948.149) rotation=(14.00, 0.00, 0.00) FOV=60 ready=False | time=Day 1 08:00

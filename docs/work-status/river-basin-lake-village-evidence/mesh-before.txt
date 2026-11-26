@@ -1,0 +1,60 @@
+LakeHouse_Small_Foundation_Stone|515|Assets/08.Models/LakeVillage/LakeHouse_Small.fbx|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinArchitectureDetails.asset|(2295.79, 35.54, 966.04)..(2304.72, 41.15, 974.49)| collider=True
+LakeHouse_Small_Roof_Shingle|328|Assets/08.Models/LakeVillage/LakeHouse_Small.fbx|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinArchitectureDetails.asset|(2296.81, 38.31, 965.93)..(2305.19, 40.67, 974.07)| collider=True
+LakeHouse_Small_Trim_Wood|4572|Assets/08.Models/LakeVillage/LakeHouse_Small.fbx|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinArchitectureDetails.asset|(2296.30, 35.90, 965.63)..(2305.20, 41.37, 974.10)| collider=True
+LakeHouse_Small_Wall_Wood|328|Assets/08.Models/LakeVillage/LakeHouse_Small.fbx|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinArchitectureDetails.asset|(2297.08, 35.90, 966.66)..(2304.60, 40.47, 973.95)| collider=True
+LakeHouse_Small_Window_Glass|96|Assets/08.Models/LakeVillage/LakeHouse_Small.fbx|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinArchitectureDetails.asset|(2297.55, 37.30, 966.81)..(2304.45, 38.15, 973.19)| collider=False
+LakeHouse_Fisher_Foundation_Stone|218|Assets/08.Models/LakeVillage/LakeHouse_Fisher.fbx|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinArchitectureDetails.asset|(2316.43, 35.46, 946.70)..(2321.52, 37.13, 951.44)| collider=True
+LakeHouse_Fisher_Roof_Shingle|484|Assets/08.Models/LakeVillage/LakeHouse_Fisher.fbx|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinArchitectureDetails.asset|(2314.32, 37.37, 945.38)..(2322.00, 39.80, 952.07)| collider=True
+LakeHouse_Fisher_Trim_Wood|4766|Assets/08.Models/LakeVillage/LakeHouse_Fisher.fbx|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinArchitectureDetails.asset|(2314.36, 35.80, 945.36)..(2323.29, 39.84, 952.53)| collider=True
+LakeHouse_Fisher_Wall_Plaster|216|Assets/08.Models/LakeVillage/LakeHouse_Fisher.fbx|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinArchitectureDetails.asset|(2322.05, 37.07, 948.94)..(2322.90, 37.43, 951.32)| collider=True
+LakeHouse_Fisher_Wall_Wood|892|Assets/08.Models/LakeVillage/LakeHouse_Fisher.fbx|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinArchitectureDetails.asset|(2314.83, 35.80, 946.46)..(2322.02, 39.62, 953.44)| collider=True
+LakeHouse_Fisher_Window_Glass|72|Assets/08.Models/LakeVillage/LakeHouse_Fisher.fbx|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinArchitectureDetails.asset|(2317.12, 37.02, 947.07)..(2321.28, 37.81, 951.05)| collider=False
+LakeHouse_Shop_Awning_Cloth|48|Assets/08.Models/LakeVillage/LakeHouse_Shop.fbx|Assets/10.Datas/World/LakeVillage/Houses/LakeHouse_Awning_Cloth.mat|(2334.52, 37.86, 962.38)..(2339.22, 38.40, 964.98)| collider=True
+LakeHouse_Shop_Foundation_Stone|738|Assets/08.Models/LakeVillage/LakeHouse_Shop.fbx|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinArchitectureDetails.asset|(2331.52, 35.57, 957.80)..(2339.83, 42.98, 965.41)| collider=True
+LakeHouse_Shop_Roof_Shingle|386|Assets/08.Models/LakeVillage/LakeHouse_Shop.fbx|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinArchitectureDetails.asset|(2332.17, 40.10, 957.44)..(2339.84, 42.53, 964.56)| collider=True
+LakeHouse_Shop_Trim_Wood|10054|Assets/08.Models/LakeVillage/LakeHouse_Shop.fbx|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinArchitectureDetails.asset|(2331.65, 35.90, 957.41)..(2340.05, 43.19, 965.41)| collider=True
+LakeHouse_Shop_Wall_Plaster|192|Assets/08.Models/LakeVillage/LakeHouse_Shop.fbx|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinArchitectureDetails.asset|(2332.61, 36.41, 958.04)..(2339.39, 38.59, 963.96)| collider=True
+LakeHouse_Shop_Wall_Wood|696|Assets/08.Models/LakeVillage/LakeHouse_Shop.fbx|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinArchitectureDetails.asset|(2332.61, 35.90, 958.04)..(2339.63, 42.35, 964.68)| collider=True
+LakeHouse_Shop_Window_Glass|264|Assets/08.Models/LakeVillage/LakeHouse_Shop.fbx|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinArchitectureDetails.asset|(2332.74, 37.16, 958.17)..(2339.26, 40.10, 963.83)| collider=False
+LakeHouse_CottageL_Foundation_Stone|706|Assets/08.Models/LakeVillage/LakeHouse_CottageL.fbx|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinArchitectureDetails.asset|(2340.72, 35.66, 978.94)..(2349.18, 40.37, 987.32)| collider=True
+LakeHouse_CottageL_Roof_Shingle|770|Assets/08.Models/LakeVillage/LakeHouse_CottageL.fbx|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinArchitectureDetails.asset|(2340.19, 38.12, 978.83)..(2348.58, 39.95, 987.65)| collider=True
+LakeHouse_CottageL_Trim_Wood|9194|Assets/08.Models/LakeVillage/LakeHouse_CottageL.fbx|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinArchitectureDetails.asset|(2340.14, 36.44, 978.61)..(2349.03, 40.56, 987.66)| collider=True
+LakeHouse_CottageL_Wall_Plaster|296|Assets/08.Models/LakeVillage/LakeHouse_CottageL.fbx|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinArchitectureDetails.asset|(2340.83, 36.44, 979.39)..(2348.23, 38.47, 987.22)| collider=True
+LakeHouse_CottageL_Wall_Wood|196|Assets/08.Models/LakeVillage/LakeHouse_CottageL.fbx|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinArchitectureDetails.asset|(2340.83, 35.97, 979.40)..(2348.23, 39.78, 987.22)| collider=True
+LakeHouse_CottageL_Window_Glass|168|Assets/08.Models/LakeVillage/LakeHouse_CottageL.fbx|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinArchitectureDetails.asset|(2340.95, 37.15, 979.51)..(2348.10, 38.00, 987.09)| collider=False
+LakeHouse_Small_Foundation_Stone|515|Assets/08.Models/LakeVillage/LakeHouse_Small.fbx|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinArchitectureDetails.asset|(2323.79, 35.62, 989.26)..(2332.75, 41.48, 997.51)| collider=True
+LakeHouse_Small_Roof_Shingle|328|Assets/08.Models/LakeVillage/LakeHouse_Small.fbx|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinArchitectureDetails.asset|(2324.83, 38.51, 989.01)..(2333.17, 40.97, 996.99)| collider=True
+LakeHouse_Small_Trim_Wood|4572|Assets/08.Models/LakeVillage/LakeHouse_Small.fbx|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinArchitectureDetails.asset|(2324.26, 36.00, 988.76)..(2333.18, 41.71, 997.03)| collider=True
+LakeHouse_Small_Wall_Wood|328|Assets/08.Models/LakeVillage/LakeHouse_Small.fbx|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinArchitectureDetails.asset|(2325.12, 36.00, 989.76)..(2332.63, 40.78, 996.92)| collider=True
+LakeHouse_Small_Window_Glass|96|Assets/08.Models/LakeVillage/LakeHouse_Small.fbx|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinArchitectureDetails.asset|(2325.52, 37.46, 989.91)..(2332.48, 38.35, 996.09)| collider=False
+CargoBarrel|26186||Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinArchitectureDetails.asset|(2339.49, 35.88, 955.49)..(2340.51, 36.92, 956.51)| collider=True
+CargoCrate|26186||Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinArchitectureDetails.asset|(2341.20, 35.89, 957.20)..(2342.83, 37.02, 958.83)| collider=True
+호수 마을 북서 출구|365|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinTrailSurfaces.asset|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinTrailSurfaces.asset|(2280.72, 36.04, 968.83)..(2322.57, 37.21, 1012.60)| collider=False
+밟힌 길 가장자리 1|217|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinApproachWear.asset|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinTrailSurfaces.asset|(2308.96, 36.03, 974.26)..(2313.10, 36.03, 980.40)| collider=False
+밟힌 길 가장자리 2|217|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinApproachWear.asset|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinTrailSurfaces.asset|(2301.64, 36.08, 982.33)..(2306.31, 36.15, 987.39)| collider=False
+밟힌 길 가장자리 3|217|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinApproachWear.asset|Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinTrailSurfaces.asset|(2302.14, 36.23, 991.45)..(2305.82, 36.34, 996.70)| collider=False
+PF_Farm_StoneFence_Stone_01|36|Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Meshes/Props/StoneFences/SM_Farm_StoneFence_Stone_01.fbx|Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Materials/Props/StoneFences/M_Farm_StoneFences.mat|(2312.69, 35.93, 976.29)..(2313.11, 36.15, 976.71)| collider=True
+PF_Farm_StoneFence_Stone_01|36|Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Meshes/Props/StoneFences/SM_Farm_StoneFence_Stone_01.fbx|Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Materials/Props/StoneFences/M_Farm_StoneFences.mat|(2300.42, 36.13, 989.81)..(2300.78, 36.25, 990.19)| collider=True
+PF_Farm_StoneFence_Stone_01|36|Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Meshes/Props/StoneFences/SM_Farm_StoneFence_Stone_01.fbx|Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Materials/Props/StoneFences/M_Farm_StoneFences.mat|(2307.19, 36.12, 992.74)..(2307.61, 36.25, 993.06)| collider=True
+ground 2435/1066 65.36044
+ground 2437/1066.05 64.81841
+ground 2439/1066.1 64.25197
+ground 2441/1066.15 63.65745
+ground 2443/1066.2 63.02143
+ground 2445/1066.25 62.40005
+ground 2447/1066.3 61.74204
+ground 2449/1066.35 61.10236
+ground 2451/1066.4 60.44802
+ground 2453/1066.45 59.80956
+ground 2455/1066.5 59.19551
+ground 2457/1066.55 58.58146
+ground 2459/1066.6 57.99182
+ground 2461/1066.65 57.44247
+ground 2463/1066.7 56.95172
+ground 2465/1066.75 56.48538
+ground 2467/1066.8 56.09229
+ground 2469/1066.85 55.6992
+ground 2471/1066.9 55.32808
+ground 2473/1066.95 54.93621
+ground 2475/1067 54.54435
+ground 2477/1067.05 54.17689

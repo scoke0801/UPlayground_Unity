@@ -1,0 +1,42 @@
+Editor Play | 가상 Gamepad | 각 범위 시작에서만 위치 설정 | 기본 TPS, 스틱으로 시점 회전
+START gate-west-east (2248.000, 84.602, 2092.500) time=720
+REACHED 1 (2260.576, 85.885, 2089.852) camera=(2260.548, 88.237, 2085.007) yaw=0.0
+REACHED 2 (2268.581, 86.743, 2088.244) camera=(2268.576, 88.890, 2084.375) yaw=0.0
+REACHED 3 (2282.641, 87.922, 2086.206) camera=(2282.581, 90.298, 2081.400) yaw=0.0
+REACHED 4 (2305.530, 89.087, 2085.066) camera=(2305.492, 91.416, 2080.253) yaw=0.0
+PASS gate-west-east pos=(2305.530, 89.087, 2085.066) next=5 grounded=1026/1026 swim=0 gateRay=43 minCamera=2.91
+START gate-east-west (2307.000, 89.290, 2085.000) time=720
+REACHED 1 (2284.748, 88.068, 2085.967) camera=(2284.835, 90.737, 2081.148) yaw=0.0
+REACHED 2 (2270.742, 86.961, 2087.897) camera=(2270.773, 89.610, 2083.078) yaw=0.0
+REACHED 3 (2262.787, 86.140, 2089.262) camera=(2262.849, 88.449, 2085.747) yaw=0.0
+REACHED 4 (2248.722, 84.544, 2092.189) camera=(2248.748, 87.159, 2087.368) yaw=0.0
+PASS gate-east-west pos=(2248.722, 84.544, 2092.189) next=5 grounded=957/957 swim=0 gateRay=10 minCamera=2.99
+START harbor-dusk (2816.000, 10.135, 248.000) time=1110
+FIXED harbor-dusk actualMinute=1113.50 rain=0 cloud=0
+REACHED 1 (2819.724, 10.005, 238.377) camera=(2819.468, 12.588, 243.219) yaw=177.1
+REACHED 2 (2825.617, 10.681, 219.303) camera=(2825.356, 13.026, 224.172) yaw=177.1
+REACHED 3 (2827.833, 8.067, 194.475) camera=(2827.589, 10.693, 199.311) yaw=177.1
+REACHED 4 (2826.130, 3.017, 171.443) camera=(2825.896, 5.579, 176.340) yaw=177.1
+REACHED 5 (2826.004, 1.050, 154.387) camera=(2825.762, 3.687, 159.298) yaw=177.1
+REACHED 6 (2825.999, 0.850, 146.655) camera=(2825.756, 3.427, 151.561) yaw=177.1
+REACHED 7 (2825.999, 0.850, 139.744) camera=(2825.756, 3.427, 144.613) yaw=177.1
+PASS harbor-dusk pos=(2825.999, 0.850, 139.744) next=8 grounded=1383/1403 swim=0 gateRay=0 minCamera=3.97
+START harbor-night (2816.000, 10.135, 248.000) time=1320
+FIXED harbor-night actualMinute=1323.65 rain=0 cloud=0
+REACHED 1 (2819.731, 10.005, 238.377) camera=(2819.458, 12.327, 243.273) yaw=177.1
+REACHED 2 (2825.572, 10.677, 219.451) camera=(2825.324, 13.022, 224.287) yaw=177.1
+REACHED 3 (2827.838, 8.054, 194.416) camera=(2827.594, 10.676, 199.250) yaw=177.1
+REACHED 4 (2826.128, 3.012, 171.410) camera=(2825.892, 5.575, 176.309) yaw=177.1
+REACHED 5 (2826.002, 1.050, 154.387) camera=(2825.759, 3.689, 159.304) yaw=177.1
+REACHED 6 (2826.000, 0.850, 146.781) camera=(2825.756, 3.430, 151.633) yaw=177.1
+REACHED 7 (2826.000, 0.850, 139.733) camera=(2825.756, 3.430, 144.601) yaw=177.1
+PASS harbor-night pos=(2826.000, 0.850, 139.733) next=8 grounded=1380/1399 swim=0 gateRay=0 minCamera=4.43
+START lake-recheck (2320.000, 36.137, 970.000) time=720
+REACHED 1 (2298.478, 36.455, 997.388) camera=(2301.643, 38.778, 993.720) yaw=319.2
+REACHED 2 (2282.577, 37.154, 1010.535) camera=(2286.224, 39.492, 1007.275) yaw=311.8
+REACHED 3 (2264.307, 37.929, 1051.308) camera=(2266.526, 40.262, 1046.915) yaw=333.2
+REACHED 4 (2221.524, 38.791, 1097.442) camera=(2224.727, 41.123, 1093.677) yaw=319.7
+PASS lake-recheck pos=(2221.524, 38.791, 1097.442) next=5 grounded=1709/1709 swim=0 gateRay=0 minCamera=4.91
+START b3-b1-recheck (1672.000, 49.224, 1535.000) time=720
+FAIL b3-b1-recheck pos=(1661.031, 48.948, 1548.039) next=1 grounded=442/442 swim=0 gateRay=0 minCamera=4.92
+END 5/6

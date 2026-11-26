@@ -1,0 +1,30 @@
+WorldBuilder Plan/WorldBuilder Plan/Castle_Moat_Bridge (B1) | (1740.000, 52.250, 1860.000) | yaw=50.19 | children=1 cols= | 
+WorldBuilder Plan/Castle_Moat_Bridge (B1)/B1_BridgeArtR1 | (1740.000, 52.250, 1860.000) | yaw=50.19 | children=4 cols=BoxCollider,BoxCollider,BoxCollider | 
+WorldBuilder Plan/B1_BridgeArtR1/Castle_Moat_Bridge | (1740.000, 52.250, 1860.000) | yaw=50.19 | children=0 cols=MeshCollider | 
+B1 플레이 구간/B1 플레이 구간/Arrival · RiverBasin4km.B1 | (1706.967, 51.925, 1832.472) | yaw=50.19 | children=0 cols= | 
+B1 플레이 구간/B1 플레이 구간/석교 아래 흐름 | (1743.000, 44.000, 1856.000) | yaw=0.00 | children=0 cols= | 
+B1 플레이 구간/마을 쪽 길목/PF_EastLands_Osmanthus_02_Gold_10 | (1699.000, 51.617, 1825.000) | yaw=80.00 | children=4 cols= | 
+B1 플레이 구간/마을 쪽 길목/PF_EastLands_Osmanthus_03_Gold_11 | (1691.000, 51.543, 1823.000) | yaw=155.00 | children=4 cols= | 
+B1 플레이 구간/마을 쪽 길목/PF_EastLands_Osmanthus_Bush_01_Copper_23 | (1698.000, 51.592, 1830.000) | yaw=25.00 | children=3 cols= | 
+B1 플레이 구간/마을 쪽 길목/Deco_Stone_Cairn | (1714.000, 51.714, 1832.000) | yaw=70.00 | children=0 cols=BoxCollider | Combined Mesh (root: scene) 3 
+B1 플레이 구간/마을 쪽 길목/PF_Farm_ForestSmallGrass_Green_27 | (1715.000, 51.758, 1832.400) | yaw=99.00 | children=0 cols= | SM_Farm_SmallGrass_02_LOD0 Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Meshes/Foliage/SM_EastLands_SmallGrass_02.fbx
+B1 플레이 구간/교량 건너 오르막/PF_EastLands_Osmanthus_03_Green_12 | (1786.000, 53.106, 1884.000) | yaw=160.00 | children=4 cols= | 
+B1 플레이 구간/교량 건너 오르막/PF_EastLands_Osmanthus_01_Gold_1 | (1794.000, 52.520, 1881.000) | yaw=12.00 | children=4 cols= | 
+B1 플레이 구간/교량 건너 오르막/PF_EastLands_Osmanthus_02_Green_13 | (1798.000, 53.692, 1887.000) | yaw=205.00 | children=4 cols= | 
+B1 플레이 구간/교량 건너 오르막/PF_EastLands_Osmanthus_Bush_03_Green_24 | (1774.000, 52.911, 1879.000) | yaw=52.00 | children=3 cols= | 
+B1 플레이 구간/교량 건너 오르막/PF_EastLands_RiverRock_03_Gold_20 | (1777.000, 52.813, 1880.000) | yaw=72.00 | children=3 cols=MeshCollider | 
+B1 플레이 구간/교량 건너 오르막/PF_Farm_SmallGrass_01_Green_26 | (1769.000, 52.862, 1880.000) | yaw=205.00 | children=0 cols= | SM_Farm_SmallGrass_02_LOD0 Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Meshes/Foliage/SM_EastLands_SmallGrass_02.fbx
+RiverBasin · 길과 생활 흔적/RiverBasin · 길과 생활 흔적/B1 너머 낮은 노두 | (0.000, 0.000, 0.000) | yaw=0.00 | children=5 cols= | 
+RiverBasin · 길과 생활 흔적/B1 너머 낮은 노두/PF_EastLands_MedBoulder_04 | (1909.100, 61.038, 2004.700) | yaw=127.00 | children=3 cols=MeshCollider | 
+RiverBasin · 길과 생활 흔적/B1 너머 낮은 노두/PF_EastLands_FlatStone_02 | (1911.500, 61.202, 2005.800) | yaw=33.00 | children=4 cols= | 
+RiverBasin · 길과 생활 흔적/B1 너머 낮은 노두/PF_EastLands_FlatStone_02 | (1907.700, 61.002, 2006.000) | yaw=194.00 | children=4 cols= | 
+RiverBasin · 길과 생활 흔적/B1 너머 낮은 노두/PF_Farm_GrassTall_01 | (1906.100, 60.865, 2003.800) | yaw=45.00 | children=3 cols= | 
+RiverBasin · 길과 생활 흔적/B1 너머 낮은 노두/PF_Farm_GrassTall_01 | (1912.600, 61.222, 2004.200) | yaw=175.00 | children=3 cols= | 
+RiverBasin · 접근로 접지와 하역/RiverBasin · 접근로 접지와 하역/B1 너머 | (0.000, 0.000, 0.000) | yaw=0.00 | children=7 cols= | 
+RiverBasin · 접근로 접지와 하역/B1 너머/PF_Farm_GrassTall_01 | (1901.500, 60.268, 1991.350) | yaw=95.00 | children=3 cols= | 
+RiverBasin · 접근로 접지와 하역/B1 너머/PF_Farm_GrassTall_01 | (1903.100, 60.395, 1992.600) | yaw=73.00 | children=3 cols= | 
+RiverBasin · 접근로 접지와 하역/B1 너머/PF_Farm_GrassTall_01 | (1915.100, 61.138, 1997.100) | yaw=170.00 | children=3 cols= | 
+RiverBasin · 접근로 접지와 하역/B1 너머/밟힌 길 가장자리 5 | (1902.050, 60.341, 1992.000) | yaw=0.00 | children=0 cols= | B1 너머 5 Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinApproachWear.asset
+RiverBasin · 접근로 접지와 하역/B1 너머/밟힌 길 가장자리 6 | (1915.000, 61.160, 1997.600) | yaw=0.00 | children=0 cols= | B1 너머 6 Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinApproachWear.asset
+RiverBasin · 접근로 접지와 하역/B1 너머/PF_Farm_StoneFence_Stone_01 | (1900.800, 60.290, 1991.700) | yaw=15.00 | children=0 cols=MeshCollider | SM_Farm_StoneFence_Stone_01 Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Meshes/Props/StoneFences/SM_Farm_StoneFence_Stone_01.fbx
+RiverBasin · 접근로 접지와 하역/B1 너머/PF_Farm_StoneFence_Stone_01 | (1914.500, 61.150, 1997.300) | yaw=43.00 | children=0 cols=MeshCollider | SM_Farm_StoneFence_Stone_01 Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Meshes/Props/StoneFences/SM_Farm_StoneFence_Stone_01.fbx

@@ -1,0 +1,12 @@
+START (2319.679, 36.007, 970.423) | zero teleports | Input System virtual Gamepad left/right | time Day 1 12:00
+TRACE 0 (2319.679, 36.007, 970.423) yaw=83.8 pitch=13.0 remaining=0.5 grounded=True
+REACHED 0 (2319.679, 36.007, 970.423) camera=(2319.683, 38.598, 975.294) rotation=(13.05, 180.04, 0.00)
+REACHED 1 (2319.165, 36.007, 962.966) camera=(2319.184, 38.598, 967.837) rotation=(13.05, 180.22, 0.00)
+TRACE 2 (2318.980, 36.007, 960.731) yaw=172.8 pitch=13.0 remaining=6.8 grounded=True
+REACHED 2 (2318.484, 35.983, 954.975) camera=(2317.872, 38.584, 959.807) rotation=(13.05, 172.78, 0.00)
+REACHED 3 (2318.541, 36.149, 951.963) camera=(2317.928, 38.559, 956.795) rotation=(13.05, 172.78, 0.00)
+TRACE 4 (2318.772, 35.958, 954.004) yaw=77.6 pitch=13.0 remaining=2.0 grounded=True
+REACHED 4 (2318.935, 35.983, 955.440) camera=(2317.726, 38.562, 950.722) rotation=(13.05, 14.38, 0.00)
+TRACE 5 (2319.598, 36.007, 964.446) yaw=57.2 pitch=13.0 remaining=5.6 grounded=True
+REACHED 5 (2319.931, 36.007, 969.052) camera=(2315.836, 38.562, 966.415) rotation=(13.05, 57.22, 0.00)
+END reached all waypoints position=(2319.969, 36.007, 969.565) distance=36.84 seconds=12.9

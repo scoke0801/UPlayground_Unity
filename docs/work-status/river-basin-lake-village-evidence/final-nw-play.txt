@@ -1,0 +1,26 @@
+START (2311.000, 35.958, 953.000) | zero teleports | Input System virtual Gamepad left/right | time Day 1 12:00
+REACHED 0 (2311.000, 35.958, 953.000) camera=(2311.000, 38.578, 948.149) rotation=(14.00, 0.00, 0.00)
+TRACE 1 (2311.000, 35.958, 953.000) yaw=0.0 pitch=14.0 remaining=8.1 grounded=True
+REACHED 1 (2314.526, 36.007, 959.171) camera=(2311.446, 38.497, 955.398) rotation=(13.05, 39.22, 0.00)
+TRACE 2 (2317.227, 36.007, 964.486) yaw=346.8 pitch=13.0 remaining=6.2 grounded=True
+REACHED 2 (2319.558, 36.007, 969.118) camera=(2320.672, 38.497, 964.377) rotation=(13.05, 346.78, 0.00)
+TRACE 3 (2315.429, 36.007, 975.643) yaw=322.8 pitch=13.0 remaining=3.5 grounded=True
+REACHED 3 (2313.971, 36.007, 977.697) camera=(2316.917, 38.497, 973.818) rotation=(13.05, 322.78, 0.00)
+REACHED 4 (2307.640, 36.062, 985.243) camera=(2310.586, 38.497, 981.365) rotation=(13.05, 322.78, 0.00)
+TRACE 5 (2306.335, 36.103, 986.927) yaw=316.3 pitch=13.0 remaining=13.0 grounded=True
+REACHED 5 (2299.131, 36.409, 996.464) camera=(2302.496, 38.661, 992.942) rotation=(13.05, 316.30, 0.00)
+TRACE 6 (2298.190, 36.458, 997.450) yaw=319.2 pitch=13.0 remaining=20.8 grounded=True
+TRACE 6 (2288.098, 36.946, 1006.537) yaw=319.2 pitch=13.0 remaining=7.3 grounded=True
+REACHED 6 (2283.464, 37.137, 1010.710) camera=(2286.646, 39.399, 1007.022) rotation=(13.05, 319.22, 0.00)
+TRACE 7 (2279.619, 37.289, 1017.112) yaw=319.2 pitch=13.0 remaining=5.6 grounded=True
+REACHED 7 (2277.282, 37.372, 1021.162) camera=(2280.464, 39.618, 1017.473) rotation=(13.05, 319.22, 0.00)
+TRACE 8 (2281.253, 37.236, 1014.571) yaw=134.2 pitch=13.0 remaining=5.3 grounded=True
+REACHED 8 (2283.505, 37.138, 1010.822) camera=(2280.015, 39.633, 1014.219) rotation=(13.05, 134.22, 0.00)
+TRACE 9 (2288.949, 36.902, 1005.788) yaw=134.2 pitch=13.0 remaining=14.8 grounded=True
+TRACE 9 (2297.749, 36.477, 997.992) yaw=134.2 pitch=13.0 remaining=3.0 grounded=True
+REACHED 9 (2299.246, 36.414, 996.667) camera=(2295.756, 38.995, 1000.064) rotation=(13.05, 134.22, 0.00)
+TRACE 10 (2305.544, 36.135, 988.773) yaw=142.2 pitch=13.0 remaining=11.8 grounded=True
+REACHED 10 (2312.198, 36.007, 980.271) camera=(2309.214, 38.598, 984.121) rotation=(13.05, 142.22, 0.00)
+TRACE 11 (2312.600, 36.007, 979.751) yaw=121.4 pitch=13.0 remaining=12.2 grounded=True
+REACHED 11 (2319.407, 36.007, 970.781) camera=(2314.565, 38.598, 970.253) rotation=(13.05, 83.78, 0.00)
+END reached all waypoints position=(2319.679, 36.007, 970.423) distance=153.60 seconds=39.8

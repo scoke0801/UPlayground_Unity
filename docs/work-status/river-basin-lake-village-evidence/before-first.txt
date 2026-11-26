@@ -1,0 +1,7 @@
+START (2311.000, 36.098, 953.000) | one localization at first waypoint | Input System virtual Gamepad left/right | time Day 1 12:00
+REACHED 0 (2311.000, 35.958, 953.000) camera=(2307.728, 38.438, 949.366) rotation=(12.00, 42.00, 0.00)
+TRACE 1 (2311.000, 35.958, 953.000) yaw=42.0 pitch=12.0 remaining=8.1 grounded=True
+REACHED 1 (2314.490, 36.007, 959.109) camera=(2310.922, 38.438, 955.765) rotation=(12.00, 46.86, 0.00)
+TRACE 2 (2317.275, 36.007, 964.591) yaw=55.2 pitch=12.0 remaining=6.1 grounded=True
+REACHED 2 (2319.560, 36.007, 969.127) camera=(2315.542, 38.438, 966.338) rotation=(12.00, 55.22, 0.00)
+END reached all waypoints position=(2319.768, 36.007, 969.541) distance=18.87 seconds=6.8

@@ -1,0 +1,20 @@
+scene=Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Preview/RiverBasin4km.unity loaded=1 dirty=True play=False
+missing scripts=0 terrain=64
+우물 갈림길에서 호수 물가 | verts=2464 tris=4212 render/collision mesh pair=False bounds (2318.172, 22.654, 969.982)..(2474.608, 39.641, 1081.945)
+terrain offset 0.04300..0.04300 m
+가게 문턱으로 이어지는 밟힌 흙 | verts=182 tris=300 render/collision mesh pair=False bounds (2329.642, 36.040, 963.798)..(2338.744, 36.040, 977.121)
+terrain offset 0.04300..0.04300 m
+어부집 문 앞의 밟힌 흙 | verts=98 tris=156 render/collision mesh pair=False bounds (2315.939, 35.973, 952.243)..(2321.153, 36.040, 959.625)
+terrain offset 0.04300..0.04300 m
+어부집 목선 · 서안 수선 자리 | verts=156 tris=106 render/collision mesh pair=True bounds (2467.067, 23.993, 1063.342)..(2469.333, 24.557, 1065.357)
+어부집 문턱 · 낮은 석재 계단 | verts=296 tris=132 render/collision mesh pair=True bounds (2317.727, 35.853, 950.689)..(2319.678, 36.268, 952.451)
+LakeHouse_Fisher_Wall_Wood render/collision match=True derived=Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinLakeVillagePass.asset
+LakeHouse_Shop_Trim_Wood render/collision match=True derived=Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinLakeVillagePass.asset
+(2339.128, 36.450, 963.560) down Terrain_4_1=(2339.128, 35.987, 963.560)
+(2334.974, 36.450, 964.910) down Terrain_4_1=(2334.974, 35.997, 964.910)
+(2318.600, 36.900, 951.610) down 어부집 문턱 · 낮은 석재 계단=(2318.600, 36.236, 951.610); Terrain_4_1=(2318.600, 35.915, 951.610)
+(2318.400, 36.900, 952.050) down 어부집 문턱 · 낮은 석재 계단=(2318.400, 36.045, 952.050); Terrain_4_1=(2318.400, 35.925, 952.050)
+KCC 기준 캡슐 지름 0.70 / 직선 웨이포인트 중심 1m 표본 228 / 겹침=0
+KCC 기준 캡슐 지름 0.70 / 직선 웨이포인트 중심 1m 표본 76 / 겹침=0
+_lights 15 missing=0 shore=점광
+_emitters 24 missing=0 shore=따뜻한 유리

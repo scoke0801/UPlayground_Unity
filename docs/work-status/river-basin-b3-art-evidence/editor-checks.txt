@@ -1,0 +1,10 @@
+loaded=1 dirty=False Play=False
+missing scripts=0 terrains=64
+B3 양 교대 3열 지지 레이 258 / 미검출 0 / 표본 간 표면 최대 단차 0.025m / 발판이 최상면 162/162 / 지형 대비 발판 0.011..0.270m
+서 Box (1.00, 1.00, 1.00) world scale (2.350, 0.180, 3.415) mesh 260 normals=52
+동 Box (1.00, 1.00, 1.00) world scale (2.350, 0.180, 3.415) mesh 260 normals=52
+B3 서쪽 교대 자갈 접속 verts 385 collider 0 mat 성채와 채석 · 밟힌 자갈
+B3 동쪽 교대 흙길 접속 verts 735 collider 0 mat 호수 · 밟힌 황갈색 흙
+(1645.000, 47.370, 1591.900) -> (1599.300, 47.810, 1647.500) existing NavMesh True PathComplete
+(1656.000, 48.720, 1555.000) -> (1491.600, 34.530, 1450.100) existing NavMesh True PathComplete
+(1491.600, 34.530, 1450.100) -> (1464.000, 29.500, 1471.000) existing NavMesh True PathComplete

@@ -1,0 +1,9 @@
+SM_B1_ArtR1_LOD0 paving groups=20 moved vertices=1600 lift max=0.024m
+SM_B1_ArtR1_LOD1 paving groups=1 moved vertices=24 lift max=0.024m
+SM_B1_ArtR1_LOD2 paving groups=1 moved vertices=24 lift max=0.024m
+PF_EastLands_Osmanthus_02_Gold_10 (1699.000, 51.617, 1825.000) -> (1695.200, 51.568, 1828.000)
+석교 동쪽 갈림길 (1896.143, 60.822, 1994.296) -> (1904.700, 61.353, 1995.600)
+PF_Farm_StoneFence_Stone_01 (1900.800, 60.290, 1991.700) -> (1904.150, 60.608, 1995.350)
+성채 오르막 방향 나무 표지 (1904.741, 61.993, 1995.826) tip heading (0.180, 0.000, 0.984)
+남서 판석 끝 상면 (1721.601, 52.270, 1844.668)
+북동 판석 끝 상면 (1758.399, 52.270, 1875.332)

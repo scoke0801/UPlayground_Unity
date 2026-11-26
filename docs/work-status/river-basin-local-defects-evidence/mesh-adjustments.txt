@@ -1,0 +1,22 @@
+Gate: four side-edge vertices widened 0.37m / 0.31m along arch span. Upper and lower patch corner pairs retain the original height and depth.
+Harbor TimberDeck: 5 instances, 24 boards per mesh. Closed 0.016m air gaps within each module and matched the adjacent module pitch. Existing BoxCollider profiles retained.
+Straw bundle (3620.271, 64.673, 1522.514) rigid deltaY=-1.057
+Straw bundle (3621.324, 64.572, 1522.011) rigid deltaY=-1.082
+Foot stone (3633.801, 62.513, 1526.626) rigid deltaY=-0.796
+Foot stone (3631.763, 62.696, 1526.875) rigid deltaY=-0.611
+Foot stone (3632.777, 62.619, 1526.756) rigid deltaY=-0.682
+Foot stone (3630.732, 62.771, 1527.010) rigid deltaY=-0.532
+Foot stone (3629.705, 62.842, 1527.137) rigid deltaY=-0.464
+Foot stone (3628.701, 62.904, 1527.264) rigid deltaY=-0.399
+Wood pile (3634.307, 62.749, 1525.631) rigid deltaY=-0.710
+Jar (3628.412, 63.157, 1527.600) rigid deltaY=-0.441
+Dugout: 618 bottom vertices seated in slope, max extension=0.772m. Earthen mound, roof and doorway top left at original heights.
+Jar lid: 108 vertices moved with jar body delta=(0.000, -0.441, 0.000)
+Quay: inside top edges of 16 slabs meet at the existing joints; 20mm open local joints closed; BoxCollider profile retained.
+호수 북서 출구에서 B3 동쪽 교대 917.6m, 10717 vertices, 18360 triangles, ground offset 0.041m; collider count 0; Center: (1968.549, 43.859, 1296.456), Extents: (325.904, 7.175, 296.452)
+B3 서쪽 교대에서 B1 244.0m, 2863 vertices, 4896 triangles, ground offset 0.041m; collider count 0; Center: (1659.380, 50.040, 1745.947), Extents: (62.210, 2.259, 99.927)
+PF_EastLands_Osmanthus_02_Copper_6 (1604.960, 48.232, 1657.097) to (1600.800, 47.982, 1657.800) terrain offset=-0.150m
+PF_EastLands_Osmanthus_Bush_01_Copper_23 (1605.857, 48.212, 1654.088) to (1609.100, 48.183, 1655.200) terrain offset=0.000m
+호수 북서 출구에서 B3 동쪽 교대 928.2m, 10843 vertices, 18576 triangles, ground offset 0.041m; collider count 0; Center: (1965.519, 43.859, 1301.081), Extents: (328.934, 7.175, 301.077)
+PF_EastLands_Osmanthus_Bush_02_Green_25 (1610.973, 48.612, 1665.807) to (1616.300, 48.327, 1666.600) terrain offset=0.000m
+Fork obstruction: PF_EastLands_MedBoulder_04 (1660.600, 48.833, 1548.900) to (1664.100, 48.853, 1551.300); reproduced by KCC at (1661.031, 48.948, 1548.039)

@@ -1,0 +1,22 @@
+START (1707.429, 51.755, 1832.878) | zero teleports | Input System virtual Gamepad left/right | time Day 1 12:00
+TRACE 0 (1707.429, 51.755, 1832.878) yaw=232.8 pitch=12.0 remaining=0.6 grounded=True
+REACHED 0 (1707.429, 51.755, 1832.878) camera=(1703.963, 54.235, 1829.427) rotation=(12.00, 45.12, 0.00)
+TRACE 1 (1713.132, 52.005, 1837.937) yaw=47.2 pitch=12.0 remaining=8.4 grounded=True
+REACHED 1 (1718.671, 52.260, 1842.854) camera=(1715.082, 54.443, 1839.532) rotation=(12.00, 47.22, 0.00)
+TRACE 2 (1723.576, 52.260, 1846.483) yaw=47.2 pitch=12.0 remaining=1.4 grounded=True
+REACHED 2 (1723.932, 52.260, 1846.742) camera=(1720.343, 54.452, 1843.420) rotation=(12.00, 47.22, 0.00)
+TRACE 3 (1733.534, 52.260, 1854.650) yaw=47.2 pitch=12.0 remaining=8.4 grounded=True
+REACHED 3 (1739.243, 52.260, 1859.374) camera=(1735.653, 54.452, 1856.052) rotation=(12.00, 47.22, 0.00)
+TRACE 4 (1744.207, 52.260, 1863.493) yaw=47.2 pitch=12.0 remaining=14.4 grounded=True
+TRACE 4 (1754.353, 52.260, 1871.915) yaw=47.2 pitch=12.0 remaining=1.2 grounded=True
+REACHED 4 (1754.532, 52.260, 1872.064) camera=(1750.943, 54.452, 1868.742) rotation=(12.00, 47.22, 0.00)
+REACHED 5 (1758.905, 52.268, 1875.155) camera=(1762.896, 54.452, 1877.982) rotation=(12.00, 234.69, 0.00)
+REACHED 6 (1756.165, 52.260, 1873.289) camera=(1760.059, 54.452, 1876.247) rotation=(12.00, 232.78, 0.00)
+TRACE 7 (1750.280, 52.260, 1868.494) yaw=232.8 pitch=12.0 remaining=13.3 grounded=True
+REACHED 7 (1740.744, 52.260, 1860.615) camera=(1744.638, 54.452, 1863.573) rotation=(12.00, 232.78, 0.00)
+TRACE 8 (1736.289, 52.260, 1856.918) yaw=232.8 pitch=12.0 remaining=15.1 grounded=True
+REACHED 8 (1725.426, 52.260, 1847.902) camera=(1729.321, 54.452, 1850.860) rotation=(12.00, 232.78, 0.00)
+TRACE 9 (1722.662, 52.268, 1845.862) yaw=232.8 pitch=12.0 remaining=4.0 grounded=True
+REACHED 9 (1720.236, 52.268, 1844.105) camera=(1724.130, 54.452, 1847.064) rotation=(12.00, 232.78, 0.00)
+REACHED 10 (1707.740, 51.755, 1833.153) camera=(1711.635, 54.236, 1836.111) rotation=(12.00, 232.78, 0.00)
+END reached all waypoints position=(1707.359, 51.755, 1832.816) distance=133.78 ungroundedFrames=0 seconds=35.1

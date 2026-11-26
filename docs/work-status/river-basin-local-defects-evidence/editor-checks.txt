@@ -1,0 +1,19 @@
+Castle_Gate renderer=RiverBasinGateLintel collider=True vertices=11936
+PoorHouse_Dugout renderer=RiverBasinDesertDugoutContact collider=True vertices=4223
+Gate formerly open pixel (521.00, 250.00) hit=True world=(2274.486, 92.977, 2089.885)
+Gate formerly open pixel (765.00, 245.00) hit=True world=(2273.433, 93.135, 2084.469)
+Gate roof vertical hit=True y=99.699
+Harbor meshes=6 original BoxColliders=6
+Harbor X=2826 Z=159.000 Harbor_StoneQuay Y=1.523
+Harbor X=2826 Z=156.000 Harbor_StoneQuay Y=1.208
+Harbor X=2826 Z=153.660 Harbor_TimberDeck Y=0.840
+Harbor X=2826 Z=150.300 Harbor_TimberDeck Y=0.840
+Harbor X=2826 Z=146.375 module joint; player capsule spans this sample
+Harbor X=2826 Z=142.450 Harbor_TimberDeck Y=0.840
+Harbor X=2826 Z=138.525 module joint; player capsule spans this sample
+호수 북서 출구에서 B3 동쪽 교대 vertices=10843 attached colliders=0 overlapping center samples=0
+B3 서쪽 교대에서 B1 vertices=2863 attached colliders=0 overlapping center samples=0
+Ground offset range=0.04100..0.04100 vertices=13706 center samples=485
+Missing scripts=0
+Save slots 5 hashes match=True
+Scene=Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Preview/RiverBasin4km.unity loaded=1 isDirty=False playing=False

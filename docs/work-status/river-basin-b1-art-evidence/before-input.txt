@@ -1,0 +1,21 @@
+START (1682.000, 51.676, 1803.000) | one localization at first waypoint | Input System virtual Gamepad left/right | time Day 1 12:00
+REACHED 0 (1682.000, 51.536, 1803.000) camera=(1678.603, 54.015, 1799.482) rotation=(12.00, 44.00, 0.00)
+TRACE 1 (1682.784, 51.536, 1803.927) yaw=44.0 pitch=12.0 remaining=15.8 grounded=True
+TRACE 1 (1691.775, 51.633, 1814.553) yaw=44.0 pitch=12.0 remaining=1.9 grounded=True
+REACHED 1 (1692.339, 51.639, 1815.220) camera=(1688.942, 54.015, 1811.702) rotation=(12.00, 44.00, 0.00)
+REACHED 2 (1698.377, 51.716, 1823.176) camera=(1694.906, 54.015, 1819.731) rotation=(12.00, 45.22, 0.00)
+TRACE 3 (1702.266, 51.735, 1827.124) yaw=52.9 pitch=13.7 remaining=7.2 grounded=True
+REACHED 3 (1706.383, 51.745, 1831.798) camera=(1702.510, 54.089, 1828.838) rotation=(12.87, 52.60, 0.00)
+TRACE 4 (1715.231, 52.128, 1839.777) yaw=52.6 pitch=12.9 remaining=5.6 grounded=True
+REACHED 4 (1718.660, 52.260, 1842.839) camera=(1714.788, 54.517, 1839.879) rotation=(12.87, 52.60, 0.00)
+REACHED 5 (1723.872, 52.260, 1846.697) camera=(1720.000, 54.526, 1843.736) rotation=(12.87, 52.60, 0.00)
+TRACE 6 (1727.247, 52.260, 1849.450) yaw=314.8 pitch=12.9 remaining=16.6 grounded=True
+REACHED 6 (1739.230, 52.260, 1859.364) camera=(1742.690, 54.526, 1855.931) rotation=(12.87, 314.78, 0.00)
+TRACE 7 (1741.777, 52.260, 1861.476) yaw=45.7 pitch=12.9 remaining=17.6 grounded=True
+TRACE 7 (1751.867, 52.260, 1869.851) yaw=47.2 pitch=12.9 remaining=4.5 grounded=True
+REACHED 7 (1754.519, 52.260, 1872.053) camera=(1750.941, 54.526, 1868.742) rotation=(12.87, 47.22, 0.00)
+REACHED 8 (1758.553, 52.268, 1874.909) camera=(1754.975, 54.526, 1871.599) rotation=(12.87, 47.22, 0.00)
+TRACE 9 (1763.124, 52.355, 1878.636) yaw=47.2 pitch=12.9 remaining=15.0 grounded=True
+TRACE 9 (1772.670, 53.678, 1886.522) yaw=47.2 pitch=12.9 remaining=2.6 grounded=True
+REACHED 9 (1773.892, 53.735, 1887.532) camera=(1770.314, 56.043, 1884.221) rotation=(12.87, 47.22, 0.00)
+END reached all waypoints position=(1774.301, 53.759, 1887.870) distance=126.18 ungroundedFrames=0 seconds=34.8

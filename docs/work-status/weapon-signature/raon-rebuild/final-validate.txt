@@ -1,0 +1,2 @@
+MotionWarp=True; MotionImpact=통과
+(실루엣 잔상 적용·Katana 재베이크 후)

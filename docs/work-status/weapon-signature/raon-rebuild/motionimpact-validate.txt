@@ -1,0 +1,5 @@
+MotionImpactBuildValidation.OnPreprocessBuild(null) 2026-11-25
+수정본: 실패 - 운동 데이터가 오래되었습니다. 전투 모션 분석에서 재베이크하세요: Player.Katana.Light.00
+원본 Raon_Ultimate.asset(백업 sha256 e619eb08...)로 일시 복원 후 재실행: 동일 실패.
+판정: 이번 궁극기 변경과 무관한 기존 결함. RaonKatana 카탈로그(Light 00~02, Heavy 00)에 궁극기 항목은 없다.
+조치: 범위 밖이므로 재베이크하지 않고 보고. 첫 실패에서 중단되므로 이후 항목의 통과 여부는 미확인.

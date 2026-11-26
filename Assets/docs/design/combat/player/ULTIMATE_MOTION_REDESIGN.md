@@ -2,6 +2,8 @@
 
 적용·검증 상태: [손·무기 결합과 FX 후속 수정](../../../../../docs/work-status/weapon-signature/GRIP_FX_REVISION.md). 자동 검사와 미술 인수는 구분한다.
 
+**2026-11-25 제작 방식 전환(사용자 승인):** 기존 12명 클립은 구매 클립 동작을 지우고 골반 값·smoothstep 키·IK로 합성해 §4-2와 어긋났다. 이후 제작은 구매 모캡·키프레임 클립을 바탕으로 구간 편집·리타임·블렌드·부분 레이어 보정만 하고, 캐릭터별 30fps 연속 영상 판정을 거친다. [캐릭터별 재검증 상태](../../../../../docs/work-status/weapon-signature/PER_CHARACTER_REBUILD.md).
+
 2026-11-15 사용자 피드백: 카메라·FX 조율 후에도 동작이 궁극기로 읽히지 않는다. 기존 결과는 미술 인수 실패로 취급한다. 이 문서는 **새 동작의 제작 기준**이며 신규 클립 적용 완료 문서가 아니다.
 
 조사·출처·검증 제한: [Sol 조사와 리드 재구성](../../../../../docs/work-status/weapon-signature/REFERENCE_REDESIGN.md). 실행 계약은 [시그니처 설계](WEAPON_SIGNATURE_SKILL_CLIP_DESIGN.md)를 따르되, 그 문서의 고정 프레임표와 기존 클립만 쓰는 연출 제한을 새 동작의 품질 기준보다 우선하지 않는다.

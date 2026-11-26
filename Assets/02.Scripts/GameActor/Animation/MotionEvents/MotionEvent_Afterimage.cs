@@ -16,8 +16,18 @@ namespace UPlayGround.Data.Event
     [MotionEventDescriptor("Afterimage", "VFX / SFX", 0, "현재 모델 포즈를 복제해 알파 잔상으로 남깁니다.", "ghost", "after image", "alpha", "잔상", "알파")]
     public class AfterimageEvent : MotionEventBase
     {
+        /// <summary>잔상 외형. 실루엣은 바깥 면만 단색으로 그려 옷 안쪽 메시가 비치지 않는다.</summary>
+        public enum AfterimageRenderMode
+        {
+            [InspectorName("원본 텍스처")] SourceTexture,
+            [InspectorName("단색 실루엣")] Silhouette,
+        }
+
         [Tooltip("복제할 자식 오브젝트 이름. 비워두면 활성 CharacterModelData 모델을 사용한다.")]
         public string targetObjectName;
+
+        [Tooltip("원본 텍스처: 모델 색을 반투명으로 복제한다. 단색 실루엣: 틴트 색으로 바깥 면만 그린다.")]
+        public AfterimageRenderMode renderMode = AfterimageRenderMode.SourceTexture;
 
         [Tooltip("잔상이 유지되는 동안의 기본 알파.")]
         [Range(0f, 1f)]
@@ -39,7 +49,7 @@ namespace UPlayGround.Data.Event
         [Min(0f)]
         public float holdDuration = 0.2f;
 
-        [Tooltip("잔상 색상 틴트. 알파도 최종 알파에 곱해진다.")]
+        [Tooltip("잔상 색상 틴트. 단색 실루엣에서는 잔상 색 자체다. 알파도 최종 알파에 곱해진다.")]
         public Color tintColor = Color.white;
 
         [Tooltip("유지 시간이 끝난 뒤 잔상이 사라지는 시간. 0 이하면 즉시 제거한다.")]
@@ -116,6 +126,7 @@ namespace UPlayGround.Data.Event
             _runner.Play(new AfterimageEventSettings
             {
                 source = source,
+                renderMode = renderMode,
                 alpha = alpha,
                 spawnInterval = spawnInterval,
                 spawnCount = spawnCount,
@@ -167,6 +178,7 @@ namespace UPlayGround.Data.Event
         private struct AfterimageEventSettings
         {
             public Transform source;
+            public AfterimageRenderMode renderMode;
             public float alpha;
             public float spawnInterval;
             public int spawnCount;
@@ -194,8 +206,14 @@ namespace UPlayGround.Data.Event
             private static readonly int SrcBlendID = Shader.PropertyToID("_SrcBlend");
             private static readonly int DstBlendID = Shader.PropertyToID("_DstBlend");
             private static readonly int ZWriteID = Shader.PropertyToID("_ZWrite");
+            // 실루엣은 일반 투명 FX(3000)가 끝난 뒤 그린다. 보이지 않는 깊이 패스가 FX를 가리지 않게 한다.
+            private const int SilhouetteDepthQueue = (int)UnityEngine.Rendering.RenderQueue.Transparent + 100;
+            private const int SilhouetteColorQueue = SilhouetteDepthQueue + 1;
+
             private static readonly Dictionary<Material, Material> s_afterimageMaterialCache = new();
             private static Material s_invisibleMaterial;
+            private static Material s_silhouetteColorMaterial;
+            private static Material s_silhouetteDepthMaterial;
 
             private readonly List<SourceRendererInfo> _sourceRenderers = new();
             private readonly List<AfterimageInstance> _pool = new();
@@ -205,7 +223,7 @@ namespace UPlayGround.Data.Event
             public void Play(AfterimageEventSettings settings)
             {
                 StopSpawning();
-                CacheSourceRenderers(settings.source);
+                CacheSourceRenderers(settings.source, settings.renderMode);
                 EnsurePool(Mathf.Max(1, settings.poolSize));
                 _spawnRoutine = StartCoroutine(SpawnRoutine(settings));
             }
@@ -291,7 +309,7 @@ namespace UPlayGround.Data.Event
             // 주의: 각 렌더러의 source 루트 대비 상대 행렬(localToSource)을 Play 시점에 1회 캐싱한다.
             // 본(bone)은 BakeMesh가 매 스폰 포즈를 반영하지만, 렌더러 트랜스폼 자체가 애니메이션 중
             // source 루트 대비 이동하면 어긋난다(일반 리그에선 정적이라 무해).
-            private void CacheSourceRenderers(Transform source)
+            private void CacheSourceRenderers(Transform source, AfterimageRenderMode renderMode)
             {
                 _sourceRenderers.Clear();
                 if (source == null)
@@ -306,18 +324,25 @@ namespace UPlayGround.Data.Event
                     if (materials == null || materials.Length == 0)
                         continue;
 
-                    if (!TryBuildAfterimageMaterials(materials, out var afterimageMaterials, out var colorPropertyId, out var baseColor))
+                    Material[] afterimageMaterials;
+                    Material[] depthMaterials = null;
+                    int colorPropertyId;
+                    Color baseColor;
+                    bool built = renderMode == AfterimageRenderMode.Silhouette
+                        ? TryBuildSilhouetteMaterials(materials, out afterimageMaterials, out depthMaterials, out colorPropertyId, out baseColor)
+                        : TryBuildAfterimageMaterials(materials, out afterimageMaterials, out colorPropertyId, out baseColor);
+                    if (!built)
                         continue;
 
                     if (renderer is SkinnedMeshRenderer skinnedMeshRenderer && skinnedMeshRenderer.sharedMesh != null)
                     {
-                        _sourceRenderers.Add(new SourceRendererInfo(source, skinnedMeshRenderer, afterimageMaterials, colorPropertyId, baseColor));
+                        _sourceRenderers.Add(new SourceRendererInfo(source, skinnedMeshRenderer, afterimageMaterials, depthMaterials, colorPropertyId, baseColor));
                         continue;
                     }
 
                     var meshFilter = renderer.GetComponent<MeshFilter>();
                     if (meshFilter != null && meshFilter.sharedMesh != null)
-                        _sourceRenderers.Add(new SourceRendererInfo(source, renderer, meshFilter, afterimageMaterials, colorPropertyId, baseColor));
+                        _sourceRenderers.Add(new SourceRendererInfo(source, renderer, meshFilter, afterimageMaterials, depthMaterials, colorPropertyId, baseColor));
                 }
             }
 
@@ -397,6 +422,84 @@ namespace UPlayGround.Data.Event
                 afterimageMaterials = result;
                 colorPropertyId = ResolveColorPropertyId(result[0]);
                 return true;
+            }
+
+            /// <summary>
+            /// 실루엣용 색 재질과 깊이 선기록 재질을 슬롯별로 만든다.
+            /// 깊이를 먼저 기록해야 반투명 단색에서도 옷 안쪽 메시가 겹쳐 보이지 않는다.
+            /// </summary>
+            private static bool TryBuildSilhouetteMaterials(Material[] sourceMaterials, out Material[] colorMaterials, out Material[] depthMaterials, out int colorPropertyId, out Color baseColor)
+            {
+                colorMaterials = null;
+                depthMaterials = null;
+                colorPropertyId = -1;
+                baseColor = Color.white;
+                if (sourceMaterials == null || sourceMaterials.Length == 0)
+                    return false;
+
+                var colors = new Material[sourceMaterials.Length];
+                var depths = new Material[sourceMaterials.Length];
+                bool hasVisibleSlot = false;
+                for (int i = 0; i < sourceMaterials.Length; i++)
+                {
+                    Material source = sourceMaterials[i];
+                    if (source == null)
+                        return false;
+
+                    if (IsTransparentSourceMaterial(source))
+                    {
+                        colors[i] = GetInvisibleMaterial();
+                        depths[i] = GetInvisibleMaterial();
+                        continue;
+                    }
+
+                    colors[i] = GetSilhouetteColorMaterial();
+                    depths[i] = GetSilhouetteDepthMaterial();
+                    hasVisibleSlot = true;
+                }
+
+                if (!hasVisibleSlot)
+                    return false;
+
+                colorMaterials = colors;
+                depthMaterials = depths;
+                colorPropertyId = ResolveColorPropertyId(colors[0]);
+                return true;
+            }
+
+            private static Material GetSilhouetteColorMaterial()
+            {
+                if (s_silhouetteColorMaterial != null)
+                    return s_silhouetteColorMaterial;
+
+                s_silhouetteColorMaterial = new Material(ResolveAfterimageShader())
+                {
+                    name = "Afterimage_Silhouette_Runtime",
+                    hideFlags = HideFlags.DontSave
+                };
+                ApplyAfterimageRenderState(s_silhouetteColorMaterial);
+                s_silhouetteColorMaterial.renderQueue = SilhouetteColorQueue;
+                SetMaterialColor(s_silhouetteColorMaterial, Color.white);
+                return s_silhouetteColorMaterial;
+            }
+
+            private static Material GetSilhouetteDepthMaterial()
+            {
+                if (s_silhouetteDepthMaterial != null)
+                    return s_silhouetteDepthMaterial;
+
+                s_silhouetteDepthMaterial = new Material(ResolveAfterimageShader())
+                {
+                    name = "Afterimage_SilhouetteDepth_Runtime",
+                    hideFlags = HideFlags.DontSave
+                };
+                ApplyAfterimageRenderState(s_silhouetteDepthMaterial);
+                s_silhouetteDepthMaterial.renderQueue = SilhouetteDepthQueue;
+                if (s_silhouetteDepthMaterial.HasProperty(ZWriteID))
+                    s_silhouetteDepthMaterial.SetInt(ZWriteID, 1);
+                // 알파 0 블렌드라 색은 남기지 않고 깊이만 기록한다.
+                SetMaterialColor(s_silhouetteDepthMaterial, Color.clear);
+                return s_silhouetteDepthMaterial;
             }
 
             private static Material GetAfterimageMaterial(Material source)
@@ -586,29 +689,33 @@ namespace UPlayGround.Data.Event
                 public readonly SkinnedMeshRenderer skinnedRenderer;
                 public readonly MeshFilter meshFilter;
                 public readonly Material[] materials;
+                /// <summary>실루엣 깊이 선기록 재질. 원본 텍스처 모드에서는 null이다.</summary>
+                public readonly Material[] depthMaterials;
                 public readonly Matrix4x4 localToSource;
                 public readonly int colorPropertyId;
                 public readonly Color baseColor;
                 public readonly bool isSkinned;
 
-                public SourceRendererInfo(Transform sourceRoot, SkinnedMeshRenderer renderer, Material[] afterimageMaterials, int colorPropertyId, Color baseColor)
+                public SourceRendererInfo(Transform sourceRoot, SkinnedMeshRenderer renderer, Material[] afterimageMaterials, Material[] depthMaterials, int colorPropertyId, Color baseColor)
                 {
                     this.renderer = renderer;
                     skinnedRenderer = renderer;
                     meshFilter = null;
                     materials = afterimageMaterials;
+                    this.depthMaterials = depthMaterials;
                     localToSource = sourceRoot.worldToLocalMatrix * renderer.transform.localToWorldMatrix;
                     this.colorPropertyId = colorPropertyId;
                     this.baseColor = baseColor;
                     isSkinned = true;
                 }
 
-                public SourceRendererInfo(Transform sourceRoot, Renderer renderer, MeshFilter meshFilter, Material[] afterimageMaterials, int colorPropertyId, Color baseColor)
+                public SourceRendererInfo(Transform sourceRoot, Renderer renderer, MeshFilter meshFilter, Material[] afterimageMaterials, Material[] depthMaterials, int colorPropertyId, Color baseColor)
                 {
                     this.renderer = renderer;
                     skinnedRenderer = null;
                     this.meshFilter = meshFilter;
                     materials = afterimageMaterials;
+                    this.depthMaterials = depthMaterials;
                     localToSource = sourceRoot.worldToLocalMatrix * renderer.transform.localToWorldMatrix;
                     this.colorPropertyId = colorPropertyId;
                     this.baseColor = baseColor;
@@ -731,6 +838,8 @@ namespace UPlayGround.Data.Event
                 private readonly MeshFilter _meshFilter;
                 private readonly MeshRenderer _meshRenderer;
                 private readonly MaterialPropertyBlock _propertyBlock = new();
+                private MeshFilter _depthMeshFilter;
+                private MeshRenderer _depthMeshRenderer;
                 private Mesh _bakedMesh;
                 private Material[] _materials;
                 private int _colorPropertyId = -1;
@@ -774,8 +883,34 @@ namespace UPlayGround.Data.Event
                     _materials = source.materials;
                     _colorPropertyId = source.colorPropertyId;
                     _baseColor = source.baseColor;
+                    ApplyDepthPass(source.depthMaterials);
                     SetAlpha(alpha, tintColor);
                     SetActive(true);
+                }
+
+                // 풀 인스턴스는 모드가 다른 이벤트에 재사용되므로 캡처마다 깊이 패스 사용 여부를 다시 정한다.
+                private void ApplyDepthPass(Material[] depthMaterials)
+                {
+                    bool useDepth = depthMaterials != null;
+                    if (useDepth && _depthMeshRenderer == null)
+                    {
+                        var depthRoot = new GameObject("AfterimageDepth");
+                        depthRoot.transform.SetParent(_root.transform, false);
+                        _depthMeshFilter = depthRoot.AddComponent<MeshFilter>();
+                        _depthMeshRenderer = depthRoot.AddComponent<MeshRenderer>();
+                        _depthMeshRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                        _depthMeshRenderer.receiveShadows = false;
+                    }
+
+                    if (_depthMeshRenderer == null)
+                        return;
+
+                    _depthMeshRenderer.enabled = useDepth;
+                    if (!useDepth)
+                        return;
+
+                    _depthMeshFilter.sharedMesh = _meshFilter.sharedMesh;
+                    _depthMeshRenderer.sharedMaterials = depthMaterials;
                 }
 
                 public void SetAlpha(float alpha, Color tintColor)

@@ -31,7 +31,7 @@ MonoBehaviour:
     reviewNotes: 
     measurement:
       version: 2
-      generatedUtc: 2026-11-15T11:12:23.4171633Z
+      generatedUtc: 2026-11-25T14:32:59.4141675Z
       fingerprint: 7b1a7a791ddb01fb898aafd7fd733fed
       motionKey: Katana.Light.00
       resolvedOwner: Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/UltimateRedesign/Bindings/Raon_WeaponMotions.asset
@@ -6366,7 +6366,7 @@ MonoBehaviour:
     reviewNotes: 
     measurement:
       version: 2
-      generatedUtc: 2026-11-15T11:12:25.5608575Z
+      generatedUtc: 2026-11-25T14:33:01.9071762Z
       fingerprint: a4103886ace0400d17689dcd9eac0375
       motionKey: Katana.Light.01
       resolvedOwner: Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/UltimateRedesign/Bindings/Raon_WeaponMotions.asset
@@ -13553,7 +13553,7 @@ MonoBehaviour:
     reviewNotes: 
     measurement:
       version: 2
-      generatedUtc: 2026-11-15T11:12:25.6840067Z
+      generatedUtc: 2026-11-25T14:33:02.0361126Z
       fingerprint: baeb09015183395238e8947df7116e82
       motionKey: Katana.Light.02
       resolvedOwner: Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/UltimateRedesign/Bindings/Raon_WeaponMotions.asset
@@ -20357,7 +20357,7 @@ MonoBehaviour:
     reviewNotes: 
     measurement:
       version: 2
-      generatedUtc: 2026-11-15T11:12:25.8167496Z
+      generatedUtc: 2026-11-25T14:33:02.1538381Z
       fingerprint: f4c9a84cea732103300d16d2455f5d95
       motionKey: Katana.Heavy.00
       resolvedOwner: Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/UltimateRedesign/Bindings/Raon_WeaponMotions.asset

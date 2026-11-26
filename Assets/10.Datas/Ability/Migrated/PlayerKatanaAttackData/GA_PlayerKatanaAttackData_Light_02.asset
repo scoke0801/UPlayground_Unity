@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: GA_PlayerKatanaAttackData_Light_02
   m_EditorClassIdentifier: 
   abilityId: Player.Katana.Light.02
+  executionMode: 0
   editorMemo: 
   presentation:
     displayName: PlayerKatanaAttackData Light_02
@@ -69,6 +70,7 @@ MonoBehaviour:
   cooldown:
     durationSeconds: 0
     cooldownGroupId: 
+    scope: 0
     maxCharges: 1
     globalLockSeconds: 0
   concurrency: 2
@@ -127,7 +129,11 @@ MonoBehaviour:
     baseInfo:
       attackType: 0
       hitPhases:
-      - receivesImbuedHeat: 1
+      - environment:
+          kind: 0
+          heatImpulse: 0
+          waterImpulse: 0
+        receivesImbuedHeat: 1
         imbuedHeatWeight: 1
         damage: 44
         poiseDamage: 15

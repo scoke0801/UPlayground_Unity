@@ -39,6 +39,7 @@ namespace UPlayGround.Components
         private sealed class RuntimeMaterialInfo
         {
             public Material Material;
+            public bool UsesCameraVisibility;
             public float BaseAlphaMaskScale;
             public float BaseAlphaMaskValue;
         }
@@ -61,6 +62,7 @@ namespace UPlayGround.Components
         private static readonly int ZWriteID = Shader.PropertyToID("_ZWrite");
         private static readonly int UseDitherID = Shader.PropertyToID("_UseDither");
         private static readonly int DitherTexID = Shader.PropertyToID("_DitherTex");
+        private static readonly int CameraVisibilityID = Shader.PropertyToID("_ActorCameraVisibility");
         private static readonly int DitherMaxValueID = Shader.PropertyToID("_DitherMaxValue");
         private static readonly int AlphaMaskModeID = Shader.PropertyToID("_AlphaMaskMode");
         private static readonly int AlphaMaskScaleID = Shader.PropertyToID("_AlphaMaskScale");
@@ -610,6 +612,11 @@ namespace UPlayGround.Components
                     if (runtimeInfo?.Material == null)
                         continue;
 
+                    if (runtimeInfo.UsesCameraVisibility)
+                    {
+                        runtimeInfo.Material.SetFloat(CameraVisibilityID, visibility);
+                        continue;
+                    }
                     runtimeInfo.Material.SetFloat(
                         AlphaMaskScaleID,
                         runtimeInfo.BaseAlphaMaskScale * visibility);
@@ -684,6 +691,9 @@ namespace UPlayGround.Components
 
         private static bool CanConvertMaterial(Material material)
         {
+            if (material != null && material.HasProperty(CameraVisibilityID) && material.HasProperty(DitherTexID))
+                return true;
+
             foreach (Material current in EnumerateMaterialAndParents(material))
             {
                 Shader shader = current.shader;
@@ -748,6 +758,18 @@ namespace UPlayGround.Components
             Texture ditherTexture)
         {
             using var profiling = CreateMaterialMarker.Auto();
+            if (source != null && source.HasProperty(CameraVisibilityID) && source.HasProperty(DitherTexID))
+            {
+                var native = new Material(source)
+                {
+                    name = $"{source.name} (Camera Dither)",
+                    hideFlags = HideFlags.DontSave
+                };
+                DetachMaterialVariant(native);
+                native.SetTexture(DitherTexID, ditherTexture);
+                native.SetFloat(CameraVisibilityID, 1f);
+                return new RuntimeMaterialInfo { Material = native, UsesCameraVisibility = true };
+            }
             Shader cutoutShader = ResolveCutoutShader(source);
             if (cutoutShader == null)
                 return null;

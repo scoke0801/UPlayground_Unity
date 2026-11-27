@@ -116,6 +116,39 @@ namespace UPlayGround.Cinematic.Tests
             }
         }
 
+        [Test]
+        public void 캐릭터툰은_원본을_보존하고_복제본의_카메라_가시도만_변경한다()
+        {
+            var shader = Shader.Find("UPlayground/Character/CharacterToon");
+            Assert.That(shader, Is.Not.Null);
+            var source = new Material(shader);
+            Material copy = null;
+            var type = typeof(ActorCameraProximityDither);
+            var list = (System.Collections.IList)type.GetField("_runtimeMaterials", PrivateInstance).GetValue(_dither);
+            object info = null;
+            try
+            {
+                var lookup = BindingFlags.NonPublic | BindingFlags.Static;
+                var accepts = type.GetMethod("CanConvertMaterial", lookup);
+                Assert.That(accepts.Invoke(null, new object[] { source }), Is.EqualTo(true));
+                var create = type.GetMethod("CreateDitherMaterial", lookup);
+                info = create.Invoke(null, new object[] { source, Texture2D.blackTexture });
+                list.Add(info);
+                copy = (Material)info.GetType().GetField("Material").GetValue(info);
+                type.GetMethod("ApplyVisibility", PrivateInstance).Invoke(_dither, new object[] { 0.4f, false });
+                Assert.That(copy.shader, Is.SameAs(shader));
+                Assert.That(copy.GetFloat("_ActorCameraVisibility"), Is.EqualTo(0.4f));
+                Assert.That(copy.GetTexture("_DitherTex"), Is.SameAs(Texture2D.blackTexture));
+                Assert.That(source.GetFloat("_ActorCameraVisibility"), Is.EqualTo(1f));
+            }
+            finally
+            {
+                if (info != null) list.Remove(info);
+                Object.DestroyImmediate(copy);
+                Object.DestroyImmediate(source);
+            }
+        }
+
         private void Set(string name, object value) =>
             typeof(ActorCameraProximityDither).GetField(name, PrivateInstance).SetValue(_dither, value);
 

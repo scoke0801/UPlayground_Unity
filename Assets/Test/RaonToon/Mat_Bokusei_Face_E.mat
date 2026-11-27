@@ -1,0 +1,75 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Mat_Bokusei_Face_E
+  m_Shader: {fileID: 4800000, guid: 452134c3f025d6c42a0e543a54bd3809, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _CHARACTER_MATCAP
+  - _CHARACTER_PAINT
+  - _CHARACTER_RIM
+  m_InvalidKeywords:
+  - _ZWRITE_ON
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: 2000
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 2800000, guid: 53c449a3229b8bb42b94f6e44e125fd8, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _FaceMap:
+        m_Texture: {fileID: 2800000, guid: 174a1b8862e82134aa0b1caf438bb4e5, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MatCapMask:
+        m_Texture: {fileID: 2800000, guid: f1ca2de9db611b94787e09f35a463368, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MatCapTex:
+        m_Texture: {fileID: 2800000, guid: 22ab8eaacadc9cd4f838b2b53b3ace5a, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _Cull: 2
+    - _Cutoff: 0
+    - _DstBlend: 0
+    - _FaceWeight: 0.65
+    - _Gloss: 0.012
+    - _HairWeight: 0
+    - _MatCapMultiply: 1
+    - _Metallic: 0.72
+    - _PaintLight: 0.78
+    - _Power: 12
+    - _RimStrength: 0
+    - _Smoothness: 0.65
+    - _SrcBlend: 1
+    - _UseMatCap: 1
+    - _UseMetal: 0
+    - _UsePaint: 1
+    - _UseRim: 1
+    - _ZWrite: 1
+    m_Colors:
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _BounceTint: {r: 0, g: 0, b: 0, a: 1}
+    - _HeadForward: {r: 0, g: 0, b: 1, a: 0}
+    - _HeadRight: {r: 1, g: 0, b: 0, a: 0}
+    - _MatCapColor: {r: 1, g: 1, b: 1, a: 0.75}
+    - _RimTint: {r: 0.85, g: 0.88, b: 1, a: 1}
+    - _Shade: {r: 1, g: 0.8558245, b: 0.82547176, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

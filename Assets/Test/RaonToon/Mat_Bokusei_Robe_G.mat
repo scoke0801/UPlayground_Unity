@@ -1,0 +1,113 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Mat_Bokusei_Robe_G
+  m_Shader: {fileID: 4800000, guid: 452134c3f025d6c42a0e543a54bd3809, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords:
+  - _CHARACTER_FABRIC
+  - _CHARACTER_MATCAP
+  - _CHARACTER_PAINT
+  - _CHARACTER_RIM
+  - _CHARACTER_SURFACE_DETAIL
+  m_InvalidKeywords:
+  - _ZWRITE_ON
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: 2450
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _BaseMap:
+        m_Texture: {fileID: 2800000, guid: c7548a471b3f0564887bc5a951b66bf7, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailGloss:
+        m_Texture: {fileID: 2800000, guid: 71f4c0e3666733046997c40b89210fea, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DetailNormal:
+        m_Texture: {fileID: 2800000, guid: 4ae0e3534405c144abb297e2b02b18cb, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _DitherTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _FabricRegions:
+        m_Texture: {fileID: 2800000, guid: 6e55d845707a0fa41b215b4b7b6e1e7e, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _FaceMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _FringeOcclusion:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MatCapMask:
+        m_Texture: {fileID: 2800000, guid: 57ae6dce590501f408f44ea9fafdf559, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MatCapTex:
+        m_Texture: {fileID: 2800000, guid: fc07f01491d52224485e8c083e5193b2, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _StrandDirection:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - _ActorCameraVisibility: 1
+    - _Cull: 2
+    - _Cutoff: 0.5
+    - _DetailScale: 0.67
+    - _DstBlend: 0
+    - _FaceFeather: 0.023
+    - _FaceWeight: 0
+    - _FringeStrength: 0.38
+    - _Gloss: 0.48
+    - _HairWeight: 0
+    - _MatCapMultiply: 0
+    - _Metallic: 0.72
+    - _PaintLight: 0.78
+    - _Power: 43
+    - _RimStrength: 0.055
+    - _ShadowKeyRetention: 0.32
+    - _Smoothness: 0.65
+    - _SrcBlend: 1
+    - _UseFabric: 1
+    - _UseFringe: 0
+    - _UseMatCap: 1
+    - _UseMetal: 0
+    - _UsePaint: 1
+    - _UseRim: 1
+    - _UseSurfaceDetail: 1
+    - _ZWrite: 1
+    m_Colors:
+    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
+    - _BounceTint: {r: 0.085, g: 0.052, b: 0.13, a: 1}
+    - _FacePigment: {r: 1, g: 1, b: 1, a: 1}
+    - _FringeTint: {r: 0.74, g: 0.6, b: 0.7, a: 1}
+    - _HeadForward: {r: 0, g: 0, b: 1, a: 0}
+    - _HeadRight: {r: 1, g: 0, b: 0, a: 0}
+    - _LusterTint: {r: 1, g: 0.93, b: 0.87, a: 1}
+    - _MatCapColor: {r: 0.5294118, g: 0.74509805, b: 0.7263444, a: 0.75}
+    - _RimTint: {r: 0.86, g: 0.8, b: 1, a: 1}
+    - _Shade: {r: 0.63, g: 0.61, b: 0.78, a: 1}
+    - _ThreadColor: {r: 0.72, g: 0.56, b: 0.35999998, a: 1}
+  m_BuildTextureStacks: []
+  m_AllowLocking: 1

@@ -80,6 +80,31 @@ namespace UPlayGround.Cinematic.Tests
             Assert.That(_renderer.HasPropertyBlock(), Is.False);
         }
 
+        [Test]
+        public void 머리_회전_갱신이_얼굴_슬롯에서_피격색을_가리지_않는다()
+        {
+            _material.shader = Shader.Find("UPlayground/Character/CharacterToon");
+            var frame = _root.AddComponent<CharacterToonHeadFrame>();
+            const BindingFlags flags = BindingFlags.NonPublic | BindingFlags.Instance;
+            typeof(CharacterToonHeadFrame).GetField("head", flags).SetValue(frame, _root.transform);
+            typeof(CharacterToonHeadFrame).GetField("face", flags).SetValue(frame, _renderer);
+            _root.transform.rotation = Quaternion.Euler(0f, 50f, 0f);
+            Capture();
+            IEnumerator flash = CreateFlash();
+            Assert.That(flash.MoveNext(), Is.True);
+            var block = new MaterialPropertyBlock();
+            _renderer.GetPropertyBlock(block);
+            Color hit = block.GetColor("_BaseColor");
+            typeof(CharacterToonHeadFrame).GetMethod("LateUpdate", flags).Invoke(frame, null);
+            _renderer.GetPropertyBlock(block);
+            Assert.That(block.GetColor("_BaseColor"), Is.EqualTo(hit));
+            Vector3 forward = block.GetVector("_HeadForward");
+            Assert.That(Vector3.Angle(forward, _root.transform.forward), Is.LessThan(0.01f));
+            _renderer.GetPropertyBlock(block, 0);
+            Assert.That(block.isEmpty, Is.True);
+            Assert.That(flash.MoveNext(), Is.False);
+        }
+
         private void Capture() => typeof(ActorColorChanger)
             .GetMethod("CaptureOriginalProperties", BindingFlags.NonPublic | BindingFlags.Instance)
             .Invoke(_changer, null);

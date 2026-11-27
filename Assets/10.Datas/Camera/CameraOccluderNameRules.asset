@@ -13,6 +13,26 @@ MonoBehaviour:
   m_Name: CameraOccluderNameRules
   m_EditorClassIdentifier: UPlayGround.Camera::UPlayGround.Data.CameraOccluderNameRulesSO
   _rules:
+  - namePattern: Prop_Pavilion
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uB0B4\uC131 \uC815\uC790 \uC9C0\uBD95"
+  - namePattern: PF_Shed_Crops
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC678\uC131 \uB18D\uB9C9 \uC9C0\uBD95"
+  - namePattern: SM_Farm_Shed_03_LOD0
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC678\uC131 \uB18D\uB9C9\uC758 \uC9C0\uBD95 \uCDA9\uB3CC\uCCB4"
+  - namePattern: MarketStall
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC911\uC131 \uAC00\uD310\uB300 \uCC28\uC591"
   - namePattern: LakeHouse_
     isPrefix: 1
     mode: 0
@@ -157,6 +177,11 @@ MonoBehaviour:
     coversInterior: 1
     note: "\uC9C0\uBD95 \uCF5C\uB77C\uC774\uB354 \uD655\uC778(\uC2E4\uCE21). \uC2E4\uB0B4
       \uAC00\uB4DC \uB300\uC0C1."
+  - namePattern: Dng_Roof_QuarryMaze
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uCC44\uC11D \uAC31\uB3C4 \uC554\uBC18 \uCC9C\uC7A5"
   - namePattern: Dng_Barracks
     isPrefix: 0
     mode: 0
@@ -356,6 +381,16 @@ MonoBehaviour:
     note: "\uCE74\uBA54\uB77C\uAC00 \uD1B5\uACFC\uD558\uBA74 \uC548 \uB418\uB294
       \uAD6C\uC870\uBB3C(\uC9C0\uBD95 \uC5C6\uB294 \uC131\uBCBD\xB7\uD0D1, \uBC1F\uB294
       \uBA74, \uB358\uC804 \uBCBD)."
+  - namePattern: Dng_Wall_Quarry
+    isPrefix: 1
+    mode: 1
+    coversInterior: 0
+    note: "\uCC44\uC11D \uAC31\uB3C4 \uC785\uAD6C\uC640 \uC554\uBCBD"
+  - namePattern: Dng_Floor_QuarryMaze
+    isPrefix: 0
+    mode: 1
+    coversInterior: 0
+    note: "\uCC44\uC11D \uAC31\uB3C4 \uBC14\uB2E5\uACFC \uACBD\uC0AC\uB85C"
   - namePattern: Dng_Wall_Plain
     isPrefix: 0
     mode: 1
@@ -484,3 +519,84 @@ MonoBehaviour:
     mode: 1
     coversInterior: 0
     note: "P04 \uAC80\uC99D \uAD6C\uC870\uBB3C. \uC6D0\uBCF8 \uADDC\uCE59\uC740 \uC720\uC9C0."
+  - namePattern: RB_ElvenWalk_
+    isPrefix: 1
+    mode: 1
+    coversInterior: 0
+    note: "R1 \uC5D8\uD504 \uB9C8\uC744\uC758 \uD68C\uB791, \uACBD\uC0AC\uB85C, \uC804\uB9DD\uB300\uC640
+      \uB09C\uAC04."
+  - namePattern: RB_ElvenHouse_
+    isPrefix: 1
+    mode: 0
+    coversInterior: 1
+    note: "R1 \uC5D8\uD504 \uB9C8\uC744\uC758 \uC9C0\uBD95\uC774 \uC788\uB294 \uC8FC\uAC70."
+  - namePattern: RiverBasinHarborCustoms
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC138\uAD00 \uBAB8\uCCB4\uC640 \uC9C0\uBD95 \uD310\uC815\uC6A9 \uCDA9\uB3CC\uCCB4"
+  - namePattern: Castle_Gatehouse
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC124\uC0B0 \uC131\uCC44 \uB3C4\uC2DC \uBC30\uCE58\uC5D0 \uC0AC\uC6A9\uB418\uB294
+      \uD0A4\uD2B8 \uD504\uB9AC\uD339."
+  - namePattern: Castle_Barracks
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC124\uC0B0 \uC131\uCC44 \uB3C4\uC2DC \uBC30\uCE58\uC5D0 \uC0AC\uC6A9\uB418\uB294
+      \uD0A4\uD2B8 \uD504\uB9AC\uD339."
+  - namePattern: Castle_Storehouse
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC124\uC0B0 \uC131\uCC44 \uB3C4\uC2DC \uBC30\uCE58\uC5D0 \uC0AC\uC6A9\uB418\uB294
+      \uD0A4\uD2B8 \uD504\uB9AC\uD339."
+  - namePattern: Castle_Workshop
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC124\uC0B0 \uC131\uCC44 \uB3C4\uC2DC \uBC30\uCE58\uC5D0 \uC0AC\uC6A9\uB418\uB294
+      \uD0A4\uD2B8 \uD504\uB9AC\uD339."
+  - namePattern: Town_Granary
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC124\uC0B0 \uC131\uCC44 \uB3C4\uC2DC \uBC30\uCE58\uC5D0 \uC0AC\uC6A9\uB418\uB294
+      \uD0A4\uD2B8 \uD504\uB9AC\uD339."
+  - namePattern: Town_Smithy
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC124\uC0B0 \uC131\uCC44 \uB3C4\uC2DC \uBC30\uCE58\uC5D0 \uC0AC\uC6A9\uB418\uB294
+      \uD0A4\uD2B8 \uD504\uB9AC\uD339."
+  - namePattern: Town_Stable
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC124\uC0B0 \uC131\uCC44 \uB3C4\uC2DC \uBC30\uCE58\uC5D0 \uC0AC\uC6A9\uB418\uB294
+      \uD0A4\uD2B8 \uD504\uB9AC\uD339."
+  - namePattern: Town_Shrine
+    isPrefix: 0
+    mode: 0
+    coversInterior: 1
+    note: "\uC124\uC0B0 \uC131\uCC44 \uB3C4\uC2DC \uBC30\uCE58\uC5D0 \uC0AC\uC6A9\uB418\uB294
+      \uD0A4\uD2B8 \uD504\uB9AC\uD339."
+  - namePattern: Castle_Wall_Buttress
+    isPrefix: 0
+    mode: 1
+    coversInterior: 0
+    note: "\uC124\uC0B0 \uC131\uCC44 \uB3C4\uC2DC \uBC30\uCE58\uC5D0 \uC0AC\uC6A9\uB418\uB294
+      \uD0A4\uD2B8 \uD504\uB9AC\uD339."
+  - namePattern: RB_Adobe
+    isPrefix: 1
+    mode: 0
+    coversInterior: 1
+    note: "\uD3C9\uC9C0\uBD95 \uC0AC\uC554 \uC8FC\uD0DD\xB7\uB9DD\uB8E8\uC758 \uC9C0\uBD95
+      \uCDA9\uB3CC"
+  - namePattern: RB_DesertStonework_
+    isPrefix: 1
+    mode: 1
+    coversInterior: 0
+    note: "\uD3EC\uAD6C\uC758 \uBCF4\uD589\uBA74\uACFC \uC804\uB9DD\uB300 \uB09C\uAC04"

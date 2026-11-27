@@ -1,5 +1,7 @@
 # 플레이어와 화면
 
+지도 탐험 안개(2026-11-27): [설계](../../Assets/docs/design/ui-player/MAP_EXPLORATION_FOG_DESIGN.md)·[작업 상태](../work-status/map-exploration-fog.md). RiverBasin4km 전체 지도에서 지나간 주변만 드러나고, 마을·포탈·NPC·적 아이콘은 안개 속에서 숨는다(퀘스트·사용자 마커는 유지). 세이브 3.7에 기록하며 이전 저장은 전부 안개다. HUD 미니맵·지역 목록은 레거시라 대상에서 뺐다. Editor·Development 빌드용 치트(지역 이동 탭 `현재 지도 전부 밝히기`, 저장에 남음)를 추가했다. 컴파일·UI EditMode 193/193·Development 설정 스크립트 컴파일·펫 저장 31/31 통과. Play Mode에서 안개 표시와 임시 마커의 표시/숨김을 확인했고 치트의 Play 확인은 미수행이다. 이동·저장·입력·치트와 체감은 MF01~MF10 사용자 테스트 대기다.
+
 퀘스트 길안내 연출(2026-11-22): [설계](../../Assets/docs/design/ui-player/QUEST_PATH_GUIDANCE_DESIGN.md)·[작업 상태](../work-status/quest-path-guidance.md). 미니맵 HUD 없이 키 탭 1회로 목표 방향 길을 나비가 안내하고(가까운 실제 나비 군집 + 경로 전체를 흐르는 빛나는 나비 행렬·잔광, 약 18초), 연출은 인터페이스로 분리해 바람 등으로 교체한다. 경로가 없으면 아무 연출도 하지 않고, 전투 중에는 X가 동작하지 않으며, 퀘스트 UI와 시간·날씨 표시는 평소 숨기고 X 입력 시 퀘스트만 잠시 보인다(시계 HUD 제거). P0~P4를 구현했다(나비·바람 구현체, 미니맵 HUD 기본 비표시, 입력 X / L3+서쪽 버튼). 정상 컴파일·UI·Input EditMode 214/214 통과. 실제 월드 길안내·미관·입력은 GD01~GD07 사용자 테스트 대기다.
 
 **RiverBasin4km 섬과 보행교 미니맵.** 남부 호수의 섬 8개와 보행교 10개가 들어간 실제 지형을 4096×4096으로 다시 촬영했다. 기존 미니맵 스프라이트 GUID와 좌표를 유지했다. [지도와 검증](../work-status/river-basin-world.md#4km-남부-호수-섬)

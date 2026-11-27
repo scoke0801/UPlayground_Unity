@@ -119,6 +119,8 @@ namespace UPlayGround.UI
         private float               _currentZoom = 1f;
         private Vector2             _panOffset;
 
+        private readonly UIMapFogOverlay _fogOverlay = new();
+
         private readonly Dictionary<MonsterActor, MinimapEntityIcon> _enemyIconMap        = new();
         private readonly Dictionary<GameActor,    MinimapEntityIcon> _actorIconMap        = new();
         private readonly List<string> _tempRemoveIds = new();
@@ -293,6 +295,7 @@ namespace UPlayGround.UI
 
             ClearAllIcons();
             ClearBrowsePortals();
+            _fogOverlay.Release();
         }
 
         protected override void RegisterInputEvents()
@@ -311,6 +314,8 @@ namespace UPlayGround.UI
         {
             if (!IsVisible || _config == null) return;
 
+            _fogOverlay.Refresh(UISvc.MapExploration, _mapBackground, _viewRegionMapId,
+                _config, _usesWorldCoordinates);
             UpdateBrowsePortals();
             // 브라우즈 모드: 다른 지역 미리보기 — 라이브 마커는 갱신하지 않고 데이터 포탈만 배치한다.
             if (IsBrowsing)
@@ -579,6 +584,16 @@ namespace UPlayGround.UI
             _playerIcon.localRotation    = Quaternion.Euler(0f, 0f, -(_usesWorldCoordinates ? _player.transform.rotation : WorldCoordinates.ToSource(_viewRegionMapId, _player.transform.rotation)).eulerAngles.y);
         }
 
+        /// <summary>
+        /// 마을·포탈·NPC·적처럼 가 봐야 알 수 있는 아이콘은 안개 속에서 숨긴다(클릭 이동도 함께 막힌다).
+        /// 퀘스트·사용자 마커는 길찾기 수단이라 이 경로를 쓰지 않는다.
+        /// </summary>
+        private void PlaceIconUnderFog(MinimapEntityIcon icon, Vector3 mapPosition, bool isVisible)
+        {
+            icon.UpdateIcon(_config.WorldToMapImagePos(mapPosition, _mapDisplaySize) * _currentZoom,
+                isVisible && _fogOverlay.IsRevealed(mapPosition));
+        }
+
         // ── 적 아이콘 ────────────────────────────────────────────
 
         private void UpdateEnemyIcons()
@@ -590,7 +605,7 @@ namespace UPlayGround.UI
                 bool isDetected = monster.Detection?.HasTarget == true;
                 icon.SetColor(isDetected ? _config.enemyDetected.color : _config.enemy.color);
                 bool inRange = IsInProximity(monster.transform.position) && Cat(MapMarkerCategory.Enemy);
-                icon.UpdateIcon(_config.WorldToMapImagePos(ToMapPosition(monster.transform.position), _mapDisplaySize) * _currentZoom, inRange);
+                PlaceIconUnderFog(icon, ToMapPosition(monster.transform.position), inRange);
             }
             CleanupDeadEntries(toRemove, _enemyIconMap);
         }
@@ -604,7 +619,7 @@ namespace UPlayGround.UI
             {
                 if (actor == null || icon == null) { toRemove.Add(actor); continue; }
                 bool inRange = IsInProximity(actor.transform.position) && Cat(MapMarkerCategory.Npc);
-                icon.UpdateIcon(_config.WorldToMapImagePos(ToMapPosition(actor.transform.position), _mapDisplaySize) * _currentZoom, inRange);
+                PlaceIconUnderFog(icon, ToMapPosition(actor.transform.position), inRange);
             }
             CleanupDeadEntries(toRemove, _actorIconMap);
         }
@@ -707,7 +722,7 @@ namespace UPlayGround.UI
                 if (icon == null) { _tempRemoveIds.Add(locationId); continue; }
                 if (!MinimapMarkerRegistry.TryGet(locationId, out var registrar))
                 { _tempRemoveIds.Add(locationId); continue; }
-                icon.UpdateIcon(_config.WorldToMapImagePos(ToMapPosition(registrar.WorldPosition), _mapDisplaySize) * _currentZoom, Cat(MapMarkerCategory.StaticMarker));
+                PlaceIconUnderFog(icon, ToMapPosition(registrar.WorldPosition), Cat(MapMarkerCategory.StaticMarker));
             }
 
             foreach (var id in _tempRemoveIds)

@@ -326,6 +326,16 @@ namespace UPlayGround.UI
         void LoadScene(string sceneName, Vector3 arrivalPosition);
     }
 
+    public interface IUIMapExplorationService : IGameService
+    {
+        /// <summary>
+        /// 표시 중인 지도의 탐험 안개를 돌려준다. 안개를 쓰지 않는 지도면 false.
+        /// <paramref name="isWorldMap"/>은 연속 월드 공통 지도를 보고 있는지 여부다.
+        /// </summary>
+        bool TryGetFogView(string mapId, UPlayGround.Data.UI.MinimapIconConfigSO config, bool isWorldMap,
+            out UPlayGround.Data.UI.MapFogView view);
+    }
+
     public interface IUISettingsService : ISettingsService
     {
         IReadOnlyList<string> ResolutionOptions { get; }
@@ -362,6 +372,7 @@ namespace UPlayGround.UI
         public static IUIRecipeService Recipe => Services.Get<IUIRecipeService>();
         public static IUISaveService Save => Services.Get<IUISaveService>();
         public static IUISceneService Scene => Services.Get<IUISceneService>();
+        public static IUIMapExplorationService MapExploration => Services.Get<IUIMapExplorationService>();
         public static IUISettingsService Settings => Services.Get<IUISettingsService>();
         public static IUIRuntimeService UI => Services.Get<IUIRuntimeService>();
     }

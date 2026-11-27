@@ -38,6 +38,9 @@ namespace UPlayGround.Manager
             return isIncluded ? _readyContext.WorldMapConfig : null;
         }
 
+        /// <summary>공통 월드 지도를 소유한 씬의 MapID. 도보로 논리 지역이 바뀌어도 유지된다.</summary>
+        public string WorldMapRootId => _readyContext != null ? _readyContext.MapID : null;
+
         /// <summary>도보 경계는 전역 씬 생명주기를 실행하지 않고 지도 식별자만 변경한다.</summary>
         public void SetLogicalRegion(string mapId)
         {

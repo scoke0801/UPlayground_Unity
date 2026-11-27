@@ -110,6 +110,14 @@ namespace UPlayGround.Data.UI
         [Tooltip("배경 스프라이트가 월드 축과 어긋난 경우 중심 기준으로 회전 보정합니다.")]
         public float rotationDegrees;
 
+        [Header("탐험 안개")]
+        [Tooltip("끄면 이 지도는 처음부터 전부 보인다.")]
+        public bool useExplorationFog = true;
+
+        [Tooltip("플레이어 주변이 밝혀지는 반경(월드 단위). 0이면 MapFogSettings의 지도 크기 비례값을 쓴다.")]
+        [Min(0f)]
+        public float fogRevealRadius;
+
         // ── 확대 맵 모드 (M키 토글) ──────────────────────────────
         [Header("확대 맵 모드 (M키 토글)")]
         [Tooltip("확대 맵 시 마스크 크기 (픽셀)")]

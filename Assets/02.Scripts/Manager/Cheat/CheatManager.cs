@@ -18,6 +18,7 @@ namespace UPlayGround.Manager
         Codex,
         Spawn,
         Travel,
+        Map,
     }
 
     /// <summary>치트 실행 로그 1건.</summary>

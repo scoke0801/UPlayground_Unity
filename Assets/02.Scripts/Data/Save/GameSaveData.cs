@@ -11,7 +11,7 @@ namespace UPlayGround.Data.Save
     [Serializable]
     public class GameSaveData
     {
-        public string saveVersion = "3.6";
+        public string saveVersion = "3.7";
         public string saveDateTime;
         public InventorySaveData inventory = new InventorySaveData();
         public MerchantSaveData merchant = new MerchantSaveData();
@@ -27,6 +27,34 @@ namespace UPlayGround.Data.Save
         public List<MonsterCodexEntrySave> monsterCodex = new List<MonsterCodexEntrySave>();
         public Pet.PetSaveData pet;
         public List<GroundDropRecord> groundDrops = new();
+        public MapExplorationSaveData mapExploration = new MapExplorationSaveData();
+    }
+
+    // ──────────────────────────────────────────────────────────
+    // Map Exploration (지도 탐험 안개)
+
+    [Serializable]
+    public sealed class MapExplorationSaveData
+    {
+        public List<MapExplorationLayerSaveData> layers = new();
+    }
+
+    /// <summary>지도 한 장의 탐험 격자.</summary>
+    [Serializable]
+    public sealed class MapExplorationLayerSaveData
+    {
+        public string key;
+        public float cellSize;
+        public List<MapExplorationChunkSaveData> chunks = new();
+    }
+
+    [Serializable]
+    public sealed class MapExplorationChunkSaveData
+    {
+        public int x;
+        public int y;
+        /// <summary>32×32 칸 비트마스크(128바이트)의 Base64.</summary>
+        public string bits;
     }
 
     /// <summary>현재 새 게임 범위에서 누적한 몬스터 종별 도감 기록.</summary>

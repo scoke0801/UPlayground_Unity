@@ -196,7 +196,7 @@ namespace UPlayGround.UI.DevCheat
                 CheatTab.Effect => "<b>버프 / 디버프</b>\n활성 캐릭터에게 Effect 발급,\n활성 Effect 개별 또는 전체 제거.",
                 CheatTab.Codex => "<b>도감</b>\n몬스터 선택 후 도감 대상 등록(100% 기록)\n또는 기록 제거.",
                 CheatTab.Spawn => "<b>스폰</b>\nActorDatabase 액터를 검색·선택해\n플레이어 전방에 마리 수/거리 지정 소환.",
-                CheatTab.Travel => "<b>지역 이동</b>\n본편 진행 조건을 무시하고\n지도에 등록된 지역으로 바로 이동.",
+                CheatTab.Travel => "<b>지역 이동</b>\n본편 진행 조건을 무시하고\n지도에 등록된 지역으로 바로 이동.\n현재 지도의 탐험 안개 전부 걷기.",
                 _ => string.Empty,
             };
         }

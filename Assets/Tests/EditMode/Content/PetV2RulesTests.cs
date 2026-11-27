@@ -137,7 +137,7 @@ namespace UPlayGround.Content.Tests
                 { owned = new() { new() { petId = "Pet.Monkey" } }, selectedPetId = "Pet.Monkey" } };
             var type = System.Type.GetType("UPlayGround.Manager.SaveManager, Assembly-CSharp", true);
             type.GetMethod("MigrateToCurrentVersion", BindingFlags.NonPublic | BindingFlags.Static).Invoke(null, new object[] { data });
-            Assert.That(data.saveVersion, Is.EqualTo("3.6"));
+            Assert.That(data.saveVersion, Is.EqualTo("3.7"));
             Assert.That(data.pet.skills.Count, Is.EqualTo(PetSkillCatalogSO.SkillIds.Length));
             Assert.That(data.pet.skills.TrueForAll(skill => skill.level == 1), Is.True);
             Assert.That(data.pet.isAutoPickupEnabled, Is.True);

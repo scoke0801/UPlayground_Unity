@@ -42,7 +42,7 @@ Camera 모듈은 이식 가능한 런타임 경계를 위해 내부에서 `Svc.*
 
 `GameManager`가 최상위 싱글톤으로 모든 서브 매니저를 순차 초기화한다. 모든 매니저는 `BaseManager<T>`(제네릭 싱글톤)를 상속하고 `IManager`를 구현한다. 생명주기: `Init → AfterInit → OnUpdate/OnFixedUpdate/OnLateUpdate → Dispose → OnSceneChanged`.
 
-등록 순: SaveManager, InputManager, AssetManager, SettingsManager, SoundManager, UIManager, CameraManager, GameObjectManager, PartyManager, ActorSimulationManager, ItemManager, InventoryManager, EventManager, GameCombatManager, GlobalFlagManager, DialogueManager, StoryManager, GameTimeManager, WorldStateManager, ActorSpawnManager, AgentTickManager, SceneManager, InteractionRespawnManager, MonsterRespawnManager, WorldLightingManager, DebugGizmoManager(에디터 전용), CheatManager, RecipeManager, QuestManager, FlowGraphManager, GameGuideManager.
+등록 순: SaveManager, InputManager, AssetManager, SettingsManager, SoundManager, UIManager, CameraManager, GameObjectManager, PartyManager, ActorSimulationManager, ItemManager, InventoryManager, EventManager, GameCombatManager, GlobalFlagManager, DialogueManager, StoryManager, GameTimeManager, WorldStateManager, ActorSpawnManager, AgentTickManager, SceneManager, MapExplorationManager, InteractionRespawnManager, MonsterRespawnManager, WorldLightingManager, DebugGizmoManager(에디터 전용), CheatManager, RecipeManager, QuestManager, FlowGraphManager, GameGuideManager.
 
 히트스톱·바이탈오브·방어성공 피드백·레벨업 피드백은 별도 매니저가 아니라 `GameCombatManager` 산하 핸들러(`Manager/Handler/Combat/`)다.
 

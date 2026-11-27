@@ -37,7 +37,7 @@ namespace UPlayGround.Manager
         public bool IsPreparingSceneLoad { get; private set; }
         private const string TEMP_FILE_EXTENSION = ".tmp";
         private const string BACKUP_FILE_EXTENSION = ".bak";
-        private const string CURRENT_SAVE_VERSION = "3.6";    // 펫 공용 성장·지원 snapshot을 포함한다.
+        private const string CURRENT_SAVE_VERSION = "3.7";    // 지도 탐험 기록을 포함한다.
 
         private static readonly Regex SaveFileRegex = new Regex(
             $"^{Regex.Escape(SAVE_FILE_PREFIX)}(?<slot>\\d+){Regex.Escape(SAVE_FILE_EXTENSION)}(?:{Regex.Escape(BACKUP_FILE_EXTENSION)})?$",
@@ -660,6 +660,7 @@ namespace UPlayGround.Manager
             data.world ??= new WorldStateSaveData();
             data.monsterCodex ??= new List<MonsterCodexEntrySave>();
             data.groundDrops ??= new List<UPlayGround.Data.Item.GroundDropRecord>();
+            data.mapExploration ??= new MapExplorationSaveData();
             if (data.pet != null) data.pet = UPlayGround.Data.Pet.PetSaveRules.Normalize(data.pet);
             LianPersistentIdMigration.Migrate(data);
             data.saveVersion = CURRENT_SAVE_VERSION;

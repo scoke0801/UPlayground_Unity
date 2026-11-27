@@ -229,8 +229,7 @@ namespace UPlayGround.UI
             if (_config == null) return;
             foreach (var bp in _browsePortalIcons)
                 if (bp.icon != null)
-                    bp.icon.UpdateIcon(_config.WorldToMapImagePos(bp.worldPos, _mapDisplaySize) * _currentZoom,
-                        Cat(MapMarkerCategory.StaticMarker));
+                    PlaceIconUnderFog(bp.icon, bp.worldPos, Cat(MapMarkerCategory.StaticMarker));
         }
 
         private void ClearBrowsePortals()

@@ -119,6 +119,7 @@ namespace UPlayGround.Manager
             RegisterManager(GroundDropManager.Instance);
             RegisterManager(PetManager.Instance);
             RegisterManager(SceneManager.Instance);
+            RegisterManager(MapExplorationManager.Instance); // 지도 탐험 기록·안개 (Scene 이후)
             RegisterManager(InteractionRespawnManager.Instance); // 월드 리스폰 시 소모된 인터랙션 오브젝트 복구
             RegisterManager(MonsterRespawnManager.Instance); // 시간 기반 몬스터 재스폰 (WorldState/ActorSpawn/Scene 이후)
             RegisterManager(WorldLightingManager.Instance);  // 낮밤 조명 (씬 컨텍스트 확정 이후)

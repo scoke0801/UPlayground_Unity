@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e71a75f3f7e58b340a5142aa2e5d4aaf, type: 3}
+  m_Name: MapFogSettings
+  m_EditorClassIdentifier: UPlayGround.Data::UPlayGround.Data.UI.MapFogSettingsSO
+  fogMaterial: {fileID: 2100000, guid: b6a440bc7ced58e4099f9bb0f5cb301c, type: 2}
+  revealRadiusRatio: 0.03
+  minRevealRadius: 18
+  maxRevealRadius: 90
+  maxCellsPerSide: 384
+  minCellSize: 2
+  recordInterval: 0.2

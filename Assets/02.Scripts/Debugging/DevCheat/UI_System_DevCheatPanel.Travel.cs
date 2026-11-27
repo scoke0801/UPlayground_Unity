@@ -19,6 +19,10 @@ namespace UPlayGround.UI.DevCheat
             var v = AddVLG(panel.gameObject, 10, 12);
             v.childForceExpandHeight = false;
 
+            var revealButton = MakeButton(panel, "현재 지도 전부 밝히기 (저장에 남음)", AccentBtn,
+                () => CheatManager.Instance?.RevealCurrentMap(), 16);
+            SetSize(revealButton.gameObject, minH: 44, prefH: 44);
+
             var title = MakeText(panel, "지역 이동", 22, Accent, TextAlignmentOptions.Left);
             SetSize(title.gameObject, minH: 34, prefH: 34);
 

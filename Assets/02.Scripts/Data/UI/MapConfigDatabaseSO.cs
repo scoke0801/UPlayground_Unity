@@ -30,6 +30,12 @@ namespace UPlayGround.Data.UI
         [Tooltip("새 게임 시작 시 진입할 씬(mapId). Entry.mapId 중 하나와 일치시킬 것.")]
         [SerializeField] private string _defaultStartMapId;
 
+        [Header("탐험 안개")]
+        [SerializeField] private MapFogSettingsSO _fogSettings;
+
+        /// <summary>탐험 안개 공통 설정. 비어 있으면 안개 기능 전체가 꺼진다.</summary>
+        public MapFogSettingsSO FogSettings => _fogSettings;
+
         /// <summary> 등록된 모든 엔트리 (지역 선택 UI 등에서 순회용). </summary>
         public IReadOnlyList<Entry> Entries => _entries;
 

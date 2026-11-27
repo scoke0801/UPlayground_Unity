@@ -32,6 +32,31 @@ namespace UPlayGround.Data.Event
         public bool suppressWeaponAim;
         [Min(0f)] public float weaponAimBlendIn = 0.2f;
         [Min(0f)] public float weaponAimBlendOut = 0.12f;
+        [Tooltip("TargetPosition·지면 투영 발사에서도 상체와 팔을 실제 착탄점으로 조준한다. 자세만 보정하며 발사 방향은 바꾸지 않는다.")]
+        public bool aimPoseAtResolvedTarget;
+
+        /// <summary>무기 조준 IK가 이 발사 구간에서 자세를 보정하는지 여부.</summary>
+        public bool UsesWeaponAimPose => !suppressWeaponAim
+            && (aimPoseAtResolvedTarget
+                || (!projectTargetToGround && (targetMode == ProjectileTargetMode.Forward || targetMode == ProjectileTargetMode.LockOnTarget)));
+
+        /// <summary>조준 대상 좌표를 이 발사가 실제로 향하는 점(오프셋·지면 투영)으로 바꾼다.</summary>
+        public Vector3 ResolveWeaponAimPoint(Vector3 targetPoint)
+        {
+            targetPoint += targetOffset;
+            return aimPoseAtResolvedTarget && projectTargetToGround ? ProjectToGround(targetPoint) : targetPoint;
+        }
+
+        /// <summary>대상이 없을 때 플레이어 정면 폴백 착탄점을 자세 조준점으로 쓴다.</summary>
+        public bool TryGetFallbackWeaponAimPoint(Transform actorRoot, out Vector3 point)
+        {
+            point = default;
+            if (!aimPoseAtResolvedTarget || targetMode != ProjectileTargetMode.TargetPosition
+                || playerTargetFallbackDistance <= 0f || actorRoot == null) return false;
+            point = ResolveWeaponAimPoint(actorRoot.position
+                + Vector3.ProjectOnPlane(actorRoot.forward, Vector3.up).normalized * playerTargetFallbackDistance);
+            return true;
+        }
 
         private static readonly List<ProjectilePatternShot> PatternShots = new(16);
 

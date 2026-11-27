@@ -28,6 +28,8 @@ namespace UPlayGround.Components
         [Range(0f, 180f)] public float fullAimAngle = 35f;
         [Range(0f, 180f)] public float cutoffAngle = 75f;
         [Min(0f)] public float releaseSpeed = 10f;
+        [Tooltip("0보다 크면 반대손이 무기 축에서 이 거리 안에 있을 때만 양손 파지로 보고 주손을 따라가게 한다(투척처럼 손을 뗀 자세는 원본 유지). 0이면 항상 따라간다.")]
+        [Min(0f)] public float offHandGripDistance;
     }
 
     /// <summary>타격 타임라인에 맞춰 무기 축을 조준하고 양손의 애니메이션 관계를 보존한다.</summary>
@@ -47,6 +49,7 @@ namespace UPlayGround.Components
         private Vector3 _lastTargetPoint;
         private float _weight;
         private bool _hasTargetPoint;
+        private bool _isThrowFollowThrough;
 
         /// <summary>モデル初期化時にボーンと武器の手側Constraintを解決する。</summary>
         public void Initialize(PlayerActorAnimator motion, PlayerActor owner, WeaponAimSettings settings)
@@ -154,9 +157,13 @@ namespace UPlayGround.Components
                 ? WeaponAimMath.EvaluateMotionWeight(_motion.CurrentMotionSet, _motion.CurrentEvaluatedMotionSetTime, out aimEvent)
                 : 0f;
             bool hasTarget = TryGetTargetPoint(out Vector3 point, out _);
+            var projectile = aimEvent as SpawnProjectileEvent;
+            if (hasTarget && projectile != null)
+                point = projectile.ResolveWeaponAimPoint(point);
+            else if (!hasTarget && projectile != null && window > 0f)
+                hasTarget = projectile.TryGetFallbackWeaponAimPoint(_owner.transform, out point);
             if (hasTarget)
             {
-                if (aimEvent is SpawnProjectileEvent projectile) point += projectile.targetOffset;
                 _lastTargetPoint = point;
                 _hasTargetPoint = true;
             }
@@ -166,7 +173,8 @@ namespace UPlayGround.Components
                 _settings.releaseSpeed * Time.deltaTime * Mathf.Max(0f, _owner.LocalTimeScale));
             if (_weight <= 0f || !_hasTargetPoint) return;
 
-            GetAimRay(out Vector3 origin, out Vector3 axis);
+            _isThrowFollowThrough = IsAfterThrowRelease(projectile);
+            GetPoseRay(out Vector3 origin, out Vector3 axis);
             float angleWeight = WeaponAimMath.EvaluateAngleWeight(axis, _lastTargetPoint - origin,
                 _settings.fullAimAngle, _settings.cutoffAngle);
             float weight = _weight * angleWeight;
@@ -174,13 +182,43 @@ namespace UPlayGround.Components
 
             RotateBone(_chest, _settings.chestAngle, weight * _settings.chestShare);
             // 원본 포즈의 양손 간격을 보존하므로 창의 미끄러지는 그립과 발사 후 손떼기도 유지한다.
-            Vector3 offPosition = _offHand != null ? _mainHand.InverseTransformPoint(_offHand.position) : default;
-            Quaternion offRotation = _offHand != null ? Quaternion.Inverse(_mainHand.rotation) * _offHand.rotation : Quaternion.identity;
+            bool offHandOnWeapon = IsOffHandOnWeapon();
+            Vector3 offPosition = offHandOnWeapon ? _mainHand.InverseTransformPoint(_offHand.position) : default;
+            Quaternion offRotation = offHandOnWeapon ? Quaternion.Inverse(_mainHand.rotation) * _offHand.rotation : Quaternion.identity;
             RotateBone(_mainArm, _settings.armAngle, weight);
-            if (_offArm != null && _offForearm != null && _offHand != null)
+            if (offHandOnWeapon && _offArm != null && _offForearm != null)
                 TwoBoneIk.SolveTwoBoneIK(_offArm, _offForearm, _offHand,
                     (_mainHand.TransformPoint(offPosition), _mainHand.rotation * offRotation),
                     hint: null, targetWeight: 1f, hintWeight: 0f);
+        }
+
+        /// <summary>착탄점 조준 투척은 발사 뒤 손을 떠난 무기 대신 팔 방향으로 팔로스루를 조준한다.</summary>
+        private bool IsAfterThrowRelease(SpawnProjectileEvent projectile)
+        {
+            if (projectile == null || !projectile.aimPoseAtResolvedTarget) return false;
+            MotionSet set = _motion.CurrentMotionSet;
+            return set != null && MotionTimelineResolver.TryGetEventGlobalRange(set, projectile, out float start, out _)
+                && _motion.CurrentEvaluatedMotionSetTime > start;
+        }
+
+        private void GetPoseRay(out Vector3 origin, out Vector3 axis)
+        {
+            if (!_isThrowFollowThrough)
+            {
+                GetAimRay(out origin, out axis);
+                return;
+            }
+            origin = _mainArm.position;
+            axis = (_mainHand.position - origin).normalized;
+        }
+
+        private bool IsOffHandOnWeapon()
+        {
+            if (_offHand == null) return false;
+            if (_settings.offHandGripDistance <= 0f) return true;
+            GetAimRay(out Vector3 origin, out Vector3 axis);
+            Vector3 toHand = _offHand.position - origin;
+            return Vector3.Cross(axis, toHand).sqrMagnitude <= _settings.offHandGripDistance * _settings.offHandGripDistance;
         }
 
         private void GetAimRay(out Vector3 origin, out Vector3 axis)
@@ -196,7 +234,7 @@ namespace UPlayGround.Components
         private void RotateBone(Transform bone, float limit, float weight)
         {
             if (bone == null) return;
-            GetAimRay(out Vector3 origin, out Vector3 axis);
+            GetPoseRay(out Vector3 origin, out Vector3 axis);
             Quaternion correction = WeaponAimMath.GetPivotCorrection(bone.position, origin, axis, _lastTargetPoint, limit, weight);
             bone.rotation = correction * bone.rotation;
         }
@@ -273,9 +311,7 @@ namespace UPlayGround.Components
                     lead = collision.weaponAimBlendIn;
                     release = collision.weaponAimBlendOut;
                 }
-                else if (evt is SpawnProjectileEvent projectile && !projectile.suppressWeaponAim
-                    && !projectile.projectTargetToGround
-                    && (projectile.targetMode == ProjectileTargetMode.Forward || projectile.targetMode == ProjectileTargetMode.LockOnTarget))
+                else if (evt is SpawnProjectileEvent projectile && projectile.UsesWeaponAimPose)
                 {
                     lead = projectile.weaponAimBlendIn;
                     release = projectile.weaponAimBlendOut;

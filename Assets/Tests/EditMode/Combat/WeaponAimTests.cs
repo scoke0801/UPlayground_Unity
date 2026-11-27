@@ -113,6 +113,27 @@ namespace UPlayGround.Combat.Tests
             Assert.That(WeaponAimMath.EvaluateMotionWeight(set, 1.2f), Is.Zero);
             shot.projectTargetToGround = true;
             Assert.That(WeaponAimMath.EvaluateMotionWeight(set, 1f), Is.Zero);
+            shot.aimPoseAtResolvedTarget = true;
+            Assert.That(WeaponAimMath.EvaluateMotionWeight(set, 1f), Is.EqualTo(1f), "지면 투영 발사도 옵트인하면 자세를 조준한다.");
+            shot.suppressWeaponAim = true;
+            Assert.That(WeaponAimMath.EvaluateMotionWeight(set, 1f), Is.Zero, "억제 플래그가 옵트인보다 우선한다.");
+        }
+
+        [Test]
+        public void GroundTargetAim_UsesOffsetAndFallbackOnlyWhenOptedIn()
+        {
+            var shot = new SpawnProjectileEvent { targetOffset = new Vector3(0f, 0.5f, 0f), groundProbeHeight = 0f, groundProbeDistance = 0.01f,
+                targetMode = ProjectileTargetMode.TargetPosition, playerTargetFallbackDistance = 8f, groundLayerMask = 0 };
+            Assert.That(shot.ResolveWeaponAimPoint(Vector3.one), Is.EqualTo(new Vector3(1f, 1.5f, 1f)));
+            var root = new GameObject("AimRoot").transform;
+            try
+            {
+                Assert.That(shot.TryGetFallbackWeaponAimPoint(root, out _), Is.False, "옵트인 전에는 폴백 조준점을 만들지 않는다.");
+                shot.aimPoseAtResolvedTarget = true;
+                Assert.That(shot.TryGetFallbackWeaponAimPoint(root, out Vector3 fallback), Is.True);
+                Assert.That(fallback, Is.EqualTo(new Vector3(0f, 0.5f, 8f)));
+            }
+            finally { UnityEngine.Object.DestroyImmediate(root.gameObject); }
         }
 
         [TestCase("H09", WeaponType.Staff)]

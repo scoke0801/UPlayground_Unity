@@ -1,0 +1,116 @@
+// 레이네 도약 조준 투척 클립 합성기 (MCP execute_code 본문, 첫 두 줄 주석 제외 그대로 실행). 2026-11-26 2회차.
+// 원본: Frank Spear Skill02(웅크림·양손 조준·도약 하체·복귀) + RPG Item_Throw_1(골반 선행 상체 투척·착지 런지). Humanoid 근육 공간 리타임·블렌드만 하고, 절차 저작은 투척 손목 방향 보정과 해제 손가락 열림뿐이다. 높이는 KCC가 담당하므로 매 프레임 가장 낮은 발을 기준 높이에 맞춘다.
+var outPath="Assets/07.Animations/Player/UltimateRedesign/Reine_LeapThrow.anim";
+var refClip=AssetDatabase.LoadAssetAtPath<AnimationClip>("Assets/07.Animations/Player/UltimateRedesign/Reine_GripRevision.anim");
+System.Func<string,AnimationClip> load=p=>{foreach(var a in AssetDatabase.LoadAllAssetsAtPath(p))if(a is AnimationClip&&!a.name.StartsWith("__"))return (AnimationClip)a;return null;};
+var S=load("Assets/ExternalAssets/AnimationOnly/Frank_Slash_Pack/Assets/Animations/Frank_SlashPack_Spear/FBX_Animation/Frank_RPG_Spear_Skill02.FBX");
+var T=load("Assets/ExternalAssets/AnimationOnly/RPG_Animations_Pack/FBX_Animations/Actions/Item/Item_Throw_1.fbx");
+const float FPS=30f; const float LEN=2.95f; const float RELEASE=1.44f; const float TAKEOFF=0.85f; const float LAND=1.80f;
+// 시간 대응표(출력 시각 -> 원본 시각). Item_Throw_1 1.00(런지 최저)을 착지 직후 1.82에 둔다.
+float[] sLegOut={0f,0.75f,0.85f,1.70f,1.82f}; float[] sLegSrc={0f,0.36f,0.50f,0.92f,0.98f};
+float[] sUpOut={0f,0.75f,0.90f}; float[] sUpSrc={0f,0.36f,0.45f};
+float[] sEndOut={2.25f,2.95f}; float[] sEndSrc={2.25f,2.6667f};
+float[] tOut={0.80f,1.30f,1.44f,1.82f,2.15f,2.65f,2.95f}; float[] tSrc={0.40f,0.73f,0.87f,1.00f,1.18f,1.85f,2.0f};
+System.Func<float[],float[],float,float> pw=(xo,xs,t)=>{if(t<=xo[0])return xs[0];for(int i=1;i<xo.Length;i++)if(t<=xo[i]){float u=(t-xo[i-1])/(xo[i]-xo[i-1]);return Mathf.Lerp(xs[i-1],xs[i],u);}return xs[xs.Length-1];};
+System.Func<float,float,float,float> ramp=(a,b,t)=>{float u=Mathf.Clamp01((t-a)/(b-a));return u*u*(3f-2f*u);};
+System.Func<float,float> wUpT=t=>ramp(0.70f,0.90f,t);
+System.Func<float,float> wLegT=t=>ramp(1.58f,1.82f,t);
+System.Func<float,float> wUpEnd=t=>ramp(2.25f,2.60f,t);
+// 다리는 끝까지 투척 원본의 서기 보폭을 유지한다. 클립 안에서 보폭을 바꾸면 디딘 발이 끌린다(대기 전환 블렌드가 맡는다).
+System.Func<float,float> wLegEnd=t=>0f;
+var prefab=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/03.Prefabs/Actor/Player/Models/PlayerModel_Reine.prefab");
+var go=(GameObject)UnityEngine.Object.Instantiate(prefab);go.hideFlags=HideFlags.HideAndDontSave;
+var log=new System.Text.StringBuilder();
+try{
+foreach(var mb in go.GetComponentsInChildren<MonoBehaviour>(true))mb.enabled=false;
+var anim=go.GetComponentInChildren<Animator>();
+var handler=new HumanPoseHandler(anim.avatar,anim.transform);
+int M=HumanTrait.MuscleCount;
+System.Func<AnimationClip,float,HumanPose> getPose=(c,t)=>{go.transform.position=Vector3.zero;go.transform.rotation=Quaternion.identity;c.SampleAnimation(go,Mathf.Clamp(t,0f,c.length));var hp=new HumanPose();handler.GetHumanPose(ref hp);return hp;};
+var isLeg=new bool[M];var isRightFinger=new bool[M];
+for(int i=0;i<M;i++){var hb=(HumanBodyBones)HumanTrait.BoneFromMuscle(i);isLeg[i]=hb==HumanBodyBones.LeftUpperLeg||hb==HumanBodyBones.RightUpperLeg||hb==HumanBodyBones.LeftLowerLeg||hb==HumanBodyBones.RightLowerLeg||hb==HumanBodyBones.LeftFoot||hb==HumanBodyBones.RightFoot||hb==HumanBodyBones.LeftToes||hb==HumanBodyBones.RightToes;
+ var n=HumanTrait.MuscleName[i];isRightFinger[i]=n.StartsWith("Right ")&&(n.Contains("Thumb")||n.Contains("Index")||n.Contains("Middle")||n.Contains("Ring")||n.Contains("Little"));}
+var sRef=getPose(S,0f).bodyPosition; var tRef=getPose(T,0.40f).bodyPosition;
+int N=Mathf.RoundToInt(LEN*FPS)+1;
+var poses=new HumanPose[N];
+for(int f=0;f<N;f++){float t=Mathf.Min(f/FPS,LEN);
+ float wu=wUpT(t)*(1f-wUpEnd(t)); float wl=wLegT(t)*(1f-wLegEnd(t)); float eu=wUpEnd(t), el=wLegEnd(t);
+ var sL=getPose(S,pw(sLegOut,sLegSrc,t)); var sU=getPose(S,pw(sUpOut,sUpSrc,t)); var tp=getPose(T,pw(tOut,tSrc,t)); var se=getPose(S,pw(sEndOut,sEndSrc,t));
+ var hp=new HumanPose();hp.muscles=new float[M];
+ // 오른손 손가락은 해제 전까지 창 원본의 자루 파지를 유지한다(Item_Throw는 작은 물건 파지).
+ for(int i=0;i<M;i++){float sv=isLeg[i]?sL.muscles[i]:sU.muscles[i];float w=isLeg[i]?wl:wu;float e=isLeg[i]?el:eu;if(isRightFinger[i])w*=ramp(RELEASE,RELEASE+0.06f,t);hp.muscles[i]=(1f-w-e)*sv+w*tp.muscles[i]+e*se.muscles[i];}
+ // 몸통 회전은 상체 원본을 따른다(투척의 골반 선행 보존)
+ var qS=sU.bodyRotation; var qT=tp.bodyRotation; if(Quaternion.Dot(qS,qT)<0)qT=new Quaternion(-qT.x,-qT.y,-qT.z,-qT.w);
+ var q=Quaternion.Slerp(qS,qT,wu); var qe=se.bodyRotation; if(Quaternion.Dot(q,qe)<0)qe=new Quaternion(-qe.x,-qe.y,-qe.z,-qe.w); hp.bodyRotation=Quaternion.Slerp(q,qe,eu);
+ var pS=sL.bodyPosition-sRef; var pT=tp.bodyPosition-tRef; var pE=se.bodyPosition-sRef;
+ float wb=Mathf.Max(wu,wl); float sb=Mathf.Max(0f,1f-wb-eu); var pos=sb*pS+wb*pT+eu*pE;
+ hp.bodyPosition=new Vector3(pos.x,sL.bodyPosition.y,pos.z);
+ poses[f]=hp;}
+// 수평 위치: XZ는 포즈에 구워지므로 끝 프레임이 시작 프레임(캡슐 원점)과 같아야 한다. 원본 간 차이는 체공 구간에서 강체 이동으로 흡수한다.
+var end=poses[N-1].bodyPosition; var start=poses[0].bodyPosition;
+for(int f=0;f<N;f++){float u=ramp(TAKEOFF,LAND,f/FPS);var p=poses[f].bodyPosition;p.x-=(end.x-start.x)*u;p.z-=(end.z-start.z)*u;poses[f].bodyPosition=p;}
+var hipsT=anim.GetBoneTransform(HumanBodyBones.Hips);
+System.Action<HumanPose> apply=hp=>{go.transform.position=Vector3.zero;go.transform.rotation=Quaternion.identity;var c=hp;handler.SetHumanPose(ref c);};
+var probe=poses[0];apply(probe);float y0=hipsT.position.y;probe.bodyPosition+=new Vector3(0,0.1f,0);apply(probe);float k=(hipsT.position.y-y0)/0.1f;
+var feet=new[]{anim.GetBoneTransform(HumanBodyBones.LeftFoot),anim.GetBoneTransform(HumanBodyBones.RightFoot),anim.GetBoneTransform(HumanBodyBones.LeftToes),anim.GetBoneTransform(HumanBodyBones.RightToes)};
+System.Func<float> minFoot=()=>{float m=999f;foreach(var tr in feet)if(tr!=null)m=Mathf.Min(m,tr.position.y);return m;};
+apply(getPose(S,0f));float footRef=minFoot();
+for(int f=0;f<N;f++){apply(poses[f]);float d=minFoot()-footRef;var p=poses[f].bodyPosition;p.y-=d/k;poses[f].bodyPosition=p;}
+// 디딘 발 고정: 접지 구간에서 가장 낮은 발끝이 바닥에 닿아 있는 동안 그 위치를 고정하도록 몸 XZ를 보정한다.
+// 웅크림 구간은 시작부터 앞으로, 착지 구간은 끝(캡슐 원점)부터 거꾸로 고정하고 둘의 차이는 체공 구간에서 메운다.
+var toes=new[]{anim.GetBoneTransform(HumanBodyBones.LeftToes),anim.GetBoneTransform(HumanBodyBones.RightToes)};
+var corr=new Vector3[N];int fTake=Mathf.RoundToInt(TAKEOFF*FPS),fLand=Mathf.RoundToInt(LAND*FPS);
+System.Action<int,int,int> anchorPass=(from,to,step)=>{int planted=-1;Vector3 anchor=Vector3.zero;Vector3 acc=Vector3.zero;
+ for(int f=from;f!=to;f+=step){var bp=poses[f].bodyPosition;bp.x+=acc.x/k;bp.z+=acc.z/k;poses[f].bodyPosition=bp;apply(poses[f]);
+  if(planted>=0&&toes[planted].position.y<=footRef+0.04f){var d=toes[planted].position-anchor;d.y=0;bp.x-=d.x/k;bp.z-=d.z/k;poses[f].bodyPosition=bp;acc-=d;corr[f]=acc;continue;}
+  corr[f]=acc;int cand=toes[0].position.y<=toes[1].position.y?0:1;if(toes[cand].position.y>footRef+0.04f){planted=-1;continue;}planted=cand;anchor=toes[cand].position;}};
+anchorPass(0,fTake+1,1);anchorPass(N-1,fLand-1,-1);
+for(int f=fTake+1;f<fLand;f++){float u=ramp(TAKEOFF,LAND,f/FPS);var c=Vector3.Lerp(corr[fTake],corr[fLand],u);var bp=poses[f].bodyPosition;bp.x+=c.x/k;bp.z+=c.z/k;poses[f].bodyPosition=bp;}
+log.Append("k=").Append(k.ToString("F3")).Append(" footRef=").Append(footRef.ToString("F3")).Append(" airShift=").Append((end-start).ToString("F2")).Append(" anchorCorr take=").Append(corr[fTake].ToString("F2")).Append(" land=").Append(corr[fLand].ToString("F2")).Append("; ");
+// 투척 손목 보정: 창끝(+Y, 히트박스 쪽)이 싣기 때 앞·위, 해제 때 앞·아래를 향하도록 오른 전완 비틀기·손목 두 축 탐색
+var pc=prefab.transform.Find("Weapon/Spear").GetComponent<UnityEngine.Animations.ParentConstraint>(); var rotOff=Quaternion.Euler(pc.GetRotationOffset(0));
+var hand=anim.GetBoneTransform(HumanBodyBones.RightHand);
+int iTwist=System.Array.IndexOf(HumanTrait.MuscleName,"Right Forearm Twist In-Out"),iDU=System.Array.IndexOf(HumanTrait.MuscleName,"Right Hand Down-Up"),iIO=System.Array.IndexOf(HumanTrait.MuscleName,"Right Hand In-Out");
+if(iTwist<0||iDU<0||iIO<0)throw new System.Exception("wrist muscles not found");
+System.Func<float,Vector3> desired=t=>Vector3.Slerp(new Vector3(0,0.25f,1).normalized,new Vector3(0,-0.35f,1).normalized,ramp(1.30f,RELEASE,t));
+System.Func<HumanPose,float,float> err=(hp,t)=>{apply(hp);return Vector3.Angle((hand.rotation*rotOff)*Vector3.up,desired(t));};
+float maxBefore=0,maxAfter=0;
+for(int f=0;f<N;f++){float t=f/FPS;float wc=ramp(0.80f,0.95f,t)*(t<=RELEASE+0.001f?1f:0f);if(wc<=0f)continue;
+ var hp=poses[f];float o0=hp.muscles[iTwist],o1=hp.muscles[iDU],o2=hp.muscles[iIO];float before=err(hp,t);
+ float b0=o0,b1=o1,b2=o2,best=before;float step=0.2f;
+ for(int pass=0;pass<3;pass++){float c0=b0,c1=b1,c2=b2;for(int a0=-4;a0<=4;a0++)for(int a1=-4;a1<=4;a1++)for(int a2=-4;a2<=4;a2++){float v0=Mathf.Clamp(c0+a0*step,-1,1),v1=Mathf.Clamp(c1+a1*step,-1,1),v2=Mathf.Clamp(c2+a2*step,-1,1);hp.muscles[iTwist]=v0;hp.muscles[iDU]=v1;hp.muscles[iIO]=v2;float e=err(hp,t)+8f*(Mathf.Abs(v0-o0)+Mathf.Abs(v1-o1)+Mathf.Abs(v2-o2));if(e<best){best=e;b0=v0;b1=v1;b2=v2;}}step*=0.35f;}
+ hp.muscles[iTwist]=Mathf.Lerp(o0,b0,wc);hp.muscles[iDU]=Mathf.Lerp(o1,b1,wc);hp.muscles[iIO]=Mathf.Lerp(o2,b2,wc);poses[f]=hp;
+ float after=err(hp,t);if(wc>0.99f){maxBefore=Mathf.Max(maxBefore,before);maxAfter=Mathf.Max(maxAfter,after);}}
+log.Append("wristErrMax before=").Append(maxBefore.ToString("F1")).Append(" after=").Append(maxAfter.ToString("F1")).Append("; ");
+var sm=new float[N];foreach(var mi in new[]{iTwist,iDU,iIO}){for(int f=0;f<N;f++)sm[f]=0.25f*poses[Mathf.Max(0,f-1)].muscles[mi]+0.5f*poses[f].muscles[mi]+0.25f*poses[Mathf.Min(N-1,f+1)].muscles[mi];for(int f=0;f<N;f++)poses[f].muscles[mi]=sm[f];}
+// 해제 순간 오른손 손가락 열림(1.44~1.50 열림, 1.62까지 유지, 1.85까지 원본 복귀)
+for(int i=0;i<M;i++){var n=HumanTrait.MuscleName[i];if(!isRightFinger[i]||!n.Contains("Stretched"))continue;
+ for(int f=0;f<N;f++){float t=f/FPS;float w=ramp(RELEASE,RELEASE+0.06f,t)*(1f-ramp(1.62f,1.85f,t));if(w>0)poses[f].muscles[i]=Mathf.Lerp(poses[f].muscles[i],0.85f,w);}}
+// 커브 이름 대응(손가락 근육은 "RightHand.Index.1 Stretched" 형식)
+var props=new System.Collections.Generic.HashSet<string>();foreach(var b in AnimationUtility.GetCurveBindings(refClip))props.Add(b.propertyName);
+var rx=new System.Text.RegularExpressions.Regex("^(Left|Right) (Thumb|Index|Middle|Ring|Little) (1|2|3|Spread)( Stretched)?$");
+var names=new string[M];var missList=new System.Text.StringBuilder();
+for(int i=0;i<M;i++){var n=HumanTrait.MuscleName[i];var m=rx.Match(n);if(m.Success)n=m.Groups[1].Value+"Hand."+m.Groups[2].Value+"."+m.Groups[3].Value+m.Groups[4].Value;names[i]=n;if(!props.Contains(n))missList.Append(n).Append(",");}
+if(missList.Length>0)throw new System.Exception("muscle binding missing "+missList);
+var clip=new AnimationClip();clip.frameRate=FPS;
+var curves=new System.Collections.Generic.List<AnimationCurve>();var binds=new System.Collections.Generic.List<EditorCurveBinding>();
+System.Action<string,System.Func<int,float>> add=(name,val)=>{var keys=new Keyframe[N];for(int f=0;f<N;f++)keys[f]=new Keyframe(Mathf.Min(f/FPS,LEN),val(f));var c=new AnimationCurve(keys);for(int f=0;f<N;f++)c.SmoothTangents(f,0f);curves.Add(c);binds.Add(EditorCurveBinding.FloatCurve("",typeof(Animator),name));};
+for(int f=1;f<N;f++){var a=poses[f-1].bodyRotation;var b=poses[f].bodyRotation;if(Quaternion.Dot(a,b)<0)poses[f].bodyRotation=new Quaternion(-b.x,-b.y,-b.z,-b.w);}
+add("RootT.x",f=>poses[f].bodyPosition.x);add("RootT.y",f=>poses[f].bodyPosition.y);add("RootT.z",f=>poses[f].bodyPosition.z);
+add("RootQ.x",f=>poses[f].bodyRotation.x);add("RootQ.y",f=>poses[f].bodyRotation.y);add("RootQ.z",f=>poses[f].bodyRotation.z);add("RootQ.w",f=>poses[f].bodyRotation.w);
+for(int i=0;i<M;i++){int ii=i;add(names[i],f=>poses[f].muscles[ii]);}
+AnimationUtility.SetEditorCurves(clip,binds.ToArray(),curves.ToArray());
+var st=AnimationUtility.GetAnimationClipSettings(refClip);st.startTime=0;st.stopTime=LEN;st.loopTime=false;AnimationUtility.SetAnimationClipSettings(clip,st);
+var existing=AssetDatabase.LoadAssetAtPath<AnimationClip>(outPath);
+if(existing!=null){clip.name=existing.name;EditorUtility.CopySerialized(clip,existing);EditorUtility.SetDirty(existing);AssetDatabase.SaveAssets();}else{clip.name="Reine_LeapThrow";AssetDatabase.CreateAsset(clip,outPath);}
+// 검사: 저장 왕복, 손 속도 최고점, 접지 구간 발 미끄럼, 착지 런지 최저점
+var saved=AssetDatabase.LoadAssetAtPath<AnimationClip>(outPath);float maxDev=0;Vector3 prevH=Vector3.zero;float peakSp=0,peakT=0;
+for(int f=0;f<N;f++){apply(poses[f]);var hA=hipsT.position;go.transform.position=Vector3.zero;go.transform.rotation=Quaternion.identity;saved.SampleAnimation(go,Mathf.Min(f/FPS,LEN));maxDev=Mathf.Max(maxDev,(hA-hipsT.position).magnitude);var hp2=hand.position;if(f>0){float sp=(hp2-prevH).magnitude*FPS;float t=f/FPS;if(t>0.9f&&t<1.8f&&sp>peakSp){peakSp=sp;peakT=t;}}prevH=hp2;}
+float skate=0,minHipsY=99,minHipsT=0;var anchors=new Vector3[2];var has=new bool[2];
+for(int f=0;f<N;f++){float t=f/FPS;apply(poses[f]);if(t>1.4f&&t<2.4f&&hipsT.position.y<minHipsY){minHipsY=hipsT.position.y;minHipsT=t;}
+ bool ground=t<TAKEOFF||t>LAND;
+ for(int j=0;j<2;j++){if(toes[j]==null)continue;var pp=toes[j].position;if(!ground||pp.y>footRef+0.04f){has[j]=false;continue;}if(!has[j]){anchors[j]=pp;has[j]=true;}var d=pp-anchors[j];d.y=0;skate=Mathf.Max(skate,d.magnitude);}}
+log.Append("plantedToeSkateMax=").Append(skate.ToString("F3")).Append("m hipsMin=").Append(minHipsY.ToString("F2")).Append("@").Append(minHipsT.ToString("F2")).Append("; ");
+log.Append("saved len=").Append(saved.length.ToString("F3")).Append(" roundTripHipsDevMax=").Append(maxDev.ToString("F4")).Append(" handPeak=").Append(peakSp.ToString("F1")).Append("m/s@").Append(peakT.ToString("F3"));
+}finally{UnityEngine.Object.DestroyImmediate(go);}
+return log.ToString();

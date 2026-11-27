@@ -1,0 +1,17 @@
+bake=
+MotionWarp ok=True msg=MotionWarp 빌드 검증 통과
+미매핑 경고: 12건
+- 미매핑 DeltaWarp(1): Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/DoubleAxe/Humanoid_DoubleAxeAxeAnimationSet_SwapAttack_1.asset
+- 미매핑 DeltaWarp(1): Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/DualBlade/SwapAttack.asset
+- 미매핑 DeltaWarp(1): Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/GreatSword/Humanoid_GreatSwordAnimationSet_SwapAttack_1.asset
+- 미매핑 DeltaWarp(1): Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Humanoid/SwordShield/Humanoid_SwordShield_SwapAttack.asset
+- 미매핑 DeltaWarp(1): Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Katana_Combo_Attack_1_1.asset
+- 미매핑 DeltaWarp(1): Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Katana_Combo_Attack_1_1_PlayerGrounded_Bokusei.asset
+- 미매핑 DeltaWarp(1): Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Katana_Combo_Attack_1_2_PlayerGrounded_Bokusei.asset
+- 미매핑 DeltaWarp(1): Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Katana_Combo_Attack_4_1.asset
+- 미매핑 DeltaWarp(1): Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Katana_Combo_Attack_4_2.asset
+- 미매핑 DeltaWarp(1): Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Katana_Combo_Attack_4_3.asset
+- 미매핑 DeltaWarp(1): Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Katana_Combo_Attack_ComboLast.asset
+- 미매핑 DeltaWarp(1): Assets/10.Datas/Actor/Animation/ActorMotion/MotionSet/Player/Katana/Katana_Heavy_Attack_1.asset
+
+MotionImpact ok

@@ -1,0 +1,13 @@
+WB_P04_Road_성문 대로 support=86 miss=0 blocked=0 slope=36.7 []
+WB_P04_Road_서쪽 주거 골목 support=47 miss=0 blocked=0 slope=23.6 []
+WB_P04_Road_동쪽 작업 골목 support=57 miss=0 blocked=0 slope=31.6 []
+WB_P04_Road_우물길 support=40 miss=0 blocked=0 slope=31.1 []
+WB_P04_Road_상부 골목 support=28 miss=0 blocked=0 slope=22.1 []
+WB_P04_Road_내성 앞마당 support=10 miss=0 blocked=0 slope=36.3 []
+WB_P04_Road_장터 광장 support=8 miss=0 blocked=0 slope=14.7 []
+Castle_Gatehouse opening blockage 0/17
+Dng_Gatehouse opening blockage 0/17
+Nav 1 True PathComplete
+Nav 2 True PathComplete
+Nav 3 True PathComplete
+Nav 4 True PathComplete

@@ -1,0 +1,14 @@
+01 산기슭 쉼터 (3240.00, 173.24, 3190.00) ground=Terrain_6_6 173.1151
+02 숲 전투 터 (3227.00, 185.78, 3248.00) ground=Terrain_6_6 185.6647
+03 폐성 전망대 (3215.00, 196.50, 3303.00) ground=WB_P04_Bridge_Approach 196.503
+04 교량 시작 (3215.00, 201.00, 3311.00) ground=WB_P04_Bridge_Deck 201
+05 성문 (3250.00, 240.00, 3348.00) ground=Dng_Gatehouse 240.135
+06 정상 광장 (3257.00, 281.00, 3409.00) ground=WB_P04_Road_UpperTerrace 281
+WB_P04_Bridge_Deck support 19/19, overlap 0/19, grade 37.44262
+WB_P04_Road_ReturnHigh support 19/19, overlap 0/19, grade 21.73467
+WB_P04_Road_ReturnLow support 19/19, overlap 0/19, grade 35.34412
+Gate collider hits across opening: 0/21
+Summit switchback ground 356/356 clear 356/356
+Temporary NavMesh 1 endpoints True/True PathComplete
+Temporary NavMesh 2 endpoints True/True PathComplete
+Temporary NavMesh 3 endpoints True/True PathComplete

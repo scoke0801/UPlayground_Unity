@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ko">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RiverBasin4km 권역 재작업 비교</title>
+<style>
+body{margin:0;background:#f7f6f0;color:#233026;font:16px/1.55 system-ui,sans-serif}
+main{max-width:1240px;margin:0 auto;padding:28px 22px 64px}
+h1{font-size:clamp(29px,5vw,50px);line-height:1.13;margin:0 0 12px}
+h2{font-size:26px;margin:38px 0 9px}
+h3{font-size:18px;margin:0 0 10px}
+a{color:#235438}
+a:focus-visible{outline:3px solid #2d6948;outline-offset:3px}
+nav{display:flex;gap:20px;flex-wrap:wrap;margin:18px 0 26px}
+section{border-top:1px solid #b3b8ac;padding-top:16px;margin-top:25px}
+.pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+figure{margin:0}
+img{display:block;max-width:100%;width:100%;height:auto;background:#e3e4dc}
+figcaption{padding:3px 0;font-size:14px}
+@media(max-width:620px){.pair{grid-template-columns:1fr}main{padding:22px 14px 40px}}
+</style>
+<main>
+<h1>RiverBasin4km 권역 재작업</h1>
+<p>같은 Unity 고정 카메라의 수정 전후 14구도와 Editor Play의 12시·19시 4구도입니다. 사진을 누르면 원본을 볼 수 있습니다. 최종 미술 인수는 사용자 테스트 대기입니다.</p>
+<nav aria-label="보고서 이동"><a href="#layout">배치 전후</a><a href="#clock">12시·19시</a><a href="#quarry">Blender 절리</a><a href="../river-basin-world.md#권역-공간-재작업">검증과 남은 작업</a></nav>
+<h2 id="layout">배치 전후</h2>
+<section><h3>중앙 성채 오르막</h3><div class="pair"><figure><a href="before-keep-approach.jpg"><img src="before-keep-approach.jpg" width="960" height="540" alt="수정 전" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-keep-approach.jpg"><img src="after-keep-approach.jpg" width="960" height="540" alt="수정 후" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div></section>
+<section><h3>문루 안 장터</h3><div class="pair"><figure><a href="before-keep-market.jpg"><img src="before-keep-market.jpg" width="960" height="540" alt="수정 전" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-keep-market.jpg"><img src="after-keep-market.jpg" width="960" height="540" alt="수정 후" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div></section>
+<section><h3>호수 마을 북서 출구</h3><div class="pair"><figure><a href="before-lake-exit.jpg"><img src="before-lake-exit.jpg" width="960" height="540" alt="수정 전" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-lake-exit.jpg"><img src="after-lake-exit.jpg" width="960" height="540" alt="수정 후" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div></section>
+<section><h3>호수 마을 서안</h3><div class="pair"><figure><a href="before-lake-bank.jpg"><img src="before-lake-bank.jpg" width="960" height="540" alt="수정 전" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-lake-bank.jpg"><img src="after-lake-bank.jpg" width="960" height="540" alt="수정 후" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div></section>
+<section><h3>B3 현수교 첫 조망</h3><div class="pair"><figure><a href="before-b3.jpg"><img src="before-b3.jpg" width="960" height="540" alt="수정 전" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-b3.jpg"><img src="after-b3.jpg" width="960" height="540" alt="수정 후" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div></section>
+<section><h3>B1 너머 성채 방향</h3><div class="pair"><figure><a href="before-b1-vista.jpg"><img src="before-b1-vista.jpg" width="960" height="540" alt="수정 전" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-b1-vista.jpg"><img src="after-b1-vista.jpg" width="960" height="540" alt="수정 후" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div></section>
+<section><h3>B1 서안에서 숲 방향</h3><div class="pair"><figure><a href="before-forest-branch.jpg"><img src="before-forest-branch.jpg" width="960" height="540" alt="수정 전" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-forest-branch.jpg"><img src="after-forest-branch.jpg" width="960" height="540" alt="수정 후" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div></section>
+<section><h3>R1 수관 아래</h3><div class="pair"><figure><a href="before-forest-village.jpg"><img src="before-forest-village.jpg" width="960" height="540" alt="수정 전" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-forest-village.jpg"><img src="after-forest-village.jpg" width="960" height="540" alt="수정 후" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div></section>
+<section><h3>채석 고갯길 하강</h3><div class="pair"><figure><a href="before-quarry-descent.jpg"><img src="before-quarry-descent.jpg" width="960" height="540" alt="수정 전" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-quarry-descent.jpg"><img src="after-quarry-descent.jpg" width="960" height="540" alt="수정 후" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div></section>
+<section><h3>채석 단구와 폐갱도 입구</h3><div class="pair"><figure><a href="before-quarry-dungeon.jpg"><img src="before-quarry-dungeon.jpg" width="960" height="540" alt="수정 전" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-quarry-dungeon.jpg"><img src="after-quarry-dungeon.jpg" width="960" height="540" alt="수정 후" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div></section>
+<section><h3>사막 마을 입구</h3><div class="pair"><figure><a href="before-desert.jpg"><img src="before-desert.jpg" width="960" height="540" alt="수정 전" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-desert.jpg"><img src="after-desert.jpg" width="960" height="540" alt="수정 후" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div></section>
+<section><h3>항구 육상 접근</h3><div class="pair"><figure><a href="before-harbor.jpg"><img src="before-harbor.jpg" width="960" height="540" alt="수정 전" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-harbor.jpg"><img src="after-harbor.jpg" width="960" height="540" alt="수정 후" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div></section>
+<section><h3>항구 수선 자리</h3><div class="pair"><figure><a href="before-harbor-work.jpg"><img src="before-harbor-work.jpg" width="960" height="540" alt="수정 전" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-harbor-work.jpg"><img src="after-harbor-work.jpg" width="960" height="540" alt="수정 후" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div></section>
+<section><h3>설산 밑 폐성</h3><div class="pair"><figure><a href="before-snow-ruin.jpg"><img src="before-snow-ruin.jpg" width="960" height="540" alt="수정 전" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-snow-ruin.jpg"><img src="after-snow-ruin.jpg" width="960" height="540" alt="수정 후" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div></section>
+<h2 id="clock">Editor Play의 12시·19시</h2>
+<section><h3>성채 접근</h3><div class="pair"><figure><a href="play-noon-keep-approach.jpg"><img src="play-noon-keep-approach.jpg" width="960" height="540" alt="12시" loading="lazy"></a><figcaption>12시</figcaption></figure><figure><a href="play-19h-keep-approach.jpg"><img src="play-19h-keep-approach.jpg" width="960" height="540" alt="19시" loading="lazy"></a><figcaption>19시</figcaption></figure></div></section>
+<section><h3>성채 장터</h3><div class="pair"><figure><a href="play-noon-keep-market.jpg"><img src="play-noon-keep-market.jpg" width="960" height="540" alt="12시" loading="lazy"></a><figcaption>12시</figcaption></figure><figure><a href="play-19h-keep-market.jpg"><img src="play-19h-keep-market.jpg" width="960" height="540" alt="19시" loading="lazy"></a><figcaption>19시</figcaption></figure></div></section>
+<section><h3>폐갱도 입구</h3><div class="pair"><figure><a href="play-noon-quarry-dungeon.jpg"><img src="play-noon-quarry-dungeon.jpg" width="960" height="540" alt="12시" loading="lazy"></a><figcaption>12시</figcaption></figure><figure><a href="play-19h-quarry-dungeon.jpg"><img src="play-19h-quarry-dungeon.jpg" width="960" height="540" alt="19시" loading="lazy"></a><figcaption>19시</figcaption></figure></div></section>
+<section><h3>항구 수선 자리</h3><div class="pair"><figure><a href="play-noon-harbor-work.jpg"><img src="play-noon-harbor-work.jpg" width="960" height="540" alt="12시" loading="lazy"></a><figcaption>12시</figcaption></figure><figure><a href="play-19h-harbor-work.jpg"><img src="play-19h-harbor-work.jpg" width="960" height="540" alt="19시" loading="lazy"></a><figcaption>19시</figcaption></figure></div></section>
+<h2 id="quarry">Blender 채석 절리 두 형태</h2>
+<figure><a href="blender-quarry-cut.jpg"><img src="blender-quarry-cut.jpg" width="960" height="540" alt="왼쪽 높은 절리, 오른쪽 낮은 절리" loading="lazy"></a><figcaption>왼쪽 높은 절리, 오른쪽 낮은 절리</figcaption></figure>
+</main>

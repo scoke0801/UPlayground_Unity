@@ -1,0 +1,4 @@
+Castle_Keep 면 41848 / 렌더·충돌 일치 True
+Castle_Terrace_Stairs (RiverBasin Keep) 면 7530 / 렌더·충돌 일치 True
+RiverBasinKeepStairRails 면 2432 / 렌더·충돌 일치 True
+중앙 마당 Y=98.162 / 상단 난간 Y=99.452 / 처마 거리 2.571

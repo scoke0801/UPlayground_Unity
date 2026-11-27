@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RiverBasin4km 사면과 물가 전후 비교</title>
+<style>
+:root{color-scheme:light dark}
+body{font:16px/1.6 system-ui,sans-serif;margin:0 auto;max-width:1240px;padding:32px 24px}
+a{color:LinkText} p{max-width:85ch} nav{display:flex;flex-wrap:wrap;gap:.5rem 1rem}
+section{border-top:1px solid GrayText;margin-top:28px;padding-top:8px}
+h3{margin:28px 0 8px}
+.pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+figure{margin:0}img{display:block;width:100%;height:auto}figcaption{font-size:.875em;padding:4px 0}
+@media(max-width:680px){body{padding:20px 12px}.pair{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+<h1>RiverBasin4km 사면과 물가 전후 비교</h1>
+<p>수정 전은 직전 세션의 길·돌담 작업이 저장된 씬이다. 수정 후는 열린 Unity Editor에 저장한 프리뷰다. 각 쌍은 동일한 위치·방향·시야각으로 찍었다. 37개 구도에는 진입과 귀환, 근접과 조감이 포함된다.</p>
+<p>성채 사면, 항구 호안, 설산 폐성은 지형과 구조물 접점을 먼저 고쳤다. 첫 시안에서 누락된 설산·사막·항구 지형 재질은 원본 혼합값을 가져와 복구했다. 성채 근접을 가렸던 암반은 낮췄고 채석 운반로를 간섭한 시험 배치는 제거했다.</p>
+<p>길 11개에서 지면에 투영한 32,188개 표본에 신규·이동 충돌체가 겹친 곳은 0개였다. 돌담의 위에서 내려보는 레이가 인접 두 충돌 메시를 함께 맞힌 곳은 17/17, 추가 방파제 석축이 이웃 석축과 투영 충돌면을 공유한 곳은 3/3이었다. 고정 카메라 37개 시작점과 전면 2m에서 겹침을 확인했다. 실제 TPS 왕복, 항구 수영·상륙, 던전 전환과 사용자 미술 인수는 대기다.</p>
+<p><a href="editor-checks.txt">Unity Editor 검사 원본</a> · <a href="camera-poses.txt">진입·귀환·조감 좌표</a> · <a href="detail-camera-poses.txt">추가 근접·조감 좌표</a> · <a href="../river-basin-world.md#사면과-물가-재작업">작업 상태</a> · <a href="../../wiki/world-art.md">월드와 아트 위키</a></p>
+<p><a href="../river-basin-natural-evidence/index.html">이전 길·돌담 전후</a> · <a href="../river-basin-redress-evidence/index.html">이전 권역 전후</a></p>
+</header>
+<nav aria-label="권역"><a href="#region-1">성채와 장터</a><a href="#region-2">호수 마을</a><a href="#region-3">B3·B1 본선</a><a href="#region-4">깊은 숲 마을</a><a href="#region-5">채석장과 던전</a><a href="#region-6">사막 마을</a><a href="#region-7">항구</a><a href="#region-8">설산 폐성</a></nav>
+
+<section id="region-1"><h2>성채와 장터</h2>
+<p><strong>불합격 근거</strong> 오르막 끝의 성벽은 강하게 읽혔지만 양쪽 풀밭이 같은 경사로 흘렀다. 근접에서는 옹벽이 풀밭에 놓인 독립 벽처럼 보였고, 조감에서는 장터 가옥과 문루가 지형 위에 따로 섰다.</p>
+<p><strong>씬 변경</strong> 옹벽 뒤 둔덕과 반대편 낮은 배수 지형을 조형했다. 기단 방향에 풍화암 층을 섞고 고립 담 모듈을 숨겼다. 장터 노면을 건물 전면까지 이어 보이게 재질을 섞었다. 첫 시안에서 시야를 가린 끝단 암반은 낮췄다.</p>
+<p><strong>남은 문제</strong> 문루 남쪽 기단과 지형의 접합, 가판 뒤 작업 공간은 조감에서 여전히 엷다.</p>
+<p><strong>화면 비교에서 적용한 기준</strong> 《Ghost of Tsushima》 성곽 구도에서 건축에 앞서 사면과 성벽 하단이 높이를 읽히게 한다. 쿠텐베르크에서는 가판과 주택 전면이 도로 가장자리를 형성한다. 이를 성채의 사면과 장터의 작업 노면에 적용했다.</p>
+<p class="refs"><a href="https://blog.playstation.com/2020/07/09/crafting-the-world-of-tsushima/">Sucker Punch 환경 제작</a> · <a href="https://www.deepsilver.com/games/kingdom-come-deliverance-ii/news/kuttenberg-a-medieval-metropolis">Warhorse 쿠텐베르크</a></p>
+<h3>문루로 오르는 길</h3><div class="pair"><figure><a href="before-keep.jpg"><img src="before-keep.jpg" alt="문루로 오르는 길 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-keep.jpg"><img src="after-keep.jpg" alt="문루로 오르는 길 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+<h3>성벽 옹벽 근접</h3><div class="pair"><figure><a href="before-keep-wall.jpg"><img src="before-keep-wall.jpg" alt="성벽 옹벽 근접 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-keep-wall.jpg"><img src="after-keep-wall.jpg" alt="성벽 옹벽 근접 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+<h3>장터에서 문루로 귀환</h3><div class="pair"><figure><a href="before-market-return.jpg"><img src="before-market-return.jpg" alt="장터에서 문루로 귀환 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-market-return.jpg"><img src="after-market-return.jpg" alt="장터에서 문루로 귀환 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+<h3>성채와 장터 조감</h3><div class="pair"><figure><a href="before-keep-over.jpg"><img src="before-keep-over.jpg" alt="성채와 장터 조감 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-keep-over.jpg"><img src="after-keep-over.jpg" alt="성채와 장터 조감 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+</section>
+
+<section id="region-2"><h2>호수 마을</h2>
+<p><strong>불합격 근거</strong> 진출입 양쪽에서 나무와 담이 길을 안내한다. 위에서는 담 뒤가 평평하고 민가와 떨어져 뜰의 범위가 읽히지 않는다.</p>
+<p><strong>씬 변경</strong> 담 뒤에 낮은 뜰 둔덕을 만들고 수관과 민가 옆에 숲 토양을 섞었다. 담 모듈 두 개를 꺾어 민가 기단 쪽으로 돌렸다. 첫 시안에서 흙길 가장자리를 덮던 지면을 낮췄다.</p>
+<p><strong>남은 문제</strong> 빈 뜰과 물가에서 돌아오는 생활 동선은 추가 마감이 필요하다.</p>
+<p><strong>화면 비교에서 적용한 기준</strong> 아카시마의 낮은 습지에서는 나무와 축축한 바닥이 주거지 가장자리의 성격을 만든다. 호수 마을에서는 민가·수관 쪽에 지면 재질을 집중했다.</p>
+<p class="refs"><a href="https://blog.playstation.com/2020/07/09/crafting-the-world-of-tsushima/">Sucker Punch 환경 제작과 아카시마</a></p>
+<h3>호수 마을 북서 출구</h3><div class="pair"><figure><a href="before-lake.jpg"><img src="before-lake.jpg" alt="호수 마을 북서 출구 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-lake.jpg"><img src="after-lake.jpg" alt="호수 마을 북서 출구 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+<h3>북서길에서 민가로 귀환</h3><div class="pair"><figure><a href="before-lake-return.jpg"><img src="before-lake-return.jpg" alt="북서길에서 민가로 귀환 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-lake-return.jpg"><img src="after-lake-return.jpg" alt="북서길에서 민가로 귀환 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+<h3>민가와 뜰 조감</h3><div class="pair"><figure><a href="before-lake-over.jpg"><img src="before-lake-over.jpg" alt="민가와 뜰 조감 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-lake-over.jpg"><img src="after-lake-over.jpg" alt="민가와 뜰 조감 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+<h3>민가 뜰 경계의 꺾임</h3><div class="pair"><figure><a href="before-lake-wall-close.jpg"><img src="before-lake-wall-close.jpg" alt="민가 뜰 경계의 꺾임 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-lake-wall-close.jpg"><img src="after-lake-wall-close.jpg" alt="민가 뜰 경계의 꺾임 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+</section>
+
+<section id="region-3"><h2>B3·B1 본선</h2>
+<p><strong>불합격 근거</strong> B3 굽이는 가까운 바위와 나무가 좌우에서 같은 방식으로 길을 둘러싼다. E2 표식은 비슷한 간격으로 반복된다. B1 서안과 성채 방향에는 폭이 일정한 길과 드문 노두가 함께 보인다.</p>
+<p><strong>씬 변경</strong> E2 중간의 반복 돌무더기 4개를 숨겼다. B3 굽이와 B1 서안·성채 쪽 노두의 발치에 기존 풍화암 재질을 섞었다.</p>
+<p><strong>남은 문제</strong> 교대 진입축을 보존했다. B1에서 성채가 드러나는 순서와 숲 분기 어깨의 큰 형태는 추가 작업이 필요하다.</p>
+<p><strong>화면 비교에서 적용한 기준</strong> Tsushima 지형 사진은 교량 양안에서 길이 강변 지형과 연결되고 처음부터 모든 공간이 드러나지 않는 구도를 보여준다. B3의 반복 표식 일부를 걷고 바위와 굽이에 재질 변화를 집중했다.</p>
+<p class="refs"><a href="https://blakeovitch.artstation.com/projects/0nl2DK">Blake Mead의 Tsushima 지형·길</a></p>
+<h3>B3 첫 굽이</h3><div class="pair"><figure><a href="before-b3.jpg"><img src="before-b3.jpg" alt="B3 첫 굽이 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-b3.jpg"><img src="after-b3.jpg" alt="B3 첫 굽이 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+<h3>B3 교대에서 귀환</h3><div class="pair"><figure><a href="before-b3-return.jpg"><img src="before-b3-return.jpg" alt="B3 교대에서 귀환 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-b3-return.jpg"><img src="after-b3-return.jpg" alt="B3 교대에서 귀환 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+<h3>B3 현수교 접속</h3><div class="pair"><figure><a href="before-b3-close.jpg"><img src="before-b3-close.jpg" alt="B3 현수교 접속 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-b3-close.jpg"><img src="after-b3-close.jpg" alt="B3 현수교 접속 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+<h3>B3 양안과 협곡 조감</h3><div class="pair"><figure><a href="before-b3-over.jpg"><img src="before-b3-over.jpg" alt="B3 양안과 협곡 조감 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-b3-over.jpg"><img src="after-b3-over.jpg" alt="B3 양안과 협곡 조감 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+<h3>B1 너머 성채 조망</h3><div class="pair"><figure><a href="before-b1.jpg"><img src="before-b1.jpg" alt="B1 너머 성채 조망 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-b1.jpg"><img src="after-b1.jpg" alt="B1 너머 성채 조망 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+<h3>B1 분기 쪽 귀환</h3><div class="pair"><figure><a href="before-b1-return.jpg"><img src="before-b1-return.jpg" alt="B1 분기 쪽 귀환 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-b1-return.jpg"><img src="after-b1-return.jpg" alt="B1 분기 쪽 귀환 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+<h3>B1 석교 접속</h3><div class="pair"><figure><a href="before-b1-close.jpg"><img src="before-b1-close.jpg" alt="B1 석교 접속 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-b1-close.jpg"><img src="after-b1-close.jpg" alt="B1 석교 접속 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+<h3>B1 양안 조감</h3><div class="pair"><figure><a href="before-b1-over.jpg"><img src="before-b1-over.jpg" alt="B1 양안 조감 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-b1-over.jpg"><img src="after-b1-over.jpg" alt="B1 양안 조감 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+</section>
+
+<section id="region-4"><h2>깊은 숲 마을</h2>
+<p><strong>불합격 근거</strong> 진입에서는 수관과 흙길이 읽힌다. 목교에서 돌아볼 때 집, 개울, 바닥의 수분 차이가 약하다. 조감에서는 수관 때문에 마을의 경계와 작은 공터가 분리되어 보이지 않는다.</p>
+<p><strong>씬 변경</strong> 목교 아래 개울과 집 아래 낮은 지면을 따라 습한 지면 재질을 국소적으로 섞었다.</p>
+<p><strong>남은 문제</strong> 수관 아래 저층 식생 밀도와 마당의 생활 흔적은 추가 배치가 필요하다.</p>
+<p><strong>화면 비교에서 적용한 기준</strong> Tsushima 환경 화면의 계곡은 수관으로 깊이를 분리하고 물가의 흙과 식생으로 가까운 위치를 읽게 한다. R1에서는 목교 아래 개울 바닥과 마당 쪽의 색을 갈랐다.</p>
+<p class="refs"><a href="https://douglasdavis.artstation.com/projects/w6rbn5">Douglas Davis의 Tsushima 지형·배치</a></p>
+<h3>숲 마을 진입</h3><div class="pair"><figure><a href="before-forest.jpg"><img src="before-forest.jpg" alt="숲 마을 진입 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-forest.jpg"><img src="after-forest.jpg" alt="숲 마을 진입 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+<h3>목교 너머에서 귀환</h3><div class="pair"><figure><a href="before-forest-return.jpg"><img src="before-forest-return.jpg" alt="목교 너머에서 귀환 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-forest-return.jpg"><img src="after-forest-return.jpg" alt="목교 너머에서 귀환 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+<h3>숲 수관과 마을 조감</h3><div class="pair"><figure><a href="before-forest-over.jpg"><img src="before-forest-over.jpg" alt="숲 수관과 마을 조감 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-forest-over.jpg"><img src="after-forest-over.jpg" alt="숲 수관과 마을 조감 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+<h3>목교와 하층 식생</h3><div class="pair"><figure><a href="before-forest-bridge-close.jpg"><img src="before-forest-bridge-close.jpg" alt="목교와 하층 식생 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-forest-bridge-close.jpg"><img src="after-forest-bridge-close.jpg" alt="목교와 하층 식생 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+</section>
+
+<section id="region-5"><h2>채석장과 던전</h2>
+<p><strong>불합격 근거</strong> 하강 도중 절리가 광장의 큰 독립 덩어리로 보인다. 아래 작업장에서는 궤도, 인양틀, 폐갱도의 관계가 눈높이에서 한눈에 연결되지 않는다.</p>
+<p><strong>씬 변경</strong> 인양틀 아래 작업면과 절리 발치에 기존 풍화암 재질을 섞었다. 상부 귀환 문턱의 작업면 쪽에 낮은 절리를 매입했다. 반대쪽 절리는 운반로 표본과 겹쳐 제거했다.</p>
+<p><strong>남은 문제</strong> 상부 절개면은 주 사면까지 이어지지 않고, 궤도와 인양틀 사이의 작업 맥락도 약하다. 지하 회랑과 입장·귀환 연결은 추가 플레이 검증이 필요하다.</p>
+<p><strong>화면 비교에서 적용한 기준</strong> Jarnsmida와 Applecore의 작업장 화면은 광물 덩어리와 절리, 인양 시설을 절개면에 연결한다. 상부 귀환 문턱에 절리 발치를 두고 하단의 바닥을 인양틀 쪽으로 이어 보이게 했다.</p>
+<p class="refs"><a href="https://pward3d.artstation.com/projects/qQqeyR">Patrick Ward의 Jarnsmida와 Applecore</a> · <a href="https://www.deepsilver.com/games/kingdom-come-deliverance-ii/news/kuttenberg-a-medieval-metropolis">Warhorse 쿠텐베르크 갱도</a></p>
+<h3>채석장 하강</h3><div class="pair"><figure><a href="before-quarry.jpg"><img src="before-quarry.jpg" alt="채석장 하강 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-quarry.jpg"><img src="after-quarry.jpg" alt="채석장 하강 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+<h3>아래 작업장에서 상부로</h3><div class="pair"><figure><a href="before-quarry-return.jpg"><img src="before-quarry-return.jpg" alt="아래 작업장에서 상부로 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-quarry-return.jpg"><img src="after-quarry-return.jpg" alt="아래 작업장에서 상부로 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+<h3>채석장 작업 단구 조감</h3><div class="pair"><figure><a href="before-quarry-over.jpg"><img src="before-quarry-over.jpg" alt="채석장 작업 단구 조감 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-quarry-over.jpg"><img src="after-quarry-over.jpg" alt="채석장 작업 단구 조감 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+<h3>하단 폐갱도 입구</h3><div class="pair"><figure><a href="before-quarry-gate-close.jpg"><img src="before-quarry-gate-close.jpg" alt="하단 폐갱도 입구 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-quarry-gate-close.jpg"><img src="after-quarry-gate-close.jpg" alt="하단 폐갱도 입구 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+<h3>상부 귀환 문턱</h3><div class="pair"><figure><a href="before-quarry-upper-close.jpg"><img src="before-quarry-upper-close.jpg" alt="상부 귀환 문턱 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-quarry-upper-close.jpg"><img src="after-quarry-upper-close.jpg" alt="상부 귀환 문턱 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+</section>
+
+<section id="region-6"><h2>사막 마을</h2>
+<p><strong>불합격 근거</strong> 우물 입구는 좌우 바위가 문처럼 보이지만, 귀환에서는 비슷한 두 덩어리가 모래 위에 솟아 있다. 배치 전체가 마을 뒤편 사구와 이어지지 않는다.</p>
+<p><strong>씬 변경</strong> 귀환 쪽 사암 두 개를 기존 남쪽 사암 쪽으로 옮겨 눕히고 일부를 매입했다. 바위 발치와 우물 주변에 기존 풍화암 재질을 섞었다.</p>
+<p><strong>남은 문제</strong> 우물과 차양 앞으로 향하는 사용 흔적과 건물 뒤 사구의 연결이 약하다.</p>
+<p><strong>화면 비교에서 적용한 기준</strong> Anbar의 화면에서는 골목의 폭과 그늘이 출입구와 생활 장소를 구별한다. 우물 골목의 사암 두 덩어리를 외곽에 묶어 빛이 트이는 중앙과 갈라 보이게 했다.</p>
+<p class="refs"><a href="https://magazine.artstation.com/2023/10/ubisoft-assassins-creed-mirage-art-blast/">Ubisoft 개발팀 공개 작업</a> · <a href="https://jrevzinsalas.artstation.com/projects/qJWeNL">Jérôme Revzin-Salas의 Anbar</a></p>
+<h3>사암 골목에 진입</h3><div class="pair"><figure><a href="before-desert.jpg"><img src="before-desert.jpg" alt="사암 골목에 진입 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-desert.jpg"><img src="after-desert.jpg" alt="사암 골목에 진입 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+<h3>우물 골목에서 귀환</h3><div class="pair"><figure><a href="before-desert-return.jpg"><img src="before-desert-return.jpg" alt="우물 골목에서 귀환 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-desert-return.jpg"><img src="after-desert-return.jpg" alt="우물 골목에서 귀환 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+<h3>사구와 우물 마을 조감</h3><div class="pair"><figure><a href="before-desert-over.jpg"><img src="before-desert-over.jpg" alt="사구와 우물 마을 조감 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-desert-over.jpg"><img src="after-desert-over.jpg" alt="사구와 우물 마을 조감 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+<h3>우물과 가판</h3><div class="pair"><figure><a href="before-desert-well-close.jpg"><img src="before-desert-well-close.jpg" alt="우물과 가판 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-desert-well-close.jpg"><img src="after-desert-well-close.jpg" alt="우물과 가판 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+</section>
+
+<section id="region-7"><h2>항구</h2>
+<p><strong>불합격 근거</strong> 정면에서는 오두막과 하역장이 넓은 갈색 평면 위에 떠 보인다. 조감에서는 좌우 방파제의 육지 쪽이 끊겨 수면 위 독립 선으로 읽힌다.</p>
+<p><strong>씬 변경</strong> 양쪽 방파제 뿌리와 하역 가판 뒤의 지면을 올렸다. 기존 석축 3개로 수면의 석축을 육지까지 연장하고, 바깥과 굽이에 기존 사석을 매입했다. 중앙 부두 축과 항로 폭을 유지했다.</p>
+<p><strong>남은 문제</strong> 항구 바닥이 넓고 단조롭다. 작업대·목선·정박선 사이의 하역 동선과 수면 가까이에서 보이는 호안의 축조 디테일이 부족하다.</p>
+<p><strong>화면 비교에서 적용한 기준</strong> Upper Harbour의 석축은 지면에서 수면으로 꺾이고 목조 부두는 별도의 접안면을 제공한다. 기존 중앙 목조 부두의 축을 살리고 양쪽 석축이 육지에 닿도록 연장했다.</p>
+<p class="refs"><a href="https://benoitcassin.com/assassin-s-creed-mirage.html">Benoît Cassin의 Upper Harbour</a></p>
+<h3>하역길에서 부두로</h3><div class="pair"><figure><a href="before-harbor.jpg"><img src="before-harbor.jpg" alt="하역길에서 부두로 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-harbor.jpg"><img src="after-harbor.jpg" alt="하역길에서 부두로 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+<h3>부두에서 하역장으로 귀환</h3><div class="pair"><figure><a href="before-harbor-deck-return.jpg"><img src="before-harbor-deck-return.jpg" alt="부두에서 하역장으로 귀환 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-harbor-deck-return.jpg"><img src="after-harbor-deck-return.jpg" alt="부두에서 하역장으로 귀환 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+<h3>호안과 방파제 조감</h3><div class="pair"><figure><a href="before-harbor-over.jpg"><img src="before-harbor-over.jpg" alt="호안과 방파제 조감 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-harbor-over.jpg"><img src="after-harbor-over.jpg" alt="호안과 방파제 조감 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+<h3>동쪽 방파제 호안 접점</h3><div class="pair"><figure><a href="before-harbor-quay-close.jpg"><img src="before-harbor-quay-close.jpg" alt="동쪽 방파제 호안 접점 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-harbor-quay-close.jpg"><img src="after-harbor-quay-close.jpg" alt="동쪽 방파제 호안 접점 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+</section>
+
+<section id="region-8"><h2>설산 폐성</h2>
+<p><strong>불합격 근거</strong> 오르막에서 회색 성벽이 흰 판 위에 선 것처럼 보인다. 조감에선 여러 벽 사이 틈이 붕괴인지 의도된 출입구인지 모호하다.</p>
+<p><strong>씬 변경</strong> 외벽 아래 낮은 기반암 능선을 만들고, 바깥쪽에 노출암과 낮은 암편을 놓았다. 안뜰의 눈을 남기고 산길의 갈림 표시 크기를 줄였다.</p>
+<p><strong>남은 문제</strong> 산길의 회색 띠가 눈 속에서 균일하고, 큰 붕괴 틈의 잔해량과 진행 방향은 추가 조형이 필요하다.</p>
+<p><strong>화면 비교에서 적용한 기준</strong> 《Ghost of Yōtei》의 눈 지형은 노출된 면과 눈이 쌓이는 면의 차이가 크다. 폐성 외벽 쪽은 암반이 드러나게 하고 안뜰에는 눈을 남겼다.</p>
+<p class="refs"><a href="https://blog.playstation.com/2025/10/23/ghost-of-yotei-tech-deep-dive/">Sucker Punch의 Yōtei 눈 지형 제작</a></p>
+<h3>산길에서 폐성으로 진입</h3><div class="pair"><figure><a href="before-snow.jpg"><img src="before-snow.jpg" alt="산길에서 폐성으로 진입 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-snow.jpg"><img src="after-snow.jpg" alt="산길에서 폐성으로 진입 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+<h3>폐성 벽 하부 근접</h3><div class="pair"><figure><a href="before-snow-wall.jpg"><img src="before-snow-wall.jpg" alt="폐성 벽 하부 근접 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-snow-wall.jpg"><img src="after-snow-wall.jpg" alt="폐성 벽 하부 근접 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+<h3>폐성 안뜰과 눈 지표 조감</h3><div class="pair"><figure><a href="before-snow-over.jpg"><img src="before-snow-over.jpg" alt="폐성 안뜰과 눈 지표 조감 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-snow-over.jpg"><img src="after-snow-over.jpg" alt="폐성 안뜰과 눈 지표 조감 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+<h3>폐성 문턱에서 산길로 귀환</h3><div class="pair"><figure><a href="before-snow-return.jpg"><img src="before-snow-return.jpg" alt="폐성 문턱에서 산길로 귀환 수정 전" width="960" height="540" loading="lazy"></a><figcaption>수정 전</figcaption></figure><figure><a href="after-snow-return.jpg"><img src="after-snow-return.jpg" alt="폐성 문턱에서 산길로 귀환 수정 후" width="960" height="540" loading="lazy"></a><figcaption>수정 후</figcaption></figure></div>
+</section>
+</body>
+</html>

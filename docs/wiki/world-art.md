@@ -1,10 +1,56 @@
 # 월드와 아트
 
+**RiverBasin4km 동부 사막 실게임 아트 마감.** 평지붕 사암 주택·포구·작물과 관개, 우물 교역소의 사암 단애, 망루와 외해 전망 마당을 프리뷰에 저장했다. 동쪽 사구의 바람 방향을 조형했다. Editor에서 보행 캡슐 겹침 0/3,130과 NavMesh 경로 7/7을 확인했다. 독립 아트 검수는 프리뷰 화면 조건부 통과이며, 실제 입력과 사용자 미술 인수는 대기다. [Unity 조감](../work-status/river-basin-desert-finish-evidence/overview.jpg) · [작업 상태와 확인 경로](../work-status/river-basin-world.md#동부-사막-실게임-아트-마감)
+
+**RiverBasin4km 동부 사막 환경 배치.** 동쪽 호숫가 정착지와 우물 교역소를 꾸미고, R5에서 바위를 돌아 전망대로 이어지는 208m 샛길과 사구 여섯 곳을 프리뷰에 저장했다. Editor에서 샛길 보행 캡슐 1,065개가 통과했다. 실제 TPS 주행과 미술 인수는 사용자 테스트 대기다. [Unity 조감](../work-status/river-basin-desert-coast-evidence/overview.jpg) · [작업 상태와 검증](../work-status/river-basin-world.md#동부-사막-환경-배치)
+
+**RiverBasin4km 설산 성채 도시.** 약 187 × 207m의 성곽 안에 시가지 건물 56동을 배치하고 남문·시장·양쪽 골목·고딕 내성을 연결했다. Editor의 중앙 보행 표본 276개와 임시 NavMesh 4경로를 확인했다. 실제 입력 주행과 미술 인수는 사용자 테스트 대기다. [Unity 조감](../work-status/snow-fortress-city-evidence/overview.jpg) · [시장](../work-status/snow-fortress-city-evidence/market.jpg) · [작업 상태와 검증](../work-status/snow-fortress.md)
+
+**RiverBasin4km 상선 근거리 외관 개선.** 상선 두 척에 곡면 판재·선미 방향타·선실 창틀·돛 봉제선을 저작하고 씬과 항구 프리팹에 저장했다. 기존 접안·충돌과 보행 회귀 3,186개를 확인했다. 실제 플레이 성능과 LOD 체감은 확인 대기다. [Unity 근접](../work-status/river-basin-harbor-evidence/r4-final-deck.jpg) · [작업 상태와 근거](../work-status/river-basin-world.md#상선-근거리-외관-개선)
+
+**RiverBasin4km 지형 색 경계 보정.** 산정호와 세계수 숲, 성마을, 항구, 채석장에 연결된 지형 10장의 도색을 복원했다. Unity의 같은 구도에서 숲과 채석장의 긴 직선 이음이 사라진 것을 확인했다. 실제 플레이 미술 확인은 사용자 테스트 대기다. [숲 조감 전후](../work-status/river-basin-terrain-seam-evidence/forest-overview.jpg) · [작업 상태와 검증](../work-status/river-basin-world.md#지형-색-경계-보정)
+
+**RiverBasin4km 방파제·중앙 부두·등대 개선.** 보행로 사석을 바깥으로 옮기고 꺾임의 빈 모서리를 이었다. 부두 접속부의 상판을 기존 목재와 맞추고 등대를 곡면 석조와 유리 등실로 제작했다. 보행 1,113표본과 방파제 NavMesh 2경로를 확인하고 프리뷰에 저장했다. [Unity 방파제](../work-status/river-basin-harbor-evidence/r3-after-coast.jpg) · [작업 상태와 검증](../work-status/river-basin-world.md#방파제중앙-부두등대-개선)
+
+**R1 세계수 원경.** 높이 약 91m의 초록 수관이 동남쪽 약 330m 거리에서 뒤편 능선 위로 드러난다. 지상·상부 회랑 1,572개 표본에서 세계수에 막힌 곳은 없었다. [같은 시점 변경 전](../work-status/river-basin-world-tree-evidence/landmark-before.jpg) · [변경 후](../work-status/river-basin-world-tree-evidence/landmark-after.jpg) · [작업 상태](../work-status/river-basin-world.md#세계수-원경-실루엣)
+
+**RiverBasin4km 산정호와 세계수 마을.** 호수를 43m 높이고 약 39m의 폭포와 엘프 마을 진입 목교를 프리뷰에 저장했다. Blender 세계수를 광장 중심에 심고 네 갈래 길을 이었다. Editor 하천·목교·NavMesh 표본 검사를 통과했고 TPS 플레이·미술 확인은 사용자 테스트 대기다. [Unity 조감](../work-status/river-basin-world-tree-evidence/overview.jpg) · [폭포와 마을 근거 및 작업 상태](../work-status/river-basin-world.md#산정호와-세계수-마을-구현)
+
+**라온은 원본 A를 유지한다.** G까지 본 사용자가 기존 lilToon을 가장 선호했다. H는 A의 겉옷에만 원본 마스크 기반 환경 반사를 켠 비교용 재질이다. [정면·후면 A/H](../work-status/raon-toon-original-trim.png) · [판정 기록](../work-status/character-toon.md)
+
+**RiverBasin4km 항구 건축과 주변 환경 개선.** Blender 건물 6종으로 기존 외관 37동을 교체하고 시장·어망 건조·하역·텃밭 33곳을 배치했다. 돌계단과 낮은 담, 해안 식생을 추가해 프리뷰에 저장했다. 보행 3,186표본, 지붕 충돌·LOD 37동, NavMesh 3개 경로와 카메라 규칙 검사 8개를 확인했다. 플레이·미술 인수가 남아 있다. [Unity 조감](../work-status/river-basin-harbor-evidence/r2-overview.jpg) · [작업 상태와 근거](../work-status/river-basin-world.md#항구-건축과-주변-환경-개선)
+
+**라온 월드 비교 G.** 의상 직조·테두리·등판 자수, 홍채와 앞머리 그림자를 저작하고 실제 RiverBasin4km 지형에서 연속 베기 자세를 촬영했다. 근접 디더와 피격색 관련 EditMode 검사 12개 통과. 실게임 플레이와 사용자 미술 인수 대기. [전투 거리](../work-status/raon-toon-fabric-world.jpg) · [표정](../work-status/raon-toon-iris.png) · [동작 영상](../work-status/raon-toon-fabric-motion.mp4) · [작업 상태](../work-status/character-toon.md)
+
+**라온 얼굴·표면 F 비교.** 라온 UV의 볼·턱·입술 채색과 원본 모발 방향·의상 노멀·광택 지도를 적용했다. 얼굴 확대와 후방 비교에서 의상 차이는 제한적이며 미술 채택 대기다. [A·E·F 비교](../work-status/raon-toon-surface.png) · [광원별 E·F 비교](../work-status/raon-toon-surface-lighting.png) · [작업 상태](../work-status/character-toon.md)
+
+**라온 외형 재조정.** D의 미술 채택을 보류하고 E에서 얼굴의 따뜻한 그늘과 옷의 보랏빛을 복원했다. 평상시 재질 디더는 꺼져 있다. E에서 보류한 근접 페이드는 G 작업에서 연결했다. [A·D·E 무손실 비교](../work-status/raon-toon-painted.png) · [확인 결과](../work-status/character-toon.md)
+
+**캐릭터 툰 셰이더.** 라온 D에 방향성 림과 금속 반사를 적용했다. RTX 3060 Ti Editor의 4명 비교에서 카메라 GPU 중앙값은 기존 lilToon 5.510ms, 신규 C 0.662ms, D 1.018ms였다. 실전 전투와 사용자 미술 인수 대기. [대기 자세 비교](../work-status/raon-toon-rim-metal.jpg) · [카타나 확대](../work-status/raon-toon-metal.jpg) · [설계](../../Assets/docs/design/world-art/CHARACTER_TOON.md) · [측정 조건과 결과](../work-status/character-toon.md)
+
+**RiverBasin4km 채석장·지하 미로.** 판석과 암석층을 작업 단구와 인접 사면에 넓히고 입구 화로에 불꽃과 불빛을 연결했다. 넓힌 아치에서 묘실까지 보행로를 잇고 순환로 두 개와 미굴착 접속부 세 곳을 뒀다. Editor 보행 캡슐 표본 2,022개와 카메라 규칙 테스트 8개를 통과했다. TPS 플레이와 미술 확인은 사용자 테스트 대기다. [시안](../work-status/river-basin-world.md#채석장과-지하-미로-시안) · [구현·캡처·검증](../work-status/river-basin-world.md#채석장과-지하-미로-구현)
+
+**RiverBasin4km 북동 문루.** 성마을에서 설산길로 나가는 성벽 사이에 기와 문루를 설치했다. 양쪽 성벽 접점, 폭 3.60m의 통행 표본 1,022개와 상향 천장 충돌을 Unity Editor에서 확인했다. [전후 4구도](../work-status/river-basin-keep-north-gate-evidence/index.html) · [작업 상태](../work-status/river-basin-world.md#북동-문루)
+
+**RiverBasin4km 성문 안 성마을 재구성.** 외곽 성벽으로 성문과 마을 경계를 연결하고 북동쪽에 설산길 출구를 뒀다. 장터와 우물에서 본채 돌계단과 민가 골목으로 갈리도록 가옥과 작업 뜰을 배치했다. Unity Editor에서 4개 경로의 보행 표본 2,380개와 고정 카메라 8구도를 확인했다. 사용자 미술 확인 대기다. [전후 8구도](../work-status/river-basin-keep-town-evidence/index.html) · [작업 상태](../work-status/river-basin-world.md#성문-안-성마을-재구성)
+
+**RiverBasin4km 사면과 물가 재작업.** 성채 옹벽 뒤 둔덕, 항구 방파제와 호안 접점, 설산 폐성의 기반암과 붕괴 지표를 프리뷰에 저장했다. 호수 뜰 담을 민가 방향으로 연장하고 권역별 반복 배치와 지면을 손봤다. Unity Editor의 새 표본에서 길 11개 겹침 0/32,188, 담 이음 17/17, 연장 방파제 이음 3/3을 확인했다. 미술은 사용자 확인 대기다. [전후 37구도](../work-status/river-basin-groundwork-evidence/index.html) · [작업 상태와 미검증](../work-status/river-basin-world.md#사면과-물가-재작업)
+
+**RiverBasin4km 길과 돌담 재정비.** 성채·호수 마을·항구에 연속된 돌담 세 줄을 세우고, 고립 소품을 사면·수관·작업 자리와 연결했다. 길 11개 구간을 넓히고 숲길과 사막·항구 길이 나무와 사면을 돌아가게 했다. Unity Editor에서 돌담 이음 15/15와 길 6,975표본의 장애물 겹침 0을 확인했다. 실제 TPS 체감과 미술 판정은 사용자 테스트 대기다. [전후 비교](../work-status/river-basin-natural-evidence/index.html) · [기준과 작업 상태](../work-status/river-basin-world.md#길과-돌담-재정비)
+
+**RiverBasin4km 권역 공간 재작업.** 기존 17장에 대한 사용자 미술 판정을 반영해 권역별 상용 사례를 다시 조사했다. 성채·장터, 호수와 중앙 본선, 숲, 채석장과 던전, 사막, 항구, 설산 폐성의 접근 구도와 배치를 프리뷰에 반영했다. Editor에서 새 배치의 보행 캡슐 겹침 0/6,041, Editor Play에서 정오·19시 등잔 전환 4/4를 확인했다. 미술 인수와 연속 TPS 동선은 사용자 테스트 대기다. [지역별 사례와 기준](../../Assets/docs/design/world-art/open-world/RIVER_BASIN_REGION_CONCEPT_DESIGN.md#상용-월드-사례와-재작업-기준) · [전후 비교](../work-status/river-basin-redress-evidence/index.html) · [작업 상태](../work-status/river-basin-world.md#권역-공간-재작업)
+
+**RiverBasin4km 성채 카메라와 중앙 본선 연결 검증.** 본채 발판·기단을 페이드되는 전각과 난간에서 분리했다. 19시 성채 22/22 지점과 낮 호수 마을–B3·E2–B1–본채 왕복 94/94 지점을 가상 패드로 통과했다. B1 서안–숲길 R1과 채석 고갯길–작업 단구를 연결했고 성채 출발로 서부 51/51, 동부 38/38 지점에 도달했다. 카메라 체감과 마커 없는 초견 길 찾기는 사용자 테스트 대기다. [성채와 연결로 작업 상태](../work-status/river-basin-world.md#중앙-본선과-성채-이후-연결-검증)
+
 **RiverBasin4km B1 석교와 성채 조망 아트 패스.** B3 접근길에서 목서를 길 어깨로 옮기고 석교 양안의 묻힌 판석 끝을 드러냈다. 성채가 보이는 갈림길에는 회색 오르막을 가리키는 목제 화살표를 달았다. 초견 길 찾기와 미술 인수는 사용자 테스트 대기다. [좌표·전후 화면·검증](../work-status/river-basin-world.md#b1-석교와-성채-조망-아트-패스)
 
 **RiverBasin4km B3 현수교와 E2 갈림길 아트 패스.** 동쪽 흙길과 서쪽 자갈길을 현수교 목재 발판에 잇고, E2 분기에서는 이정표와 관목을 옮겨 돌 표식과 하강 방향을 드러냈다. 마커 없는 초견 길 찾기와 미술 인수는 사용자 테스트 대기다. [좌표·전후 화면·Editor 검증](../work-status/river-basin-world.md#b3-현수교와-e2-갈림길-아트-패스)
 
 **RiverBasin4km 호수 마을 첫 방문 아트 패스.** 프리뷰 시작점을 B1 접근부에서 호수 마을 남쪽 입구로 옮겼다. 어부집 계단과 가게 차양을 접지하고, 우물 갈림길에서 서안까지 흙길을 이었다. 목서와 관목 일부를 옮겨 물가 내리막에서 버드나무 섬이 보인다. 마커 없는 야간 초견 길 찾기와 미술 인수는 사용자 테스트 대기다. [좌표·전후 화면·Editor Play 결과](../work-status/river-basin-world.md#호수-마을-첫-방문-아트-패스)
+
+**RiverBasin4km 본채 계단과 상단 마당.** 계단 정상의 중앙 난간 세 칸을 열고 문등과 동쪽 벽면 소품을 배치했다. 낮 Editor Play 왕복 11/11 지점 통과, 19시 입구와 장터·남서 문루 귀환 구도를 확인했다. 문등은 본채와 함께 페이드된다. 계단 가까이에서 카메라가 당겨지고 석재가 흐려지는 체감은 사용자 테스트 대기다. [배치·왕복·가림 화면](../work-status/river-basin-world.md#중앙-성채-본채-계단과-상단-마당)
+
+**RiverBasin4km 중앙 성채 첫 방문.** 남서 문루 너머 오른쪽에 가판대·등잔·짐을 모으고, 왼쪽 본채 계단 발치까지 기존 자갈 재질을 이었다. Editor Play 가상 패드로 오르막부터 첫 갈림과 문루 귀환까지 18/18 지점을 연속 통과했고 19시 고정 화면에서 등잔을 확인했다. 카메라 당김의 체감과 초견 가독성은 사용자 테스트 대기다. [구간별 화면·검증·테스트 명세](../work-status/river-basin-world.md#중앙-성채-남서-문루와-장터-첫-방문)
 
 **RiverBasin4km 문루·부두·사막 국소 보정과 중앙 본선 연결.** 문루 모서리 틈을 닫고 부두 상면의 열린 줄눈을 맞췄다. 사막은 낮은 흙더미와 지붕 높이를 살리고 판벽과 소품을 지면에 맞췄다. 호수 마을부터 성채까지 연속 입력으로 걸은 뒤 북서 출구와 B3 양쪽의 끊긴 길을 이었다. 마커 없는 야간 초견 길 찾기는 사용자 테스트 대기다. [좌표·전후 화면·검증](../work-status/river-basin-world.md#문루부두반지하-가옥과-중앙-본선-연결)
 
@@ -39,6 +85,8 @@
 **RiverBasin4km 남부 호수 섬.** 두 호수의 보행교 10개와 남안 B5를 철거하고 수영 판정을 연결했다. 버드나무·바위·갈대 군락으로 섬과 호안을 꾸미고 상륙로를 열었다. 저장본의 입수·상륙 33개 단면 검사 통과, 미니맵 갱신. 수영·비행 조작과 경관은 사용자 테스트 대기다. [전후 화면과 검증](../work-status/river-basin-world.md#4km-남부-호수-섬)
 
 ## 본편 월드 제작 지침
+
+**RiverBasin4km 도로 생성 · 2026-11-27.** 도로 생성 개선에는 원문의 제작 순서와 품질 판정 기준을 적용한다. 현재는 지침 연결 단계까지 마쳤으며, P0 기존 시스템 분석과 기준 화면 촬영부터 재개한다. [도로 제작·품질 검증 지침](../전달용/world_road/world_road_generation_guidelines.html) · [작업 상태](../work-status/river-basin-world.md#도로-생성-지침-연결)
 
 **RiverBasin4km 지도 재촬영 · 2026-11-22.** 저장된 씬에서 정북 지도 PNG를 다시 촬영하고 Unity 재임포트와 기존 스프라이트 참조를 확인했다. [현재 지도](../../Assets/10.Datas/Map/RiverBasin4km/Minimap.png)
 
@@ -206,3 +254,29 @@ U04는 Boot에서 새 게임으로 라온을 선택하고, 저장 화면의 빈 
 **WorldBuilder P10-A~D 구현·Editor 검증 완료 · T35 사용자 테스트 대기.** C 아틀라스를 2,048m × 2,048m, 높이 0~700m로 적용했다. 바이옴 5개, 수계, POI 3곳, 도로 루프와 교량을 저장했다. Unity NavMesh에서 체크포인트 139구간을 양방향 검증했고, 강가↔호수 1,434m의 단일 역방향 질의는 부분 경로였다. 7개 지역 자동 배치, Dirty/Full 일치, Lock과 Override 21건을 확인했다. 실제 플레이어로 접근로·교량·타일 경계 5구간을 주행했고 TPS 화면 7장을 저장했다. 경관과 실제 조작 품질, 전 구간 수동 주행은 T35 검수에 남긴다. [P10 작업 상태와 검증](../work-status/open-world/WORLDBUILDER_P10.md) · [TPS 검수 절차](../work-status/open-world/WORLDBUILDER_P10.md#후속-게이트)
 
 **P10 C Editor 발행·핵심 횡단 통과.** 배치 377개와 기존 나무 1,260그루를 적용한 512m 청크 16개를 발행했다. 필수 AI 경로 133구간과 실제 TPS 교량·타일 경계 왕복, 목적지 청크 지연·실패·재시도를 확인했다. Editor 왕복 프레임 p95는 188.6/187.6ms로 기록됐다. 전체 도로 루프와 표현 품질은 사용자 테스트 대기다. [검증 프롬프트·MCP 결과](../work-status/open-world/WORLDBUILDER_P10_STREAMING.md)
+
+- RiverBasin4km 프리뷰에 삼중 성곽과 두 마을을 배치했다. 북쪽 계단 끝에서 내벽까지 23.58m이며 외성 북문에서 앞마당으로 이어진다. 저장본 정적 검사 통과, TPS 보행·미술·성능 확인 대기. [장면과 검증 기록](../work-status/river-basin-world.md#삼중-성곽과-누각-앞마당)
+
+- RiverBasin4km 중앙도시의 분홍 나무 46그루를 초록 목서로 교체했다. 프리뷰 씬 저장본과 Unity 조감에서 확인했다. [작업 상태](../work-status/river-basin-world.md#삼중-성곽과-누각-앞마당)
+
+[깊은 숲 마을 시안](../work-status/river-basin-world.md#깊은-숲-마을-시안)에서 R1 목교 주변 주택 세 채의 배치와 남쪽 진입 시점을 볼 수 있다.
+
+- 삼중 성곽에 진입문 다섯 곳과 연결길을 추가했다. [문루 위치와 검증 기록](../work-status/river-basin-world.md#성곽-진입문-다섯-곳)
+
+**RiverBasin4km 깊은 숲 엘프 마을 블록아웃 반영.** R1 실개천 옆 장터와 거목 아래 회관·수관 주거를 확장 배치했다. 저장본에서 회랑과 양쪽 경사로의 바닥과 중앙선 충돌을 확인했다. 실제 TPS 동선과 수관 가림은 사용자 테스트 대기다. [엘프 마을 시안](../work-status/river-basin-region-sites-evidence/deep-forest-elven-village.png) · [블록아웃과 검증](../work-status/river-basin-world.md#깊은-숲-엘프-마을-블록아웃)
+
+**RiverBasin4km 깊은 숲 엘프 마을 아트 패스 반영.** 프리뷰에서 중앙 회관, 잎무늬 난간, 수관 주거, 염색 장터를 맞춤 Blender 메시와 보유 소품으로 교체했다. 저장본의 메시 참조와 회랑 중앙선 충돌을 확인했고 TPS 가림, 성능과 최종 미술 인수는 사용자 확인 대기다. [아트 패스와 검증](../work-status/river-basin-world.md#깊은-숲-엘프-마을-아트-패스)
+
+**RiverBasin4km 깊은 숲 엘프 마을 외곽 확장.** 중앙 수관 회관 주변에 새 건물 35동을 배치해 지붕 외곽을 약 184 × 176m로 넓혔다. 464m 순환길이 네 구역과 동쪽 공동 작업 마당을 잇는다. [조감 전후와 검증](../work-status/river-basin-world.md#깊은-숲-엘프-마을-외곽-확장)
+
+**RiverBasin4km 채석장 지상 탐험 확장.** 프리뷰에 채석 단구와 순환로를 저장했다. 새 갱구 두 곳은 기존 미로에 연결했고 강 쪽에는 독립 보물 동굴을 뒀다. Editor 정적 보행 표본 2,283개 통과, TPS 동선·보상 저장과 미술 인수는 사용자 테스트 대기다. [시안·구현·검증](../work-status/river-basin-world.md#채석장-지상-탐험-확장-시안)
+
+**RiverBasin4km 채석장 권역 확장.** 사용자 표시 범위에 맞춰 서쪽 강변에서 북쪽 능선과 동쪽 사면까지 지형 타일 3장을 쓰고, 새 거점 네 곳을 기존 채석장과 연결했다. [권역 배치와 검증](../work-status/river-basin-world.md#채석장-권역-확장)
+
+**RiverBasin4km 채석장 빈 구간 보강.** 강변과 분지 사면에 작업 흔적과 절리층 13곳, 샛길 7개, 채광 지점 6개를 배치했다. Editor 보행·배치 검사를 통과했고 TPS 탐색과 채광 저장은 사용자 테스트 대기다. [비교 화면과 검증](../work-status/river-basin-world.md#채석장-빈-구간-보강)
+
+**RiverBasin4km 채석장 절개면과 석분.** 작업지 13곳에서 기존 채석 절리 메시를 재사용하고, 지형 3장에 암반과 석분이 이어지게 마감했다. Editor 보행 표본 9,246개를 통과했다. [전후 비교와 검증](../work-status/river-basin-world.md#채석장-절개면과-석분)
+
+**RiverBasin4km 채석장 지상 재구성.** 사용자 피드백을 반영해 석회암 절개면 세 단, 중앙 인양 광장, 하단 선별 마당, C 앞 목재 적재대와 동쪽 목계단을 프리뷰에 새로 제작했다. Editor 보행 표본 3,672개에서 누락과 장애물 겹침은 0건이다. TPS와 미술 인수는 사용자 테스트 대기다. [지상 전후와 검증](../work-status/river-basin-world.md#채석장-지상-재구성)
+
+**RiverBasin4km 채석장 권역 갱구 네 곳.** 표시 구역마다 갱구를 만들고 두 지하 집하장과 운반 본선으로 중앙 채석장의 A 갱도에 연결했다. 저장본의 지상 입구부터 중앙 묘실까지 보행 표본 5,796개가 통과했다. 실제 TPS 왕복과 미술 인수는 사용자 테스트 대기다. [입구 위치와 연결 검증](../work-status/river-basin-world.md#권역-갱구-네-곳과-중앙-채석장-연결)

@@ -1,0 +1,20 @@
+terrain 6 tiles; 11286 seam samples; max height gap 0.0000m
+river center 318/318; min sampled depth 1.55m; uphill 0.000m
+water (602.00, 2148.00) 134.04 bed 138.64
+water (825.00, 2187.00) 134.04 bed 131.85
+water (874.00, 2188.00) 95.29 bed 91.69
+water (1567.00, 2129.00) 52.91 bed 52.48
+water (1571.00, 2127.00) 52.87 bed 51.72
+water (1574.00, 2127.00) 52.81 bed 50.79
+water (1578.00, 2127.00) 52.78 bed 50.04
+bridge deck 121/121; capsule obstruction 0; max step over .20m 0.011m
+waterfall transition launch True release True
+tree LOD 14992 / 8172 / 4474 triangles, size 48.03m
+new subtree missing scripts 0; empty mesh slots 0
+new renderers shader errors 0
+plaza upward-facing triangles 4480/4480
+nav (1266.2, 57.3, 2214.9) complete True corners 2
+nav (1241.0, 59.0, 2306.0) complete True corners 4
+nav (1257.0, 59.0, 2320.0) complete True corners 10
+nav (1270.0, 58.0, 2279.0) complete True corners 7
+riverbed nav False

@@ -1,0 +1,14 @@
+원본 Assets/08.Models/WorldCities/Stonegate/Castle_Keep.fbx
+원본 정점 95396, 파생 정점 95396, 난간 면 제거 78
+성채 본채 서쪽 문기둥 (2298.800, 100.220, 2105.664) 접촉면 2105.830
+성채 본채 동쪽 문기둥 (2301.200, 100.220, 2105.664) 접촉면 2105.830
+본채 상단 목재 상자 (2305.250, 98.145, 2107.120) Assets/03.Prefabs/Environment/WorldCities/CargoCrate.prefab
+본채 상단 자루 (2304.490, 98.145, 2106.930) Assets/ExternalAssets/Environment/Toon Golden Valley/Prefabs/Props/Exterior Props/TGV_Sack_03A.prefab
+성채 본채 서쪽 문기둥 / 부모 Castle_Keep / 위치 오차 0.0000m
+성채 본채 동쪽 문기둥 / 부모 Castle_Keep / 위치 오차 0.0000m
+본채 상단 목재 상자 / 부모 Castle_Keep / 위치 오차 0.0000m
+본채 상단 자루 / 부모 Castle_Keep / 위치 오차 0.0000m
+성채 본채 서쪽 문기둥 / 부모 Castle_Keep / 위치 오차 0.0000m
+성채 본채 동쪽 문기둥 / 부모 Castle_Keep / 위치 오차 0.0000m
+본채 상단 목재 상자 / 부모 Castle_Keep / 위치 오차 0.0000m
+본채 상단 자루 / 부모 Castle_Keep / 위치 오차 0.0000m

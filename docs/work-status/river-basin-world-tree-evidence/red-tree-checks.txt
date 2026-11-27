@@ -1,0 +1,9 @@
+LOD 0 55613 tris, transition 0.68
+LOD 1 37836 tris, transition 0.28
+LOD 2 23289 tris, transition 0.095
+LOD 3 9539 tris, transition 0.006
+height above plaza 44.41m
+collision SM_EastLands_HeroTree_Trunk_LOD3; 2 submeshes; old capsule False
+missing references 0; shader errors 0
+ground nav 4/4; collision 0/1188
+gallery 2 sections; collision 0/366

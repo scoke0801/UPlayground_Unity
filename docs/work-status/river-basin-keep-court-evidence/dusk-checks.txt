@@ -1,0 +1,3 @@
+Day 1 19:00
+성채 본채 서쪽 문기둥 enabled=True intensity=0.940 parent=Castle_Keep
+성채 본채 동쪽 문기둥 enabled=True intensity=0.940 parent=Castle_Keep

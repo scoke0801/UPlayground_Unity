@@ -1,0 +1,83 @@
+RiverBasin4km 권역 공간 재작업 · Unity Editor 검증
+2026-11-26
+경로 기준: 직전 중앙 본선·숲·채석 경로 CSV와 폐갱도 두 입구·사막·항구·설산 대표 좌표.
+캡슐 직경 0.72m, 지형 높이 기준 하단 축 0.40m / 상단 축 1.52m, 경로 최대 0.50m 간격.
+경로별 숫자는 새 배치와 겹친 표본 수 / 전체 표본 수. 같은 절점이 두 구간에 속하면 중복 집계한다.
+초안에서는 채석 절리 Tall이 4개 표본에서 겹쳤다. 사면 쪽으로 옮기고 축소한 저장본은 0개다.
+
+Editor 저장과 정적 검사
+{
+  "saved": true,
+  "total": 6041,
+  "routes": [
+    "mainline 0/4299",
+    "forest 0/1108",
+    "quarry 0/333",
+    "quarry-door 0/32",
+    "quarry-exit 0/21",
+    "desert 0/69",
+    "harbor 0/110",
+    "snow 0/69"
+  ],
+  "hitList": [],
+  "missing": 0,
+  "invalidMat": 0,
+  "terrains": 64,
+  "renderers": 441,
+  "colliders": 175,
+  "instances": 159,
+  "groundSurfaces": 4,
+  "cutInstances": 5,
+  "lights": 4,
+  "isDirty": false
+}
+
+Editor Play 정오
+{
+  "time": "Day 1 12:00",
+  "slot": null,
+  "li": [
+    "장터 가판 각등 False 0.000",
+    "장터 가판 각등 False 0.000",
+    "장터 가판 각등 False 0.000",
+    "수선 오두막 벽 등잔 False 0.000"
+  ]
+}
+
+Editor Play 19시
+{
+  "time": "Day 1 19:00",
+  "slot": null,
+  "li": [
+    "장터 가판 각등 True 0.940",
+    "장터 가판 각등 True 0.940",
+    "장터 가판 각등 True 0.940",
+    "수선 오두막 벽 등잔 True 1.102"
+  ]
+}
+
+Editor Play 종료 상태
+{
+  "name": "RiverBasin4km",
+  "path": "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Preview/RiverBasin4km.unity",
+  "isDirty": false,
+  "playing": false,
+  "timeScale": 1,
+  "loaded": 1,
+  "userSaveFiles": 5,
+  "hashesMatch": true
+}
+Play 종료 전과 종료 후 Console 오류 0건.
+Player 및 Addressables 빌드, NavMesh 재베이크, 성능 실측, 전체 연속 입력은 미수행.
+
+Blender 5.2.2 LTS · 새 소스와 FBX
+RB_QuarryCut_Tall, 소스 정점 60 / 삼각형 116, Blender 폭·깊이·높이 17.95 / 7.72 / 8.85m
+RB_QuarryCut_Low, 소스 정점 40 / 삼각형 76, Blender 폭·깊이·높이 13.49 / 6.51 / 4.92m
+Unity 가져오기 정점은 각각 287과 179, 삼각형은 Blender와 동일하다. UV·하드 엣지에 따라 정점이 분리됐다.
+메시마다 상하 법선과 UV가 있고 기존 QuarryRock 재질을 사용한다. 두 메시 모두 LOD 없이 사용하고 5개 배치에 MeshCollider를 연결했다.
+
+원래 저장 파일 SHA-256 C6C932A6F8385C00FED1FDC51079C09FF0DD398DF5E68C7194F0D54AD79528CB
+최종 저장 파일 SHA-256 36C4892655F8971E76D3472797D15A53D51675EBCB7A53F8C556291331507D1E
+씬의 기존 직렬화 블록 5,927개 중 SceneRoots 목록만 갱신됐고 누락은 0개다. 새 블록은 452개다.
+Unity가 빈 프로퍼티 끝에 생성한 공백을 유지했다. 문서 diff 검사와 해당 포맷 공백을 제외한 씬 diff 검사에 오류가 없다.
+비교 보고서에서 이미지 37개와 문서 링크의 로컬 대상 파일을 확인했다.

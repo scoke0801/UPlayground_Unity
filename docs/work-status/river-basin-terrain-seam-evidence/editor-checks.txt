@@ -1,0 +1,40 @@
+Terrain_0_3 ← Terrain_0_3 / 국소 낙구 표본 0
+Terrain_0_4 ← Terrain_0_4 / 국소 낙구 표본 0
+Terrain_1_3 ← Terrain_1_3 / 국소 낙구 표본 0
+Terrain_1_4 ← Terrain_1_4 / 국소 낙구 표본 211
+Terrain_2_4 ← Terrain_2_4_Groundwork / 국소 낙구 표본 0
+Terrain_3_4 ← Terrain_3_4 / 국소 낙구 표본 0
+Terrain_4_3 ← Terrain_4_3 / 국소 낙구 표본 0
+Terrain_4_4 ← Terrain_4_4_KeepTown / 국소 낙구 표본 0
+Terrain_5_0 ← Terrain_5_0_Groundwork / 국소 낙구 표본 0
+Terrain_0_3 / 저장 재읽기·높이·홀·수목·디테일·충돌 일치
+Terrain_0_4 / 저장 재읽기·높이·홀·수목·디테일·충돌 일치
+Terrain_1_3 / 저장 재읽기·높이·홀·수목·디테일·충돌 일치
+Terrain_1_4 / 저장 재읽기·높이·홀·수목·디테일·충돌 일치
+Terrain_2_4 / 저장 재읽기·높이·홀·수목·디테일·충돌 일치
+Terrain_3_4 / 저장 재읽기·높이·홀·수목·디테일·충돌 일치
+Terrain_4_3 / 저장 재읽기·높이·홀·수목·디테일·충돌 일치
+Terrain_4_4 / 저장 재읽기·높이·홀·수목·디테일·충돌 일치
+Terrain_5_0 / 저장 재읽기·높이·홀·수목·디테일·충돌 일치
+Terrain_6_4 / 저장 재읽기·높이·홀·수목·디테일·충돌 일치
+프리뷰 씬 SHA256 일치. 재질 참조 비교는 씬 파일에 포함.
+원본 백업 output/RiverBasinWorld/TerrainSeams/backup-20261127-160631
+
+Terrain_0_2/Terrain_0_3 평균 0.388 → 0.015 / 최대 0.612 / 표본 4
+Terrain_0_4/Terrain_0_5 평균 1.371 → 0.002 / 최대 0.004 / 표본 0
+Terrain_1_2/Terrain_1_3 평균 0.617 → 0.030 / 최대 0.667 / 표본 7
+Terrain_1_3/Terrain_2_3 평균 1.801 → 0.002 / 최대 0.004 / 표본 0
+Terrain_1_4/Terrain_1_5 평균 2.001 → 0.001 / 최대 0.004 / 표본 0
+Terrain_2_2/Terrain_2_3 평균 0.099 → 0.099 / 최대 1.843 / 표본 12
+Terrain_2_3/Terrain_3_3 평균 0.077 → 0.077 / 최대 1.839 / 표본 8
+Terrain_2_3/Terrain_2_4 평균 1.648 → 0.001 / 최대 0.004 / 표본 0
+Terrain_2_4/Terrain_2_5 평균 1.603 → 0.002 / 최대 0.004 / 표본 0
+Terrain_3_3/Terrain_3_4 평균 0.103 → 0.045 / 최대 1.961 / 표본 3
+Terrain_4_0/Terrain_5_0 평균 1.168 → 0.001 / 최대 0.004 / 표본 0
+Terrain_4_4/Terrain_5_4 평균 0.554 → 0.024 / 최대 0.494 / 표본 10
+Terrain_4_4/Terrain_4_5 평균 0.113 → 0.001 / 최대 0.004 / 표본 0
+Terrain_5_0/Terrain_6_0 평균 1.196 → 0.000 / 최대 0.004 / 표본 0
+Terrain_5_4/Terrain_6_4 평균 0.667 → 0.006 / 최대 0.157 / 표본 2
+Terrain_6_3/Terrain_6_4 평균 2.000 → 0.004 / 최대 0.122 / 표본 1
+Terrain_6_4/Terrain_7_4 평균 1.559 → 0.006 / 최대 0.106 / 표본 1
+Terrain_6_4/Terrain_6_5 평균 0.534 → 0.006 / 최대 0.157 / 표본 2

@@ -1,0 +1,15 @@
+dirty=False fire=1
+신규 홀 78 기타 홀 변경 0 높이 동일 True
+폐갱도로 들어가기 활성 False
+채석장 아래로 돌아가기 활성 False
+옛 운반길로 나가기 활성 True
+옛 운반길로 나가기 riverbasin4km.quarry_corridor.shortcut  목적지 (3169.50, 103.15, 2174.60)
+열린 통로로 돌아가기  portal.activated.riverbasin4km.quarry_corridor.shortcut 목적지 (3187.50, 71.62, 2204.00)
+독립 폐쇄면 충돌 3/3
+새 그룹 누락 스크립트 0 오류/누락 재질 0
+경로 1 표본 426 실패 0 최대 경사 37.4 최소 천장 2.22
+경로 2 표본 315 실패 0 최대 경사 24.3 최소 천장 3.75
+경로 3 표본 276 실패 0 최대 경사 33.7 최소 천장 3.15
+경로 4 표본 432 실패 0 최대 경사 26.4 최소 천장 3.78
+경로 5 표본 573 실패 0 최대 경사 35.3 최소 천장 2.39
+Particle_fire_v1_dungeon 46 particles

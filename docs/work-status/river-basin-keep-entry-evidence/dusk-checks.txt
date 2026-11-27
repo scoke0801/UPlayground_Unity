@@ -1,0 +1,1 @@
+시각 Day 1 19:00 / 새 등잔 enabled=True intensity=1.166 / sun=0.331

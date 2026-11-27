@@ -1,0 +1,5 @@
+south requested=(1255.000, 58.429, 2274.000) actual=(1255.000, 58.299, 2274.000) grounded=True camera=남쪽 조감 카메라 cameraDist=5.51
+hall requested=(1264.600, 69.130, 2289.500) actual=(1264.600, 69.010, 2289.500) grounded=True camera=남쪽 조감 카메라 cameraDist=5.35
+east requested=(1266.850, 70.130, 2324.600) actual=(1266.850, 70.010, 2324.600) grounded=True camera=남쪽 조감 카메라 cameraDist=5.35
+west requested=(1231.500, 69.130, 2323.200) actual=(1231.500, 69.010, 2323.200) grounded=True camera=남쪽 조감 카메라 cameraDist=5.51
+outer-south retry actual=(1257.000, 58.348, 2255.000) grounded=True

@@ -1,0 +1,4 @@
+B1 서안에서 숲길 R1 최종 캡슐 0/990 / 지표 충돌체 0 / 저장 에셋 Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinKeepBranchPaths.asset
+채석 고갯길에서 작업 단구 최종 캡슐 0/297 / 지표 충돌체 0 / 저장 에셋 Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinKeepBranchPaths.asset
+합계 0/1287 / 돌 표식 4
+씬 누락 스크립트 0

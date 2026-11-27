@@ -1,0 +1,64 @@
+// 기존 B3와 같은 에이전트 계약으로 항구 구역만 베이크한다.
+var root=GameObject.Find("항구도시 · 교역항");
+var reference=GameObject.Find("B3 보행 내비게이션");
+if(!root||!reference||root.transform.Find("항구 보행 내비게이션")||EditorApplication.isPlaying)
+    throw new System.InvalidOperationException("항구와 B3 내비게이션이 있는 Edit Mode가 필요합니다.");
+const string folder="Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/";
+const string navAsset=folder+"RiverBasinHarborCityNav.asset";
+if(AssetDatabase.LoadMainAssetAtPath(navAsset))throw new System.InvalidOperationException("항구 내비게이션 에셋이 이미 있습니다.");
+var b3=reference.GetComponent<Unity.AI.Navigation.NavMeshSurface>();
+
+Undo.IncrementCurrentGroup();
+int group=Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName("항구 보행 내비게이션");
+try{
+    var navigation=new GameObject("항구 보행 내비게이션");
+    Undo.RegisterCreatedObjectUndo(navigation,"항구 보행 내비게이션");
+    navigation.transform.SetParent(root.transform,false);
+    navigation.transform.position=new Vector3(2820,7,211);
+    var mask=new GameObject("항내 해저 보행 차단");
+    Undo.RegisterCreatedObjectUndo(mask,"항내 해저 보행 차단");
+    mask.transform.SetParent(navigation.transform,false);
+    mask.transform.position=new Vector3(2820,-8,181);
+    var volume=mask.AddComponent<Unity.AI.Navigation.NavMeshModifierVolume>();
+    volume.area=UnityEngine.AI.NavMesh.GetAreaFromName("Not Walkable");
+    volume.size=new Vector3(278,15.7f,222);
+    var nav=navigation.AddComponent<Unity.AI.Navigation.NavMeshSurface>();
+    nav.agentTypeID=b3.agentTypeID;
+    nav.collectObjects=Unity.AI.Navigation.CollectObjects.Volume;
+    nav.useGeometry=UnityEngine.AI.NavMeshCollectGeometry.PhysicsColliders;
+    nav.layerMask=b3.layerMask;
+    nav.size=new Vector3(272,43,246);
+    nav.overrideVoxelSize=true;
+    nav.voxelSize=.20f;
+    Physics.SyncTransforms();
+    nav.BuildNavMesh();
+    if(!nav.navMeshData)throw new System.InvalidOperationException("항구 내비게이션 베이크 실패");
+    var log=new System.Text.StringBuilder();
+    var start=new Vector3(2793,11,269.5f);
+    UnityEngine.AI.NavMeshHit from;
+    if(!UnityEngine.AI.NavMesh.SamplePosition(start,out from,2,UnityEngine.AI.NavMesh.AllAreas))
+        throw new System.InvalidOperationException("시장 시작점이 내비게이션 밖입니다.");
+    foreach(var result in new[]{new Vector3(2826,.90f,125),new Vector3(2738,1.34f,133),new Vector3(2900,3,175.5f)}){
+        UnityEngine.AI.NavMeshHit to;
+        var path=new UnityEngine.AI.NavMeshPath();
+        bool reached=UnityEngine.AI.NavMesh.SamplePosition(result,out to,2,UnityEngine.AI.NavMesh.AllAreas)
+            &&UnityEngine.AI.NavMesh.CalculatePath(from.position,to.position,UnityEngine.AI.NavMesh.AllAreas,path)
+            &&path.status==UnityEngine.AI.NavMeshPathStatus.PathComplete;
+        log.AppendLine(result.ToString("F2")+" "+path.status+" / 모서리 "+path.corners.Length);
+        if(!reached)throw new System.InvalidOperationException("완료 경로가 없습니다 "+result+" "+log);
+    }
+    UnityEngine.AI.NavMeshHit bottom;
+    if(UnityEngine.AI.NavMesh.SamplePosition(new Vector3(2800,-1.5f,117),out bottom,.75f,UnityEngine.AI.NavMesh.AllAreas))
+        throw new System.InvalidOperationException("해저에 보행 내비게이션이 남았습니다.");
+    AssetDatabase.CreateAsset(nav.navMeshData,navAsset);
+    AssetDatabase.SaveAssetIfDirty(nav.navMeshData);
+    bool saved;
+    if(!PrefabUtility.SaveAsPrefabAsset(root,folder+"RiverBasinHarborCity.prefab",out saved)||!saved)
+        throw new System.InvalidOperationException("내비게이션을 포함한 항구 프리팹 저장 실패");
+    Undo.CollapseUndoOperations(group);
+    return log.ToString()+" 해저 보행 샘플 없음";
+}catch{
+    Undo.RevertAllDownToGroup(group);
+    throw;
+}

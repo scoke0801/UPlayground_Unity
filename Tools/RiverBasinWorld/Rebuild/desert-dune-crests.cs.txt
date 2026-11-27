@@ -1,0 +1,56 @@
+// 모래를 바람받이 완사면과 바람그늘 급사면으로 나누어 능선 흐름을 만든다.
+var scene=UnityEngine.SceneManagement.SceneManager.GetSceneByName("RiverBasin4km");
+var tile=Terrain.activeTerrains.Single(t=>t.name=="Terrain_7_2"&&t.gameObject.scene==scene);
+var data=tile.terrainData;
+var path=AssetDatabase.GetAssetPath(data);
+if(!path.EndsWith("/Terrain_7_2_DesertDunes.asset"))throw new InvalidOperationException(path);
+var source=AssetDatabase.LoadAssetAtPath<TerrainData>(path.Replace("DesertDunes","Groundwork"));
+var n=data.heightmapResolution;
+var sample=source.GetHeights(0,0,n,n);
+var origin=tile.transform.position;
+var stride=data.size.x/(n-1);
+var curving=new[]{
+    new Vector4(3744,1237,78,8.0f),
+    new Vector4(3828,1268,116,12.8f),
+    new Vector4(3858,1342,130,15.2f),
+    new Vector4(3906,1390,103,12.3f),
+    new Vector4(3939,1452,92,8.7f),
+    new Vector4(3944,1295,77,6.6f)};
+float peak=0;
+int changed=0;
+for(int row=1;row<n-1;row++)for(int col=1;col<n-1;col++){
+    float x=origin.x+stride*col,z=origin.z+stride*row;
+    float mask=Mathf.SmoothStep(0,1,(x-3708)/30)*Mathf.SmoothStep(0,1,(4045-x)/34)
+        *Mathf.SmoothStep(0,1,(z-1167)/43)*Mathf.SmoothStep(0,1,(1504-z)/30);
+    if(mask<=0)continue;
+    float uplift=0;
+    for(int i=0;i<curving.Length;i++){
+        var crest=curving[i];
+        float dx=x-crest.x,dz=z-crest.y;
+        float along=(dx*.885f+dz*.466f)/crest.z;
+        if(Mathf.Abs(along)>=1)continue;
+        float arc=(-22-4*(i%3))*along*along+6*along+3.5f*Mathf.Sin(along*4+i*.6f);
+        float cross=-dx*.466f+dz*.885f-arc;
+        float rise=26+3*(i%3);
+        float fall=12+2*(i%2);
+        float normalized=Mathf.Abs(cross)/(cross<0?rise:fall);
+        float section=cross<0?Mathf.Exp(-Mathf.Pow(normalized,1.35f)):Mathf.Exp(-Mathf.Pow(normalized,1.13f));
+        float wings=Mathf.Pow(Mathf.Max(0,1-along*along),1.15f);
+        uplift+=crest.w*section*wings;
+    }
+    uplift*=mask;
+    if(uplift<.025f)continue;
+    sample[row,col]+=uplift/data.size.y;
+    peak=Mathf.Max(peak,uplift);changed++;
+}
+Undo.RecordObject(data,"비대칭 사구 조형");
+data.SetHeights(0,0,sample);
+var original=source.GetHeights(0,0,n,n);
+var current=data.GetHeights(0,0,n,n);
+float seam=0;
+for(int i=0;i<n;i++)seam=Mathf.Max(seam,Mathf.Abs(current[0,i]-original[0,i]),Mathf.Abs(current[n-1,i]-original[n-1,i]),
+    Mathf.Abs(current[i,0]-original[i,0]),Mathf.Abs(current[i,n-1]-original[i,n-1]));
+if(seam>0)throw new InvalidOperationException("타일 경계 변경");
+tile.Flush();
+EditorUtility.SetDirty(data);AssetDatabase.SaveAssetIfDirty(data);
+return "지형 표본 "+changed+", 가장 높은 사구 추가 "+peak.ToString("F2")+" m, 높이 경계차 "+seam;

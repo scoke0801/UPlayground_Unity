@@ -1,0 +1,394 @@
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+const string rootName="채석장 권역 · 작업 흔적과 노출 암반";
+if(scene.name!="RiverBasin4km" || EditorApplication.isPlaying || scene.isDirty || GameObject.Find(rootName))
+    throw new InvalidOperationException("저장된 채석장 프리뷰를 확인한다.");
+var region=GameObject.Find("채석장 권역 · 강변에서 능선까지");
+var yard=GameObject.Find("채석장 지상 순환과 새 갱구");
+if(!region||!yard)throw new InvalidOperationException("기존 권역과 갱구를 확인한다.");
+var atlasPath=scene.path.Substring(0,scene.path.LastIndexOf("/Preview/"))+"/Production/RegionArt/RiverBasinQuarryDressing.asset";
+if(AssetDatabase.LoadMainAssetAtPath(atlasPath))throw new InvalidOperationException(atlasPath);
+var tiles=Array.FindAll(Terrain.activeTerrains,t=>t.gameObject.scene==scene&&
+    AssetDatabase.GetAssetPath(t.terrainData).EndsWith("_QuarryRegion.asset"));
+if(tiles.Length!=3)throw new InvalidOperationException("채석장 파생 지형 3장을 확인한다.");
+Func<float,float,Terrain> tileAt=(x,z)=>Array.Find(tiles,t=>x>=t.transform.position.x&&x<=t.transform.position.x+512&&
+    z>=t.transform.position.z&&z<=t.transform.position.z+512);
+Func<float,float,Vector3> ground=(x,z)=>{
+    var t=tileAt(x,z);
+    if(!t)throw new InvalidOperationException("채석장 저작 지형 범위 밖");
+    return new Vector3(x,t.SampleHeight(new Vector3(x,0,z))+t.transform.position.y,z);
+};
+Func<string,GameObject> prefab=name=>{
+    foreach(var id in AssetDatabase.FindAssets(name+" t:Prefab",new[]{"Assets/ExternalAssets/Environment"})){
+        var path=AssetDatabase.GUIDToAssetPath(id);
+        if(path.EndsWith("/"+name+".prefab",StringComparison.Ordinal))
+            return AssetDatabase.LoadAssetAtPath<GameObject>(path);
+    }
+    throw new InvalidOperationException("소품 프리팹 확인 "+name);
+};
+var cliffs=new[]{prefab("PF_EastLands_Cliff_01"),prefab("PF_EastLands_Cliff_02"),prefab("PF_EastLands_Cliff_03")};
+var stones=new[]{prefab("PF_EastLands_MedBoulder_02"),prefab("PF_EastLands_MedBoulder_04"),
+    prefab("PF_EastLands_FlatStone_03"),prefab("PF_EastLands_RiverRock_Cluster_02")};
+var crate=prefab("P_PROP_barrel_dungeon_01");
+var cart=prefab("P_PROP_cart_dungeon_01");
+var camp=prefab("COMP_PROP_campfire_dungeon");
+var stoneData=AssetDatabase.LoadMainAssetAtPath("Assets/10.Datas/Actor/Interaction/Stone.asset");
+var rockMat=Array.Find(yard.GetComponentsInChildren<MeshRenderer>(),r=>r.name=="Dng_Wall_QuarryExtractionFaces").sharedMaterial;
+var woodMat=Array.Find(yard.GetComponentsInChildren<MeshRenderer>(),r=>r.name=="인양 기둥").sharedMaterial;
+var existingTrack=Array.Find(region.GetComponentsInChildren<MeshRenderer>(),r=>r.name=="강변 운반길").sharedMaterial;
+Type gatherType=null, sceneIdType=null;
+foreach(var assembly in AppDomain.CurrentDomain.GetAssemblies()){
+    if(gatherType==null)gatherType=assembly.GetType("UPlayGround.GatheringActor");
+    if(sceneIdType==null)sceneIdType=assembly.GetType("UPlayGround.Components.SceneEntityId");
+}
+int layer=LayerMask.NameToLayer("InteractableObject");
+if(!stoneData||!rockMat||!woodMat||!existingTrack||gatherType==null||sceneIdType==null||layer<0)
+    throw new InvalidOperationException("채광과 소품 연결 데이터를 확인한다.");
+
+var names=new[]{
+    "서쪽 폐적재장","판석 시험장","강둑 자갈층","강굽이 암반 자국","비탈의 중간 적재턱",
+    "능선 아래 폐운반대","낮은 노천 채광터","두 길 사이 바위마루","옛 판석 가공마당",
+    "중앙 계단형 노출층","동쪽 선별장","북쪽 절리층","동쪽 암벽 채광터"};
+var centers=new[]{
+    new Vector2(2914,2341),new Vector2(2971,2347),new Vector2(2994,2420),new Vector2(3064,2438),new Vector2(3116,2382),
+    new Vector2(3140,2472),new Vector2(3181,2389),new Vector2(3217,2334),new Vector2(3280,2343),
+    new Vector2(3323,2442),new Vector2(3365,2331),new Vector2(3360,2497),new Vector2(3419,2429)};
+var radius=new[]{23,27,31,28,17,23,30,29,29,31,26,26,27};
+var angles=new[]{-28,18,-19,43,-22,-14,16,11,28,24,12,-26,-51};
+// 작업지와 자연 노출층의 겹침 밀도를 다르게 저작한다.
+var work=new[]{true,true,false,false,true,true,true,false,true,false,true,false,true};
+var mine=new[]{false,true,false,true,false,false,true,false,true,false,false,true,true};
+var routes=new System.Collections.Generic.List<Vector2>();
+var routeParent=Array.Find(region.GetComponentsInChildren<Transform>(),t=>t.name=="권역 운반로");
+var oldRibbon=Array.Find(yard.GetComponentsInChildren<MeshFilter>(),f=>f.name=="쇄석 운반길");
+var strips=routeParent.GetComponentsInChildren<MeshFilter>();
+foreach(var f in strips){
+    var v=f.sharedMesh.vertices;
+    for(int i=0;i<v.Length;i+=32){
+        var left=f.transform.TransformPoint(v[i]);var right=f.transform.TransformPoint(v[Mathf.Min(i+29,v.Length-1)]);
+        routes.Add(new Vector2((left.x+right.x)*.5f,(left.z+right.z)*.5f));
+    }
+}
+var oldVertices=oldRibbon.sharedMesh.vertices;
+for(int i=0;i<oldVertices.Length;i+=16){
+    var left=oldRibbon.transform.TransformPoint(oldVertices[i]);
+    var right=oldRibbon.transform.TransformPoint(oldVertices[Mathf.Min(i+13,oldVertices.Length-1)]);
+    routes.Add(new Vector2((left.x+right.x)*.5f,(left.z+right.z)*.5f));
+}
+Func<Vector2,Vector2> nearest=p=>{
+    float best=float.PositiveInfinity;
+    Vector2 result=Vector2.zero;
+    foreach(var point in routes){
+        float d=(point-p).sqrMagnitude;
+        if(d<best){best=d;result=point;}
+    }
+    return result;
+};
+Func<Vector2,float> roadDist=p=>Vector2.Distance(p,nearest(p));
+Func<Vector2,float> slope=p=>{
+    var t=tileAt(p.x,p.y);
+    return t.terrainData.GetSteepness((p.x-t.transform.position.x)/512,(p.y-t.transform.position.z)/512);
+};
+var root=new GameObject(rootName);
+Undo.IncrementCurrentGroup();
+var undo=Undo.GetCurrentGroup();Undo.SetCurrentGroupName(rootName);Undo.RegisterCreatedObjectUndo(root,rootName);
+var anchor=new Vector3(3200,65,2400);
+root.transform.position=anchor;
+var meshes=new System.Collections.Generic.List<Mesh>();
+var trailMat=new Material(existingTrack){name="채석장 작업 샛길"};
+trailMat.SetColor("_BaseColor",new Color(.65f,.60f,.51f));
+trailMat.SetFloat("_BumpScale",.12f);
+Func<string,Transform,Vector3,GameObject> node=(name,parent,p)=>{
+    var o=new GameObject(name);o.transform.SetParent(parent);o.transform.position=p;return o;
+};
+Func<GameObject,Transform,Vector3,Quaternion,GameObject> place=(asset,parent,p,yaw)=>{
+    var o=(GameObject)PrefabUtility.InstantiatePrefab(asset,parent);
+    o.transform.SetPositionAndRotation(p,yaw);return o;
+};
+Func<GameObject,Bounds> bounds=o=>{
+    var renderers=o.GetComponentsInChildren<MeshRenderer>();
+    var b=renderers[0].bounds;
+    for(int i=1;i<renderers.Length;i++)b.Encapsulate(renderers[i].bounds);
+    return b;
+};
+Action<GameObject,Vector3,Vector3,float> fit=(instance,p,span,sink)=>{
+    var rotation=instance.transform.rotation;
+    instance.transform.rotation=Quaternion.identity;
+    var b=bounds(instance);
+    instance.transform.localScale=Vector3.Scale(instance.transform.localScale,new Vector3(span.x/b.size.x,span.y/b.size.y,span.z/b.size.z));
+    instance.transform.rotation=rotation;
+    b=bounds(instance);
+    instance.transform.position+=new Vector3(p.x-b.center.x,p.y-b.min.y-sink,p.z-b.center.z);
+};
+var paintBackups=new System.Collections.Generic.Dictionary<Terrain,float[,,]>();
+var rng=new System.Random(31227);
+int slabs=0,rocks=0,mines=0,tracks=0;
+var report=new System.Text.StringBuilder();
+try
+{
+    for(int site=0;site<centers.Length;site++)
+    {
+        var center=centers[site];var g=ground(center.x,center.y);
+        var baseNode=node(names[site],root.transform,g).transform;
+        var near=nearest(center);
+        var outward=(center-near).normalized;
+        if(outward.sqrMagnitude<.5f)outward=Vector2.up;
+        var cross=new Vector2(-outward.y,outward.x);
+        var pad=center-outward*3.8f;
+        node("작업장 보행 기준",baseNode,ground(pad.x,pad.y));
+        float yaw=angles[site]*Mathf.Deg2Rad;
+        var along=new Vector2(Mathf.Cos(yaw),Mathf.Sin(yaw));
+        var against=new Vector2(-along.y,along.x);
+        int placed=0;
+        for(int k=0;k<(work[site]?7:10);k++)
+        {
+            int row=k<6?0:1;
+            float sign=(site%2==0)?1:-1;
+            var p=center+along*((k%6-2.4f)*(radius[site]/3.7f))+against*(sign*(radius[site]*.33f+row*9.3f));
+            p+=along*((float)rng.NextDouble()-.5f)*4+against*((float)rng.NextDouble()-.5f)*6;
+            float length=8+(float)rng.NextDouble()*8.5f;
+            float depth=4+(float)rng.NextDouble()*5.3f;
+            if(!tileAt(p.x,p.y)||roadDist(p)<Mathf.Sqrt(length*length+depth*depth)*.57f+3.45f ||
+                Vector2.Distance(p,pad)<9)continue;
+            var o=place(cliffs[(site+k)%cliffs.Length],baseNode,ground(p.x,p.y),Quaternion.Euler(0,angles[site]+k*12,0));
+            float height=(work[site]?4.1f:5.6f)+(float)rng.NextDouble()*4.7f;
+            fit(o,ground(p.x,p.y),new Vector3(length,height,depth),height*.28f+1.2f);
+            placed++;rocks++;
+        }
+        for(int k=0;k<18;k++)
+        {
+            float phase=k*2.39f+site*.83f;
+            float spread=8.2f+(float)rng.NextDouble()*radius[site]*.9f;
+            var p=center+along*Mathf.Cos(phase)*spread+against*Mathf.Sin(phase)*spread*.68f;
+            float span=1.3f+(float)rng.NextDouble()*5.2f;
+            if(!tileAt(p.x,p.y)||roadDist(p)<4.1f+span*.73f||Vector2.Distance(p,pad)<5.7f)continue;
+            var o=place(stones[(k+site)%stones.Length],baseNode,ground(p.x,p.y),Quaternion.Euler(0,k*48+angles[site],0));
+            fit(o,ground(p.x,p.y),new Vector3(span,span*(.32f+(float)rng.NextDouble()*.17f),span*.78f),.32f);
+            placed++;rocks++;
+        }
+        if(work[site])
+        {
+            var stock=center+cross*7.8f+outward*8.2f;
+            for(int k=0;k<14;k++)
+            {
+                float z=(k/5)*2.05f+(float)rng.NextDouble()*.6f;
+                var p=stock+cross*((k%5)*1.76f)+outward*z;
+                if(roadDist(p)<4.1f||!tileAt(p.x,p.y))continue;
+                var stone=node("절단 판석",baseNode,ground(p.x,p.y));
+                var o=GameObject.CreatePrimitive(PrimitiveType.Cube);
+                o.name="적재 판석";o.transform.SetParent(stone.transform);
+                o.transform.SetPositionAndRotation(stone.transform.position+Vector3.up*(.26f+(k%2)*.18f),Quaternion.Euler(0,angles[site]+(float)rng.NextDouble()*17,0));
+                o.transform.localScale=new Vector3(1.75f+(float)rng.NextDouble()*.6f,.57f+(k%2)*.35f,1.28f+(float)rng.NextDouble()*.42f);
+                o.GetComponent<MeshRenderer>().sharedMaterial=rockMat;
+                slabs++;
+            }
+            var transport=center-cross*7.9f+outward*4.1f;
+            if(roadDist(transport)>5.2f&&slope(transport)<30)
+                place(cart,baseNode,ground(transport.x,transport.y),Quaternion.Euler(0,angles[site]+72,0));
+            var storage=center-cross*5.2f+outward*8.7f;
+            if(roadDist(storage)>5.2f&&slope(storage)<30)
+            {
+                place(crate,baseNode,ground(storage.x,storage.y),Quaternion.Euler(0,angles[site],0));
+                if(site==4||site==5||site==10)
+                    place(camp,baseNode,ground(storage.x+1.9f,storage.y),Quaternion.Euler(0,angles[site],0));
+                var p=ground(storage.x-2,storage.y-1);
+                for(int k=0;k<3;k++)
+                {
+                    var member=GameObject.CreatePrimitive(PrimitiveType.Cube);member.name="예비 지보목";
+                    member.transform.SetParent(baseNode);
+                    member.transform.SetPositionAndRotation(p+new Vector3(k*.52f,.25f,k*.16f),Quaternion.Euler(k*4,angles[site]+k*11,0));
+                    member.transform.localScale=new Vector3(.28f,.32f,3.2f);
+                    member.GetComponent<MeshRenderer>().sharedMaterial=woodMat;
+                }
+            }
+        }
+        if(mine[site])
+        {
+            Vector2 p=center+outward*3.8f;
+            for(int k=0;k<8&&(slope(p)>29||roadDist(p)<4.4f);k++)p=center+cross*(k-4)*1.5f+outward*3.8f;
+            if(slope(p)<31&&roadDist(p)>4.2f)
+            {
+                var ore=node("RB_QuarryDressing_Stone_"+site,baseNode,ground(p.x,p.y));
+                ore.layer=layer;
+                var col=ore.AddComponent<BoxCollider>();col.size=new Vector3(2.6f,1.65f,2.2f);
+                col.center=Vector3.up*.83f;col.isTrigger=true;
+                var o=place(stones[site%stones.Length],ore.transform,ore.transform.position,Quaternion.Euler(0,angles[site],0));
+                fit(o,ore.transform.position,new Vector3(2.4f,1.4f,2.05f),.2f);
+                foreach(var vc in o.GetComponentsInChildren<Collider>(true))vc.enabled=false;
+                var gathering=ore.AddComponent(gatherType);
+                gatherType.GetMethod("Init",new[]{stoneData.GetType()}).Invoke(gathering,new object[]{stoneData});
+                sceneIdType.GetMethod("EditorSetGuid").Invoke(ore.AddComponent(sceneIdType),new object[]{ore.name});
+                mines++;
+            }
+        }
+        if(work[site]&&Vector2.Distance(near,pad)>8&&Vector2.Distance(near,pad)<92)
+        {
+            float length=Vector2.Distance(near,pad);
+            int count=Mathf.CeilToInt(length*1.5f);
+            var pts=new Vector3[count+1];
+            var right=new Vector2(-(pad-near).y,(pad-near).x).normalized;
+            bool grade=true;
+            float bend=site==10?-5.25f:Mathf.Min(6,length*.09f)*(site%2==0?1:-1);
+            for(int k=0;k<=count;k++)
+            {
+                float t=(float)k/count;
+                var p=Vector2.Lerp(near,pad,t)+right*(Mathf.Sin(t*Mathf.PI)*bend);
+                pts[k]=ground(p.x,p.y);
+                if(slope(p)>37)grade=false;
+            }
+            if(grade)
+            {
+                var vertices=new System.Collections.Generic.List<Vector3>();var indices=new System.Collections.Generic.List<int>();
+                for(int k=0;k<pts.Length;k++)
+                {
+                    var delta=pts[Mathf.Min(k+1,count)]-pts[Mathf.Max(0,k-1)];
+                    float width=1.15f+Mathf.PerlinNoise(pts[k].x*.2f,pts[k].z*.2f)*.42f;
+                    var side=new Vector2(-delta.z,delta.x).normalized*width;
+                    for(int w=-2;w<=2;w++)
+                    {
+                        var p=ground(pts[k].x+side.x*w*.5f,pts[k].z+side.y*w*.5f);
+                        vertices.Add(p+Vector3.up*.059f-anchor);
+                        if(k>0&&w<2)
+                        {
+                            int n=k*5+w+2;indices.AddRange(new[]{n-5,n,n+1,n-5,n+1,n-4});
+                        }
+                    }
+                }
+                var mesh=new Mesh{name=names[site]+" 샛길"};
+                mesh.SetVertices(vertices);mesh.SetTriangles(indices,0);
+                var uv=new Vector2[vertices.Count];
+                for(int k=0;k<uv.Length;k++)uv[k]=new Vector2(vertices[k].x,vertices[k].z)*.28f;
+                mesh.uv=uv;mesh.RecalculateNormals();
+                if(mesh.normals[mesh.normals.Length/2].y<0){
+                    indices.Reverse();mesh.SetTriangles(indices,0);mesh.RecalculateNormals();
+                }
+                meshes.Add(mesh);
+                var o=node("작업장 샛길",baseNode,anchor);
+                o.AddComponent<MeshFilter>().sharedMesh=mesh;o.AddComponent<MeshRenderer>().sharedMaterial=trailMat;
+                tracks++;
+            }
+        }
+        report.AppendLine(names[site]+" 암반 "+placed+" 접근 "+pad.ToString("F1"));
+    }
+    for(int site=0;site<names.Length;site++)
+    {
+        if(!work[site])continue;
+        var area=root.transform.Find(names[site]);
+        int exposed=0;
+        foreach(Transform part in area)
+        {
+            if(!part.name.StartsWith("PF_EastLands_Cliff_")||exposed++%3==0)continue;
+            foreach(var renderer in part.GetComponentsInChildren<MeshRenderer>(true))
+            {
+                var materials=renderer.sharedMaterials;
+                for(int m=0;m<materials.Length;m++)materials[m]=rockMat;
+                renderer.sharedMaterials=materials;
+                PrefabUtility.RecordPrefabInstancePropertyModifications(renderer);
+            }
+        }
+    }
+    // 배치한 암반과 소품을 실제 보행 폭에서 걷어 내고 같은 작업장 안에 다시 앉힌다.
+    Physics.SyncTransforms();
+    var trailPoints=new System.Collections.Generic.List<Vector2>();
+    var obstructions=new System.Collections.Generic.HashSet<Transform>();
+    Action<Collider> mark=col=>{
+        var t=col.transform;
+        if(!t.IsChildOf(root.transform)||col.isTrigger)return;
+        while(t.parent&&t.parent.parent!=root.transform)t=t.parent;
+        if(t.parent&&t.parent.parent==root.transform)obstructions.Add(t);
+    };
+    foreach(Transform area in root.transform)
+    {
+        var trail=area.Find("작업장 샛길");
+        if(!trail)continue;
+        foreach(var v in trail.GetComponent<MeshFilter>().sharedMesh.vertices)
+        {
+            var p=trail.TransformPoint(v);
+            var xz=new Vector2(p.x,p.z);trailPoints.Add(xz);
+            foreach(var collider in Physics.OverlapCapsule(p+Vector3.up*.28f,p+Vector3.up*1.53f,.34f,~0,QueryTriggerInteraction.Ignore))
+                mark(collider);
+            RaycastHit hit;
+            if(Physics.Raycast(p+Vector3.up*1.1f,Vector3.down,out hit,1.55f,~0,QueryTriggerInteraction.Ignore))
+                mark(hit.collider);
+        }
+    }
+    var ordered=new System.Collections.Generic.List<Transform>(obstructions);
+    ordered.Sort((a,b)=>a.GetSiblingIndex().CompareTo(b.GetSiblingIndex()));
+    foreach(var prop in ordered)
+    {
+        var before=prop.position;
+        var footprint=bounds(prop.gameObject);
+        var xz=new Vector2(footprint.center.x,footprint.center.z);
+        float width=Mathf.Sqrt(footprint.extents.x*footprint.extents.x+footprint.extents.z*footprint.extents.z);
+        var pad=prop.parent.Find("작업장 보행 기준").position;
+        var anchorPad=new Vector2(pad.x,pad.z);
+        bool placed=false;
+        for(int r=4;r<=33&&!placed;r+=3)
+        for(int a=0;a<16&&!placed;a++)
+        {
+            float angle=a*(Mathf.PI/8);
+            var p=xz+new Vector2(Mathf.Cos(angle),Mathf.Sin(angle))*r;
+            if(!tileAt(p.x,p.y)||Vector2.Distance(anchorPad,p)>47||Vector2.Distance(anchorPad,p)<width+3.8f||
+                roadDist(p)<width+4||slope(p)>35)continue;
+            bool inTrail=false;
+            foreach(var point in trailPoints)
+            {
+                if((point-p).sqrMagnitude>=Mathf.Pow(width+.95f,2))continue;
+                inTrail=true;break;
+            }
+            if(inTrail)continue;
+            prop.position=before+ground(p.x,p.y)-ground(xz.x,xz.y);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(prop);
+            placed=true;
+        }
+        if(!placed)throw new InvalidOperationException("작업장 소품 재배치 실패 "+prop.name);
+    }
+    Physics.SyncTransforms();
+    foreach(var tile in tiles)
+    {
+        var td=tile.terrainData;var o=tile.transform.position;
+        int rockIndex=Array.FindIndex(td.terrainLayers,l=>l.name=="WeatheredRock");
+        if(rockIndex<0)rockIndex=Array.FindIndex(td.terrainLayers,l=>l.name=="Rock");
+        if(rockIndex<0)continue;
+        var map=td.GetAlphamaps(0,0,td.alphamapWidth,td.alphamapHeight);
+        paintBackups.Add(tile,td.GetAlphamaps(0,0,td.alphamapWidth,td.alphamapHeight));
+        Undo.RegisterCompleteObjectUndo(td,rootName);
+        for(int z=0;z<map.GetLength(0);z++)
+        for(int x=0;x<map.GetLength(1);x++)
+        {
+            float blend=0;
+            var p=new Vector2(o.x+(x+.5f)*512/map.GetLength(1),o.z+(z+.5f)*512/map.GetLength(0));
+            for(int site=0;site<centers.Length;site++)
+            {
+                var delta=p-centers[site];
+                if(delta.sqrMagnitude>Mathf.Pow(radius[site]*1.58f,2))continue;
+                float yaw=angles[site]*Mathf.Deg2Rad;
+                var along=new Vector2(Mathf.Cos(yaw),Mathf.Sin(yaw));
+                var across=new Vector2(-along.y,along.x);
+                float a=Vector2.Dot(delta,along)/(radius[site]*1.22f);
+                float b=Vector2.Dot(delta,across)/(radius[site]*(work[site]?.70f:.48f));
+                float jitter=Mathf.PerlinNoise(p.x*.092f,p.y*.092f)*.42f;
+                float weight=(1-Mathf.SmoothStep(0,1,Mathf.InverseLerp(.32f,1.19f,Mathf.Sqrt(a*a+b*b)+jitter)))*(work[site]?.74f:.82f);
+                blend=Mathf.Max(blend,weight);
+            }
+            if(blend<=0)continue;
+            for(int k=0;k<map.GetLength(2);k++)map[z,x,k]*=1-blend;
+            map[z,x,rockIndex]+=blend;
+        }
+        td.SetAlphamaps(0,0,map);td.SetBaseMapDirty();tile.Flush();
+    }
+    if(meshes.Count==0||mines<3)throw new InvalidOperationException("샛길과 채광 거점이 부족하다.");
+    AssetDatabase.CreateAsset(meshes[0],atlasPath);
+    for(int k=1;k<meshes.Count;k++)AssetDatabase.AddObjectToAsset(meshes[k],atlasPath);
+    AssetDatabase.AddObjectToAsset(trailMat,atlasPath);
+    AssetDatabase.SaveAssetIfDirty(meshes[0]);
+    foreach(var tile in paintBackups.Keys)AssetDatabase.SaveAssetIfDirty(tile.terrainData);
+    if(!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene))throw new InvalidOperationException("채석장 프리뷰 저장 실패");
+    Undo.CollapseUndoOperations(undo);
+    return "장소 "+centers.Length+" 암반 "+rocks+" 판석 "+slabs+" 채광 "+mines+" 샛길 "+tracks+"\n"+report.ToString();
+}
+catch
+{
+    foreach(var item in paintBackups)item.Key.terrainData.SetAlphamaps(0,0,item.Value);
+    Undo.RevertAllDownToGroup(undo);
+    throw;
+}

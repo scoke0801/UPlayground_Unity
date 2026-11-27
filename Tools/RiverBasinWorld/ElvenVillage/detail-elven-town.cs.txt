@@ -1,0 +1,123 @@
+var root=GameObject.Find("R1 엘프 마을 · 외곽 지구");
+var t=GameObject.Find("Terrain_2_4").GetComponent<Terrain>();
+var data=t.terrainData;
+var scene=root.scene;
+if(!root||!data.name.EndsWith("ElvenTown")||root.transform.Find("동쪽 공동 작업 마당"))throw new Exception("외곽 지구 확인 필요");
+var roads=root.transform.Find("외곽 길과 각 건물 진입로");
+var matPath="Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinElvenVillageArt.asset";
+var stone=System.Array.Find(AssetDatabase.LoadAllAssetsAtPath(matPath),a=>a.name=="RBElf_Stone") as Material;
+var ash=AssetDatabase.LoadAssetAtPath<Material>(matPath);
+var dirt=roads.Find("외곽 순환길").GetComponent<Renderer>().sharedMaterial;
+var path=AssetDatabase.GetAssetPath(roads.Find("외곽 순환길").GetComponent<MeshFilter>().sharedMesh);
+Func<float,float,float> h=(x,z)=>t.SampleHeight(new Vector3(x,0,z))+t.transform.position.y;
+var steep=0;
+foreach(var c in root.GetComponentsInChildren<BoxCollider>()){
+    if(c.name!="RB_ElvenWalk_현관 진입판")continue;
+    var k=c.transform;
+    var dir=Vector3.ProjectOnPlane(k.forward,Vector3.up);
+    var grade=Mathf.Abs(k.forward.y)/dir.magnitude;
+    if(grade<=.36f)continue;
+    var len=k.localScale.z-.16f;
+    var delta=k.forward*len;
+    var a=k.position+k.up*.102f-delta*.5f;
+    var b=k.position+k.up*.102f+delta*.5f;
+    var count=Mathf.CeilToInt(Mathf.Abs(b.y-a.y)/.18f);
+    var rot=Quaternion.LookRotation(dir,Vector3.up);
+    var stair=new GameObject("현관 계단");stair.transform.SetParent(k.parent,false);
+    for(int i=0;i<count;i++){
+        var p=Vector3.Lerp(a,b,(i+.5f)/count);
+        var top=Mathf.Lerp(a.y,b.y,(i+(b.y>a.y?1:0))/(float)count);
+        var floor=h(p.x,p.z)-.11f;
+        var depth=Mathf.Max(.16f,top-floor);
+        var step=GameObject.CreatePrimitive(PrimitiveType.Cube);
+        step.name="RB_ElvenWalk_디딤단";step.transform.SetParent(stair.transform,false);
+        step.transform.SetPositionAndRotation(new Vector3(p.x,top-depth*.5f,p.z),rot);
+        step.transform.localScale=new Vector3(k.localScale.x,depth,dir.magnitude*len/count+.043f);
+        step.GetComponent<Renderer>().sharedMaterial=i==0?stone:ash;
+    }
+    k.gameObject.SetActive(false);
+    steep++;
+}
+var district=new GameObject("동쪽 공동 작업 마당");district.transform.SetParent(root.transform,false);
+var east=root.transform.Find("동쪽 장터와 직물 공방");
+var south=root.transform.Find("남쪽 문간과 여관");
+var west=root.transform.Find("서쪽 공방과 숲지기 주거");
+var layouts=new[]{new Vector2(1300,2304),new Vector2(1302,2294),new Vector2(1315,2296),new Vector2(1324,2305),new Vector2(1318,2313),new Vector2(1299,2324)};
+var masters=new[]{east.Find("가판과 판매대"),east.Find("염색 공방"),south.Find("엘프 주거 2"),east.Find("가판과 판매대"),west.Find("엘프 주거 2"),west.Find("엘프 주거 3")};
+var labels=new[]{"포목 판매대","공동 염색대","직조 공방","수선 작업대","직조공 주거","물자 창고"};
+var center=new Vector2(1310,2306);
+for(int i=0;i<masters.Length;i++){
+    var source=masters[i];
+    var roof=source.Find("지붕과 골조");
+    var p=layouts[i];
+    var f=(center-p).normalized;
+    var q=Quaternion.LookRotation(new Vector3(-f.x,0,-f.y),Vector3.up);
+    var orig=roof.position;
+    var y=h(p.x,p.y)+.25f;
+    var parent=new GameObject(labels[i]);parent.transform.SetParent(district.transform,false);
+    parent.transform.SetPositionAndRotation(new Vector3(p.x,y,p.y),q);
+    foreach(Transform part in source){
+        if(!part.gameObject.activeSelf||part.name=="현관 계단"||part.name=="RB_ElvenWalk_현관 진입판")continue;
+        var copy=UnityEngine.Object.Instantiate(part.gameObject,parent.transform);
+        copy.name=part.name;
+        copy.transform.localPosition=Quaternion.Inverse(roof.rotation)*(part.position-orig);
+        copy.transform.localRotation=Quaternion.Inverse(roof.rotation)*part.rotation;
+        copy.transform.localScale=part.lossyScale;
+    }
+    var basePart=parent.transform.Find("RB_ElvenWalk_마루");
+    if(basePart){
+        var front=parent.transform.position+parent.transform.forward*(-basePart.localScale.z*.5f-.52f);
+        var bottom=h(front.x,front.z)-.10f;
+        var step=GameObject.CreatePrimitive(PrimitiveType.Cube);
+        step.name="RB_ElvenWalk_작업 마당 디딤단";step.transform.SetParent(parent.transform,false);
+        var top=Mathf.Min(y-.12f,bottom+.47f);
+        step.transform.SetPositionAndRotation(new Vector3(front.x,(top+bottom)*.5f,front.z),q);
+        step.transform.localScale=new Vector3(2.1f,Mathf.Max(.18f,top-bottom),1.24f);
+        step.GetComponent<Renderer>().sharedMaterial=stone;
+    }
+}
+var nodes=new[]{new Vector2(1310,2306),new Vector2(1313,2312),new Vector2(1315,2322)};
+var verts=new System.Collections.Generic.List<Vector3>();var colors=new System.Collections.Generic.List<Color>();var indices=new System.Collections.Generic.List<int>();
+for(int i=0;i<36;i++){
+    var frac=i/35f;var mid=frac<.45f?Vector2.Lerp(nodes[0],nodes[1],frac/.45f):Vector2.Lerp(nodes[1],nodes[2],(frac-.45f)/.55f);
+    var w=frac<.36f?Mathf.Lerp(6.1f,4.9f,frac/.36f):Mathf.Lerp(4.9f,1.92f,(frac-.36f)/.64f);
+    for(int col=0;col<21;col++){
+        var x=mid.x+(col-10)/10f*w;var z=mid.y;
+        verts.Add(new Vector3(x,h(x,z)+.064f,z));
+        var alpha=Mathf.Clamp01(Mathf.Min((10-Mathf.Abs(col-10))*.48f,i*.22f));
+        colors.Add(new Color(1,1,1,alpha));
+        if(i==0||col==0)continue;
+        var k=i*21+col;
+        indices.Add(k-22);indices.Add(k-1);indices.Add(k-21);
+        indices.Add(k-21);indices.Add(k-1);indices.Add(k);
+    }
+}
+var mesh=new Mesh();mesh.name="동쪽 공동 작업 마당 바닥";mesh.SetVertices(verts);mesh.SetColors(colors);mesh.SetTriangles(indices,0);mesh.RecalculateNormals();mesh.RecalculateBounds();
+AssetDatabase.AddObjectToAsset(mesh,path);
+var surface=new GameObject("동쪽 공동 작업 마당 바닥");surface.transform.SetParent(district.transform,false);
+surface.AddComponent<MeshFilter>().sharedMesh=mesh;
+var view=surface.AddComponent<MeshRenderer>();view.sharedMaterial=dirt;view.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;
+var trees=new System.Collections.Generic.List<TreeInstance>();var removed=0;var origin=t.GetPosition();
+foreach(var tree in data.treeInstances){
+    var w=origin+Vector3.Scale(tree.position,data.size);var p=new Vector2(w.x,w.z);
+    if(System.Array.Exists(layouts,q=>(p-q).sqrMagnitude<25f)||(p-center).sqrMagnitude<22f){removed++;continue;}
+    trees.Add(tree);
+}
+data.SetTreeInstances(trees.ToArray(),false);
+var cell=data.size.x/data.detailWidth;
+var x0=Mathf.FloorToInt((1294-origin.x)/cell);var z0=Mathf.FloorToInt((2290-origin.z)/cell);var nx=68;var nz=81;
+for(int layerId=0;layerId<data.detailPrototypes.Length;layerId++){
+    var layer=data.GetDetailLayer(x0,z0,nx,nz,layerId);
+    for(int z=0;z<nz;z++)for(int x=0;x<nx;x++){
+        var p=new Vector2(origin.x+(x0+x+.5f)*cell,origin.z+(z0+z+.5f)*cell);
+        var frac=Mathf.InverseLerp(2306,2322,p.y);
+        var end=Vector2.Lerp(nodes[0],nodes[2],frac);
+        if((Mathf.Abs(p.x-end.x)<Mathf.Lerp(5.6f,1.8f,frac)&&p.y>=2306&&p.y<=2322)||System.Array.Exists(layouts,q=>(p-q).sqrMagnitude<8.5f))layer[z,x]=0;
+    }
+    data.SetDetailLayer(x0,z0,layerId,layer);
+}
+t.Flush();EditorUtility.SetDirty(data);
+AssetDatabase.SaveAssetIfDirty(data);AssetDatabase.SaveAssetIfDirty(AssetDatabase.LoadMainAssetAtPath(path));
+Physics.SyncTransforms();
+UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+return "현관 계단 "+steep+"곳 · 공동 작업 마당 건물 6동 · 해당 수목 정리 "+removed+"개";

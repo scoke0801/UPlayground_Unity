@@ -1,0 +1,87 @@
+// 경사 상면의 기존 얇은 석재 면과 방파제 꺾임의 보행 단절을 보정한다.
+var harbor=GameObject.Find("항구마을");
+var root=GameObject.Find("항구도시 · 교역항");
+if(!harbor||!root||EditorApplication.isPlayingOrWillChangePlaymode)throw new System.InvalidOperationException("항구 Edit Mode 확인");
+const string asset="Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinHarborWaterfrontMeshes.asset";
+var mesh=AssetDatabase.LoadAssetAtPath<Mesh>(asset);
+MeshFilter cap=null;
+foreach(var f in harbor.GetComponentsInChildren<MeshFilter>())if(f.sharedMesh==mesh)cap=f;
+if(!cap||mesh.subMeshCount!=2||harbor.transform.Find("Harbor_StoneQuay 꺾임 보강"))throw new System.InvalidOperationException("접속 목재 상판과 꺾임 상태 확인");
+var cargo=root.transform.Find("시장과 항만 근접 아트/상선 하역 기중기와 계류");
+var crane=new System.Collections.Generic.List<Transform>();
+foreach(Transform t in cargo)if(Vector2.Distance(new Vector2(t.position.x,t.position.z),new Vector2(2790,154))<.12f)crane.Add(t);
+if(crane.Count!=2)throw new System.InvalidOperationException("서쪽 기중기와 받침 확인 "+crane.Count);
+
+Undo.IncrementCurrentGroup();int group=Undo.GetCurrentGroup();Undo.SetCurrentGroupName("항구 목재 상판 노출과 방파제 접합");
+try{
+    Undo.RecordObject(mesh,"경사 목재 상판");
+    var verts=mesh.vertices;
+    var wood=mesh.GetTriangles(1);
+    var set=new System.Collections.Generic.HashSet<int>(wood);
+    var oldTriangles=mesh.GetTriangles(0);
+    var retained=new System.Collections.Generic.List<int>();
+    int removed=0;
+    for(int i=0;i<oldTriangles.Length;i+=3){
+        var a=cap.transform.TransformPoint(verts[oldTriangles[i]]);
+        var b=cap.transform.TransformPoint(verts[oldTriangles[i+1]]);
+        var c=cap.transform.TransformPoint(verts[oldTriangles[i+2]]);
+        var mid=(a+b+c)/3f;
+        float plane=.929f+(mid.z-153.83f)*.10515f;
+        float up=Vector3.Cross(b-a,c-a).normalized.y;
+        if(up>.70f&&Mathf.Abs(mid.x-2826)<3.02f&&mid.z>=153.82f&&mid.z<=162.99f&&mid.y>=plane-.017f){
+            removed++;
+            continue;
+        }
+        retained.AddRange(new[]{oldTriangles[i],oldTriangles[i+1],oldTriangles[i+2]});
+    }
+    if(removed<2)throw new System.InvalidOperationException("기존 석재 표면 위치 확인 "+removed);
+    foreach(int id in set){
+        var world=cap.transform.TransformPoint(verts[id]);
+        world.y+=.064f;
+        verts[id]=cap.transform.InverseTransformPoint(world);
+    }
+    mesh.vertices=verts;
+    mesh.SetTriangles(retained,0);
+    mesh.RecalculateTangents();mesh.RecalculateBounds();
+    EditorUtility.SetDirty(mesh);
+    AssetDatabase.SaveAssetIfDirty(mesh);
+
+    foreach(var t in crane){
+        Undo.RecordObject(t,"서쪽 기중기 보행 폭");
+        t.position+=new Vector3(1.32f,0,0);
+        PrefabUtility.RecordPrefabInstancePropertyModifications(t);
+    }
+    // 방파제 기존 두 석축의 안쪽 빈 모서리만 낮은 석재로 잇는다.
+    // 보행 상단을 수면 아래에 숨기지 않도록 기존 높이에 맞춘다.
+    var top=new[]{new Vector3(-.78f,0,.58f),new Vector3(.32f,0,1.12f),new Vector3(.92f,0,.28f),
+        new Vector3(.69f,0,-.70f),new Vector3(-.30f,0,-1.06f),new Vector3(-.89f,0,-.25f)};
+    var points=new System.Collections.Generic.List<Vector3>();
+    var texture=new System.Collections.Generic.List<Vector2>();
+    var faces=new System.Collections.Generic.List<int>();
+    foreach(var p in top){points.Add(p);texture.Add(new Vector2(p.x,p.z)*.58f);}
+    for(int i=1;i<top.Length-1;i++)faces.AddRange(new[]{0,i,i+1});
+    for(int i=0;i<top.Length;i++){
+        var a=top[i];var b=top[(i+1)%top.Length];int n=points.Count;
+        points.Add(a);points.Add(a-Vector3.up*2.3f);points.Add(b-Vector3.up*2.3f);points.Add(b);
+        texture.Add(Vector2.up);texture.Add(Vector2.zero);texture.Add(Vector2.right);texture.Add(Vector2.one);
+        faces.AddRange(new[]{n,n+2,n+1,n,n+3,n+2});
+    }
+    var corner=new Mesh{name="동쪽 방파제 안쪽 석축 이음"};
+    corner.SetVertices(points);corner.SetUVs(0,texture);corner.SetTriangles(faces,0);corner.RecalculateNormals();corner.RecalculateTangents();corner.RecalculateBounds();
+    AssetDatabase.AddObjectToAsset(corner,mesh);
+    var prop=new GameObject("Harbor_StoneQuay 꺾임 보강",typeof(MeshFilter),typeof(MeshRenderer),typeof(MeshCollider));
+    Undo.RegisterCreatedObjectUndo(prop,"동쪽 방파제 석축 이음");
+    prop.transform.SetParent(harbor.transform,false);
+    prop.transform.position=new Vector3(2870.34f,1.165f,114.87f);
+    prop.GetComponent<MeshFilter>().sharedMesh=corner;
+    prop.GetComponent<MeshCollider>().sharedMesh=corner;
+    prop.GetComponent<MeshRenderer>().sharedMaterial=cap.GetComponent<MeshRenderer>().sharedMaterials[0];
+    prop.isStatic=true;
+    AssetDatabase.SaveAssetIfDirty(mesh);
+    Physics.SyncTransforms();
+    Undo.CollapseUndoOperations(group);
+    return "석재 표면 "+removed+"개 제거, 기중기 받침 이격과 석축 모서리 보강";
+}catch{
+    Undo.RevertAllDownToGroup(group);
+    throw;
+}

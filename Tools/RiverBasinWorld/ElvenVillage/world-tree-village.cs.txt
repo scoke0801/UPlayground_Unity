@@ -1,0 +1,121 @@
+var root=GameObject.Find(label);
+var existing=GameObject.Find("R1 엘프 마을 · 외곽 지구");
+var art=GameObject.Find("R1 엘프 마을 · 아트");
+var modelPath=world+"/Authoring/ElvenVillage/SM_RBElf_WorldTree.fbx";
+var model=AssetDatabase.LoadAssetAtPath<GameObject>(modelPath);
+if(!root||!existing||!art||!model||root.transform.Find("세계수 광장"))
+    throw new Exception("산정호와 마을의 원본 또는 세계수 모델을 확인해야 합니다.");
+var circle=existing.transform.Find("외곽 길과 각 건물 진입로/외곽 순환길");
+var road=circle.GetComponent<MeshRenderer>().sharedMaterial;
+var shader=Shader.Find("Universal Render Pipeline/Lit");
+var anchor=new Vector3(village.x,ground(village.x,village.y)-.10f,village.y);
+var treeColors=new Dictionary<string,Color>{
+    {"Bark",new Color(.32f,.19f,.10f)},{"BarkRidge",new Color(.40f,.26f,.145f)},{"BarkShade",new Color(.255f,.14f,.073f)},
+    {"Ochre",new Color(.69f,.37f,.071f)},{"Amber",new Color(.87f,.54f,.085f)},{"Gold",new Color(.97f,.68f,.13f)},
+    {"Bronze",new Color(.72f,.27f,.055f)},{"Rust",new Color(.62f,.18f,.042f)}
+};
+var treeMats=new Dictionary<string,Material>();
+foreach(var p in treeColors){
+    var m=new Material(shader);m.name="RBWorldTree_"+p.Key;m.color=p.Value;
+    m.SetFloat("_Smoothness",p.Key.StartsWith("Bark")?.18f:.10f);
+    if(!p.Key.StartsWith("Bark")){m.SetFloat("_Cull",0);m.doubleSidedGI=true;}
+    treeMats.Add(m.name,m);
+}
+var import=model.GetComponentsInChildren<MeshRenderer>();
+if(import.Length!=3 || import.Any(r=>r.sharedMaterials.Any(m=>!m||!treeMats.ContainsKey(m.name))))
+    throw new Exception("세계수 LOD 또는 재질 슬롯 불일치");
+Func<string,Transform,GameObject> child=(name,parent)=>{
+    var g=new GameObject(name);g.transform.SetParent(parent,false);return g;
+};
+var town=child("세계수 광장",root.transform).transform;
+var tree=child("R1 세계수",town);
+tree.transform.SetPositionAndRotation(anchor,Quaternion.Euler(0,19f,0));
+var artwork=(GameObject)PrefabUtility.InstantiatePrefab(model,tree.transform);
+var lods=new LOD[3];var renderers=artwork.GetComponentsInChildren<MeshRenderer>();
+for(int i=0;i<lods.Length;i++){
+    var r=renderers.Single(m=>m.name.EndsWith("_LOD"+i));
+    r.sharedMaterials=r.sharedMaterials.Select(m=>treeMats[m.name]).ToArray();
+    r.receiveShadows=true;
+    lods[i]=new LOD(new[]{.12f,.044f,.007f}[i],new Renderer[]{r});
+}
+var lod=tree.AddComponent<LODGroup>();lod.SetLODs(lods);lod.RecalculateBounds();
+var trunk=tree.AddComponent<CapsuleCollider>();trunk.radius=3.15f;trunk.height=9.0f;trunk.center=new Vector3(-.33f,3.63f,0);
+
+var kitPath=product+"/WorldTreeVillageArt.asset";
+AssetDatabase.CreateAsset(treeMats["RBWorldTree_Bark"],kitPath);
+foreach(var m in treeMats.Values)if(m!=treeMats["RBWorldTree_Bark"])AssetDatabase.AddObjectToAsset(m,kitPath);
+Func<string,Transform,Mesh,Material,GameObject> render=(name,parent,mesh,mat)=>{
+    mesh.name=name;AssetDatabase.AddObjectToAsset(mesh,kitPath);
+    var g=child(name,parent);
+    g.AddComponent<MeshFilter>().sharedMesh=mesh;g.AddComponent<MeshRenderer>().sharedMaterial=mat;
+    return g;
+};
+Func<List<Vector3>,List<Color>,List<int>,Mesh> groundMesh=(verts,colors,tris)=>{
+    var m=new Mesh();m.SetVertices(verts);m.SetColors(colors);m.SetTriangles(tris,0);
+    m.RecalculateNormals();
+    if(m.normals[tris[0]].y<0){tris.Reverse();m.SetTriangles(tris,0);m.RecalculateNormals();}
+    m.RecalculateBounds();return m;
+};
+var cv=new List<Vector3>{anchor+Vector3.up*.185f};var cc=new List<Color>{Color.white};var ct=new List<int>();
+const int sides=128, rings=18;
+for(int ring=1;ring<=rings;ring++)for(int j=0;j<sides;j++){
+    float a=2*Mathf.PI*j/sides;float dist=(16.7f+1.45f*Mathf.Sin(a*3+.35f)+.9f*Mathf.Sin(a*5))*ring/rings;
+    var q=village+new Vector2(Mathf.Cos(a),Mathf.Sin(a))*dist;
+    cv.Add(new Vector3(q.x,ground(q.x,q.y)+.085f,q.y));
+    cc.Add(new Color(1,1,1,.96f*(1-smooth(13.5f,rings,ring))));
+    int start=1+(ring-1)*sides;int i=start+j,k=start+(j+1)%sides;
+    if(ring==1)ct.AddRange(new[]{0,i,k});
+    else ct.AddRange(new[]{i-sides,i,k,i-sides,k,k-sides});
+}
+var plazaObject=render("세계수 뿌리 마당",town,groundMesh(cv,cc,ct),road);
+plazaObject.GetComponent<MeshRenderer>().shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;
+
+var paths=new[]{
+    new[]{new Vector2(1253,2295),new Vector2(1250,2288),new Vector2(1249,2279),new Vector2(1250,2264),new Vector2(1257,2238)},
+    new[]{new Vector2(1263,2315),new Vector2(1270,2317),new Vector2(1279,2321),new Vector2(1294,2323)},
+    new[]{new Vector2(1244,2318),new Vector2(1239,2322),new Vector2(1227,2328),new Vector2(1209,2330),new Vector2(1190,2331)},
+    new[]{new Vector2(1258,2320),new Vector2(1255,2332),new Vector2(1244,2340),new Vector2(1241,2353)}
+};
+for(int i=0;i<paths.Length;i++){
+    var line=paths[i];var samples=new List<Vector2>();
+    for(int k=1;k<line.Length;k++){
+        int n=Mathf.CeilToInt(Vector2.Distance(line[k-1],line[k])/.9f);
+        for(int j=0;j<n;j++)samples.Add(Vector2.Lerp(line[k-1],line[k],j/(float)n));
+    }
+    samples.Add(line[line.Length-1]);
+    var v=new List<Vector3>();var c=new List<Color>();var t=new List<int>();
+    for(int row=0;row<samples.Count;row++){
+        var d=(samples[Mathf.Min(samples.Count-1,row+1)]-samples[Mathf.Max(0,row-1)]).normalized;
+        var side=new Vector2(d.y,-d.x);float half=2.35f+.32f*Mathf.Sin(row*.23f+i);
+        for(int col=0;col<5;col++){
+            var q=samples[row]+side*((col-2)*half*.5f);
+            v.Add(new Vector3(q.x,ground(q.x,q.y)+.057f,q.y));
+            c.Add(new Color(1,1,1,col==0||col==4?0:.88f));
+            if(row==0||col==0)continue;
+            int b=row*5+col,a=b-5;t.AddRange(new[]{a-1,a,b-1,a,b,b-1});
+        }
+    }
+    var g=render(new[]{"남쪽 장터와 진입로","동쪽 공방으로","서쪽 순환길로","북쪽 수관 회랑으로"}[i],town,groundMesh(v,c,t),road);
+    g.GetComponent<MeshRenderer>().shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;
+}
+var squareStalls=art.transform.Find("장터와 공방");
+int moved=0;
+foreach(var stallName in new[]{"천막과 판매대 3","천막과 판매대 5"}){
+    var stall=squareStalls.Find(stallName);if(!stall)continue;
+    var r=stall.GetComponentInChildren<Renderer>();var old=r.bounds.center;
+    var p=moved==0?new Vector2(1236,2300):new Vector2(1268,2314);
+    var target=new Vector3(p.x,ground(p.x,p.y),p.y);
+    var delta=target-new Vector3(old.x,ground(old.x,old.z),old.z);
+    foreach(Transform t in squareStalls){
+        var rr=t.GetComponentInChildren<Renderer>();if(!rr)continue;
+        var c=rr.bounds.center;
+        if(t!=stall&&(Vector2.Distance(new Vector2(c.x,c.z),new Vector2(old.x,old.z))>2.6f||
+            !(t.name.StartsWith("PF_")||t.name=="장터 작업대 바닥")))continue;
+        Undo.RecordObject(t,"세계수 광장 장터 재배치");t.position+=delta;
+    }
+    moved++;
+}
+
+AssetDatabase.SaveAssetIfDirty(AssetDatabase.LoadMainAssetAtPath(kitPath));
+UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+return "세계수 LOD 3단계, 광장과 길 "+paths.Length+", 장터 재배치 "+moved;

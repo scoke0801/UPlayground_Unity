@@ -1,0 +1,92 @@
+// 새 건축의 지붕 충돌과 항구 보행 NavMesh를 검사한 뒤 기존 에셋 GUID로 저장한다.
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+var root=GameObject.Find("항구도시 · 교역항");
+if(!root||!root.transform.Find("항구 작업 마당")||
+    !scene.path.EndsWith("/Preview/RiverBasin4km.unity")||EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new System.InvalidOperationException("배치가 끝난 RiverBasin4km Edit Mode가 필요합니다.");
+const string folder="Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/";
+var nav=root.GetComponentInChildren<Unity.AI.Navigation.NavMeshSurface>();
+var persistent=AssetDatabase.LoadAssetAtPath<UnityEngine.AI.NavMeshData>(folder+"RiverBasinHarborCityNav.asset");
+if(!nav||!persistent||nav.navMeshData!=persistent)
+    throw new System.InvalidOperationException("기존 항구 NavMesh 참조 확인 필요");
+Physics.SyncTransforms();
+int roofs=0;
+var counts=new System.Text.StringBuilder();
+foreach(var t in root.GetComponentsInChildren<Transform>()){
+    if(t.name!="HarborHouse"&&t.name!="CastleTownHouse"&&t.name!="HarborWarehouse")continue;
+    var collider=t.GetComponent<MeshCollider>();
+    if(!collider||!collider.sharedMesh.name.EndsWith("지붕 충돌"))continue;
+    var b=collider.bounds;
+    RaycastHit hit;
+    if(!collider.Raycast(new Ray(new Vector3(b.center.x,b.max.y+2,b.center.z),Vector3.down),out hit,10))
+        throw new System.InvalidOperationException("새 지붕 충돌 누락 "+t.name+" "+t.position);
+    roofs++;
+}
+int renderGroups=0;
+foreach(var lod in root.GetComponentsInChildren<LODGroup>()){
+    if(!lod.name.StartsWith("RBA_",System.StringComparison.Ordinal))continue;
+    var chain=lod.GetLODs();
+    if(chain.Length!=2||chain[0].renderers.Length!=1||chain[1].renderers.Length!=1)
+        throw new System.InvalidOperationException("건축 LOD 메시 참조 확인 "+lod.name);
+    foreach(var l in chain)foreach(var mat in l.renderers[0].sharedMaterials)
+        if(!mat||AssetDatabase.GetAssetPath(mat)!=folder+"RiverBasinHarborArchitecturePalette.asset")
+            throw new System.InvalidOperationException("건축 재질 연결 확인 "+lod.name);
+    renderGroups++;
+}
+if(roofs!=37||renderGroups!=37)
+    throw new System.InvalidOperationException("건축 검증 개수 "+roofs+"/"+renderGroups);
+counts.AppendLine("지붕 충돌 "+roofs+"/37, 두 단계 LOD "+renderGroups+"/37, 건축 재질 누락 없음");
+System.Func<string> verifyNav=()=>{
+    var log=new System.Text.StringBuilder();
+    var mask=UnityEngine.AI.NavMesh.AllAreas;
+    UnityEngine.AI.NavMeshHit from;
+    if(!UnityEngine.AI.NavMesh.SamplePosition(new Vector3(2793,11,269.5f),out from,2,mask))
+        throw new System.InvalidOperationException("시장 시작점이 NavMesh 밖에 있습니다.");
+    foreach(var p in new[]{new Vector3(2826,.90f,125),new Vector3(2738,1.34f,133),new Vector3(2900,3,175.5f)}){
+        UnityEngine.AI.NavMeshHit end;
+        var path=new UnityEngine.AI.NavMeshPath();
+        if(!UnityEngine.AI.NavMesh.SamplePosition(p,out end,2,mask)||
+            !UnityEngine.AI.NavMesh.CalculatePath(from.position,end.position,mask,path)||
+            path.status!=UnityEngine.AI.NavMeshPathStatus.PathComplete)
+            throw new System.InvalidOperationException("항구 NavMesh 경로 누락 "+p);
+        log.AppendLine(p.ToString("F2")+" PathComplete / 모서리 "+path.corners.Length);
+    }
+    UnityEngine.AI.NavMeshHit bottom;
+    if(UnityEngine.AI.NavMesh.SamplePosition(new Vector3(2800,-1.5f,117),out bottom,.75f,mask))
+        throw new System.InvalidOperationException("해저 보행 영역 확인");
+    return log.ToString();
+};
+var backup=UnityEngine.Object.Instantiate(persistent);
+UnityEngine.AI.NavMeshData baked=null;
+try{
+    nav.BuildNavMesh();
+    baked=nav.navMeshData;
+    if(!baked||baked==persistent)throw new System.InvalidOperationException("새 NavMesh 베이크 실패");
+    verifyNav();
+    nav.RemoveData();
+    var oldName=persistent.name;
+    EditorUtility.CopySerialized(baked,persistent);
+    persistent.name=oldName;
+    nav.navMeshData=persistent;
+    nav.AddData();
+    counts.Append(verifyNav());
+    EditorUtility.SetDirty(persistent);
+    AssetDatabase.SaveAssetIfDirty(persistent);
+    bool saved;
+    var prefab=PrefabUtility.SaveAsPrefabAsset(root,folder+"RiverBasinHarborCity.prefab",out saved);
+    if(!prefab||!saved)throw new System.InvalidOperationException("항구 배치 프리팹 저장 실패");
+    if(!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene)||scene.isDirty)
+        throw new System.InvalidOperationException("RiverBasin4km 저장 실패");
+    return counts+"해저 보행 샘플 없음, 프리팹과 씬 저장";
+}catch{
+    nav.RemoveData();
+    EditorUtility.CopySerialized(backup,persistent);
+    nav.navMeshData=persistent;
+    nav.AddData();
+    EditorUtility.SetDirty(persistent);
+    AssetDatabase.SaveAssetIfDirty(persistent);
+    throw;
+}finally{
+    UnityEngine.Object.DestroyImmediate(backup);
+    if(baked&&baked!=persistent)UnityEngine.Object.DestroyImmediate(baked);
+}

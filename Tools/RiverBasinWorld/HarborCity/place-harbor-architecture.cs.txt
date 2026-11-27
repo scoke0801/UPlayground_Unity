@@ -1,0 +1,259 @@
+// 항구 건물 바깥 형상과 작업 마당을 교체한다. 포석 길의 보행 띠를 유지한다.
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+var root=GameObject.Find("항구도시 · 교역항");
+if(!root||!scene.path.EndsWith("/Preview/RiverBasin4km.unity")||EditorApplication.isPlaying)
+    throw new System.InvalidOperationException("RiverBasin4km 항구 Edit Mode가 필요합니다.");
+if(root.transform.Find("항구 작업 마당"))throw new System.InvalidOperationException("작업 마당이 이미 있습니다.");
+const string world="Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/";
+const string meshPath=world+"Production/RegionArt/RiverBasinHarborWorkYards.asset";
+var tiles=Terrain.activeTerrains;
+System.Func<float,float,float> ground=(x,z)=>{
+    foreach(var tile in tiles){
+        var p=tile.GetPosition();var d=tile.terrainData.size;
+        if(x>=p.x&&z>=p.z&&x<=p.x+d.x&&z<=p.z+d.z)
+            return tile.SampleHeight(new Vector3(x,0,z))+p.y;
+    }
+    throw new System.InvalidOperationException("작업 마당 지면 없음");
+};
+var names=new[]{"MerchantInn","PilotHouse","Fishmonger","RopewalkHouse","BondedStore","NetLoft","FreightYard","NetYard","MarketGoods","KitchenGarden"};
+var models=new System.Collections.Generic.Dictionary<string,GameObject>();
+foreach(var name in names){
+    var asset=AssetDatabase.LoadAssetAtPath<GameObject>(world+"Authoring/HarborCity/RBA_"+name+".fbx");
+    if(!asset||asset.GetComponentsInChildren<MeshRenderer>().Length!=(System.Array.IndexOf(names,name)<6?2:1))
+        throw new System.InvalidOperationException("항구 메시 또는 LOD 누락 "+name);
+    models.Add(name,asset);
+}
+var paving=AssetDatabase.LoadAssetAtPath<Material>("Assets/08.Models/WorldCities/ShadeCastle/Materials/M_Shade_Ground.mat");
+var dockYard=AssetDatabase.LoadAssetAtPath<Material>(world+"Production/RegionArt/RiverBasinHarborCityPalette.asset");
+if(!paving||!dockYard||AssetDatabase.LoadMainAssetAtPath(meshPath))
+    throw new System.InvalidOperationException("마당 표면 재질 또는 저장 위치 확인 필요");
+
+var zones=new[]{"중앙 시장과 상점가","서부 주거와 창고 뒤편","동부 조선 골목","서부 상선과 창고","세관과 동부 접안"};
+var riverRoads=new[]{
+    new[]{new Vector2(2748,279),new Vector2(2777,270),new Vector2(2795,270),new Vector2(2815,249),new Vector2(2823,226),new Vector2(2827,209),new Vector2(2826,190),new Vector2(2826,171),new Vector2(2826,162)},
+    new[]{new Vector2(2826,173),new Vector2(2797,176),new Vector2(2755,176),new Vector2(2717,174),new Vector2(2720,165),new Vector2(2720,157),new Vector2(2738,153),new Vector2(2738,133)},
+    new[]{new Vector2(2826,174),new Vector2(2851,173),new Vector2(2877,176),new Vector2(2900,176),new Vector2(2910,188),new Vector2(2917,205),new Vector2(2915,229),new Vector2(2906,247),new Vector2(2878,255),new Vector2(2842,260),new Vector2(2815,258)},
+    new[]{new Vector2(2787,249),new Vector2(2765,248),new Vector2(2749,251),new Vector2(2718,251),new Vector2(2717,221),new Vector2(2717,187)}
+};
+System.Func<Vector2,float> roadClearance=p=>{
+    float closest=float.PositiveInfinity;
+    foreach(var points in riverRoads)for(int i=1;i<points.Length;i++){
+        var a=points[i-1];var d=points[i]-a;
+        var offset=p-a;
+        var t=Mathf.Clamp01(Vector2.Dot(offset,d)/d.sqrMagnitude);
+        closest=Mathf.Min(closest,(offset-t*d).magnitude);
+    }
+    return closest;
+};
+var work=new[]{
+    new Vector4(2783,276,25,2),new Vector4(2797,278,8,2),new Vector4(2802,263,100,2),new Vector4(2812,269,95,2),
+    new Vector4(2791,255,8,2),new Vector4(2810,235,-30,2),new Vector4(2765,269,25,3),
+    new Vector4(2740,273,14,3),new Vector4(2756,232,31,3),new Vector4(2739,228,-17,3),
+    new Vector4(2728,274,20,3),new Vector4(2756,208,16,3),new Vector4(2773,222,93,3),
+    new Vector4(2732,183,80,0),new Vector4(2752,184,9,0),new Vector4(2777,185,17,0),
+    new Vector4(2794,187,-15,0),new Vector4(2786,209,94,0),new Vector4(2736,210,-5,0),
+    new Vector4(2773,201,40,0),new Vector4(2806,182,40,0),new Vector4(2844,190,-11,0),
+    new Vector4(2862,182,9,1),new Vector4(2888,184,23,1),new Vector4(2900,196,-52,1),
+    new Vector4(2908,212,72,1),new Vector4(2890,213,28,1),new Vector4(2864,201,5,1),
+    new Vector4(2859,216,47,0),new Vector4(2885,228,24,3),new Vector4(2866,253,32,3),
+    new Vector4(2876,258,8,3),new Vector4(2899,239,-14,3),new Vector4(2892,251,52,3),
+    new Vector4(2844,276,28,3),new Vector4(2850,234,15,1)
+};
+var pads=new[]{
+    new Vector4(2789,260,20,11),new Vector4(2790,280,25,9),new Vector4(2806,236,12,10),
+    new Vector4(2751,231,20,12),new Vector4(2735,272,15,11),new Vector4(2770,220,14,13),
+    new Vector4(2747,184,30,12),new Vector4(2783,185,28,13),new Vector4(2742,208,16,11),
+    new Vector4(2876,182,26,13),new Vector4(2900,197,14,16),new Vector4(2877,213,25,13),
+    new Vector4(2884,253,24,13),new Vector4(2853,226,15,11),new Vector4(2892,237,13,10)
+};
+
+Undo.IncrementCurrentGroup();
+int group=Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName("항구 건축과 작업 마당");
+try{
+    int buildings=0, props=0;
+    var types=new System.Collections.Generic.Dictionary<string,int>();
+    var collisionMeshes=new System.Collections.Generic.Dictionary<string,Mesh>();
+    var record=new System.Text.StringBuilder();
+    for(int zone=0;zone<zones.Length;zone++){
+        var sector=root.transform.Find(zones[zone]);
+        if(!sector)throw new System.InvalidOperationException("항구 구역 누락 "+zones[zone]);
+        foreach(Transform building in sector){
+            string source=building.name;
+            if(!building.gameObject.activeSelf||
+                (source!="HarborHouse"&&source!="CastleTownHouse"&&source!="HarborWarehouse"))continue;
+            Vector3 p=building.position;
+            int index=Mathf.Abs(Mathf.RoundToInt(p.x*11+p.z*7))%4;
+            string kind=source=="HarborWarehouse"?((zone==2||zone==4||index==0)?"NetLoft":"BondedStore"):
+                names[(index+(zone==2?1:0))%4];
+            if(zone==0&&source!="HarborWarehouse")
+                kind=p.z>277?(buildings%2==0?"MerchantInn":"PilotHouse"):
+                    (buildings%3==0?"RopewalkHouse":"Fishmonger");
+            var existing=building.GetComponentsInChildren<MeshRenderer>(true);
+            foreach(var old in existing){
+                if(!old.enabled)continue;
+                Undo.RecordObject(old,"기존 건물 외관");
+                old.enabled=false;
+                PrefabUtility.RecordPrefabInstancePropertyModifications(old);
+            }
+            var art=(GameObject)PrefabUtility.InstantiatePrefab(models[kind],building);
+            Undo.RegisterCreatedObjectUndo(art,"항구 건축");
+            art.transform.localPosition=Vector3.zero;
+            art.transform.localRotation=models[kind].transform.localRotation;
+            art.transform.localScale=models[kind].transform.localScale;
+            var lodGroup=art.GetComponent<LODGroup>();
+            if(!lodGroup)lodGroup=Undo.AddComponent<LODGroup>(art);
+            else Undo.RecordObject(lodGroup,"항구 건축 LOD");
+            var lodRenderers=art.GetComponentsInChildren<MeshRenderer>();
+            Renderer near=null,far=null;
+            foreach(var renderer in lodRenderers){
+                if(renderer.name.EndsWith("_LOD0"))near=renderer;
+                if(renderer.name.EndsWith("_LOD1"))far=renderer;
+            }
+            if(!near||!far||near.bounds.size.y<6||near.bounds.size.y>13)
+                throw new System.InvalidOperationException("건물 방향 또는 스케일 확인 "+kind+" "+(near?near.bounds.size.ToString():"LOD 없음"));
+            lodGroup.SetLODs(new[]{new LOD(.20f,new[]{near}),new LOD(.012f,new[]{far})});
+            lodGroup.RecalculateBounds();
+            PrefabUtility.RecordPrefabInstancePropertyModifications(lodGroup);
+            var collider=building.GetComponentInChildren<MeshCollider>();
+            if(!collider)throw new System.InvalidOperationException("건물 몸체 충돌체 누락 "+source);
+            var body=kind=="MerchantInn"?new Vector3(8.50f,6.68f,7.65f):
+                kind=="PilotHouse"?new Vector3(8f,6.41f,7.48f):
+                kind=="Fishmonger"?new Vector3(8.35f,5.35f,7.86f):
+                kind=="RopewalkHouse"?new Vector3(7.75f,6.96f,7.20f):
+                kind=="BondedStore"?new Vector3(14.55f,6.34f,10.65f):new Vector3(13.95f,6.12f,9.92f);
+            Mesh shell;
+            if(!collisionMeshes.TryGetValue(kind,out shell)){
+                float w=body.x*.5f,d=body.z*.5f,h=body.y;
+                float rise=kind=="MerchantInn"?2.74f:kind=="PilotHouse"?3.42f:
+                    kind=="Fishmonger"?2.25f:kind=="RopewalkHouse"?2.84f:kind=="BondedStore"?3.82f:3.38f;
+                shell=new Mesh{name=kind+" 건물 몸체와 지붕 충돌"};
+                shell.vertices=new[]{new Vector3(-w,0,-d),new Vector3(w,0,-d),new Vector3(w,h,-d),
+                    new Vector3(0,h+rise,-d),new Vector3(-w,h,-d),new Vector3(-w,0,d),new Vector3(w,0,d),
+                    new Vector3(w,h,d),new Vector3(0,h+rise,d),new Vector3(-w,h,d)};
+                var faces=new System.Collections.Generic.List<int>{0,2,1,0,3,2,0,4,3,5,6,7,5,7,8,5,8,9};
+                for(int i=0;i<5;i++){int j=(i+1)%5;faces.AddRange(new[]{i,j,j+5,i,j+5,i+5});}
+                shell.SetTriangles(faces,0);
+                shell.RecalculateBounds();
+                collisionMeshes.Add(kind,shell);
+            }
+            Undo.RecordObject(collider,"항구 건물 몸체·지붕 충돌");
+            collider.sharedMesh=shell;
+            PrefabUtility.RecordPrefabInstancePropertyModifications(collider);
+            buildings++;
+            int count;
+            types.TryGetValue(kind,out count);
+            types[kind]=count+1;
+        }
+    }
+    if(buildings!=37||types.Count!=6)throw new System.InvalidOperationException("건축 교체 수 불일치 "+buildings+" / "+types.Count);
+    var yards=new GameObject("항구 작업 마당");
+    Undo.RegisterCreatedObjectUndo(yards,"항구 작업 마당");
+    yards.transform.SetParent(root.transform,false);
+    System.Func<string,Transform> section=name=>{
+        var obj=new GameObject(name);
+        Undo.RegisterCreatedObjectUndo(obj,"항구 작업 마당");
+        obj.transform.SetParent(yards.transform,false);
+        return obj.transform;
+    };
+    var freight=section("서쪽 창고 적재 마당");
+    var nets=section("동쪽 어망 건조와 조선 작업");
+    var market=section("시장 좌판과 상품");
+    var gardens=section("민가 텃밭과 공동 뜰");
+    Physics.SyncTransforms();
+
+    var groups=new[]{freight,nets,market,gardens};
+    var variants=new[]{"FreightYard","NetYard","MarketGoods","KitchenGarden"};
+    var counts=new int[4];
+    foreach(var row in work){
+        int kind=(int)row.w;
+        float yaw=row.z;
+        var rotation=Quaternion.Euler(0,yaw,0);
+        var extents=kind==0?new Vector3(2.30f,.70f,1.52f):kind==1?
+            new Vector3(2.30f,1.0f,1.10f):new Vector3(1.85f,.48f,.92f);
+        bool placed=false;
+        foreach(var offset in new[]{Vector2.zero,new Vector2(1.6f,0),new Vector2(-1.6f,0),
+            new Vector2(0,1.8f),new Vector2(0,-1.8f),new Vector2(2.5f,1.8f),new Vector2(-2.5f,-1.8f)}){
+            var point=new Vector2(row.x,row.y)+offset;
+            float clearance=roadClearance(point);
+            if(clearance<(kind==2?4.1f:4.8f))continue;
+            var tileBase=ground(point.x,point.y);
+            Vector3 a=rotation*new Vector3(extents.x,0,0),b=rotation*new Vector3(0,0,extents.z);
+            float ax=ground(point.x-a.x,point.y-a.z),bx=ground(point.x+a.x,point.y+a.z);
+            float az=ground(point.x-b.x,point.y-b.z),bz=ground(point.x+b.x,point.y+b.z);
+            if(Mathf.Max(Mathf.Abs(ax-bx),Mathf.Abs(az-bz))>1.0f)continue;
+            var p=new Vector3(point.x,tileBase,point.y);
+            var center=p+Vector3.up*(extents.y+.18f);
+            bool occupied=false;
+            foreach(var hit in Physics.OverlapBox(center,extents,rotation,Physics.DefaultRaycastLayers,QueryTriggerInteraction.Ignore))
+                if(!(hit is TerrainCollider)){occupied=true;break;}
+            if(occupied)continue;
+            var samplesX=new Vector3(2*a.x,bx-ax,2*a.z);
+            var samplesZ=new Vector3(2*b.x,bz-az,2*b.z);
+            var normal=Vector3.Cross(samplesZ,samplesX).normalized;
+            var aligned=Quaternion.FromToRotation(Vector3.up,normal)*rotation;
+            var model=models[variants[kind]];
+            var obj=(GameObject)PrefabUtility.InstantiatePrefab(model,groups[kind]);
+            Undo.RegisterCreatedObjectUndo(obj,"항구 소품 배치");
+            obj.transform.SetPositionAndRotation(p+Vector3.up*.035f,aligned*model.transform.localRotation);
+            var hull=new GameObject("작업 소품 충돌",typeof(BoxCollider));
+            Undo.RegisterCreatedObjectUndo(hull,"항구 소품 충돌");
+            hull.transform.SetParent(groups[kind],false);
+            hull.transform.SetPositionAndRotation(p+Vector3.up*(extents.y*.72f),aligned);
+            hull.GetComponent<BoxCollider>().size=new Vector3(extents.x*1.75f,extents.y*1.44f,extents.z*1.58f);
+            hull.isStatic=true;
+            counts[kind]++; props++; placed=true;
+            Physics.SyncTransforms();
+            break;
+        }
+        if(!placed)record.AppendLine("보행 폭 또는 접지 여유 부족 "+row.ToString());
+    }
+    if(props<20||counts[0]<4||counts[1]<4||counts[2]<2||counts[3]<4)
+        throw new System.InvalidOperationException("구역별 소품 배치 부족 "+string.Join(",",counts)+"\n"+record);
+
+    var patches=new System.Collections.Generic.List<Mesh>();
+    for(int index=0;index<pads.Length;index++){
+        var pad=pads[index];
+        var anchor=new Vector3(pad.x,0,pad.y);
+        int xCount=Mathf.CeilToInt(pad.z/.68f), zCount=Mathf.CeilToInt(pad.w/.68f);
+        var v=new System.Collections.Generic.List<Vector3>();
+        var uv=new System.Collections.Generic.List<Vector2>();
+        var indices=new System.Collections.Generic.List<int>();
+        for(int z=0;z<=zCount;z++)
+        for(int x=0;x<=xCount;x++){
+            float u=x/(float)xCount,w=z/(float)zCount;
+            float taper=.82f+.18f*Mathf.Sin(w*Mathf.PI);
+            float px=pad.x+(u-.5f)*pad.z*taper+.44f*Mathf.Sin(w*8+index);
+            float pz=pad.y+(w-.5f)*pad.w*(.88f+.12f*Mathf.Sin(u*Mathf.PI))+.38f*Mathf.Sin(u*12+index);
+            float blend=Mathf.Min(Mathf.Min(u,1-u)*xCount,Mathf.Min(w,1-w)*zCount);
+            float y=ground(px,pz)+Mathf.Lerp(-.08f,.105f,Mathf.Clamp01(blend*.85f));
+            v.Add(new Vector3(px-anchor.x,y,pz-anchor.z));
+            uv.Add(new Vector2(px/2.7f,pz/2.7f));
+            if(x>0&&z>0){
+                int k=v.Count-1, stride=xCount+1;
+                indices.AddRange(new[]{k-stride-1,k-1,k-stride,k-stride,k-1,k});
+            }
+        }
+        var mesh=new Mesh{name="작업 마당 포장 "+(index+1)};
+        mesh.SetVertices(v);mesh.SetUVs(0,uv);mesh.SetTriangles(indices,0);
+        mesh.RecalculateNormals();mesh.RecalculateTangents();mesh.RecalculateBounds();
+        patches.Add(mesh);
+        var padObject=new GameObject(mesh.name,typeof(MeshFilter),typeof(MeshRenderer));
+        Undo.RegisterCreatedObjectUndo(padObject,"항구 마당 포장");
+        padObject.transform.SetParent(yards.transform,false);
+        padObject.transform.position=anchor;
+        padObject.GetComponent<MeshFilter>().sharedMesh=mesh;
+        padObject.GetComponent<MeshRenderer>().sharedMaterial=index<3||index>=6&&index<=11?dockYard:paving;
+        padObject.isStatic=true;
+    }
+    AssetDatabase.CreateAsset(patches[0],meshPath);
+    for(int i=1;i<patches.Count;i++)AssetDatabase.AddObjectToAsset(patches[i],meshPath);
+    foreach(var mesh in collisionMeshes.Values)AssetDatabase.AddObjectToAsset(mesh,meshPath);
+    AssetDatabase.SaveAssetIfDirty(patches[0]);
+    Undo.CollapseUndoOperations(group);
+    foreach(var t in types)record.AppendLine(t.Key+" "+t.Value+"동");
+    return "건축 "+buildings+"동 / 소품 무리 "+props+"곳 ("+string.Join(",",counts)+") / 마당 "+pads.Length+"곳\n"+record;
+}catch{
+    Undo.RevertAllDownToGroup(group);
+    throw;
+}

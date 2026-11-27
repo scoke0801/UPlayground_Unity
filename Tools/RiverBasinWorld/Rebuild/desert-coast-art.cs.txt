@@ -1,0 +1,235 @@
+// RiverBasin4km 사막 프리뷰의 배치와 지면 메시를 저작한다.
+const string world = "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34";
+const string rootName = "RiverBasin · 사막 물길과 해안 전망대";
+if (EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("편집 모드가 필요합니다.");
+const string scenePath = world + "/Preview/RiverBasin4km.unity";
+var scene = UnityEngine.SceneManagement.SceneManager.GetSceneByPath(scenePath);
+if (!scene.isLoaded) scene = UnityEditor.SceneManagement.EditorSceneManager.OpenScene(scenePath, UnityEditor.SceneManagement.OpenSceneMode.Additive);
+if (scene.isDirty)
+    throw new InvalidOperationException("편집 중인 씬을 보존하려면 저장된 RiverBasin4km 편집 모드가 필요합니다.");
+if (scene.GetRootGameObjects().Any(o=>o.name==rootName)) throw new InvalidOperationException("사막 배치가 이미 있습니다.");
+
+const string palms = world + "/Authoring/DesertPalms/";
+const string data = world + "/Production/RegionArt/RiverBasinDesertCoast.asset";
+if (AssetDatabase.LoadMainAssetAtPath(data)) throw new InvalidOperationException(data);
+AssetDatabase.ImportAsset(palms.TrimEnd('/'), ImportAssetOptions.ImportRecursive | ImportAssetOptions.ForceSynchronousImport);
+var paths = AssetDatabase.GetAllAssetPaths();
+Func<string, GameObject> proto = name =>
+{
+    var path = paths.FirstOrDefault(x => x.EndsWith("/" + name + ".prefab", StringComparison.Ordinal))
+        ?? palms + name + ".fbx";
+    var source = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+    if (!source) throw new InvalidOperationException(path);
+    return source;
+};
+var house = proto("PoorHouse_Dugout");
+var storehouse = proto("PoorHouse_Granary");
+var tower = proto("Dng_Watchtower");
+var well = proto("Prop_Well");
+var canopy = proto("PF_Farm_Canopy_01");
+var rock = proto("PF_EastLands_MedBoulder_03");
+var reed = proto("Reeds_02_Green_29");
+var palmsModels = new[] { proto("PalmTree_1"), proto("PalmTree_3"), proto("PalmTree_5") };
+var leaves = AssetDatabase.LoadAssetAtPath<Texture2D>(palms + "PalmTree_Leaves.png");
+var trunk = AssetDatabase.LoadAssetAtPath<Texture2D>(palms + "PalmTree_Trunk.png");
+var shader = Shader.Find("Universal Render Pipeline/Lit");
+if (!shader || !trunk || !leaves) throw new InvalidOperationException("야자수 텍스처 또는 URP Lit 누락");
+var terrains = Terrain.activeTerrains.Where(t => t.gameObject.scene == scene).ToArray();
+Func<float,float,float> ground = (x,z) =>
+{
+    var t = terrains.FirstOrDefault(k => x >= k.transform.position.x && z >= k.transform.position.z &&
+        x < k.transform.position.x + k.terrainData.size.x && z < k.transform.position.z + k.terrainData.size.z);
+    if (!t) throw new InvalidOperationException("지형 범위 밖 " + x + "," + z);
+    return t.SampleHeight(new Vector3(x,0,z)) + t.transform.position.y;
+};
+var sourceRoads = scene.GetRootGameObjects().SelectMany(g => g.GetComponentsInChildren<MeshFilter>(true))
+    .Where(m => m.gameObject.activeInHierarchy && m.sharedMesh != null && (m.name.Contains("Road_R4") || m.name.Contains("Road_R5"))).ToArray();
+if (sourceRoads.Length != 3) throw new InvalidOperationException("R4/R5 원본 길을 찾을 수 없습니다.");
+var log = new System.Text.StringBuilder();
+Undo.IncrementCurrentGroup();
+int group = Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName(rootName);
+try
+{
+    var root = new GameObject(rootName);
+    UnityEngine.SceneManagement.SceneManager.MoveGameObjectToScene(root, scene);
+    Undo.RegisterCreatedObjectUndo(root, rootName);
+    Func<string,Transform> section = name =>
+    {
+        var obj = new GameObject(name);
+        obj.transform.SetParent(root.transform, false);
+        return obj.transform;
+    };
+    var shore = section("호숫가 정착지 · R4");
+    var market = section("우물 교역소 · R4와 R5");
+    var coast = section("해안 전망대 · R5 동쪽 분기");
+
+    var trailMat = new Material(shader) { name = "단단한 모랫길" };
+    trailMat.SetColor("_BaseColor", new Color(.63f,.47f,.30f));
+    trailMat.SetFloat("_Smoothness", .05f);
+    var dependencies = new System.Collections.Generic.List<UnityEngine.Object>();
+    Func<string,Color,Texture2D,Material> makeMaterial = (name,color,texture) =>
+    {
+        var m = new Material(shader) { name = name };
+        m.SetColor("_BaseColor", color);
+        m.SetFloat("_Smoothness", .07f);
+        if (texture) m.SetTexture("_BaseMap",texture);
+        dependencies.Add(m);
+        return m;
+    };
+    var bark = makeMaterial("야자수 줄기", Color.white, trunk);
+    var fronds = makeMaterial("야자수 잎", new Color(.84f,.90f,.70f), leaves);
+    fronds.SetFloat("_Cull", 0);
+    fronds.SetFloat("_AlphaClip", 1);
+    fronds.SetFloat("_Cutoff", .43f);
+    fronds.EnableKeyword("_ALPHATEST_ON");
+    fronds.SetOverrideTag("RenderType","TransparentCutout");
+    fronds.renderQueue=2450;
+    var soil = makeMaterial("밭고랑 흙", new Color(.32f,.23f,.12f), null);
+    var crops = makeMaterial("초록 이랑", new Color(.32f,.40f,.16f), null);
+    var dryCrops = makeMaterial("마른 이랑", new Color(.60f,.46f,.23f), null);
+    var flagMat = makeMaterial("전망대 천 표식", new Color(.56f,.16f,.10f), null);
+    flagMat.SetFloat("_Cull",0);
+    Func<Transform,GameObject,float,float,float,Vector3,float,GameObject> place = (parent,source,x,z,yaw,scale,sink) =>
+    {
+        var go = (GameObject)PrefabUtility.InstantiatePrefab(source, parent);
+        go.transform.SetPositionAndRotation(new Vector3(x,ground(x,z)-sink,z), Quaternion.Euler(0,yaw,0) * source.transform.localRotation);
+        go.transform.localScale = Vector3.Scale(go.transform.localScale,scale);
+        return go;
+    };
+    Func<Transform,int,float,float,float,float,GameObject> palm = (parent,variant,x,z,yaw,scale) =>
+    {
+        var go = place(parent,palmsModels[variant],x,z,yaw,Vector3.one * scale,.14f);
+        foreach (var r in go.GetComponentsInChildren<MeshRenderer>())
+        {
+            r.sharedMaterials = r.sharedMaterials.Select(m => m && m.name.IndexOf("leaves",StringComparison.OrdinalIgnoreCase)>=0 ? fronds : bark).ToArray();
+            PrefabUtility.RecordPrefabInstancePropertyModifications(r);
+        }
+        return go;
+    };
+    Func<Transform,string,Vector3[],int[],Material,GameObject> makeMesh = (parent,name,vertices,indices,material) =>
+    {
+        var obj = new GameObject(name);
+        obj.transform.SetParent(parent,false);
+        var origin = vertices[0];
+        obj.transform.position = origin;
+        var mesh = new Mesh { name = name };
+        mesh.vertices = vertices.Select(v => v-origin).ToArray();
+        mesh.triangles = indices;
+        mesh.RecalculateNormals();
+        mesh.RecalculateBounds();
+        dependencies.Add(mesh);
+        obj.AddComponent<MeshFilter>().sharedMesh = mesh;
+        obj.AddComponent<MeshRenderer>().sharedMaterial = material;
+        return obj;
+    };
+    Action<Transform,string,Vector2[],float,Material,float> strip = (parent,name,points,width,mat,lift) =>
+    {
+        var centers = new System.Collections.Generic.List<Vector2>();
+        for (var n=1;n<points.Length;n++)
+        {
+            int count = Mathf.Max(1,Mathf.CeilToInt(Vector2.Distance(points[n-1],points[n])/.8f));
+            for (int k=0;k<count;k++) centers.Add(Vector2.Lerp(points[n-1],points[n],k/(float)count));
+        }
+        centers.Add(points[points.Length-1]);
+        const int across = 8;
+        var vertices = new System.Collections.Generic.List<Vector3>();
+        var triangles = new System.Collections.Generic.List<int>();
+        for (int i=0;i<centers.Count;i++)
+        {
+            var direction = (centers[Mathf.Min(i+1,centers.Count-1)]-centers[Mathf.Max(i-1,0)]).normalized;
+            var side = new Vector2(-direction.y,direction.x);
+            float taper = name.Contains("길") ? Mathf.Clamp01(Mathf.Min(i,centers.Count-1-i)/6f) : 1;
+            float half = width*.5f*(.77f+.23f*taper)*(1+.11f*Mathf.Sin(i*.22f));
+            for (int j=0;j<=across;j++)
+            {
+                var p = centers[i]+side*half*(j*2f/across-1);
+                float edge = (j==0||j==across) && name.Contains("길") ? -.13f : lift;
+                vertices.Add(new Vector3(p.x,ground(p.x,p.y)+edge,p.y));
+                if (i==0||j==0) continue;
+                int d=vertices.Count-1, a=d-across-2;
+                triangles.AddRange(new[]{a,d-across-1,d-1,d-1,d-across-1,d});
+            }
+        }
+        var verts = vertices.ToArray();
+        if (Vector3.Cross(verts[triangles[1]]-verts[triangles[0]],verts[triangles[2]]-verts[triangles[0]]).y<0)
+            for (int i=0;i<triangles.Count;i+=3) { int swap=triangles[i+1];triangles[i+1]=triangles[i+2];triangles[i+2]=swap; }
+        makeMesh(parent,name,verts,triangles.ToArray(),mat);
+    };
+    Action<Transform,float,float,int,int> garden = (parent,x,z,rows,seed) =>
+    {
+        var bed = new GameObject("계단밭 " + seed).transform;
+        bed.SetParent(parent,false);
+        float width = rows*1.25f;
+        var random = new System.Random(seed);
+        float end = 10 + (float)random.NextDouble()*5;
+        strip(bed,"밭 흙",new[]{new Vector2(x,z),new Vector2(x+1,z+end)},width,soil,.09f);
+        for (int i=0;i<rows;i++)
+        {
+            float offset = (i-(rows-1)*.5f)*1.25f;
+            strip(bed,"작물 이랑 "+i,new[]{new Vector2(x+offset,z+.5f),new Vector2(x+offset+.9f,z+end-.6f)},
+                .46f,i%4==2?dryCrops:crops,.22f);
+        }
+    };
+    // 좁은 호숫가의 도로 동쪽에 주택을 두고 북쪽 끝에 작은 작업 마당을 둔다.
+    place(shore,house,3318,887,260,Vector3.one,.40f);
+    place(shore,house,3319,907,255,Vector3.one*.86f,.42f);
+    place(shore,storehouse,3324,927,265,Vector3.one*.84f,.39f);
+    place(shore,canopy,3319,919,270,Vector3.one,.16f);
+    place(shore,well,3315,916,0,Vector3.one*.86f,.16f);
+    palm(shore,0,3313,875,18,1.36f); palm(shore,1,3320,877,143,1.12f);
+    palm(shore,0,3321,900,216,1.25f); palm(shore,1,3331,926,34,1.07f);
+    palm(shore,0,3312,933,78,1.55f); palm(shore,2,3312,898,21,1.02f);
+    palm(shore,1,3323,938,243,1.12f); palm(shore,0,3328,942,60,1.24f);
+    for(int i=0;i<5;i++) place(shore,reed,3296+i*.8f,904+i*2.45f,i*43,Vector3.one*.75f,.15f);
+    garden(shore,3329,933,5,98);
+
+    // 우물 골목의 생활권은 기존 배치 바깥에 덧붙인다.
+    palm(market,0,3610,1522,33,1.55f); palm(market,1,3607,1528,110,1.2f);
+    palm(market,2,3614,1526,210,1.2f); palm(market,0,3648,1531,80,1.27f);
+    palm(market,1,3657,1526,300,1.08f); palm(market,0,3607,1498,176,1.22f);
+    garden(market,3599,1490,6,92);
+    garden(market,3600,1507,5,37);
+
+    // 전망대에 닿는 모랫길은 기존 R5 고갯길에서 동쪽으로 갈라진다.
+    var branch = new[]{ new Vector2(3724,1738),new Vector2(3746,1736),new Vector2(3777,1743),new Vector2(3786,1754),
+        new Vector2(3801,1757),new Vector2(3822,1751),new Vector2(3840,1758),new Vector2(3870,1765),
+        new Vector2(3896,1774),new Vector2(3911,1776),new Vector2(3918,1783)};
+    strip(coast,"해안 전망대 샛길",branch,6.6f,trailMat,.07f);
+    var lookout = place(coast,tower,3911,1796,195,Vector3.one*1.33f,.22f);
+    var towerBounds = lookout.GetComponentsInChildren<Renderer>().Select(r=>r.bounds).ToArray();
+    float roof = towerBounds.Max(b=>b.max.y);
+    var flagBase = new Vector3(lookout.transform.position.x,roof-.10f,lookout.transform.position.z);
+    var flag = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+    flag.name="전망대 깃대"; flag.transform.SetParent(coast);
+    flag.transform.position=flagBase+Vector3.up*1.4f;
+    flag.transform.localScale=new Vector3(.075f,1.5f,.075f);
+    UnityEngine.Object.DestroyImmediate(flag.GetComponent<Collider>());
+    flag.GetComponent<MeshRenderer>().sharedMaterial=bark;
+    makeMesh(coast,"해안 깃발",new[]{flagBase+new Vector3(0,2.8f,0),flagBase+new Vector3(0,1.65f,0),
+        flagBase+new Vector3(1.2f,2.65f,.22f),flagBase+new Vector3(1.15f,1.66f,.22f),flagBase+new Vector3(2.75f,2.36f,-.16f)},
+        new[]{0,1,2,2,1,3,2,3,4},flagMat);
+    place(coast,house,3899,1793,172,Vector3.one*.78f,.34f);
+    place(coast,canopy,3927,1784,270,Vector3.one,.15f);
+    foreach(var v in new[]{new Vector2(3744,1730),new Vector2(3800,1737),new Vector2(3848,1769),
+        new Vector2(3882,1756),new Vector2(3925,1798),new Vector2(3932,1798),new Vector2(3934,1804)})
+        place(coast,rock,v.x,v.y,v.x%360,Vector3.one*(v.x>3900?1.25f:.76f),.40f);
+    Physics.SyncTransforms();
+    log.AppendLine("정착지/교역소/전망대 오브젝트 " + shore.childCount+"/"+market.childCount+"/"+coast.childCount);
+    log.AppendLine("샛길 길이 m " + branch.Skip(1).Select((v,i)=>Vector2.Distance(v,branch[i])).Sum().ToString("F1"));
+    log.AppendLine("전망대 접지와 지붕 " + lookout.transform.position.ToString("F2")+" "+roof.ToString("F2"));
+    log.AppendLine("격자 메시 및 프리팹 렌더러 " + root.GetComponentsInChildren<Renderer>().Length);
+    AssetDatabase.CreateAsset(trailMat,data);
+    foreach (var item in dependencies) AssetDatabase.AddObjectToAsset(item,data);
+    AssetDatabase.SaveAssets();
+    Undo.CollapseUndoOperations(group);
+    UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+
+}
+catch
+{
+    Undo.RevertAllDownToGroup(group);
+    throw;
+}
+return log.ToString();

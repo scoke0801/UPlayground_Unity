@@ -1,0 +1,71 @@
+// 동쪽 모래 타일에만 지형 사구를 만든다.
+var scene=UnityEngine.SceneManagement.SceneManager.GetSceneByName("RiverBasin4km");
+if (!scene.isLoaded || EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("편집 중인 프리뷰가 필요합니다.");
+var tile=Terrain.activeTerrains.First(t=>t.gameObject.scene==scene&&t.transform.position.x==3584&&t.transform.position.z==1024);
+var original=tile.terrainData;
+const string target="Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/Terrain/Terrain_7_2_DesertDunes.asset";
+if (AssetDatabase.LoadMainAssetAtPath(target)) throw new InvalidOperationException(target);
+var footprint=new Bounds(new Vector3(3876,65,1331),new Vector3(326,400,319));
+if(original.treeInstanceCount!=0 || scene.GetRootGameObjects().SelectMany(g=>g.GetComponentsInChildren<Renderer>(true))
+    .Any(r=>r.gameObject.activeInHierarchy&&r.bounds.size.x<350&&r.bounds.Intersects(footprint)))
+    throw new InvalidOperationException("사구 범위에 재안착을 검토할 오브젝트가 있습니다.");
+var copy=UnityEngine.Object.Instantiate(original);
+copy.name="Terrain_7_2_DesertDunes";
+int size=original.heightmapResolution;
+var heights=original.GetHeights(0,0,size,size);
+var origin=tile.transform.position;
+var extent=original.size;
+var dunes=new[]{
+    new Vector4(3766,1248,64,7),
+    new Vector4(3818,1309,82,10),
+    new Vector4(3910,1284,70,10),
+    new Vector4(3862,1401,76,11),
+    new Vector4(3961,1385,78,13),
+    new Vector4(3984,1456,59,7)};
+float peak=0;int count=0;
+for(int row=1;row<size-1;row++)for(int col=1;col<size-1;col++){
+ float x=origin.x+extent.x*col/(size-1), z=origin.z+extent.z*row/(size-1);
+ float domain=Mathf.SmoothStep(0,1,(x-3715)/19)*Mathf.SmoothStep(0,1,(4038-x)/25)
+    *Mathf.SmoothStep(0,1,(z-1175)/27)*Mathf.SmoothStep(0,1,(1490-z)/23);
+ if(domain<=0) continue;
+ float amount=0;
+ foreach(var dune in dunes){
+    float dx=x-dune.x,dz=z-dune.y;
+    float along=(dx*.90f+dz*.435f)/dune.z;
+    if(Mathf.Abs(along)>=1) continue;
+    float ridge=-dx*.435f+dz*.90f + 27*along*along + 4*Mathf.Sin(along*3.5f);
+    float width=ridge<0 ? 36f : 22f;
+    float profile=Mathf.Exp(-Mathf.Pow(Mathf.Abs(ridge)/width,ridge<0?1.7f:1.35f));
+    amount+=dune.w*profile*Mathf.Pow(1-along*along,1.7f);
+ }
+ amount*=domain;
+ if(amount<.015f) continue;
+ heights[row,col]+=amount/extent.y;
+ peak=Mathf.Max(peak,amount);count++;
+}
+copy.SetHeights(0,0,heights);
+int resolution=original.alphamapResolution;
+int layers=original.alphamapLayers;
+var weights=new float[resolution,resolution,layers];
+var pixels=original.alphamapTextures.Select(t=>t.GetPixels32()).ToArray();
+for(int z=0;z<resolution;z++)for(int x=0;x<resolution;x++)for(int layer=0;layer<layers;layer++){
+ var color=pixels[layer/4][z*resolution+x];
+ weights[z,x,layer]=(layer%4==0?color.r:layer%4==1?color.g:layer%4==2?color.b:color.a)/255f;
+}
+copy.SetAlphamaps(0,0,weights);
+var written=copy.GetHeights(0,0,size,size);
+var before=original.GetHeights(0,0,size,size);
+float seam=0;
+for(int i=0;i<size;i++)seam=Mathf.Max(seam,
+ Mathf.Abs(written[0,i]-before[0,i]),Mathf.Abs(written[size-1,i]-before[size-1,i]),
+ Mathf.Abs(written[i,0]-before[i,0]),Mathf.Abs(written[i,size-1]-before[i,size-1]));
+if(seam>0) throw new InvalidOperationException("사구 타일 경계 변경 " + seam);
+AssetDatabase.CreateAsset(copy,target);
+var collider=tile.GetComponent<TerrainCollider>();
+Undo.RecordObjects(new UnityEngine.Object[]{tile,collider},"사막 사구 조형");
+tile.terrainData=copy;
+collider.terrainData=copy;
+tile.Flush();
+AssetDatabase.SaveAssetIfDirty(copy);
+UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+return "Terrain_7_2 사구 6개, 높이 표본 "+count+", 최고 추가 높이 "+peak.ToString("F2")+"m, 타일 경계 2048개 높이차 "+(seam*extent.y)+"m";

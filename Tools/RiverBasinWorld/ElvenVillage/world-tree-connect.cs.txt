@@ -1,0 +1,35 @@
+var root=GameObject.Find(label);
+var waterRoot=root.transform.Find("산정호에서 숲 마을까지");
+var river=waterRoot.Find("폭포 소와 세계수 강").GetComponent<UPlayGround.Components.FootstepWaterSurface>();
+var receiving=GameObject.Find("RiverBasin 수면/Water_3_4");
+if(!river||!receiving||waterRoot.Find("기존 본류 합류부 수영 판정"))throw new Exception("합류 수면 확인 필요");
+var receivingMesh=receiving.GetComponent<MeshFilter>().sharedMesh;
+var sourceVerts=receivingMesh.vertices;
+var sourceTris=receivingMesh.triangles;
+var points=new List<Vector3>();var indices=new List<int>();var known=new Dictionary<int,int>();
+for(int i=0;i<sourceTris.Length;i+=3){
+    var p=receiving.transform.TransformPoint((sourceVerts[sourceTris[i]]+sourceVerts[sourceTris[i+1]]+sourceVerts[sourceTris[i+2]])/3);
+    if(p.x<1540||p.x>1605||p.z<2095||p.z>2160)continue;
+    for(int j=0;j<3;j++){
+        int key=sourceTris[i+j],index;
+        if(!known.TryGetValue(key,out index)){
+            index=points.Count;known.Add(key,index);points.Add(sourceVerts[key]);
+        }
+        indices.Add(index);
+    }
+}
+if(indices.Count==0)throw new Exception("합류 수면에서 삼각형을 찾지 못했습니다.");
+var sampleMesh=new Mesh{name="WorldTreeConfluenceQuery"};sampleMesh.SetVertices(points);sampleMesh.SetTriangles(indices,0);
+sampleMesh.RecalculateBounds();
+AssetDatabase.CreateAsset(sampleMesh,product+"/WorldTreeConfluenceQuery.asset");
+AssetDatabase.SaveAssetIfDirty(sampleMesh);
+var join=new GameObject("기존 본류 합류부 수영 판정");
+join.transform.SetParent(waterRoot,false);
+join.transform.SetPositionAndRotation(receiving.transform.position,receiving.transform.rotation);
+join.transform.localScale=receiving.transform.lossyScale;
+var filter=join.AddComponent<MeshFilter>();filter.sharedMesh=sampleMesh;
+var surface=join.AddComponent<UPlayGround.Components.FootstepWaterSurface>();surface.surfaceMesh=filter;surface.profile=river.profile;
+var bound=sampleMesh.bounds;bound.Expand(new Vector3(0,12,0));surface.volumeBounds=bound;surface.useVolumeBounds=true;
+surface.RefreshMesh();
+UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+return "합류 수영 판정 "+indices.Count/3+" 삼각형";

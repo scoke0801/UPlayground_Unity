@@ -1,0 +1,67 @@
+const string world = "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34";
+const string sourceRoot = "Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands";
+const string destination = world + "/Production/WorldTreeBasin/PF_R1_RedWorldTree.prefab";
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (scene.path != world + "/Preview/RiverBasin4km.unity" || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new Exception("RiverBasin4km 프리뷰 편집 상태가 필요합니다.");
+var tree = GameObject.Find("R1 · 산정호와 세계수/세계수 광장/R1 세계수");
+var oldArt = tree ? tree.transform.Find("SM_RBElf_WorldTree") : null;
+var oldLod = tree ? tree.GetComponent<LODGroup>() : null;
+if (!oldArt || !oldLod || !tree.GetComponent<CapsuleCollider>())
+    throw new Exception("세계수 초안과 보행 충돌을 확인해야 합니다.");
+var source = AssetDatabase.LoadAssetAtPath<GameObject>(sourceRoot + "/Prefabs/Foliage/Trees/PF_EastLands_HeroTree.prefab");
+var leafNear = AssetDatabase.LoadAssetAtPath<Material>(sourceRoot + "/Materials/Foliage/M_EastLands_HeroTree_Leaves_02.mat");
+var leafFar = AssetDatabase.LoadAssetAtPath<Material>(sourceRoot + "/Materials/Foliage/M_EastLands_HeroTree_Leaves_Low_02.mat");
+if (!source || !leafNear || !leafFar || AssetDatabase.LoadAssetAtPath<GameObject>(destination))
+    throw new Exception("거목 원본과 적용 상태를 확인해야 합니다.");
+var trunk = source.transform.Find("HeroTree_Trunk").GetComponent<LODGroup>().GetLODs();
+var canopy = source.transform.Find("HeroTree_Leaves").GetComponent<LODGroup>().GetLODs();
+if (trunk.Length != 4 || canopy.Length != 4) throw new Exception("원본 LOD 슬롯이 다릅니다.");
+var draft = new GameObject("PF_R1_RedWorldTree");
+try {
+    var visual = new GameObject("수관과 줄기").transform;
+    visual.SetParent(draft.transform, false);
+    visual.localScale = new Vector3(.82f, 1.37f, .82f);
+    visual.localRotation = Quaternion.Euler(0, 172f, 0);
+    visual.localPosition = new Vector3(0, -.32f, 0);
+    var lods = new LOD[4];
+    var thresholds = new[] { .68f, .28f, .095f, .006f };
+    var triangles = new List<string>();
+    for (int i = 0; i < lods.Length; i++) {
+        var renderers = new List<Renderer>();
+        long count = 0;
+        foreach (var original in new[] { trunk[i].renderers[0], canopy[i].renderers[0] }) {
+            var part = new GameObject(original.name);
+            part.transform.SetParent(visual, false);
+            var mesh = original.GetComponent<MeshFilter>().sharedMesh;
+            if (!mesh) throw new Exception("구매 원본 메시가 누락됐습니다.");
+            part.AddComponent<MeshFilter>().sharedMesh = mesh;
+            var r = part.AddComponent<MeshRenderer>();
+            r.sharedMaterials = original == canopy[i].renderers[0] ? new[] { i < 2 ? leafNear : leafFar } : original.sharedMaterials;
+            r.shadowCastingMode = original.shadowCastingMode;
+            r.receiveShadows = original.receiveShadows;
+            if (i == 0 && original == trunk[0].renderers[0])
+                part.AddComponent<MeshCollider>().sharedMesh = original.GetComponent<MeshCollider>().sharedMesh;
+            renderers.Add(r);
+            for (int k = 0; k < mesh.subMeshCount; k++) count += mesh.GetIndexCount(k) / 3;
+        }
+        triangles.Add(count.ToString());
+        lods[i] = new LOD(thresholds[i], renderers.ToArray()) { fadeTransitionWidth = .1f };
+    }
+    var group = draft.AddComponent<LODGroup>();
+    group.SetLODs(lods);
+    group.RecalculateBounds();
+    var prefab = PrefabUtility.SaveAsPrefabAsset(draft, destination);
+    if (!prefab) throw new Exception("세계수 프리팹 저장 실패");
+    var placed = (GameObject)PrefabUtility.InstantiatePrefab(prefab, tree.transform);
+    if (!placed) throw new Exception("세계수 배치 실패");
+    Undo.RegisterCreatedObjectUndo(placed, "세계수 교체");
+    Undo.DestroyObjectImmediate(tree.GetComponent<CapsuleCollider>());
+    Undo.DestroyObjectImmediate(oldLod);
+    Undo.DestroyObjectImmediate(oldArt.gameObject);
+    UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+    return "세계수 / 앞에서부터 LOD 삼각형 " + string.Join(" / ", triangles);
+}
+finally {
+    UnityEngine.Object.DestroyImmediate(draft);
+}

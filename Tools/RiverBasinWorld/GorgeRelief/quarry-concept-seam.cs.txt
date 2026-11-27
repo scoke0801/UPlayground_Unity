@@ -1,0 +1,66 @@
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+var objects=scene.GetRootGameObjects().SelectMany(g=>g.GetComponentsInChildren<Transform>(true)).ToArray();
+var gate=objects.Single(t=>t.name=="A 하층 운반 갱구");
+var filter=objects.Where(t=>t.name=="Dng_Wall_QuarryMaze").Select(t=>t.GetComponent<MeshFilter>())
+    .Single(f=>f&&f.sharedMesh&&f.sharedMesh.name=="기존 채석 갱도 · B와 C 접속부 개방");
+var collider=filter.GetComponent<MeshCollider>();
+var source=filter.sharedMesh;
+var vertices=source.vertices.Select(v=>filter.transform.TransformPoint(v)).ToArray();
+var triangles=source.triangles;
+var kept=new List<int>();
+Func<Vector3,bool> atThreshold=p=>Mathf.Abs(p.x-3206)<.65f&&Mathf.Abs(p.z-2212)<2.1f&&p.y>=72.65f&&p.y<77;
+for(int i=0;i<triangles.Length;i+=3)
+{
+    if(atThreshold(vertices[triangles[i]])&&atThreshold(vertices[triangles[i+1]])&&atThreshold(vertices[triangles[i+2]]))
+        continue;
+    kept.Add(triangles[i]); kept.Add(triangles[i+1]); kept.Add(triangles[i+2]);
+}
+if(triangles.Length-kept.Count!=12||!collider||collider.sharedMesh!=source||EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("서쪽 갱도 개구부의 기존 벽면을 식별하지 못했습니다.");
+
+var lowerWall=gate.Find("Dng_Wall_QuarryLowerBranch").GetComponent<MeshFilter>().sharedMesh;
+var localVertices=lowerWall.vertices;
+var wallUv=new Vector2[localVertices.Length];
+for(int i=0;i<localVertices.Length;i++)
+    wallUv[i]=new Vector2(localVertices[i].x,localVertices[i].y)*.42f;
+var cloth=objects.Single(t=>t.name=="운반길 깃발").GetComponent<MeshRenderer>().sharedMaterial;
+var stone=gate.Find("Dng_Wall_QuarryLowerMouth").GetComponent<MeshRenderer>().sharedMaterial;
+var meshPath=AssetDatabase.GetAssetPath(lowerWall);
+if(!meshPath.EndsWith("/RiverBasinQuarryConcept.asset"))
+    throw new InvalidOperationException("채석장 저작 에셋을 확인하세요.");
+
+Undo.IncrementCurrentGroup();
+int undo=Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName("서쪽 갱도 접속부 개방");
+Undo.RecordObjects(new UnityEngine.Object[]{filter,collider,lowerWall,cloth,stone},"서쪽 갱도 접속부 개방");
+try
+{
+    var wall=UnityEngine.Object.Instantiate(source);
+    wall.name="기존 채석 갱도 · A–C 접속부 개방";
+    wall.SetTriangles(kept,0);
+    AssetDatabase.AddObjectToAsset(wall,meshPath);
+    filter.sharedMesh=wall;
+    collider.sharedMesh=wall;
+    lowerWall.uv=wallUv;
+    lowerWall.RecalculateTangents();
+    cloth.SetColor("_BaseColor",new Color(.48f,.087f,.039f));
+    stone.SetColor("_BaseColor",new Color(1,.94f,.83f));
+    stone.SetFloat("_BumpScale",.21f);
+    EditorUtility.SetDirty(lowerWall);
+    EditorUtility.SetDirty(stone);
+    EditorUtility.SetDirty(cloth);
+    AssetDatabase.SaveAssetIfDirty(wall);
+    Physics.SyncTransforms();
+    var center=new Vector3(3206.015f,72.8f,2212);
+    if (Physics.CheckCapsule(center+Vector3.up*.48f,center+Vector3.up*1.45f,.32f,~0,QueryTriggerInteraction.Ignore))
+        throw new InvalidOperationException("서쪽 접속부의 플레이어 공간이 막혔습니다.");
+    if(!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene))
+        throw new InvalidOperationException("서쪽 접속부 저장 실패");
+    Undo.CollapseUndoOperations(undo);
+    return "서쪽 접속부 삼각형 4개 제거, 렌더와 충돌 갱신";
+}
+catch
+{
+    Undo.RevertAllDownToGroup(undo);
+    throw;
+}

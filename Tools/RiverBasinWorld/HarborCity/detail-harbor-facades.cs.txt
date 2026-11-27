@@ -1,0 +1,67 @@
+// 프로젝트 항구 가옥의 창과 아틀라스를 사용해 옆 골목 입면을 보강한다.
+var root=GameObject.Find("항구도시 · 교역항");
+if(!root||EditorApplication.isPlaying)throw new System.InvalidOperationException("항구 Edit Mode가 필요합니다.");
+const string world="Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/";
+const string city="Assets/03.Prefabs/Environment/WorldCities/";
+var surfaces=AssetDatabase.LoadAssetAtPath<Mesh>(world+"Production/RegionArt/RiverBasinHarborCitySurfaces.asset");
+var house=AssetDatabase.LoadAssetAtPath<GameObject>(city+"HarborHouse.prefab");
+if(!surfaces||!house)throw new System.InvalidOperationException("가옥 원본과 항구 표면 에셋을 확인하세요.");
+var source=house.GetComponentInChildren<MeshFilter>().sharedMesh;
+var sourceVerts=source.vertices;var sourceUV=source.uv;
+var sourceIndices=source.GetTriangles(0);
+var verts=new System.Collections.Generic.List<Vector3>();var uv=new System.Collections.Generic.List<Vector2>();
+var indices=new System.Collections.Generic.List<int>();
+System.Func<Vector3,bool> isWindow=v=>Mathf.Abs(v.x)<.91f&&v.y>4.24f&&v.y<6.17f&&v.z>4.036f;
+for(int i=0;i<sourceIndices.Length;i+=3){
+    int a=sourceIndices[i],b=sourceIndices[i+1],c=sourceIndices[i+2];
+    if(!(isWindow(sourceVerts[a])&&isWindow(sourceVerts[b])&&isWindow(sourceVerts[c])))continue;
+    foreach(int j in new[]{a,b,c}){
+        indices.Add(verts.Count);verts.Add(sourceVerts[j]-new Vector3(0,5.15f,4.08f));uv.Add(sourceUV[j]);
+    }
+}
+if(indices.Count<60||indices.Count>1400)throw new System.InvalidOperationException("기존 셔터 메시 추출 범위 확인 "+indices.Count);
+var window=new Mesh{name="기존 항구 셔터"};
+window.SetVertices(verts);window.SetUVs(0,uv);window.SetTriangles(indices,0);
+window.RecalculateNormals();window.RecalculateTangents();
+var meshByHouse=new System.Collections.Generic.Dictionary<string,Mesh>();
+foreach(var shape in new[]{new Vector3(4.48f,2.0f,1),new Vector3(3.98f,1.92f,1),new Vector3(7.48f,2.72f,1.08f)}){
+    var kind=shape.x>7?"HarborWarehouse":shape.x>4.1f?"HarborHouse":"CastleTownHouse";
+    var placed=new System.Collections.Generic.List<CombineInstance>();
+    foreach(int sign in new[]{-1,1})
+    foreach(float z in new[]{-shape.y,shape.y})
+    foreach(float y in new[]{2.52f,5.22f}){
+        var rotation=Quaternion.Euler(0,sign*90,0);
+        placed.Add(new CombineInstance{mesh=window,transform=Matrix4x4.TRS(
+            new Vector3(sign*(shape.x+.065f),y,z),rotation,Vector3.one*shape.z)});
+    }
+    var mesh=new Mesh{name=kind+" 골목 셔터"};
+    mesh.CombineMeshes(placed.ToArray(),true,true);
+    meshByHouse.Add(kind,mesh);
+}
+Undo.IncrementCurrentGroup();int group=Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName("항구 골목 입면 보강");
+try{
+    int applied=0;
+    var material=house.GetComponentInChildren<MeshRenderer>().sharedMaterial;
+    foreach(var t in root.GetComponentsInChildren<Transform>()){
+        Mesh mesh;
+        if(!meshByHouse.TryGetValue(t.name,out mesh)||!PrefabUtility.IsAnyPrefabInstanceRoot(t.gameObject)||t.Find("골목 셔터"))continue;
+        var obj=new GameObject("골목 셔터",typeof(MeshFilter),typeof(MeshRenderer));
+        Undo.RegisterCreatedObjectUndo(obj,"항구 골목 입면");
+        obj.transform.SetParent(t,false);
+        obj.GetComponent<MeshFilter>().sharedMesh=mesh;
+        obj.GetComponent<MeshRenderer>().sharedMaterial=material;
+        obj.isStatic=true;
+        applied++;
+    }
+    if(applied!=37)throw new System.InvalidOperationException("골목 입면 보강 동수 확인 "+applied);
+    foreach(var pair in meshByHouse)AssetDatabase.AddObjectToAsset(pair.Value,surfaces);
+    AssetDatabase.SaveAssets();
+    Undo.CollapseUndoOperations(group);
+    return applied+"동에 기존 아틀라스와 셔터를 재사용";
+}catch{
+    Undo.RevertAllDownToGroup(group);
+    throw;
+}finally{
+    UnityEngine.Object.DestroyImmediate(window);
+}

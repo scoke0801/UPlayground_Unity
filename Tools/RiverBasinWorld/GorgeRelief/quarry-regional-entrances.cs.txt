@@ -1,0 +1,459 @@
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+const string task="채석장 · 권역 갱구 연결";
+if(scene.name!="RiverBasin4km"||scene.isDirty||EditorApplication.isPlayingOrWillChangePlaymode||GameObject.Find(task))
+    throw new InvalidOperationException("저장된 채석장 프리뷰 Edit Mode가 필요합니다.");
+var production=scene.path.Substring(0,scene.path.LastIndexOf("/Preview/"))+"/Production";
+var meshPath=production+"/RegionArt/RiverBasinQuarryRegionalEntrances.asset";
+var tiles=Terrain.activeTerrains.Where(t=>t.gameObject.scene==scene).ToArray();
+var editable=tiles.Where(t=>t.name=="Terrain_5_4"||t.name=="Terrain_6_4").ToArray();
+var terrainPaths=editable.Select(t=>production+"/Terrain/"+t.name+"_QuarryRegionalEntrances.asset").ToArray();
+if(editable.Length!=2||terrainPaths.Concat(new[]{meshPath}).Any(assetPath=>AssetDatabase.LoadMainAssetAtPath(assetPath)))
+    throw new InvalidOperationException("두 채석장 지형과 출력 경로를 확인하세요.");
+var central=GameObject.Find("A 하층 운반 갱구").transform;
+var wall=central.Find("Dng_Wall_QuarryLowerBranch").GetComponent<MeshFilter>();
+var wallCollider=wall.GetComponent<MeshCollider>();
+var stone=wall.GetComponent<MeshRenderer>().sharedMaterial;
+var gravel=central.Find("Dng_Floor_QuarryMaze").GetComponent<MeshRenderer>().sharedMaterial;
+var faceStone=central.Find("Dng_Wall_QuarryLowerMouth").GetComponent<MeshRenderer>().sharedMaterial;
+var road=central.Find("강변 하층 운반길").GetComponent<MeshRenderer>().sharedMaterial;
+var beamMaterial=GameObject.Find("채석장 · 노천 작업장 재구성").GetComponentsInChildren<MeshRenderer>()
+    .First(r=>r.name=="기둥 버팀").sharedMaterial;
+var arch=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/03.Prefabs/Environment/Dungeon/Dng_Arch.prefab");
+var sconce=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/03.Prefabs/Environment/Dungeon/Dng_Wall_Sconce.prefab");
+var supplies=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/03.Prefabs/Environment/Dungeon/Dng_Crates_Barrels.prefab");
+if(!wallCollider||wall.sharedMesh!=wallCollider.sharedMesh||!arch||!sconce||!supplies)
+    throw new InvalidOperationException("기존 갱도 서쪽 연결 대상과 소품을 확인하세요.");
+
+Func<float,float,float,Vector3> p=(x,y,z)=>new Vector3(x,y,z);
+Func<Vector3,Vector2> flat=point=>new Vector2(point.x,point.z);
+Func<Vector3,Terrain> terrainAt=point=>tiles.First(t=>point.x>=t.transform.position.x&&point.x<t.transform.position.x+t.terrainData.size.x&&
+    point.z>=t.transform.position.z&&point.z<t.transform.position.z+t.terrainData.size.z);
+Func<Vector3,float> oldHeight=point=>{var t=terrainAt(point);return t.SampleHeight(point)+t.transform.position.y;};
+Func<Vector3,Vector3> level=point=>new Vector3(point.x,oldHeight(point),point.z);
+var mouths=new[]{p(2867,93.91f,2273),p(3023,46.47f,2341),p(3156,60.73f,2460),p(3414,111.78f,2439)};
+var sites=new[]{"서쪽 고갯길 갱구","강변 굽이 갱구","북서 사면 갱구","동쪽 채광터 갱구"};
+var roads=new[]{p(2864.3f,0,2278.7f),p(3027.45f,0,2349.14f),p(3158.8f,0,2469.8f),p(3422.96f,0,2430.63f)}
+    .Select(level).ToArray();
+var westHall=p(3053,30,2322);
+var mainHall=p(3200,37,2356);
+var originalWall=wall.sharedMesh;
+var wallPoints=originalWall.vertices.Select(v=>wall.transform.TransformPoint(v)).ToArray();
+var left=wallPoints.Where(v=>Mathf.Abs(v.x-3181.92f)<.055f&&v.z>2221.55f&&v.y<77).Distinct().Single();
+var right=wallPoints.Where(v=>Mathf.Abs(v.x-3185.42f)<.055f&&v.z>2221.40f&&v.y<77).Distinct().Single();
+var throat=(left+right)*.5f;
+var entrances=new[]{
+    new[]{mouths[0],p(2867,92,2265),p(2874,87,2253),p(2895,77,2244),p(2931,63,2247),
+        p(2953,45,2267),p(2972,33,2293),p(3014,30,2310),p(3036,30,2322),westHall+Vector3.left*6},
+    new[]{mouths[1],p(3023,42.9f,2333),p(3023,38,2325),p(3024,37.1f,2320.2f),
+        p(3028,37,2317.7f),p(3033,37,2320),p(3038,36.1f,2326),p(3042,34.5f,2333),
+        p(3048,31.4f,2339),p(3055,30,2340.3f),p(3058.1f,30,2336.7f),p(3053,30,2332.8f),westHall+Vector3.forward*6},
+    new[]{mouths[2],p(3155,57.5f,2452),p(3157,49,2434),p(3168,42,2417),p(3185,37,2402),
+        p(3200,37,2386),p(3200,37,2374),mainHall+Vector3.forward*6},
+    new[]{mouths[3],p(3407,107.4f,2447),p(3394,100,2455),p(3370,87,2455),p(3346,74,2445),
+        p(3324,61,2424),p(3294,51,2404),p(3266,40,2381),p(3239,37,2359),p(3224,37,2356),mainHall+Vector3.right*6},
+    new[]{westHall+Vector3.right*6,p(3070,30,2322),p(3112,31,2326),p(3144,34,2340),p(3182,37,2356),mainHall+Vector3.left*6},
+    new[]{throat,p(3183.7f,74.6f,2230),p(3183.6f,69.5f,2244),p(3185,55,2270),p(3186,43,2302),
+        p(3190,36.8f,2330),p(3200,37,2338),mainHall+Vector3.back*6}
+};
+Func<Vector3[],Vector3[]> sample=knots=>
+{
+    var rounded=new List<Vector3>{knots[0]};
+    for(int i=1;i<knots.Length-1;i++)
+    {
+        var previous=knots[i-1]-knots[i];
+        var next=knots[i+1]-knots[i];
+        float trim=Mathf.Min(6,Mathf.Min(previous.magnitude,next.magnitude)*.32f);
+        var a=knots[i]+previous.normalized*trim;
+        var b=knots[i]+next.normalized*trim;
+        for(int j=0;j<=5;j++)
+        {
+            float phase=j/5f;
+            rounded.Add(Vector3.Lerp(Vector3.Lerp(a,knots[i],phase),Vector3.Lerp(knots[i],b,phase),phase));
+        }
+    }
+    rounded.Add(knots.Last());
+    var samples=new List<Vector3>();
+    for(int i=1;i<rounded.Count;i++)
+    {
+        int count=Math.Max(1,Mathf.CeilToInt(Vector3.Distance(rounded[i-1],rounded[i])/2f));
+        for(int j=0;j<count;j++) samples.Add(Vector3.Lerp(rounded[i-1],rounded[i],(float)j/count));
+    }
+    samples.Add(rounded.Last());
+    return samples.ToArray();
+};
+var routes=entrances.Select(sample).ToArray();
+var approach=new Vector3[4][];
+for(int i=0;i<4;i++)
+{
+    Vector3 forward=routes[i][1]-routes[i][0];
+    forward.y=0; forward.Normalize();
+    var apron=mouths[i]-forward*2.85f;
+    apron.y=mouths[i].y-.09f;
+    approach[i]=sample(new[]{roads[i],apron,mouths[i]});
+}
+Func<Vector3[],Vector2,Vector2> nearest=(line,point)=>
+{
+    var result=new Vector2(float.PositiveInfinity,0);
+    for(int i=1;i<line.Length;i++)
+    {
+        var a=flat(line[i-1]);
+        var axis=flat(line[i])-a;
+        float t=Mathf.Clamp01(Vector2.Dot(point-a,axis)/axis.sqrMagnitude);
+        float distance=Vector2.Distance(point,a+axis*t);
+        if(distance<result.x) result=new Vector2(distance,Mathf.Lerp(line[i-1].y,line[i].y,t));
+    }
+    return result;
+};
+var sources=editable.Select(t=>t.terrainData).ToArray();
+var paints=sources.Select(d=>d.GetAlphamaps(0,0,d.alphamapWidth,d.alphamapHeight)).ToArray();
+var variant=sources.Select(d=>UnityEngine.Object.Instantiate(d)).ToArray();
+Func<Vector3,float> grade=point=>
+{
+    var t=terrainAt(point);
+    int i=Array.IndexOf(editable,t);
+    if(i<0) return oldHeight(point);
+    var o=t.transform.position;
+    var d=variant[i];
+    return o.y+d.GetInterpolatedHeight((point.x-o.x)/d.size.x,(point.z-o.z)/d.size.z);
+};
+var tunnelHeads=new Vector3[4][];
+for(int gate=0;gate<4;gate++)
+{
+    int i=Array.IndexOf(editable,terrainAt(mouths[gate]));
+    if(i<0) throw new InvalidOperationException("입구가 편집 지형을 벗어났습니다.");
+    var o=editable[i].transform.position;
+    var d=variant[i];
+    var line=routes[gate].TakeWhile(q=>Vector2.Distance(flat(q),flat(mouths[gate]))<20).ToArray();
+    tunnelHeads[gate]=line;
+    var local=approach[gate].Concat(line).ToArray();
+    int x0=Mathf.FloorToInt(local.Min(q=>q.x)-o.x)-8;
+    int z0=Mathf.FloorToInt(local.Min(q=>q.z)-o.z)-8;
+    int width=Mathf.CeilToInt(local.Max(q=>q.x)-o.x)+8-x0;
+    int length=Mathf.CeilToInt(local.Max(q=>q.z)-o.z)+8-z0;
+    var heights=d.GetHeights(x0,z0,width,length);
+    var inbound=(flat(routes[gate][1])-flat(mouths[gate])).normalized;
+    for(int z=0;z<length;z++)
+    for(int x=0;x<width;x++)
+    {
+        var point=new Vector2(o.x+x0+x,o.z+z0+z);
+        var before=o.y+heights[z,x]*d.size.y;
+        var a=nearest(approach[gate],point);
+        var underground=nearest(line,point);
+        float along=Vector2.Dot(point-flat(mouths[gate]),inbound);
+        float distanceToRoad=Vector2.Distance(point,flat(roads[gate]));
+        float approachWeight=(1-Mathf.SmoothStep(0,1,Mathf.InverseLerp(2.05f,5.1f,a.x)))*
+            (1-Mathf.SmoothStep(0,1,Mathf.InverseLerp(.2f,1.7f,along)))*
+            Mathf.SmoothStep(0,1,Mathf.InverseLerp(.25f,3.4f,distanceToRoad));
+        float overburden=(1-Mathf.SmoothStep(0,1,Mathf.InverseLerp(3.0f,6.6f,underground.x)))*
+            Mathf.SmoothStep(0,1,Mathf.InverseLerp(2.1f,8.0f,along))*
+            (1-Mathf.SmoothStep(0,1,Mathf.InverseLerp(19f,23f,along)));
+        float target=Mathf.Lerp(before,a.y,approachWeight);
+        target=Mathf.Lerp(target,Mathf.Max(target,underground.y+4.55f),overburden);
+        heights[z,x]=(target-o.y)/d.size.y;
+    }
+    d.SetHeights(x0,z0,heights);
+    var holes=d.GetHoles(x0,z0,width-1,length-1);
+    for(int z=0;z<length-1;z++)
+    for(int x=0;x<width-1;x++)
+    {
+        var point=new Vector2(o.x+x0+x+.5f,o.z+z0+z+.5f);
+        float along=Vector2.Dot(point-flat(mouths[gate]),inbound);
+        var underground=nearest(line,point);
+        if(along>-.55f&&along<14&&underground.x<2.55f&&grade(p(point.x,0,point.y))<underground.y+3.85f)
+            holes[z,x]=false;
+    }
+    d.SetHoles(x0,z0,holes);
+}
+
+// 짧은 성토 구간을 벗어난 곳은 천장 위에 지표가 있어야 한다.
+var exposed=new List<string>();
+for(int i=0;i<routes.Length;i++)
+for(int j=0;j<routes[i].Length;j++)
+{
+    var q=routes[i][j];
+    if(i<4&&Vector2.Distance(flat(q),flat(mouths[i]))<16) continue;
+    if(grade(q)<q.y+4.0f) exposed.Add(i+" / "+q.ToString("F2")+" 지표 "+grade(q).ToString("F2"));
+}
+if(exposed.Count>0) throw new InvalidOperationException("갱도 지표 여유 "+string.Join(" | ",exposed.Take(12)));
+
+var root=new GameObject(task);
+Undo.IncrementCurrentGroup();
+int undo=Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName(task);
+Undo.RegisterCreatedObjectUndo(root,task);
+var vertices=new List<Vector3>();
+var triangles=new List<int>();
+var uv=new List<Vector2>();
+var meshes=new List<Mesh>();
+Func<string,Transform,Vector3,Transform> group=(name,parent,position)=>
+{
+    var go=new GameObject(name);
+    go.transform.SetParent(parent);
+    go.transform.position=position;
+    return go.transform;
+};
+var anchor=throat;
+Func<GameObject,Transform,Vector3,float,GameObject> place=(prefab,parent,position,yaw)=>
+{
+    var go=(GameObject)PrefabUtility.InstantiatePrefab(prefab,parent);
+    go.transform.SetPositionAndRotation(position,Quaternion.Euler(0,yaw,0));
+    return go;
+};
+Action<Vector3,Vector3,Vector3,Vector3> tri=(a,b,c,normal)=>
+{
+    int index=vertices.Count;
+    foreach(var q in new[]{a,b,c})
+    {
+        var local=q-anchor;
+        vertices.Add(local);
+        uv.Add(Mathf.Abs(normal.y)>.70f?new Vector2(local.x,local.z)*.45f:
+            new Vector2(Mathf.Abs(normal.x)>.7f?local.z:local.x,local.y)*.45f);
+    }
+    if(Vector3.Dot(Vector3.Cross(b-a,c-a),normal)>0) triangles.AddRange(new[]{index,index+1,index+2});
+    else triangles.AddRange(new[]{index,index+2,index+1});
+};
+Action<Vector3,Vector3,Vector3,Vector3,Vector3> quad=(a,b,c,d,n)=>{tri(a,b,c,n);tri(a,c,d,n);};
+Action<string,Transform,Material,bool> publish=(name,parent,mat,solid)=>
+{
+    var mesh=new Mesh{name=name+" · "+parent.name};
+    mesh.SetVertices(vertices);mesh.SetTriangles(triangles,0);mesh.SetUVs(0,uv);
+    mesh.RecalculateNormals();mesh.RecalculateTangents();mesh.RecalculateBounds();
+    var t=group(name,parent,anchor);
+    t.gameObject.isStatic=true;
+    t.gameObject.AddComponent<MeshFilter>().sharedMesh=mesh;
+    t.gameObject.AddComponent<MeshRenderer>().sharedMaterial=mat;
+    if(solid) t.gameObject.AddComponent<MeshCollider>().sharedMesh=mesh;
+    meshes.Add(mesh);vertices.Clear();triangles.Clear();uv.Clear();
+};
+Func<Vector3,Vector3,Vector3[]> ring=(q,side)=>new[]{q-side*2.10f,q-side*2.10f+Vector3.up*2.65f,
+    q-side*1.22f+Vector3.up*3.55f,q+side*1.22f+Vector3.up*3.60f,
+    q+side*2.10f+Vector3.up*2.65f,q+side*2.10f};
+Action<Transform,Vector3,float,float> lamp=(parent,at,range,intensity)=>
+{
+    var light=group("갱도 작업등",parent,at).gameObject.AddComponent<Light>();
+    light.type=LightType.Point; light.range=range; light.intensity=intensity;
+    light.color=new Color(1,.68f,.38f);light.shadows=LightShadows.None;
+};
+var restoredMesh=UnityEngine.Object.Instantiate(originalWall);
+restoredMesh.name="A 갱도 · 권역 운반 가지 개방";
+var kept=new List<int>();
+var oldTriangles=originalWall.triangles;
+Func<Vector3,bool> atJoin=q=>q.x>=left.x-.002f&&q.x<=right.x+.002f&&q.z>2221.44f&&q.y>75&&q.y<79;
+int removed=0;
+for(int i=0;i<oldTriangles.Length;i+=3)
+{
+    if(atJoin(wallPoints[oldTriangles[i]])&&atJoin(wallPoints[oldTriangles[i+1]])&&atJoin(wallPoints[oldTriangles[i+2]]))
+    {removed++;continue;}
+    kept.Add(oldTriangles[i]);kept.Add(oldTriangles[i+1]);kept.Add(oldTriangles[i+2]);
+}
+try
+{
+    if(removed!=8) throw new InvalidOperationException("A 연결부 벽면 수를 확인하세요. "+removed);
+    restoredMesh.SetTriangles(kept,0);
+    Undo.RecordObjects(editable.Cast<UnityEngine.Object>().Concat(editable.Select(t=>(UnityEngine.Object)t.GetComponent<TerrainCollider>()))
+        .Concat(new UnityEngine.Object[]{wall,wallCollider}).ToArray(),task);
+    for(int i=0;i<editable.Length;i++)
+    {
+        variant[i].name=editable[i].name+"_QuarryRegionalEntrances";
+        editable[i].terrainData=variant[i];
+        editable[i].GetComponent<TerrainCollider>().terrainData=variant[i];
+        editable[i].Flush();
+    }
+    wall.sharedMesh=restoredMesh;wallCollider.sharedMesh=restoredMesh;
+    var cart=scene.GetRootGameObjects().SelectMany(g=>g.GetComponentsInChildren<Transform>(true))
+        .Single(t=>t.name=="P_PROP_cart_dungeon_01"&&t.parent.name=="동쪽 암벽 채광터");
+    Undo.RecordObject(cart,"동쪽 갱구 보행폭 확보");
+    var cartPlace=p(3410,0,2432.8f);
+    cartPlace.y=grade(cartPlace)+.04f;
+    cart.position=cartPlace;
+    var rimCloth=new Material(Shader.Find("Universal Render Pipeline/Lit")){name="권역 갱구 · 적갈색 운반 깃발"};
+    rimCloth.SetColor("_BaseColor",new Color(.43f,.12f,.054f));rimCloth.SetFloat("_Cull",0);
+    var pathsRoot=group("연결 갱도",root.transform,anchor);
+    var exteriorRoot=group("표시 구역의 지상 입구 네 곳",root.transform,anchor);
+    for(int i=0;i<routes.Length;i++)
+    {
+        var path=routes[i];
+        var id=i<4?sites[i]:i==4?"두 집하장을 잇는 본선":"중앙 채석장 A 연결";
+        var branch=group(id,pathsRoot,path[0]);
+        var rings=new Vector3[path.Length][];
+        for(int j=0;j<path.Length;j++)
+        {
+            var direction=path[Math.Min(path.Length-1,j+1)]-path[Math.Max(0,j-1)];
+            direction.y=0;
+            rings[j]=ring(path[j],Vector3.Cross(Vector3.up,direction.normalized));
+        }
+        if(i==5)
+        {
+            var l=left+Vector3.up*2.52f;
+            var r=right+Vector3.up*2.52f;
+            rings[0]=new[]{left,l,Vector3.Lerp(l,r,.21f),Vector3.Lerp(l,r,.79f),r,right};
+        }
+        for(int start=0;start<rings.Length-1;start+=16)
+        {
+            int end=Math.Min(start+16,rings.Length-1);
+            var span=group("작업등 구간 "+(start/16+1),branch,path[start]);
+            for(int j=start+1;j<=end;j++)
+                quad(rings[j-1][0],rings[j-1][5],rings[j][5],rings[j][0],Vector3.up);
+            publish("Dng_Floor_QuarryMaze",span,gravel,true);
+            for(int j=start+1;j<=end;j++)
+            foreach(int side in new[]{0,4})
+            {
+                var q=path[j]+Vector3.up*1.3f-rings[j][side];
+                q.y=0;
+                quad(rings[j-1][side],rings[j-1][side+1],rings[j][side+1],rings[j][side],q.normalized);
+            }
+            publish("Dng_Wall_QuarryRegional",span,stone,true);
+            for(int j=start+1;j<=end;j++)
+            for(int side=1;side<4;side++)
+                quad(rings[j-1][side],rings[j-1][side+1],rings[j][side+1],rings[j][side],Vector3.down);
+            publish("Dng_Roof_QuarryMaze",span,stone,true);
+            for(int j=start+4;j<end;j+=8)
+            {
+                var inward=(path[j+1]-path[j-1]);inward.y=0;
+                var side=Vector3.Cross(Vector3.up,inward.normalized);
+                var lightAt=path[j]+side*1.35f+Vector3.up*2.45f;
+                lamp(span,lightAt,13,4.2f);
+                place(sconce,span,lightAt+side*.63f-Vector3.up*.22f,Quaternion.LookRotation(-side).eulerAngles.y);
+            }
+        }
+        if(i>=4) continue;
+        var exterior=group(sites[i]+" · 지상",exteriorRoot,mouths[i]);
+        var forward=path[1]-path[0];forward.y=0;forward.Normalize();
+        var lateral=Vector3.Cross(Vector3.up,forward);
+        var yaw=Quaternion.LookRotation(forward).eulerAngles.y;
+        var archObject=place(arch,exterior,mouths[i]-forward*.16f-Vector3.up*.08f,yaw);
+        archObject.transform.localScale=new Vector3(1.55f,.93f,.90f);
+        var lip=rings[0];
+        float capLength=i==1?9.5f:11f;
+        var cover=rings[Array.FindLastIndex(path,q=>Vector2.Distance(flat(q),flat(path[0]))<capLength)];
+        var outside=new Vector3[6];
+        var burial=new Vector3[6];
+        for(int j=0;j<6;j++)
+        {
+            float side=j<3?-1:1;
+            float extra=j==0||j==5?2.10f:j==2||j==3?.85f:1.46f;
+            float cap=j==0||j==5?-.58f:j==2||j==3?1.22f:.60f;
+            outside[j]=lip[j]+side*lateral*extra+forward*.87f+Vector3.up*cap;
+            burial[j]=cover[j]+side*lateral*(extra*.75f)+Vector3.up*(j==0||j==5?-.40f:.5f);
+        }
+        for(int j=0;j<5;j++)
+        {
+            quad(lip[j],lip[j+1],outside[j+1],outside[j],-forward);
+            quad(outside[j],outside[j+1],burial[j+1],burial[j],j<2?Vector3.up-lateral:j>2?Vector3.up+lateral:Vector3.up);
+        }
+        publish("Dng_Wall_QuarryRegionalMouth",exterior,faceStone,false);
+        var sill=mouths[i]-forward*3.12f;
+        var sillLeft=sill-lateral*2.10f;
+        var sillRight=sill+lateral*2.10f;
+        sillLeft.y=grade(sillLeft)+.025f;
+        sillRight.y=grade(sillRight)+.025f;
+        quad(sillLeft,sillRight,lip[5],lip[0],Vector3.up);
+        publish("Dng_Floor_QuarryMaze",exterior,gravel,true);
+        var apr=approach[i];
+        for(int j=1;j<apr.Length;j++)
+        {
+            for(int band=0;band<4;band++)
+            {
+                var axis=apr[j]-apr[j-1];axis.y=0;
+                var side=Vector3.Cross(Vector3.up,axis.normalized);
+                var a0=apr[j-1]+side*((band-2)*.86f);
+                var a1=apr[j-1]+side*((band-1)*.86f);
+                var b0=apr[j]+side*((band-2)*.86f);
+                var b1=apr[j]+side*((band-1)*.86f);
+                a0.y=grade(a0)+.045f;a1.y=grade(a1)+.045f;b0.y=grade(b0)+.045f;b1.y=grade(b1)+.045f;
+                quad(a0,a1,b1,b0,Vector3.up);
+            }
+        }
+        publish("운반길에서 갱구로 이어지는 샛길",exterior,road,false);
+        var front=mouths[i]-forward*.94f;
+        lamp(exterior,front+Vector3.up*2.62f,8.6f,6f);
+        foreach(int sign in new[]{-1,1})
+        {
+            var torch=front+lateral*sign*2.16f+Vector3.up*1.83f;
+            place(sconce,exterior,torch,Quaternion.LookRotation(-forward).eulerAngles.y);
+        }
+        var stock=front+lateral*3.55f-forward*1.35f;
+        stock.y=grade(stock);
+        place(supplies,exterior,stock,yaw+39);
+        var post=front-lateral*2.92f-forward*1.8f;
+        post.y=grade(post);
+        var pole=GameObject.CreatePrimitive(PrimitiveType.Cube);
+        pole.name="갱구 운반 깃대";
+        pole.transform.SetParent(exterior);
+        pole.transform.position=post+Vector3.up*1.74f;
+        pole.transform.localScale=new Vector3(.14f,3.55f,.14f);
+        pole.GetComponent<MeshRenderer>().sharedMaterial=beamMaterial;
+        UnityEngine.Object.DestroyImmediate(pole.GetComponent<BoxCollider>());
+        var d=post+Vector3.up*3.33f;
+        quad(d,d+lateral*.95f,d+lateral*.86f+Vector3.down*1.22f-forward*.14f,
+            d+lateral*.04f+Vector3.down*1.39f,-forward);
+        publish("갱구의 적갈색 깃발",exterior,rimCloth,false);
+    }
+
+    var rooms=group("서쪽과 중앙의 지하 집하장",root.transform,anchor);
+    var cardinals=new[]{Vector3.forward,Vector3.right,Vector3.back,Vector3.left};
+    for(int i=0;i<2;i++)
+    {
+        var roomCenter=i==0?westHall:mainHall;
+        var room=group(i==0?"서쪽 지하 집하장":"중앙 지하 집하장",rooms,roomCenter);
+        var x=Vector3.right*6; var z=Vector3.forward*6;
+        quad(roomCenter-x-z,roomCenter+x-z,roomCenter+x+z,roomCenter-x+z,Vector3.up);
+        publish("Dng_Floor_QuarryMaze",room,gravel,true);
+        var top=roomCenter+Vector3.up*4.4f;
+        quad(top-x-z,top+x-z,top+x+z,top-x+z,Vector3.down);
+        publish("Dng_Roof_QuarryMaze",room,stone,true);
+        for(int j=0;j<4;j++)
+        {
+            var direction=cardinals[j];
+            var side=Vector3.Cross(Vector3.up,direction);
+            var center=roomCenter+direction*6;
+            var l=center-side*6;var r=center+side*6;
+            var up=Vector3.up*4.4f;
+            if(i==0&&j==2) {quad(l,r,r+up,l+up,-direction);continue;}
+            var opening=ring(center,side);
+            quad(l,opening[0],opening[1]+Vector3.up*1.75f,l+up,-direction);
+            quad(opening[5],r,r+up,opening[4]+Vector3.up*1.75f,-direction);
+            for(int k=1;k<4;k++)
+                quad(opening[k],opening[k+1],new Vector3(opening[k+1].x,top.y,opening[k+1].z),
+                    new Vector3(opening[k].x,top.y,opening[k].z),-direction);
+        }
+        publish("Dng_Wall_QuarryRegionalRoom",room,stone,true);
+        foreach(int sign in new[]{-1,1}) lamp(room,roomCenter+new Vector3(sign*3.1f,3.2f,sign*3.1f),14,4.5f);
+        place(supplies,room,roomCenter+new Vector3(4.5f,0,4.5f),-37);
+        place(supplies,room,roomCenter+new Vector3(-4.55f,0,-4.55f),142);
+    }
+
+    Physics.SyncTransforms();
+    var notes=new List<string>();
+    int floorCount=0;
+    foreach(var line in routes)
+    foreach(var q in line.Skip(1))
+    {
+        RaycastHit hit;
+        if(!Physics.Raycast(q+Vector3.up*.85f,Vector3.down,out hit,1.25f,~0,QueryTriggerInteraction.Ignore)||
+            Mathf.Abs(hit.point.y-q.y)>.35f) notes.Add(q.ToString("F2"));
+        floorCount++;
+    }
+    if(notes.Count>0) throw new InvalidOperationException("새 갱도 바닥 "+string.Join(", ",notes.Take(12)));
+    AssetDatabase.CreateAsset(meshes[0],meshPath);
+    foreach(var mesh in meshes.Skip(1)) AssetDatabase.AddObjectToAsset(mesh,meshPath);
+    AssetDatabase.AddObjectToAsset(restoredMesh,meshPath);
+    AssetDatabase.AddObjectToAsset(rimCloth,meshPath);
+    AssetDatabase.SaveAssetIfDirty(meshes[0]);
+    for(int i=0;i<variant.Length;i++)
+    {
+        AssetDatabase.CreateAsset(variant[i],terrainPaths[i]);
+        variant[i].SetAlphamaps(0,0,paints[i]);
+        editable[i].Flush();
+        AssetDatabase.SaveAssetIfDirty(variant[i]);
+    }
+    if(!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene))
+        throw new InvalidOperationException("권역 갱구 씬 저장 실패");
+    Undo.CollapseUndoOperations(undo);
+    return string.Join(" / ",sites.Select((name,i)=>name+" "+mouths[i]))+" / 갱도 바닥 "+floorCount;
+}
+catch
+{
+    Undo.RevertAllDownToGroup(undo);
+    throw;
+}

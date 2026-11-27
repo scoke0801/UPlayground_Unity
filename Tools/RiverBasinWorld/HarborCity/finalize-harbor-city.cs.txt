@@ -1,0 +1,181 @@
+// 세관 조망과 부두 통행을 다듬는다. 씬 저장은 편집기에서 따로 한다.
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+var root=GameObject.Find("항구도시 · 교역항");
+if(!root||!root.transform.Find("시장과 항만 근접 아트")||EditorApplication.isPlaying)
+    throw new System.InvalidOperationException("항구도시 세부 배치가 있는 Edit Mode 씬이 필요합니다.");
+const string world="Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/";
+const string details="시장과 항만 근접 아트";
+const string modelPath=world+"Authoring/HarborCity/RiverBasinHarborCustoms.fbx";
+const string reliefPath=world+"Production/Terrain/Terrain_5_0_HarborCity.asset";
+const string palettePath=world+"Production/RegionArt/RiverBasinHarborCityPalette.asset";
+const string tex="Assets/08.Models/WorldCities/ShadeCastle/Textures/";
+var paletteAsset=AssetDatabase.LoadAssetAtPath<Material>(palettePath);
+var colors=new System.Collections.Generic.Dictionary<string,Material>();
+foreach(var x in AssetDatabase.LoadAllAssetsAtPath(palettePath))
+    if(x is Material)colors.Add(x.name,(Material)x);
+if(!paletteAsset||AssetDatabase.LoadMainAssetAtPath(reliefPath)||colors.ContainsKey("HB_Plaster"))
+    throw new System.InvalidOperationException("항구 저장 위치 또는 팔레트 확인 필요");
+AssetDatabase.ImportAsset(modelPath,ImportAssetOptions.ForceSynchronousImport);
+var prefab=AssetDatabase.LoadAssetAtPath<GameObject>(modelPath);
+if(!prefab)throw new System.InvalidOperationException("세관 FBX가 임포트되지 않았습니다.");
+
+Terrain tile=null;
+foreach(var terrain in Terrain.activeTerrains){
+    var p=terrain.transform.position;var s=terrain.terrainData.size;
+    if(p.x<=2780&&p.x+s.x>=2855&&p.z<=165&&p.z+s.z>=255)tile=terrain;
+}
+if(!tile||!tile.GetComponent<TerrainCollider>())throw new System.InvalidOperationException("항구 지형 타일을 찾을 수 없습니다.");
+var data=tile.terrainData;
+var origin=tile.transform.position;
+var size=data.size;
+float step=size.x/(data.heightmapResolution-1);
+float stepZ=size.z/(data.heightmapResolution-1);
+System.Func<float,float,float> oldY=(x,z)=>origin.y+data.GetInterpolatedHeight((x-origin.x)/size.x,(z-origin.z)/size.z);
+var roadCenters=new[]{new Vector3(2815,oldY(2815,249),249),new Vector3(2823,8.55f,226),
+    new Vector3(2827,6.72f,209),new Vector3(2826,4.82f,190),new Vector3(2826,oldY(2826,171),171)};
+int x0=Mathf.FloorToInt((2795-origin.x)/step);
+int z0=Mathf.FloorToInt((166-origin.z)/stepZ);
+int width=Mathf.CeilToInt((2850-origin.x)/step)-x0+1;
+int length=Mathf.CeilToInt((255-origin.z)/stepZ)-z0+1;
+var heights=data.GetHeights(x0,z0,width,length);
+for(int iz=0;iz<length;iz++){
+    float z=origin.z+(iz+z0)*stepZ;
+    for(int c=0;c<roadCenters.Length-1;c++){
+        var a=roadCenters[c];var b=roadCenters[c+1];
+        if(z>a.z||z<b.z)continue;
+        float t=(a.z-z)/(a.z-b.z);
+        float center=Mathf.Lerp(a.x,b.x,t);
+        float target=Mathf.Lerp(a.y,b.y,t);
+        float join=Mathf.SmoothStep(0,1,Mathf.Min((249-z)/9,(z-171)/8));
+        for(int ix=0;ix<width;ix++){
+            float x=origin.x+(ix+x0)*step;
+            float reach=Mathf.SmoothStep(1,0,(Mathf.Abs(x-center)-4.7f)/11);
+            heights[iz,ix]=Mathf.Lerp(heights[iz,ix],(target-origin.y)/size.y,join*reach);
+        }
+        break;
+    }
+}
+
+Undo.IncrementCurrentGroup();
+int group=Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName("항구 세관과 통행 마감");
+try{
+    var clone=UnityEngine.Object.Instantiate(data);
+    clone.name="RiverBasin HarborCity Terrain";
+    clone.SetHeights(x0,z0,heights);
+    AssetDatabase.CreateAsset(clone,reliefPath);
+    var terrainCollider=tile.GetComponent<TerrainCollider>();
+    Undo.RecordObjects(new UnityEngine.Object[]{tile,terrainCollider},"항구 지형");
+    tile.terrainData=clone;terrainCollider.terrainData=clone;tile.Flush();
+    System.Func<float,float,float> yAt=(x,z)=>origin.y+clone.GetInterpolatedHeight((x-origin.x)/size.x,(z-origin.z)/size.z);
+    foreach(var filter in root.GetComponentsInChildren<MeshFilter>()){
+        if(filter.name!="항만 대로"&&filter.name!="세관 앞 포석")continue;
+        var mesh=filter.sharedMesh;
+        Undo.RecordObject(mesh,"항구 포석");
+        var vertices=mesh.vertices;
+        var offset=filter.transform.position;
+        for(int i=0;i<vertices.Length;i++){
+            var p=vertices[i]+offset;
+            vertices[i].y+=yAt(p.x,p.z)-oldY(p.x,p.z);
+        }
+        mesh.vertices=vertices;mesh.RecalculateBounds();mesh.RecalculateNormals();mesh.RecalculateTangents();
+        EditorUtility.SetDirty(mesh);
+    }
+    var legacy=GameObject.Find("항구마을").transform;
+    var work=GameObject.Find("항구 하역과 수선").transform;
+    System.Action<Transform,Vector3> move=(t,p)=>{
+        if(!t)throw new System.InvalidOperationException("이동할 항구 오브젝트 누락");
+        Undo.RecordObject(t,"항구 통행");t.position=p;
+        PrefabUtility.RecordPrefabInstancePropertyModifications(t);
+    };
+    var oldShed=work.Find("LakeHouse_Boathouse");
+    move(oldShed,new Vector3(2807.9f,yAt(2807.9f,166),166));
+    foreach(var go in GameObject.FindObjectsByType<GameObject>(FindObjectsSortMode.None)){
+        if(!go.transform.IsChildOf(root.transform))continue;
+        var p=go.transform.position;
+        bool coastalCargo=(go.name=="CargoCrate"||go.name=="CargoBarrel")&&p.x>=2722&&p.x<2734&&p.z>=152&&p.z<160;
+        if(coastalCargo)move(go.transform,new Vector3(p.x,p.y,p.z>155?160.25f:155.65f));
+        if(go.name=="RiverBasinMerchantShip"&&Mathf.Abs(p.x-2764)<1)
+            move(go.transform,new Vector3(2779.4f,.04f,128));
+    }
+    foreach(Transform t in legacy){
+        var p=t.position;
+        if(p.z>172&&p.z<239&&p.x>2810&&p.x<2842)
+            move(t,new Vector3(p.x,p.y+yAt(p.x,p.z)-oldY(p.x,p.z),p.z));
+    }
+    foreach(var t in GameObject.FindObjectsByType<Transform>(FindObjectsSortMode.None)){
+        var p=t.position;
+        if(p.x>2817&&p.x<2836&&p.z>182&&p.z<236&&t.parent&&
+            t.parent.name=="시각 연동 등잔")
+            move(t,new Vector3(p.x,p.y+yAt(p.x,p.z)-oldY(p.x,p.z),p.z));
+    }
+
+    var customs=(GameObject)PrefabUtility.InstantiatePrefab(prefab,root.transform.Find("세관과 동부 접안"));
+    Undo.RegisterCreatedObjectUndo(customs,"항구 세관");
+    float cx=2848,cz=182;
+    customs.transform.position=new Vector3(cx,yAt(cx,cz)-.25f,cz);
+    customs.transform.rotation=Quaternion.Euler(0,-6,0)*prefab.transform.rotation;
+    var r=customs.GetComponentInChildren<MeshRenderer>();
+    if(!r||r.bounds.size.y<15||r.bounds.size.y>20)throw new System.InvalidOperationException("세관 크기 확인 필요");
+    foreach(Transform t in root.transform.Find("세관과 동부 접안")){
+        if(Mathf.Abs(t.position.x-2850)>.1f||Mathf.Abs(t.position.z-186)>.1f)continue;
+        Undo.RecordObject(t.gameObject,"세관 교체");t.gameObject.SetActive(false);
+    }
+    var customsMats=new[]{
+        new Material(colors["HB_LimestoneTrim"]){name="HB_Plaster"},
+        new Material(colors["HB_Oak"]){name="HB_Roof"},
+        new Material(colors["HB_BlueCanvas"]){name="HB_Window"}};
+    customsMats[0].SetTexture("_BaseMap",AssetDatabase.LoadAssetAtPath<Texture2D>(tex+"T_Plaster_Aged.png"));
+    customsMats[0].SetColor("_BaseColor",new Color(.92f,.80f,.63f));
+    customsMats[1].SetTexture("_BaseMap",null);
+    customsMats[1].SetColor("_BaseColor",new Color(.14f,.235f,.28f));
+    customsMats[2].SetColor("_BaseColor",new Color(.065f,.12f,.15f));
+    foreach(var mat in customsMats){AssetDatabase.AddObjectToAsset(mat,paletteAsset);colors.Add(mat.name,mat);}
+    AssetDatabase.SaveAssets();
+    var importer=(ModelImporter)AssetImporter.GetAtPath(modelPath);
+    foreach(var mat in r.sharedMaterials){
+        if(!mat)continue;
+        var key=System.Text.RegularExpressions.Regex.Replace(mat.name,@"\.\d{3}$","");
+        if(colors.ContainsKey(key))
+            importer.AddRemap(new AssetImporter.SourceAssetIdentifier(typeof(Material),mat.name),colors[key]);
+    }
+    importer.SaveAndReimport();
+    var block=new GameObject("세관 몸체 충돌",typeof(BoxCollider));Undo.RegisterCreatedObjectUndo(block,"항구 세관");
+    block.transform.SetParent(customs.transform,true);
+    block.transform.SetPositionAndRotation(new Vector3(cx,customs.transform.position.y+3.79f,cz),Quaternion.Euler(0,-6,0));
+    block.transform.localScale=Vector3.one/customs.transform.lossyScale.x;
+    block.GetComponent<BoxCollider>().size=new Vector3(13.65f,7.57f,8.39f);
+    block.isStatic=true;
+
+    // 세관 하부 발판과 길가 작은 가로수는 주 통행 폭 바깥에 둔다.
+    var props=root.transform.Find(details+"/시장 아케이드와 가로 시설");
+    var tree=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/03.Prefabs/Environment/ReactiveTrees/PF_ReactiveEastLandsOsmanthus.prefab");
+    foreach(var p in new[]{new Vector2(2814,223),new Vector2(2837,215),new Vector2(2814,207),new Vector2(2842,203),new Vector2(2805,189),new Vector2(2855,221)}){
+        var obj=(GameObject)PrefabUtility.InstantiatePrefab(tree,props);
+        Undo.RegisterCreatedObjectUndo(obj,"항구 가로수");
+        obj.transform.position=new Vector3(p.x,yAt(p.x,p.y),p.y);
+        obj.transform.rotation=Quaternion.Euler(0,p.y*11,0);
+        obj.transform.localScale=Vector3.one*.76f;
+    }
+    var rules=AssetDatabase.LoadAssetAtPath<UPlayGround.Data.CameraOccluderNameRulesSO>("Assets/10.Datas/Camera/CameraOccluderNameRules.asset");
+    if(rules&&!rules.TryMatch("RiverBasinHarborCustoms",out var ignored)){
+        Undo.RecordObject(rules,"항구 세관 카메라");
+        var so=new SerializedObject(rules);
+        var a=so.FindProperty("_rules");int index=a.arraySize;
+        a.InsertArrayElementAtIndex(index);
+        var e=a.GetArrayElementAtIndex(index);
+        e.FindPropertyRelative("namePattern").stringValue="RiverBasinHarborCustoms";
+        e.FindPropertyRelative("isPrefix").boolValue=false;
+        e.FindPropertyRelative("mode").enumValueIndex=0;
+        e.FindPropertyRelative("coversInterior").boolValue=true;
+        e.FindPropertyRelative("note").stringValue="세관 몸체와 지붕 판정용 충돌체";
+        so.ApplyModifiedProperties();
+    }
+    AssetDatabase.SaveAssets();
+    Physics.SyncTransforms();
+    Undo.CollapseUndoOperations(group);
+    return "세관과 가로수, 항만 대로 지형, 서쪽 통행 보정 적용";
+}catch{
+    Undo.RevertAllDownToGroup(group);
+    throw;
+}

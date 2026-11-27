@@ -1,0 +1,235 @@
+// 사암 건축 키트를 마을과 전망대에 연결하고 기단·현관을 지형에 맞춘다.
+const string world="Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34";
+const string source=world+"/Authoring/DesertArchitecture/";
+const string path=world+"/Production/RegionArt/RiverBasinDesertArchitecture.asset";
+var scene=UnityEngine.SceneManagement.SceneManager.GetSceneByPath(world+"/Preview/RiverBasin4km.unity");
+if(!scene.isLoaded || EditorApplication.isPlayingOrWillChangePlaymode)throw new InvalidOperationException("RiverBasin4km 편집 모드 필요");
+if(AssetDatabase.LoadMainAssetAtPath(path)) return "사막 건축 에셋이 이미 있습니다.";
+var root=scene.GetRootGameObjects().Single(g=>g.name=="RiverBasin · 사막 물길과 해안 전망대");
+var shore=root.transform.GetChild(0);
+var market=root.transform.GetChild(1);
+var coast=root.transform.GetChild(2);
+var ts=Terrain.activeTerrains.Where(t=>t.gameObject.scene==scene).ToArray();
+Func<float,float,float> h=(x,z)=>{
+    var t=ts.First(a=>x>=a.transform.position.x&&x<a.transform.position.x+512&&z>=a.transform.position.z&&z<a.transform.position.z+512);
+    return t.SampleHeight(new Vector3(x,0,z))+t.transform.position.y;
+};
+var names=new[]{"RB_AdobeHouseA","RB_AdobeHouseB","RB_AdobeAnnex","RB_AdobeWatchtower"};
+foreach(var name in names)AssetDatabase.ImportAsset(source+name+".fbx",ImportAssetOptions.ForceSynchronousImport);
+var models=names.Select(n=>AssetDatabase.LoadAssetAtPath<GameObject>(source+n+".fbx")).ToArray();
+if(models.Any(m=>!m))throw new InvalidOperationException("사암 FBX 누락");
+var modelSizes=new[]{new Vector3(8,5.01f,6),new Vector3(9.6f,6.08f,6.8f),new Vector3(6,3.30f,4.2f),new Vector3(6.2f,13.76f,6.2f)};
+var palette=new System.Collections.Generic.Dictionary<string,Color>{
+ {"RB_AdobePlaster",new Color32(216,169,115,255)},
+ {"RB_Sandstone",new Color32(164,105,77,255)},
+ {"RB_Limewash",new Color32(234,206,165,255)},
+ {"RB_PalmTimber",new Color32(98,65,43,255)},
+ {"RB_Shutter",new Color32(139,97,59,255)},
+ {"RB_OxideCloth",new Color32(177,63,45,255)}
+};
+var shader=Shader.Find("Universal Render Pipeline/Lit");
+var assets=new System.Collections.Generic.List<UnityEngine.Object>();
+Func<string,Color,Material> mat=(name,color)=>{
+    var m=new Material(shader){name=name};m.SetColor("_BaseColor",color);m.SetFloat("_Smoothness",.09f);assets.Add(m);return m;
+};
+var kit=palette.ToDictionary(k=>k.Key,k=>mat(k.Key,k.Value));
+var stone=new[]{kit["RB_Sandstone"],mat("기단 밝은 절석",new Color32(198,149,103,255)),mat("기단 어두운 이음",new Color32(132,86,63,255))};
+var groundLayer=LayerMask.NameToLayer("Ground");
+Undo.IncrementCurrentGroup();
+int undo=Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName("사막 주거지와 망루 마감");
+var log=new System.Text.StringBuilder();
+Func<Transform,string,GameObject> child=(parent,name)=>{
+    var go=new GameObject(name);
+    go.transform.SetParent(parent,false);
+    Undo.RegisterCreatedObjectUndo(go,name);
+    return go;
+};
+Action<System.Collections.Generic.List<Vector3>,System.Collections.Generic.List<int>,Vector3,Vector3,Vector3,Vector3,Vector3> quad=(v,t,a,b,c,d,normal)=>{
+    int i=v.Count;
+    v.AddRange(new[]{a,b,c,d});
+    if(Vector3.Dot(Vector3.Cross(b-a,c-a),normal)>0)t.AddRange(new[]{i,i+1,i+2,i,i+2,i+3});
+    else t.AddRange(new[]{i,i+2,i+1,i,i+3,i+2});
+};
+Func<Transform,string,System.Collections.Generic.List<Vector3>,System.Collections.Generic.List<int>[],Material[],GameObject> meshObj=(parent,name,vertices,tris,materials)=>{
+    var go=child(parent,name);
+    var m=new Mesh{name=name};
+    m.vertices=vertices.ToArray();
+    m.uv=vertices.Select(v=>new Vector2(v.x*.35f,(v.z+v.y)*.35f)).ToArray();
+    m.subMeshCount=tris.Length;
+    for(int i=0;i<tris.Length;i++)m.SetTriangles(tris[i],i);
+    m.RecalculateNormals();m.RecalculateBounds();
+    go.AddComponent<MeshFilter>().sharedMesh=m;
+    go.AddComponent<MeshRenderer>().sharedMaterials=materials;
+    assets.Add(m);
+    return go;
+};
+Action<Transform,int,float,float,float,float,bool> building=(parent,id,x,z,yaw,scale,landing)=>{
+    var size=modelSizes[id]*scale;
+    var rotation=Quaternion.Euler(0,yaw,0);
+    var p0=new Vector3(x,0,z);
+    Func<float,float,float> groundLocal=(u,v)=>{var p=p0+rotation*new Vector3(u,0,v);return h(p.x,p.z);};
+    float y=groundLocal(0,0)+.08f;
+    foreach(float u in new[]{-size.x*.46f,0,size.x*.46f})
+    foreach(float v in new[]{-size.z*.45f,0,size.z*.45f})y=Mathf.Max(y,groundLocal(u,v)+.09f);
+    var pos=new Vector3(x,y,z);
+    var placement=child(parent,names[id]);
+    placement.layer=groundLayer;
+    placement.transform.SetPositionAndRotation(pos,rotation);
+    var go=(GameObject)PrefabUtility.InstantiatePrefab(models[id],placement.transform);
+    go.transform.localScale*=scale;
+    foreach(var r in go.GetComponentsInChildren<MeshRenderer>()){
+        r.sharedMaterials=r.sharedMaterials.Select(m=>m&&kit.ContainsKey(m.name)?kit[m.name]:kit["RB_AdobePlaster"]).ToArray();
+        PrefabUtility.RecordPrefabInstancePropertyModifications(r);
+    }
+    var renders=go.GetComponentsInChildren<Renderer>();
+    var bounds=renders[0].bounds;
+    foreach(var r in renders)bounds.Encapsulate(r.bounds);
+    if(Mathf.Abs(bounds.size.y-size.y)>.16f||Mathf.Abs(bounds.min.y-y)>.12f)
+       throw new InvalidOperationException(go.name+" 임포트 축·단위 "+bounds+" / "+size);
+    var box=placement.AddComponent<BoxCollider>();
+    float top=id==3?size.y-.10f:(id==2?3.04f:id==1?4.00f:3.65f)*scale;
+    box.center=new Vector3(0,top*.5f,0);
+    box.size=new Vector3(size.x*.94f,top,size.z*.94f);
+    if(id<=1){
+        var upper=child(placement.transform,"상층 충돌");
+        upper.layer=groundLayer;
+        var upperBox=upper.AddComponent<BoxCollider>();
+        upperBox.center=new Vector3(id==0?-.075f*size.x:.03f*size.x,(top+size.y)*.5f,-size.z*.12f);
+        upperBox.size=new Vector3(size.x*.57f,size.y-top,size.z*.50f);
+    }
+    var vtx=new System.Collections.Generic.List<Vector3>();
+    var indices=Enumerable.Range(0,3).Select(i=>new System.Collections.Generic.List<int>()).ToArray();
+    float w=size.x*.51f,d=size.z*.51f;
+    var corners=new[]{new Vector2(-w,-d),new Vector2(-w,d),new Vector2(w,d),new Vector2(w,-d)};
+    for(int side=0;side<4;side++){
+        var a=corners[side];var b=corners[(side+1)%4];
+        var outward=new Vector3((a.x+b.x)*.5f,0,(a.y+b.y)*.5f);
+        int segments=Mathf.CeilToInt(Vector2.Distance(a,b)/.85f);
+        for(int i=0;i<segments;i++){
+            var aa=Vector2.Lerp(a,b,i/(float)segments);var bb=Vector2.Lerp(a,b,(i+1)/(float)segments);
+            float aLow=Mathf.Min(-.10f,groundLocal(aa.x,aa.y)-y-.28f);
+            float bLow=Mathf.Min(-.10f,groundLocal(bb.x,bb.y)-y-.28f);
+            const int courses=3;
+            for(int k=0;k<courses;k++){
+                float lowerA=Mathf.Lerp(aLow,.06f,k/(float)courses),lowerB=Mathf.Lerp(bLow,.06f,k/(float)courses);
+                float upperA=Mathf.Lerp(aLow,.06f,(k+1f)/courses),upperB=Mathf.Lerp(bLow,.06f,(k+1f)/courses);
+                quad(vtx,indices[(i+3*k+side)%5==0?1:(k==0?2:0)],new Vector3(aa.x,lowerA,aa.y),new Vector3(bb.x,lowerB,bb.y),
+                    new Vector3(bb.x,upperB,bb.y),new Vector3(aa.x,upperA,aa.y),outward);
+            }
+        }
+    }
+    var foundation=meshObj(placement.transform,"접지 사암 기단",vtx,indices,stone);
+    foundation.layer=groundLayer;
+    foundation.AddComponent<MeshCollider>().sharedMesh=foundation.GetComponent<MeshFilter>().sharedMesh;
+
+    if(landing){
+        var stepsV=new System.Collections.Generic.List<Vector3>();
+        var stepsT=Enumerable.Range(0,3).Select(i=>new System.Collections.Generic.List<int>()).ToArray();
+        var supportV=new System.Collections.Generic.List<Vector3>();
+        var supportT=new System.Collections.Generic.List<int>();
+        float start=d-.05f;
+        float run=1.25f;
+        float descent=Mathf.Max(0,y-groundLocal(0,start+run));
+        for(int iteration=0;iteration<12;iteration++){
+            if(descent<=run*.48f||run>=5.1f)break;
+            run+=.34f;
+            descent=Mathf.Max(0,y-groundLocal(0,start+run));
+        }
+        int count=Mathf.Max(2,Mathf.CeilToInt(descent/.20f));
+        float half=id==3?1.34f:1.49f;
+        for(int i=0;i<count;i++){
+            float z0=start+run*i/count,z1=start+run*(i+1)/count;
+            float yy=.045f-descent*i/count, next=.045f-descent*(i+1)/count;
+            quad(stepsV,stepsT[i%3==1?1:0],new Vector3(-half,yy,z0),new Vector3(-half,yy,z1),new Vector3(half,yy,z1),new Vector3(half,yy,z0),Vector3.up);
+            quad(stepsV,stepsT[2],new Vector3(-half,next,z1),new Vector3(half,next,z1),new Vector3(half,yy,z1),new Vector3(-half,yy,z1),Vector3.forward);
+            foreach(float side in new[]{-half,half}){
+                float low0=Mathf.Min(yy-.08f,groundLocal(side,z0)-y-.12f);
+                float low1=Mathf.Min(yy-.08f,groundLocal(side,z1)-y-.12f);
+                quad(stepsV,stepsT[0],new Vector3(side,low0,z0),new Vector3(side,low1,z1),new Vector3(side,yy,z1),new Vector3(side,yy,z0),Vector3.right*Mathf.Sign(side));
+            }
+        }
+        quad(supportV,supportT,new Vector3(-half,.065f,start),new Vector3(-half,.055f-descent,start+run),
+             new Vector3(half,.055f-descent,start+run),new Vector3(half,.065f,start),Vector3.up);
+        var steps=meshObj(placement.transform,"현관 절석 계단",stepsV,stepsT,stone);
+        steps.layer=groundLayer;
+        var support=meshObj(placement.transform,"현관 경사 충돌",supportV,new[]{supportT},new[]{stone[0]});
+        support.GetComponent<MeshRenderer>().enabled=false;
+        support.layer=groundLayer;
+        support.AddComponent<MeshCollider>().sharedMesh=support.GetComponent<MeshFilter>().sharedMesh;
+        log.AppendLine(names[id]+" "+pos.ToString("F1")+" 계단 "+count+" 경사 "+(Mathf.Atan2(descent,run)*Mathf.Rad2Deg).ToString("F1"));
+    }
+};
+try{
+    var lakeHouses=child(shore,"호숫가 주거지").transform;
+    var marketHouses=child(market,"우물 교역소 건축").transform;
+    var watchHouses=child(coast,"망루와 사암 작업장").transform;
+    var originals=scene.GetRootGameObjects().SelectMany(g=>g.GetComponentsInChildren<Transform>(true))
+        .Where(t=>t.gameObject.activeInHierarchy).Where(t=>{
+          float x=t.position.x,z=t.position.z;
+          bool house=t.name.StartsWith("PoorHouse_")&&PrefabUtility.IsAnyPrefabInstanceRoot(t.gameObject);
+          bool inShore=x>3306&&x<3344&&z>875&&z<939;
+          bool inMarket=x>3610&&x<3653&&z>1484&&z<1534;
+          bool inCoast=x>3893&&x<3919&&z>1787&&z<1803;
+          return house&&(inShore||inMarket||inCoast)||t.name=="사막 흙집"&&inMarket
+              ||t.parent==coast&&(t.name=="Dng_Watchtower"||t.name=="전망대 깃대"||t.name=="해안 깃발");
+        }).ToArray();
+    foreach(var t in originals){Undo.RecordObject(t.gameObject,"기존 사막 건축 보관");t.gameObject.SetActive(false);}
+    building(lakeHouses,0,3316.5f,884.5f,-77,.91f,true);
+    building(lakeHouses,1,3318,905,-77,.90f,true);
+    building(lakeHouses,2,3324.6f,924.5f,-102,.91f,true);
+    building(marketHouses,0,3619,1496,55,1.00f,true);
+    building(marketHouses,1,3618,1516,99,1.04f,true);
+    building(marketHouses,0,3629,1530,153,.90f,true);
+    building(marketHouses,2,3647,1527,-146,.90f,true);
+    building(marketHouses,2,3640,1494,-32,.88f,true);
+    building(watchHouses,3,3911,1796,168,1.20f,true);
+    building(watchHouses,2,3897.7f,1794,146,.84f,true);
+
+    var rockGroup=child(market,"교역소를 감싸는 사암 단애").transform;
+    Action<float,float,float,float,float,int> stack=(x,z,wide,deep,tall,seed)=>{
+        const int sides=12;
+        var a=new System.Collections.Generic.List<Vector3>();
+        var b=Enumerable.Range(0,3).Select(i=>new System.Collections.Generic.List<int>()).ToArray();
+        var ring=new Vector3[10,sides];
+        var widths=new[]{1.0f,1.07f,.79f,.81f,.61f,.74f,.54f,.57f,.45f,.36f};
+        var heights=new[]{0f,.08f,.18f,.23f,.44f,.51f,.74f,.79f,.94f,1f};
+        var random=new System.Random(seed);
+        var phases=Enumerable.Range(0,sides).Select(i=>(float)(.78+random.NextDouble()*.38)).ToArray();
+        float baseY=h(x,z)-tall*.32f;
+        for(int r=0;r<widths.Length;r++)for(int i=0;i<sides;i++){
+           float angle=i*Mathf.PI*2/sides;
+           float blend=widths[r]*phases[i]*(.92f+.13f*Mathf.PerlinNoise(seed+r*.53f,i*.78f));
+           ring[r,i]=new Vector3(x+Mathf.Cos(angle)*wide*blend+r*.15f,baseY+tall*heights[r]+(Mathf.PerlinNoise(seed*.7f+i*.61f,r*.40f)-.5f)*tall*.14f,z+Mathf.Sin(angle)*deep*blend-r*.20f);
+        }
+        for(int r=1;r<widths.Length;r++)for(int i=0;i<sides;i++){
+           int n=(i+1)%sides;
+           var vector=(ring[r,i]+ring[r,n])*.5f-new Vector3(x,0,z);vector.y=0;
+           quad(a,b[r%4==2?2:r%3==0?1:0],ring[r-1,i],ring[r-1,n],ring[r,n],ring[r,i],vector);
+        }
+        for(int i=0;i<sides;i++){
+           int index=a.Count;
+           a.AddRange(new[]{new Vector3(x+1.35f,baseY+tall*1.01f,z-1.8f),ring[9,(i+1)%sides],ring[9,i]});
+           b[1].AddRange(new[]{index,index+1,index+2});
+        }
+        Vector3 pivot=new Vector3(x,baseY,z);
+        var obj=meshObj(rockGroup,"침식된 사암 기둥 "+seed,a.Select(v=>v-pivot).ToList(),b,stone);
+        obj.transform.position=pivot;
+        obj.layer=groundLayer;
+        obj.AddComponent<MeshCollider>().sharedMesh=obj.GetComponent<MeshFilter>().sharedMesh;
+    };
+    stack(3597,1553,14,13,26,16);
+    stack(3618,1566,17,14,38,26);
+    stack(3645,1575,13,14,31,37);
+    stack(3587,1540,11,8,14,44);
+    stack(3629,1563,10,9,25,45);
+    AssetDatabase.CreateAsset(assets[0],path);
+    foreach(var asset in assets.Skip(1))AssetDatabase.AddObjectToAsset(asset,path);
+    AssetDatabase.SaveAssetIfDirty(assets[0]);
+    Undo.CollapseUndoOperations(undo);
+    UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+    return "교체한 원래 건물·깃발 " + originals.Length + "\n" + log.ToString();
+}catch{
+    Undo.RevertAllDownToGroup(undo);
+    throw;
+}

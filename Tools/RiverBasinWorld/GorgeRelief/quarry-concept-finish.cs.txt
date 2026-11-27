@@ -1,0 +1,98 @@
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+var root=scene.GetRootGameObjects().Single(g=>g.name=="채석장 · 첫 시안 배치");
+var terrain=Terrain.activeTerrains.Single(t=>t.gameObject.scene==scene&&t.name=="Terrain_6_4");
+var data=terrain.terrainData;
+var path=AssetDatabase.GetAssetPath(data);
+var prior=AssetDatabase.LoadAssetAtPath<TerrainData>(path.Replace("QuarryConcept","QuarryStoneFinish"));
+var terraces=root.transform.Find("밝은 절개면 세 단과 중앙 인양장");
+var faces=terraces.Cast<Transform>().Where(t=>t.name=="Dng_Wall_QuarryStoneTerrace").ToArray();
+if (EditorApplication.isPlayingOrWillChangePlaymode || !prior || prior==data || faces.Length!=3 ||
+    faces.Any(t=>Mathf.Abs(t.position.z-2220)>.01f))
+    throw new InvalidOperationException("절개면 마감을 적용할 수 없는 상태입니다.");
+
+var origin=terrain.transform.position;
+Func<float,float,float> ground=(x,z)=>data.GetInterpolatedHeight((x-origin.x)/512,(z-origin.z)/512)+origin.y;
+var props=terraces.GetComponentsInChildren<Transform>(true)
+    .Where(t=>t.name=="MarketStall"||t.name=="Dng_Crates_Barrels"||t.name=="가공한 판석").ToArray();
+var cart=scene.GetRootGameObjects().Single(g=>g.name=="채석장 지상 순환과 새 갱구").transform
+    .Find("절개 단구와 인양 작업장").Cast<Transform>()
+    .Single(t=>t.name=="P_PROP_cart_dungeon_01"&&t.position.z>2240);
+var propsAndCart=props.Concat(new[]{cart}).ToArray();
+var offsets=propsAndCart.Select(t=>t.position.y-ground(t.position.x,t.position.z)).ToArray();
+var originalAlpha=prior.GetAlphamaps(0,0,prior.alphamapWidth,prior.alphamapHeight);
+var cutOffsets=new[]{2.3f,3.65f,2.25f};
+var cutZ=new[]{2240.4f,2251.45f,2260.6f};
+var cutTop=new[]{90.5f,86f,81.5f};
+var cutBottom=new[]{86f,81.5f,77.65f};
+Undo.IncrementCurrentGroup();
+int undo=Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName("채석 절개면과 작업면 마감");
+var mat=faces[0].GetComponent<MeshRenderer>().sharedMaterial;
+Undo.RegisterCompleteObjectUndo(data,"채석장 지형 마감");
+Undo.RecordObjects(faces.Cast<UnityEngine.Object>().Concat(propsAndCart).Concat(new UnityEngine.Object[]{mat}).ToArray(),"채석장 안착과 절개면");
+try
+{
+    int x0=3207-(int)origin.x, z0=2235-(int)origin.z;
+    const int width=42, length=32;
+    var heights=data.GetHeights(x0,z0,width,length);
+    for (int z=0;z<length;z++)
+    for (int x=0;x<width;x++)
+    {
+        float wx=origin.x+x0+x,wz=origin.z+z0+z;
+        float sideBlend=Mathf.SmoothStep(0,1,Mathf.InverseLerp(3208,3215,wx))*
+            (1-Mathf.SmoothStep(0,1,Mathf.InverseLerp(3240,3248,wx)));
+        float endBlend=Mathf.SmoothStep(0,1,Mathf.InverseLerp(2235,2238,wz))*
+            (1-Mathf.SmoothStep(0,1,Mathf.InverseLerp(2263,2266,wz)));
+        float target=cutTop[0];
+        for(int tier=0;tier<3;tier++)
+        {
+            float down=Mathf.SmoothStep(0,1,Mathf.InverseLerp(cutZ[tier]-.7f,cutZ[tier]+1.3f,wz));
+            target-=(cutTop[tier]-cutBottom[tier])*down;
+        }
+        target+=(Mathf.PerlinNoise(wx*.15f,wz*.16f)-.5f)*.27f;
+        heights[z,x]=Mathf.Lerp(heights[z,x],(target-origin.y)/data.size.y,sideBlend*endBlend);
+    }
+    data.SetHeights(x0,z0,heights);
+    for(int i=0;i<faces.Length;i++) faces[i].position+=Vector3.forward*cutOffsets[i];
+    for(int i=0;i<propsAndCart.Length;i++)
+    {
+        var t=propsAndCart[i];
+        var p=t.position;
+        if(t==cart) p.z=2256.1f;
+        t.position=new Vector3(p.x,ground(p.x,p.z)+offsets[i],p.z);
+    }
+
+    int rock=Array.FindIndex(data.terrainLayers,l=>l.name=="Rock");
+    int sandstone=Array.FindIndex(data.terrainLayers,l=>l.name=="Sandstone");
+    int weathered=Array.FindIndex(data.terrainLayers,l=>l.name=="WeatheredRock");
+    for(int z=0;z<data.alphamapHeight;z++)
+    for(int x=0;x<data.alphamapWidth;x++)
+    {
+        float wx=origin.x+512f*(x+.5f)/data.alphamapWidth,wz=origin.z+512f*(z+.5f)/data.alphamapHeight;
+        float side=Mathf.SmoothStep(0,1,Mathf.InverseLerp(3198,3212,wx))*(1-Mathf.SmoothStep(0,1,Mathf.InverseLerp(3243,3254,wx)));
+        float end=Mathf.SmoothStep(0,1,Mathf.InverseLerp(2228,2236,wz))*(1-Mathf.SmoothStep(0,1,Mathf.InverseLerp(2264,2270,wz)));
+        float mix=side*end*.8f;
+        if (mix<=0) continue;
+        float noise=Mathf.PerlinNoise(wx*.11f,wz*.11f);
+        for(int layer=0;layer<data.alphamapLayers;layer++) originalAlpha[z,x,layer]*=1-mix;
+        originalAlpha[z,x,rock]+=mix*(.16f+.24f*noise);
+        originalAlpha[z,x,sandstone]+=mix*(.58f-.36f*noise);
+        originalAlpha[z,x,weathered]+=mix*(.26f+.12f*noise);
+    }
+    data.SetAlphamaps(0,0,originalAlpha);
+    terrain.Flush();
+    Physics.SyncTransforms();
+    EditorUtility.SetDirty(mat);
+    EditorUtility.SetDirty(data);
+    AssetDatabase.SaveAssetIfDirty(data);
+    AssetDatabase.SaveAssetIfDirty(mat);
+    if (!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene))
+        throw new InvalidOperationException("채석장 마감 씬 저장 실패");
+    Undo.CollapseUndoOperations(undo);
+    return "세 단의 절개면 노출, 작업 소품 안착, 기존 석분 도색 복원";
+}
+catch
+{
+    Undo.RevertAllDownToGroup(undo);
+    throw;
+}

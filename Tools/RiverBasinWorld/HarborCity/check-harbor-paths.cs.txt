@@ -1,0 +1,41 @@
+// 세 경로의 중앙과 양쪽 1.15m 오프셋을 검사하는 Unity MCP 메서드 본문.
+var root=GameObject.Find("항구도시 · 교역항");
+if(!root)throw new System.Exception("항구도시 없음");
+Physics.SyncTransforms();
+var sb=new System.Text.StringBuilder();
+var paths=new[]{new[]{new Vector2(2748,279),new Vector2(2777,270),new Vector2(2795,270),new Vector2(2815,249),new Vector2(2823,226),new Vector2(2827,209),new Vector2(2826,190),new Vector2(2826,171),new Vector2(2826,162),new Vector2(2826,151),new Vector2(2826,125)},new[]{new Vector2(2826,173),new Vector2(2797,176),new Vector2(2755,176),new Vector2(2717,174),new Vector2(2720,165),new Vector2(2720,157),new Vector2(2738,153),new Vector2(2738,133)},new[]{new Vector2(2826,174),new Vector2(2851,173),new Vector2(2877,176),new Vector2(2900,176),new Vector2(2910,188),new Vector2(2917,205),new Vector2(2915,229),new Vector2(2906,247),new Vector2(2878,255),new Vector2(2842,260),new Vector2(2815,258)}};
+Physics.SyncTransforms();
+foreach(var path in paths){
+ int count=0,miss=0,over=0,step=0;
+ var hits=new System.Collections.Generic.HashSet<string>();
+ for(int i=0;i<path.Length-1;i++){
+  var normal=Vector2.Perpendicular((path[i+1]-path[i]).normalized);
+  int steps=Mathf.CeilToInt(Vector2.Distance(path[i],path[i+1])/.6f);
+  for(int lane=-1;lane<=1;lane++){
+   float last=float.NaN;
+   for(int k=0;k<=steps;k++){
+    var v=Vector2.Lerp(path[i],path[i+1],k/(float)steps)+normal*(lane*1.15f);
+    Vector3 p=new Vector3(v.x,70,v.y);
+    var all=Physics.RaycastAll(p,Vector3.down,95,Physics.DefaultRaycastLayers,QueryTriggerInteraction.Ignore);
+    float y=-90; Collider floor=null;
+    foreach(var h in all){
+      var c=h.collider;
+      bool isFloor=c is TerrainCollider||c.name=="Harbor_StoneQuay"||c.name=="Harbor_TimberDeck"||c.name=="HarborPier";
+      if(isFloor&&h.normal.y>.62f&&h.point.y>y){floor=c;y=h.point.y;}
+    }
+    count++;
+    if(!floor||y<-.10f){miss++;if(hits.Count<45)hits.Add("지지면 "+v.ToString("F1")+" "+y.ToString("F2"));continue;}
+    if(!float.IsNaN(last)&&Mathf.Abs(last-y)>.48f){step++;if(hits.Count<45)hits.Add("단차 "+v.ToString("F1")+" "+(y-last).ToString("F2"));}
+    last=y;
+    var a=new Vector3(v.x,y+.5f,v.y);
+    foreach(var c in Physics.OverlapCapsule(a,a+Vector3.up*1.10f,.35f,Physics.DefaultRaycastLayers,QueryTriggerInteraction.Ignore)){
+      if(c==floor)continue;
+      over++;if(hits.Count<45)hits.Add(c.name+" "+v.ToString("F1"));
+    }
+   }
+  }
+ }
+ sb.AppendLine(count+" 표본, 지지면 누락 "+miss+", 장애물 겹침 "+over+", 단차 "+step);
+ foreach(var hit in hits)sb.AppendLine(hit);
+}
+return sb.ToString();

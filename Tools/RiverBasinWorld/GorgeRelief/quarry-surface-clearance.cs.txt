@@ -1,0 +1,94 @@
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+var root=scene.GetRootGameObjects().Single(g=>g.name=="채석장 · 노천 작업장 재구성");
+var terrain=Terrain.activeTerrains.Single(t=>t.gameObject.scene==scene&&t.name=="Terrain_6_4");
+var data=terrain.terrainData;
+var source=AssetDatabase.LoadAssetAtPath<TerrainData>(AssetDatabase.GetAssetPath(data).Replace("QuarrySurfaceRebuild","QuarryConcept"));
+var section=root.transform.Find("노천 채석면 · 세 단");
+var face=section.Cast<Transform>().First(t=>t.name=="Dng_Wall_QuarryOpenCut");
+var collider=face.GetComponent<MeshCollider>();
+var mesh=face.GetComponent<MeshFilter>().sharedMesh;
+var layer=data.terrainLayers.Last();
+var tex=layer.diffuseTexture;
+if(!source||!tex||layer.name!="QuarryCrushedLimestone"||EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("노천 작업장 바닥 데이터를 확인하세요.");
+
+var triangles=new List<int>[mesh.subMeshCount];
+var points=mesh.vertices.Select(v=>face.TransformPoint(v)).ToArray();
+int removed=0;
+for(int sub=0;sub<mesh.subMeshCount;sub++)
+{
+    triangles[sub]=new List<int>();
+    var original=mesh.GetTriangles(sub);
+    for(int i=0;i<original.Length;i+=3)
+    {
+        int a=original[i],b=original[i+1],c=original[i+2];
+        if(points[a].x<3211f&&points[b].x<3211f&&points[c].x<3211f){removed++;continue;}
+        triangles[sub].Add(a); triangles[sub].Add(b); triangles[sub].Add(c);
+    }
+}
+if(removed==0) throw new InvalidOperationException("절개면의 서쪽 끝을 찾지 못했습니다.");
+
+var origin=terrain.transform.position;
+int x0=3200-(int)origin.x,z0=2249-(int)origin.z;
+const int width=54,depth=21;
+var heights=data.GetHeights(x0,z0,width,depth);
+var previous=source.GetHeights(x0,z0,width,depth);
+var approach=new[]{new Vector2(3196,2257),new Vector2(3214,2264),new Vector2(3240,2271)};
+Func<Vector2,float> distance=p=>
+{
+    float closest=float.PositiveInfinity;
+    for(int i=1;i<approach.Length;i++)
+    {
+        var a=approach[i-1]; var d=approach[i]-a;
+        float blend=Mathf.Clamp01(Vector2.Dot(p-a,d)/d.sqrMagnitude);
+        closest=Mathf.Min(closest,Vector2.Distance(p,a+d*blend));
+    }
+    return closest;
+};
+for(int z=0;z<depth;z++)
+for(int x=0;x<width;x++)
+{
+    var p=new Vector2(origin.x+x0+x,origin.z+z0+z);
+    float preserve=1-Mathf.SmoothStep(0,1,Mathf.InverseLerp(1.85f,4.75f,distance(p)));
+    heights[z,x]=Mathf.Lerp(heights[z,x],previous[z,x],preserve);
+}
+var pixels=tex.GetPixels32();
+for(int i=0;i<pixels.Length;i++)
+{
+    var px=pixels[i];
+    float val=(px.r/255f-.79f)*.68f;
+    pixels[i]=(Color32)new Color(.735f+val,.663f+val,.559f+val,0);
+}
+
+Undo.IncrementCurrentGroup();
+int undo=Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName("외곽 운반길과 석분");
+Undo.RegisterCompleteObjectUndo(data,"운반로 보행면 복원");
+Undo.RegisterCompleteObjectUndo(tex,"석분 광택 완화");
+Undo.RecordObjects(new UnityEngine.Object[]{mesh,collider,layer},"절개면 끝과 석회암 마감");
+try
+{
+    data.SetHeights(x0,z0,heights);
+    for(int sub=0;sub<triangles.Length;sub++) mesh.SetTriangles(triangles[sub],sub);
+    collider.sharedMesh=null;
+    collider.sharedMesh=mesh;
+    tex.SetPixels32(pixels); tex.Apply(true);
+    layer.smoothness=0;
+    layer.metallic=0;
+    terrain.Flush();
+    Physics.SyncTransforms();
+    foreach(var asset in new UnityEngine.Object[]{data,mesh,tex,layer})
+    {
+        EditorUtility.SetDirty(asset);
+        AssetDatabase.SaveAssetIfDirty(asset);
+    }
+    if(!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene))
+        throw new InvalidOperationException("지상 운반길 저장 실패");
+    Undo.CollapseUndoOperations(undo);
+    return "운반길 지반 복원, 저단 절개면 끝 "+removed+"삼각형 정리, 석분 광택 완화";
+}
+catch
+{
+    Undo.RevertAllDownToGroup(undo);
+    throw;
+}

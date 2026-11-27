@@ -1,0 +1,51 @@
+// 포석 교체 이후 기존 경사 흔적과 서쪽 선석 접점을 정리한다.
+var root=GameObject.Find("항구도시 · 교역항");
+if(!root||!GameObject.Find("RiverBasinHarborCustoms")||EditorApplication.isPlaying)
+    throw new System.InvalidOperationException("세관과 항만 포석이 적용된 Edit Mode가 필요합니다.");
+var oldRamp=GameObject.Find("RiverBasin · 접근로 접지와 하역").transform.Find("항구 경사");
+var oldRoad=GameObject.Find("RiverBasin · 길과 생활 흔적").transform.Find("권역 안쪽의 짧은 길/항구 하역길");
+if(!oldRamp||!oldRoad)throw new System.InvalidOperationException("기존 하역길 오브젝트를 확인하세요.");
+Undo.IncrementCurrentGroup();
+int group=Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName("항구 포석과 선석 이음 마감");
+try{
+    Undo.RecordObject(oldRoad.gameObject,"기존 항구 포석 교체");
+    oldRoad.gameObject.SetActive(false);
+    foreach(Transform t in oldRamp){
+        var p=t.position;
+        if(p.z<184||p.z>246)continue;
+        if(t.name.StartsWith("밟힌 길 가장자리")||t.name.StartsWith("PF_Farm_StoneFence_Stone")){
+            Undo.RecordObject(t.gameObject,"기존 항구 경사 소품 정리");
+            t.gameObject.SetActive(false);
+        }
+    }
+    var oldMarketEdge=oldRamp.parent.Find("항구 하역");
+    if(oldMarketEdge)foreach(Transform t in oldMarketEdge){
+        var p=t.position;
+        if(t.name=="PF_Farm_StoneFence_Stone_01"&&
+           Vector2.Distance(new Vector2(p.x,p.z),new Vector2(2815.7f,244.3f))<.12f){
+            Undo.RecordObject(t.gameObject,"항구 시장 포석 속 돌 정리");
+            t.gameObject.SetActive(false);
+        }
+    }
+    foreach(var t in root.GetComponentsInChildren<Transform>()){
+        if(!t.parent||!(t.parent.name=="서부 상선과 창고"||t.parent.name=="상선 하역 기중기와 계류"))continue;
+        var p=t.position;
+        if(t.name=="Harbor_TimberDeck"){
+            Undo.RecordObject(t,"상선 선석 상면 접합");
+            t.position=new Vector3(p.x,1.34f,p.z);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(t);
+        }
+        else if((t.name=="CargoCrate"||t.name=="CargoBarrel")&&p.x>2721&&p.x<2735&&p.z<158){
+            Undo.RecordObject(t,"부두 화물 정리");
+            t.position=new Vector3(p.x,1.37f,159.63f+(p.z-155.65f)*.16f);
+            PrefabUtility.RecordPrefabInstancePropertyModifications(t);
+        }
+    }
+    Physics.SyncTransforms();
+    Undo.CollapseUndoOperations(group);
+    return "기존 경사 흔적 교체, 서쪽 선석 상면 맞춤";
+}catch{
+    Undo.RevertAllDownToGroup(group);
+    throw;
+}

@@ -1,0 +1,95 @@
+var root=GameObject.Find(label);
+var waterRoot=root.transform.Find("산정호에서 숲 마을까지");
+var worldTree=root.transform.Find("세계수 광장/R1 세계수");
+var bridge=root.transform.Find("WB_P04_Bridge_R1_WorldTree");
+var txt=new List<string>();
+if(!worldTree||!bridge||!waterRoot)throw new Exception("씬 배치가 누락됐습니다.");
+var terrains=Terrain.activeTerrains.Where(t=>t.terrainData.name.EndsWith("_WorldTreeBasin")).ToArray();
+float seam=0;int seams=0;
+foreach(var terrain in terrains){
+    var o=terrain.GetPosition();var d=terrain.terrainData;
+    int sx=Mathf.RoundToInt(o.x/512),sz=Mathf.RoundToInt(o.z/512),limit=d.heightmapResolution-1;
+    foreach(var dir in new[]{new Vector2Int(1,0),new Vector2Int(0,1),new Vector2Int(-1,0),new Vector2Int(0,-1)}){
+        if(sx+dir.x<0||sz+dir.y<0||sx+dir.x>=8||sz+dir.y>=8)continue;
+        var other=tiles[sx+dir.x,sz+dir.y];
+        for(int i=0;i<=limit;i++){
+            int fromX=dir.x==1?limit:dir.x==-1?0:i,fromZ=dir.y==1?limit:dir.y==-1?0:i;
+            int toX=dir.x==1?0:dir.x==-1?limit:i,toZ=dir.y==1?0:dir.y==-1?limit:i;
+            seam=Mathf.Max(seam,Mathf.Abs(o.y+d.GetHeight(fromX,fromZ)-other.GetPosition().y-other.terrainData.GetHeight(toX,toZ)));
+            seams++;
+        }
+    }
+}
+txt.Add("terrain "+terrains.Length+" tiles; "+seams+" seam samples; max height gap "+seam.ToString("F4")+"m");
+int flowSamples=0,failFlow=0;var failedPositions=new List<string>();
+float minDepth=100,previous=135,maxRise=0;
+foreach(var row in rows){
+    if(row.x<870||row.x>1562)continue;
+    float y;
+    var bed=ground(row.x,row.y);flowSamples++;
+    if(!UPlayGround.Components.FootstepWaterSurface.TryGetSurfaceHeight(new Vector3(row.x,bed+.22f,row.y),out y)
+        ||Mathf.Abs(y-row.z)>.15f||y-bed<.3f){
+        failFlow++;failedPositions.Add(row.x.ToString("F1")+","+row.y.ToString("F1")+" plan="+row.z.ToString("F2")+" resolved="+y.ToString("F2")+" bed="+bed.ToString("F2"));continue;
+    }
+    minDepth=Mathf.Min(minDepth,y-bed);maxRise=Mathf.Max(maxRise,y-previous);previous=y;
+}
+txt.Add("river center "+(flowSamples-failFlow)+"/"+flowSamples+"; min sampled depth "+minDepth.ToString("F2")+"m; uphill "+maxRise.ToString("F3")+"m");
+txt.AddRange(failedPositions.Take(15));
+foreach(var point in new[]{new Vector2(602,2148),new Vector2(825,2187),new Vector2(874,2188),new Vector2(1567,2129),new Vector2(1571,2127),new Vector2(1574,2127),new Vector2(1578,2127)}){
+    var y=ground(point.x,point.y);float waterY;
+    bool found=UPlayGround.Components.FootstepWaterSurface.TryGetSurfaceHeight(new Vector3(point.x,y+.15f,point.y),out waterY);
+    txt.Add("water "+point+" "+(found?waterY.ToString("F2"):"dry")+" bed "+y.ToString("F2"));
+}
+Physics.SyncTransforms();int bridgeHits=0,blocked=0,bridgeCount=0;float bridgeStep=0,last=0;bool hasLast=false;
+for(float z=-12f;z<=12.01f;z+=.20f){
+    var p=bridge.TransformPoint(new Vector3(0,0,z));
+    RaycastHit hit;
+    if(Physics.Raycast(p+Vector3.up*3,Vector3.down,out hit,12f,Physics.DefaultRaycastLayers,QueryTriggerInteraction.Ignore)){
+        if(hit.collider.transform.IsChildOf(bridge))bridgeHits++;
+        if(hasLast)bridgeStep=Mathf.Max(bridgeStep,Mathf.Abs(hit.point.y-last));
+        last=hit.point.y;hasLast=true;
+        if(Physics.CheckCapsule(hit.point+Vector3.up*.48f,hit.point+Vector3.up*1.48f,.39f,
+            Physics.DefaultRaycastLayers,QueryTriggerInteraction.Ignore))blocked++;
+    }
+    bridgeCount++;
+}
+txt.Add("bridge deck "+bridgeHits+"/"+bridgeCount+"; capsule obstruction "+blocked+"; max step over .20m "+bridgeStep.ToString("F3")+"m");
+var current=waterRoot.Find("낙구 물살").GetComponent<UPlayGround.Components.WaterfallCurrent>();
+Vector3 velocity; bool falling;
+bool launch=current.TrySample(new Vector3(850.7f,132,2188),out velocity,out falling)&&falling&&velocity.x>0;
+bool release=!current.TrySample(new Vector3(873f,95.25f,2188),out velocity,out falling);
+txt.Add("waterfall transition launch "+launch+" release "+release);
+var lod=worldTree.GetComponentInChildren<LODGroup>();
+txt.Add("tree LOD "+string.Join(" / ",lod.GetLODs().Select(l=>l.renderers.Sum(renderer=>{
+    var mesh=renderer.GetComponent<MeshFilter>().sharedMesh;
+    return Enumerable.Range(0,mesh.subMeshCount).Sum(i=>(long)mesh.GetIndexCount(i)/3);
+})))+" triangles, size "+lod.size.ToString("F2")+"m");
+txt.Add("new subtree missing scripts "+root.GetComponentsInChildren<Transform>(true).Sum(t=>GameObjectUtility.GetMonoBehavioursWithMissingScriptCount(t.gameObject))
+   +"; empty mesh slots "+root.GetComponentsInChildren<MeshFilter>(true).Count(f=>!f.sharedMesh));
+txt.Add("new renderers shader errors "+root.GetComponentsInChildren<Renderer>(true).SelectMany(r=>r.sharedMaterials).Where(m=>m).Select(m=>m.shader).Distinct()
+   .Count(s=>ShaderUtil.ShaderHasError(s)));
+var plazaMesh=root.transform.Find("세계수 광장/세계수 뿌리 마당").GetComponent<MeshFilter>().sharedMesh;
+var plazaVerts=plazaMesh.vertices;var plazaTris=plazaMesh.triangles;int upCount=0;
+for(int i=0;i<plazaTris.Length;i+=3){
+    var a=plazaVerts[plazaTris[i]];
+    if(Vector3.Cross(plazaVerts[plazaTris[i+1]]-a,plazaVerts[plazaTris[i+2]]-a).y>0)upCount++;
+}
+txt.Add("plaza upward-facing triangles "+upCount+"/"+plazaTris.Length/3);
+var navStart=bridge.TransformPoint(new Vector3(0,0,-18));
+var navTargets=new[]{bridge.TransformPoint(new Vector3(0,0,17)),
+    new Vector3(1241,59,2306),new Vector3(1257,59,2320),new Vector3(1270,58,2279)};
+foreach(var target in navTargets){
+    UnityEngine.AI.NavMeshHit sourceHit,targetHit;
+    bool sourceFound=UnityEngine.AI.NavMesh.SamplePosition(navStart,out sourceHit,5,UnityEngine.AI.NavMesh.AllAreas);
+    bool targetFound=UnityEngine.AI.NavMesh.SamplePosition(target,out targetHit,5,UnityEngine.AI.NavMesh.AllAreas);
+    var path=new UnityEngine.AI.NavMeshPath();
+    bool complete=sourceFound&&targetFound&&UnityEngine.AI.NavMesh.CalculatePath(sourceHit.position,targetHit.position,
+        UnityEngine.AI.NavMesh.AllAreas,path)&&path.status==UnityEngine.AI.NavMeshPathStatus.PathComplete;
+    txt.Add("nav "+target.ToString("F1")+" complete "+complete+" corners "+path.corners.Length);
+}
+UnityEngine.AI.NavMeshHit underwaterHit;
+txt.Add("riverbed nav "+UnityEngine.AI.NavMesh.SamplePosition(new Vector3(1290,54.1f,2196),out underwaterHit,
+    1f,UnityEngine.AI.NavMesh.AllAreas));
+var report=string.Join("\n",txt);
+System.IO.File.WriteAllText("docs/work-status/river-basin-world-tree-evidence/editor-checks.txt",report);
+return report;

@@ -1,0 +1,113 @@
+// 기존 접안 상선의 외관만 교체하고 원래 충돌·접안 변환을 검증한다.
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+var root=GameObject.Find("항구도시 · 교역항");
+if(!root||!scene.path.EndsWith("/Preview/RiverBasin4km.unity")||EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new System.InvalidOperationException("RiverBasin4km 항구 Edit Mode가 필요합니다.");
+const string world="Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/";
+const string modelPath=world+"Authoring/HarborCity/RiverBasinMerchantShipDetail.fbx";
+const string palettePath=world+"Production/RegionArt/RiverBasinMerchantDetailPalette.asset";
+const string woods="Assets/08.Models/WorldCities/ShadeCastle/Textures/T_WoodPlank_Dark.png";
+var shader=Shader.Find("Universal Render Pipeline/Lit");
+var texture=AssetDatabase.LoadAssetAtPath<Texture2D>(woods);
+var ships=new System.Collections.Generic.List<Transform>();
+foreach(var t in root.GetComponentsInChildren<Transform>())
+    if(t.name=="RiverBasinMerchantShip"&&t.parent.name=="서부 상선과 창고"){
+        if(t.Find("RiverBasinMerchantShipDetail"))throw new System.InvalidOperationException("상선 외관이 이미 연결되어 있습니다.");
+        ships.Add(t);
+    }
+if(ships.Count!=2||!shader||!texture)throw new System.InvalidOperationException("항구 상선 또는 목재 원본 확인");
+AssetDatabase.ImportAsset(modelPath,ImportAssetOptions.ForceSynchronousImport);
+var model=AssetDatabase.LoadAssetAtPath<GameObject>(modelPath);
+if(!model||model.GetComponentsInChildren<MeshRenderer>().Length!=2)
+    throw new System.InvalidOperationException("상선 FBX와 LOD 임포트 확인");
+
+var palette=new System.Collections.Generic.Dictionary<string,Material>();
+foreach(var x in AssetDatabase.LoadAllAssetsAtPath(palettePath))
+    if(x is Material)palette.Add(AssetDatabase.IsMainAsset(x)?"RBM_Plank":x.name,(Material)x);
+if(palette.Count==0){
+    System.Action<string,Color,bool,float,float> make=(name,color,grain,metal,smooth)=>{
+        var m=new Material(shader){name="RBM_"+name,enableInstancing=true};
+        m.SetColor("_BaseColor",color);
+        if(grain)m.SetTexture("_BaseMap",texture);
+        m.SetFloat("_Metallic",metal);
+        m.SetFloat("_Smoothness",smooth);
+        palette.Add(m.name,m);
+    };
+    make("Plank",new Color(.87f,.76f,.62f),true,0,.21f);
+    make("PlankWarm",new Color(.93f,.80f,.64f),true,0,.20f);
+    make("WetOak",new Color(.56f,.47f,.37f),true,0,.35f);
+    make("Rail",new Color(.76f,.57f,.42f),true,0,.25f);
+    make("Deck",new Color(.89f,.77f,.59f),true,0,.21f);
+    make("DeckWarm",new Color(.95f,.83f,.66f),true,0,.20f);
+    make("Caulk",new Color(.16f,.115f,.081f),false,0,.094f);
+    make("Paint",new Color(.16f,.36f,.41f),false,0,.26f);
+    make("Copper",new Color(.66f,.45f,.227f),false,.35f,.36f);
+    make("Iron",new Color(.18f,.19f,.17f),false,.52f,.29f);
+    make("Window",new Color(.083f,.18f,.21f),false,.12f,.57f);
+    make("Rope",new Color(.45f,.34f,.21f),false,0,.105f);
+    make("Canvas",new Color(.87f,.81f,.68f),false,0,.085f);
+    make("CanvasShade",new Color(.771f,.72f,.609f),false,0,.085f);
+    make("Stitch",new Color(.67f,.58f,.41f),false,0,.094f);
+    AssetDatabase.CreateAsset(palette["RBM_Plank"],palettePath);
+    foreach(var pair in palette)if(pair.Key!="RBM_Plank")AssetDatabase.AddObjectToAsset(pair.Value,palettePath);
+    AssetDatabase.SaveAssetIfDirty(palette["RBM_Plank"]);
+}
+var importer=(ModelImporter)AssetImporter.GetAtPath(modelPath);
+var mapped=new System.Collections.Generic.HashSet<string>();
+foreach(var r in model.GetComponentsInChildren<MeshRenderer>())
+foreach(var m in r.sharedMaterials){
+    if(AssetDatabase.GetAssetPath(m)==palettePath)continue;
+    var key=System.Text.RegularExpressions.Regex.Replace(m.name,@"\.\d{3}$","");
+    if(!palette.ContainsKey(key))throw new System.InvalidOperationException("재질 연결 누락 "+m.name);
+    if(mapped.Add(m.name))importer.AddRemap(new AssetImporter.SourceAssetIdentifier(typeof(Material),m.name),palette[key]);
+}
+if(mapped.Count>0)importer.SaveAndReimport();
+model=AssetDatabase.LoadAssetAtPath<GameObject>(modelPath);
+
+Undo.IncrementCurrentGroup();
+int group=Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName("상선 근거리 외관 교체");
+try{
+    var report=new System.Text.StringBuilder();
+    foreach(var ship in ships){
+        var vertex=ship.position;
+        var originalMatrix=ship.localToWorldMatrix;
+        var collision=ship.GetComponent<Collider>();
+        if(!collision||!collision.enabled)throw new System.InvalidOperationException("상선 원래 충돌 확인");
+        var bounds=collision.bounds;
+        var oldRenderer=ship.GetComponent<MeshRenderer>();
+        var oldFilter=ship.GetComponent<MeshFilter>();
+        if(!oldRenderer||!oldFilter||!oldFilter.sharedMesh||
+            !AssetDatabase.GetAssetPath(oldFilter.sharedMesh).EndsWith("/RiverBasinMerchantShip.fbx"))
+            throw new System.InvalidOperationException("이전 선체 렌더 컴포넌트 확인");
+        var art=(GameObject)PrefabUtility.InstantiatePrefab(model,ship);
+        Undo.RegisterCreatedObjectUndo(art,"상선 근거리 외관");
+        // 기존 선박 FBX 루트는 X축 보정과 센티미터 스케일을 포함한다.
+        art.transform.SetPositionAndRotation(vertex,Quaternion.Euler(0,ship.eulerAngles.y,0)*model.transform.localRotation);
+        art.transform.localScale=model.transform.localScale*.01f;
+        var groupLod=art.GetComponent<LODGroup>()??Undo.AddComponent<LODGroup>(art);
+        Undo.RecordObject(groupLod,"상선 LOD");
+        MeshRenderer near=null,far=null;
+        foreach(var r in art.GetComponentsInChildren<MeshRenderer>()){
+            if(r.name.EndsWith("_LOD0"))near=r;if(r.name.EndsWith("_LOD1"))far=r;
+            foreach(var m in r.sharedMaterials)
+                if(!m||AssetDatabase.GetAssetPath(m)!=palettePath)throw new System.InvalidOperationException("상선 재질 참조 확인 "+r.name);
+        }
+        if(!near||!far||near.bounds.size.y<20||near.bounds.size.y>24.8f||near.bounds.size.z<29||near.bounds.size.z>37)
+            throw new System.InvalidOperationException("상선 치수와 축 확인 "+(near?near.bounds.size.ToString():"LOD 누락"));
+        groupLod.SetLODs(new[]{new LOD(.20f,new[]{near}),new LOD(.008f,new[]{far})});
+        groupLod.RecalculateBounds();
+        PrefabUtility.RecordPrefabInstancePropertyModifications(groupLod);
+        Undo.DestroyObjectImmediate(oldRenderer);
+        Undo.DestroyObjectImmediate(oldFilter);
+        Physics.SyncTransforms();
+        if(ship.localToWorldMatrix!=originalMatrix||collision.bounds!=bounds)
+            throw new System.InvalidOperationException("기존 상선 접안 또는 충돌 위치가 바뀌었습니다.");
+        report.AppendLine(vertex.ToString("F2")+" 선박 외형 "+near.bounds.size.ToString("F2")+"m, 원래 접안·충돌 좌표 확인");
+    }
+    Undo.CollapseUndoOperations(group);
+    return report.ToString();
+}catch{
+    Undo.RevertAllDownToGroup(group);
+    throw;
+}

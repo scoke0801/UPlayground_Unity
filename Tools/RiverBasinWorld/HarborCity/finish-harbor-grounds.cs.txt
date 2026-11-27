@@ -1,0 +1,181 @@
+// 기단이 드러난 출입구를 돌계단으로 잇고 작업 마당 사이에 해안 식생과 낮은 담을 배치한다.
+var root=GameObject.Find("항구도시 · 교역항");
+var yards=root?root.transform.Find("항구 작업 마당"):null;
+if(!yards||EditorApplication.isPlaying||yards.Find("돌계단과 해안 식생"))throw new System.InvalidOperationException("건축 배치와 Editor 상태 확인");
+const string world="Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/";
+const string newAsset=world+"Production/RegionArt/RiverBasinHarborStreetDetails.asset";
+const string farm="Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/";
+const string idyllic="Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Prefabs/";
+const string forest="Assets/03.Prefabs/Environment/RiverBasinWorld/ForestWest/";
+if(AssetDatabase.LoadMainAssetAtPath(newAsset))throw new System.InvalidOperationException("기존 항구 거리 에셋 확인");
+var stone=AssetDatabase.LoadAssetAtPath<Material>("Assets/08.Models/WorldCities/ShadeCastle/Materials/M_Shade_Stone.mat");
+var stoneFence=AssetDatabase.LoadAssetAtPath<GameObject>(farm+"Props/StoneFences/PF_Farm_StoneFence_01.prefab");
+var plants=new[]{
+    AssetDatabase.LoadAssetAtPath<GameObject>(idyllic+"Bush_01_01.prefab"),
+    AssetDatabase.LoadAssetAtPath<GameObject>(idyllic+"Bush_02_02.prefab"),
+    AssetDatabase.LoadAssetAtPath<GameObject>(forest+"PF_FW_Silvergrass_03_Detail.prefab"),
+    AssetDatabase.LoadAssetAtPath<GameObject>(forest+"PF_FW_FlowersPatch_01_Detail.prefab"),
+    AssetDatabase.LoadAssetAtPath<GameObject>(farm+"Foliage/Flowers/PF_Farm_Reed_Bush_01.prefab")
+};
+if(!stone||!stoneFence)throw new System.InvalidOperationException("석축 재질과 프리팹 확인");
+foreach(var plant in plants)if(!plant)throw new System.InvalidOperationException("식생 프리팹 확인");
+var tiles=Terrain.activeTerrains;
+System.Func<float,float,float> yAt=(x,z)=>{
+    foreach(var tile in tiles){
+        var p=tile.GetPosition();var size=tile.terrainData.size;
+        if(x>=p.x&&x<=p.x+size.x&&z>=p.z&&z<=p.z+size.z)
+            return p.y+tile.SampleHeight(new Vector3(x,0,z));
+    }
+    throw new System.InvalidOperationException("항구 거리 지형 타일 없음");
+};
+var roads=new[]{
+    new[]{new Vector2(2748,279),new Vector2(2777,270),new Vector2(2795,270),new Vector2(2815,249),new Vector2(2823,226),new Vector2(2827,209),new Vector2(2826,190),new Vector2(2826,171),new Vector2(2826,162)},
+    new[]{new Vector2(2826,173),new Vector2(2797,176),new Vector2(2755,176),new Vector2(2717,174),new Vector2(2720,165),new Vector2(2720,157)},
+    new[]{new Vector2(2826,174),new Vector2(2851,173),new Vector2(2877,176),new Vector2(2900,176),new Vector2(2910,188),new Vector2(2917,205),new Vector2(2915,229),new Vector2(2906,247),new Vector2(2878,255),new Vector2(2842,260),new Vector2(2815,258)},
+    new[]{new Vector2(2787,249),new Vector2(2765,248),new Vector2(2749,251),new Vector2(2718,251),new Vector2(2717,221),new Vector2(2717,187)}
+};
+System.Func<Vector3,float> distance=p=>{
+    float min=1000;
+    var q=new Vector2(p.x,p.z);
+    foreach(var line in roads)for(int i=1;i<line.Length;i++){
+        var a=line[i-1];var d=line[i]-a;
+        min=Mathf.Min(min,Vector2.Distance(q,a+d*Mathf.Clamp01(Vector2.Dot(q-a,d)/d.sqrMagnitude)));
+    }
+    return min;
+};
+System.Func<Vector3,Collider,bool> room=(p,ignore)=>{
+    foreach(var c in Physics.OverlapSphere(p+Vector3.up*.67f,.37f,Physics.DefaultRaycastLayers,QueryTriggerInteraction.Ignore))
+        if(c!=ignore&&!(c is TerrainCollider))return false;
+    return true;
+};
+Undo.IncrementCurrentGroup();int group=Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName("항구 건물 접지와 거리 조경");
+try{
+    var details=new GameObject("돌계단과 해안 식생");
+    Undo.RegisterCreatedObjectUndo(details,"항구 거리");
+    details.transform.SetParent(yards,false);
+    var meshes=new System.Collections.Generic.List<Mesh>();
+    int steps=0, walls=0, greenery=0, bases=0;
+    foreach(Transform zone in root.transform)
+    foreach(Transform entry in zone){
+        var collider=entry.GetComponentInChildren<MeshCollider>();
+        if(!collider||!collider.sharedMesh||!collider.sharedMesh.name.EndsWith("지붕 충돌"))continue;
+        var b=collider.sharedMesh.bounds;
+        var s=entry.lossyScale;
+        float w=b.size.x*s.x,d=b.size.z*s.z;
+        bool store=w>11;
+        foreach(Transform skirt in zone){
+            if(skirt.name!="기단"||Vector2.Distance(new Vector2(skirt.position.x,skirt.position.z),new Vector2(entry.position.x,entry.position.z))>.15f)continue;
+            Undo.RecordObject(skirt,"새 건축 기단 폭");
+            skirt.localScale=new Vector3(w+.06f,skirt.localScale.y,d+.06f);
+            bases++;
+            break;
+        }
+        var dir=entry.forward;var side=entry.right;
+        var door=entry.position+dir*(d*.5f+.18f)+side*(store?-w*.30f:-w*.22f);
+        float top=entry.position.y+(store?.38f:.32f)*s.y;
+        float localFloor=yAt(door.x,door.z);
+        float start=store?1.0f:.32f;
+        float rise=top-localFloor;
+        if(rise<.24f||rise>2.5f)continue;
+        float run=Mathf.Clamp(rise*1.72f,start+.40f,4.45f);
+        var foot=door+dir*run;
+        float end=yAt(foot.x,foot.z)-.02f;
+        rise=top-end;
+        if(rise<.19f||rise>2.55f||distance(foot)<2.95f||!room(new Vector3(foot.x,end,foot.z),collider))continue;
+        float width=store?2.38f:1.53f;
+        int n=Mathf.CeilToInt(rise/.17f);
+        var v=new System.Collections.Generic.List<Vector3>();
+        var uv=new System.Collections.Generic.List<Vector2>();
+        var tri=new System.Collections.Generic.List<int>();
+        System.Action<Vector3,Vector3,Vector3,Vector3> quad=(a,c,e,f)=>{
+            int k=v.Count;v.Add(a);v.Add(c);v.Add(e);v.Add(f);
+            uv.Add(new Vector2(a.x*.8f,(a.y+a.z)*.8f));uv.Add(new Vector2(c.x*.8f,(c.y+c.z)*.8f));
+            uv.Add(new Vector2(e.x*.8f,(e.y+e.z)*.8f));uv.Add(new Vector2(f.x*.8f,(f.y+f.z)*.8f));
+            tri.AddRange(new[]{k,k+1,k+2,k,k+2,k+3});
+        };
+        float half=width*.5f;
+        for(int i=0;i<n;i++){
+            float za=run*i/n,zb=run*(i+1)/n;
+            float y=top-rise*i/n, lower=top-rise*(i+1)/n;
+            quad(new Vector3(-half,y,za),new Vector3(-half,y,zb),new Vector3(half,y,zb),new Vector3(half,y,za));
+            quad(new Vector3(-half,lower,zb),new Vector3(half,lower,zb),new Vector3(half,y,zb),new Vector3(-half,y,zb));
+            quad(new Vector3(-half,end-.28f,za),new Vector3(-half,end-.28f,zb),new Vector3(-half,y,zb),new Vector3(-half,y,za));
+            quad(new Vector3(half,end-.28f,zb),new Vector3(half,end-.28f,za),new Vector3(half,y,za),new Vector3(half,y,zb));
+        }
+        var mesh=new Mesh{name="항구 진입 석계단 "+(steps+1)};
+        mesh.SetVertices(v);mesh.SetUVs(0,uv);mesh.SetTriangles(tri,0);mesh.RecalculateNormals();mesh.RecalculateTangents();mesh.RecalculateBounds();
+        meshes.Add(mesh);
+        var step=new GameObject(mesh.name,typeof(MeshFilter),typeof(MeshRenderer),typeof(MeshCollider));
+        Undo.RegisterCreatedObjectUndo(step,"항구 진입 석계단");
+        step.transform.SetParent(details.transform,false);
+        step.transform.SetPositionAndRotation(new Vector3(door.x,0,door.z),entry.rotation);
+        step.GetComponent<MeshFilter>().sharedMesh=mesh;
+        step.GetComponent<MeshRenderer>().sharedMaterial=stone;
+        step.GetComponent<MeshCollider>().sharedMesh=mesh;
+        step.isStatic=true;
+        steps++;
+        Physics.SyncTransforms();
+    }
+    if(bases!=37||steps<5)throw new System.InvalidOperationException("기단/계단 배치 확인 "+bases+"/"+steps);
+
+    var fenceRenderer=stoneFence.GetComponentInChildren<Renderer>();
+    var fenceBounds=fenceRenderer.bounds;
+    float baseline=Mathf.Max(fenceBounds.size.x,fenceBounds.size.z);
+    if(baseline<.9f||baseline>7)throw new System.InvalidOperationException("돌담 치수 확인");
+    foreach(var line in new[]{
+        new Vector4(2731,258,2748,260),new Vector4(2758,219,2770,216),new Vector4(2741,202,2755,200),
+        new Vector4(2799,216,2810,214),new Vector4(2820,201,2820,194),
+        new Vector4(2858,228,2872,226),new Vector4(2885,246,2899,246),
+        new Vector4(2861,198,2870,200),new Vector4(2887,180,2896,182),
+        new Vector4(2750,286,2760,288),new Vector4(2772,294,2783,296),
+        new Vector4(2831,276,2842,273),new Vector4(2878,281,2894,277)}){
+        var a=new Vector3(line.x,0,line.y);var b=new Vector3(line.z,0,line.w);
+        var ab=b-a;int num=Mathf.CeilToInt(ab.magnitude/baseline);
+        var q=Quaternion.LookRotation(ab)*(fenceBounds.size.x>fenceBounds.size.z?Quaternion.Euler(0,90,0):Quaternion.identity);
+        for(int i=0;i<num;i++){
+            var p=Vector3.Lerp(a,b,(i+.5f)/num);
+            p.y=yAt(p.x,p.z);
+            if(distance(p)<4.8f||!room(p,null))continue;
+            var obj=(GameObject)PrefabUtility.InstantiatePrefab(stoneFence,details.transform);
+            Undo.RegisterCreatedObjectUndo(obj,"항구 낮은 돌담");
+            obj.transform.SetPositionAndRotation(p+Vector3.up*.02f,q*stoneFence.transform.rotation);
+            obj.transform.localScale=Vector3.Scale(stoneFence.transform.localScale,new Vector3(1,.73f,1));
+            walls++;
+        }
+    }
+    Physics.SyncTransforms();
+    var rng=new System.Random(408);
+    foreach(var patch in new[]{
+        new Vector2(2722,262),new Vector2(2734,282),new Vector2(2745,259),new Vector2(2756,217),new Vector2(2764,234),
+        new Vector2(2775,238),new Vector2(2790,251),new Vector2(2803,218),new Vector2(2815,233),new Vector2(2831,234),
+        new Vector2(2818,208),new Vector2(2836,202),new Vector2(2808,188),new Vector2(2787,190),new Vector2(2743,201),
+        new Vector2(2838,279),new Vector2(2850,235),new Vector2(2866,224),new Vector2(2884,219),new Vector2(2900,232),
+        new Vector2(2888,269),new Vector2(2850,180),new Vector2(2866,168),new Vector2(2912,175),new Vector2(2798,164)
+    }){
+        for(int i=0;i<7;i++){
+            var a=(float)rng.NextDouble()*Mathf.PI*2;
+            var off=new Vector2(Mathf.Cos(a),Mathf.Sin(a))*Mathf.Lerp(.6f,4.7f,(float)rng.NextDouble());
+            var pos=patch+off;
+            var p=new Vector3(pos.x,yAt(pos.x,pos.y),pos.y);
+            if(p.y<.28f||distance(p)<(i<2?4.8f:3.45f)||!room(p,null))continue;
+            int k=i<2?(i+greenery)%2:p.y<3.4f?4:(i%3==0?3:2);
+            var model=plants[k];
+            var obj=(GameObject)PrefabUtility.InstantiatePrefab(model,details.transform);
+            Undo.RegisterCreatedObjectUndo(obj,"항구 해안 식생");
+            obj.transform.SetPositionAndRotation(p-Vector3.up*.045f,Quaternion.Euler(0,a*Mathf.Rad2Deg,0)*model.transform.rotation);
+            obj.transform.localScale=model.transform.localScale*Mathf.Lerp(.65f,1.20f,(float)rng.NextDouble());
+            // 작은 조경은 기존 동선의 통행 폭을 좁히지 않는다.
+            foreach(var c in obj.GetComponentsInChildren<Collider>())c.enabled=false;
+            greenery++;
+        }
+    }
+    AssetDatabase.CreateAsset(meshes[0],newAsset);
+    for(int j=1;j<meshes.Count;j++)AssetDatabase.AddObjectToAsset(meshes[j],newAsset);
+    AssetDatabase.SaveAssetIfDirty(meshes[0]);
+    Undo.CollapseUndoOperations(group);
+    return "기단 "+bases+"동 / 석계단 "+steps+"곳 / 낮은 돌담 "+walls+"개 / 해안 식생 "+greenery+"개";
+}catch{
+    Undo.RevertAllDownToGroup(group);
+    throw;
+}

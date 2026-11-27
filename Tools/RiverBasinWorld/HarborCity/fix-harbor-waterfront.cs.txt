@@ -1,0 +1,207 @@
+// 해안 사석, 중앙 부두 접속 상판과 등대 외관을 수정한다.
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+var harbor=GameObject.Find("항구마을");
+if(!harbor||!scene.path.EndsWith("/Preview/RiverBasin4km.unity")||EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new System.InvalidOperationException("RiverBasin4km Edit Mode가 필요합니다.");
+const string world="Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/";
+const string modelPath=world+"Authoring/HarborCity/RBL_Lighthouse.fbx";
+const string data=world+"Production/RegionArt/";
+const string mats=data+"RiverBasinLighthousePalette.asset";
+const string meshes=data+"RiverBasinHarborWaterfrontMeshes.asset";
+var tower=harbor.transform.Find("HarborLighthouse");
+if(!tower||tower.Find("RBL_Lighthouse")||AssetDatabase.LoadMainAssetAtPath(meshes))
+    throw new System.InvalidOperationException("기존 등대와 생성 에셋 확인");
+Transform ramp=null,deck=null;
+foreach(Transform t in harbor.transform){
+    if(t.name=="Harbor_StoneQuay"&&Vector3.Distance(t.position,new Vector3(2826,1.46f,158.40f))<.12f)ramp=t;
+    if(t.name=="Harbor_TimberDeck"&&Vector3.Distance(t.position,new Vector3(2826,.84f,150.30f))<.12f)deck=t;
+}
+if(!ramp||!deck)throw new System.InvalidOperationException("중앙 목재 부두와 접속 경사 확인");
+var rampFilter=ramp.GetComponentInChildren<MeshFilter>();
+var rampRenderer=rampFilter.GetComponent<MeshRenderer>();
+var original=rampFilter.sharedMesh;
+var stone=rampRenderer.sharedMaterial;
+var wood=deck.GetComponentInChildren<MeshRenderer>().sharedMaterial;
+if(!original||original.name!="RiverBasinHarborQuayClosedJoints"||!stone||!wood)
+    throw new System.InvalidOperationException("기존 상판 메시와 목재 재질 확인");
+var oldCollider=tower.GetComponentInChildren<MeshCollider>();
+if(!oldCollider)throw new System.InvalidOperationException("등대 충돌체 확인");
+
+AssetDatabase.ImportAsset(modelPath,ImportAssetOptions.ForceSynchronousImport);
+var model=AssetDatabase.LoadAssetAtPath<GameObject>(modelPath);
+var shader=Shader.Find("Universal Render Pipeline/Lit");
+var plaster=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/08.Models/WorldCities/ShadeCastle/Textures/T_Plaster_Aged.png");
+var stoneMap=AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/08.Models/WorldCities/ShadeCastle/Textures/T_Stone_Rough.png");
+if(!model||!shader||!plaster||!stoneMap)throw new System.InvalidOperationException("등대 에셋 또는 재질 확인");
+var palette=new System.Collections.Generic.Dictionary<string,Material>();
+foreach(var m in AssetDatabase.LoadAllAssetsAtPath(mats))if(m is Material)
+    palette.Add(AssetDatabase.IsMainAsset(m)?"RBL_TowerStone":m.name,(Material)m);
+if(palette.Count==0){
+    System.Action<string,Color,Texture2D,float,float> make=(name,c,map,metal,smooth)=>{
+        var m=new Material(shader){name="RBL_"+name};
+        m.SetColor("_BaseColor",c);m.SetFloat("_Metallic",metal);m.SetFloat("_Smoothness",smooth);
+        if(map)m.SetTexture("_BaseMap",map);
+        palette.Add(m.name,m);
+    };
+    make("TowerStone",new Color(.83f,.79f,.67f),plaster,0,.14f);
+    make("CourseStone",new Color(.75f,.71f,.59f),plaster,0,.14f);
+    make("Recess",new Color(.56f,.53f,.46f),plaster,0,.08f);
+    make("Cornice",new Color(.88f,.84f,.74f),plaster,0,.21f);
+    make("BeaconMetal",new Color(.14f,.24f,.25f),null,.40f,.36f);
+    make("CopperRoof",new Color(.24f,.40f,.35f),null,.35f,.31f);
+    make("CopperSeam",new Color(.36f,.47f,.39f),null,.50f,.38f);
+    make("GoldenLens",new Color(.94f,.69f,.34f),null,.05f,.65f);
+    make("IronDoor",new Color(.37f,.25f,.15f),stoneMap,0,.22f);
+    make("FlintGlass",new Color(.42f,.53f,.52f,.41f),null,.12f,.68f);
+    var lamp=palette["RBL_GoldenLens"];
+    lamp.SetColor("_EmissionColor",new Color(.65f,.27f,.055f));
+    lamp.EnableKeyword("_EMISSION");
+    var glass=palette["RBL_FlintGlass"];
+    glass.SetFloat("_Surface",1);
+    glass.SetFloat("_SrcBlend",(float)UnityEngine.Rendering.BlendMode.SrcAlpha);
+    glass.SetFloat("_DstBlend",(float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+    glass.SetFloat("_SrcBlendAlpha",(float)UnityEngine.Rendering.BlendMode.One);
+    glass.SetFloat("_DstBlendAlpha",(float)UnityEngine.Rendering.BlendMode.OneMinusSrcAlpha);
+    glass.SetFloat("_ZWrite",0);
+    glass.SetOverrideTag("RenderType","Transparent");glass.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+    glass.SetShaderPassEnabled("ShadowCaster",false);glass.renderQueue=(int)UnityEngine.Rendering.RenderQueue.Transparent;
+    AssetDatabase.CreateAsset(palette["RBL_TowerStone"],mats);
+    foreach(var p in palette)if(p.Key!="RBL_TowerStone")AssetDatabase.AddObjectToAsset(p.Value,mats);
+    AssetDatabase.SaveAssetIfDirty(palette["RBL_TowerStone"]);
+}
+var importer=(ModelImporter)AssetImporter.GetAtPath(modelPath);
+var materialIds=new System.Collections.Generic.HashSet<string>();
+foreach(var rr in model.GetComponentsInChildren<MeshRenderer>())
+foreach(var material in rr.sharedMaterials){
+    if(AssetDatabase.GetAssetPath(material)==mats)continue;
+    if(!palette.ContainsKey(material.name))throw new System.InvalidOperationException("등대 재질 누락 "+material.name);
+    if(materialIds.Add(material.name))importer.AddRemap(new AssetImporter.SourceAssetIdentifier(typeof(Material),material.name),palette[material.name]);
+}
+if(materialIds.Count>0)importer.SaveAndReimport();
+model=AssetDatabase.LoadAssetAtPath<GameObject>(modelPath);
+
+var rockNames=new[]{"서쪽 호안 뿌리","동쪽 호안 뿌리","동쪽 방파제 꺾임 사석"};
+var rockTargets=new[]{new Vector3(2781.80f,-2.60f,153.50f),new Vector3(2872.50f,-2.60f,153.00f),new Vector3(2880.60f,-4.18f,116.00f)};
+var rocks=new GameObject[rockNames.Length];
+for(int i=0;i<rocks.Length;i++){
+    rocks[i]=GameObject.Find(rockNames[i]);
+    if(!rocks[i])throw new System.InvalidOperationException("사석 배치 누락 "+rockNames[i]);
+}
+
+var v=new System.Collections.Generic.List<Vector3>(original.vertices);
+var n=new System.Collections.Generic.List<Vector3>(original.normals);
+var uv=new System.Collections.Generic.List<Vector2>(original.uv);
+var stoneFaces=new System.Collections.Generic.List<int>();
+var boards=new System.Collections.Generic.List<int>();
+var old=original.GetTriangles(0);
+float xmin=10000,xmax=-10000,zmin=10000,zmax=-10000,ymin=10000,ymax=-10000;
+int topCount=0;
+for(int i=0;i<old.Length;i+=3){
+    var a=rampFilter.transform.TransformPoint(v[old[i]]);
+    var b=rampFilter.transform.TransformPoint(v[old[i+1]]);
+    var c=rampFilter.transform.TransformPoint(v[old[i+2]]);
+    float dx=Mathf.Max(a.x,b.x,c.x)-Mathf.Min(a.x,b.x,c.x);
+    float dz=Mathf.Max(a.z,b.z,c.z)-Mathf.Min(a.z,b.z,c.z);
+    float up=Vector3.Cross(b-a,c-a).normalized.y;
+    if(up>.9f&&dx>5.9f&&dz>8.7f){
+        xmin=Mathf.Min(xmin,a.x,b.x,c.x);xmax=Mathf.Max(xmax,a.x,b.x,c.x);
+        zmin=Mathf.Min(zmin,a.z,b.z,c.z);zmax=Mathf.Max(zmax,a.z,b.z,c.z);
+        ymin=Mathf.Min(ymin,a.y,b.y,c.y);ymax=Mathf.Max(ymax,a.y,b.y,c.y);
+        topCount++;
+    }else stoneFaces.AddRange(new[]{old[i],old[i+1],old[i+2]});
+}
+if(topCount!=2||xmax-xmin<5.9f||zmax-zmin<8.7f)
+    throw new System.InvalidOperationException("중앙 경사 상면의 두 삼각형 확인 "+topCount);
+float boardLength=deck.GetComponentInChildren<MeshRenderer>().bounds.size.z/24f;
+int strips=Mathf.RoundToInt((zmax-zmin)/boardLength);
+var transform=rampFilter.transform;
+var direction=Vector3.Cross(transform.InverseTransformPoint(new Vector3(xmin,ymax,zmax))-transform.InverseTransformPoint(new Vector3(xmin,ymin,zmin)),
+    transform.InverseTransformPoint(new Vector3(xmax,ymin,zmin))-transform.InverseTransformPoint(new Vector3(xmin,ymin,zmin))).normalized;
+for(int i=0;i<strips;i++){
+    float t=i/(float)strips,h=(i+1)/(float)strips;
+    float za=Mathf.Lerp(zmin,zmax,t),zb=Mathf.Lerp(zmin,zmax,h);
+    float ya=Mathf.Lerp(ymin,ymax,t),yb=Mathf.Lerp(ymin,ymax,h);
+    int k=v.Count;
+    foreach(var p in new[]{new Vector3(xmin,ya,za),new Vector3(xmin,yb,zb),new Vector3(xmax,yb,zb),new Vector3(xmax,ya,za)}){
+        v.Add(transform.InverseTransformPoint(p));
+        n.Add(direction);
+    }
+    uv.AddRange(new[]{new Vector2(1,1),new Vector2(1,0),new Vector2(0,0),new Vector2(0,1)});
+    boards.AddRange(new[]{k,k+1,k+2,k,k+2,k+3});
+}
+var planked=new Mesh{name="중앙 부두 접속 목재 상판"};
+planked.SetVertices(v);planked.SetNormals(n);planked.SetUVs(0,uv);
+planked.subMeshCount=2;planked.SetTriangles(stoneFaces,0);planked.SetTriangles(boards,1);
+planked.RecalculateTangents();planked.RecalculateBounds();
+
+var proxy=new Mesh{name="항구 등대 원형 충돌"};
+var pv=new System.Collections.Generic.List<Vector3>();
+var pi=new System.Collections.Generic.List<int>();
+float unit=1f/oldCollider.transform.lossyScale.x;
+const int segments=32;
+foreach(var r in new[]{new Vector2(1.90f,.025f),new Vector2(1.90f,.54f),new Vector2(1.63f,.55f),
+    new Vector2(1.28f,8.62f),new Vector2(1.81f,9.02f),new Vector2(1.81f,9.23f),new Vector2(1.28f,9.25f),
+    new Vector2(1.28f,11.42f),new Vector2(.11f,12.97f)}){
+    for(int i=0;i<segments;i++){
+        float t=i*2*Mathf.PI/segments;
+        pv.Add(new Vector3(r.x*Mathf.Cos(t),r.y,r.x*Mathf.Sin(t))*unit);
+    }
+}
+for(int ring=0;ring<pv.Count/segments-1;ring++)for(int i=0;i<segments;i++){
+    int a=ring*segments+i,b=ring*segments+(i+1)%segments;
+    pi.AddRange(new[]{a,a+segments,b+segments,a,b+segments,b});
+}
+int last=pv.Count-segments;
+for(int k=1;k<segments-1;k++)pi.AddRange(new[]{last,last+k+1,last+k});
+proxy.SetVertices(pv);proxy.SetTriangles(pi,0);proxy.RecalculateBounds();
+
+Undo.IncrementCurrentGroup();int group=Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName("항구 방파제·목재 상판·등대 개선");
+try{
+    for(int i=0;i<rocks.Length;i++){
+        var t=rocks[i].transform;
+        Undo.RecordObject(t,"방파제 바깥 사석");
+        t.position=rockTargets[i];
+        float horizontal=i==0?.86f:i==1?.88f:.83f;
+        t.localScale=Vector3.Scale(t.localScale,new Vector3(horizontal,.88f,horizontal));
+        PrefabUtility.RecordPrefabInstancePropertyModifications(t);
+    }
+    Undo.RecordObjects(new UnityEngine.Object[]{rampFilter,rampRenderer,oldCollider},"항구 메시 교체");
+    rampFilter.sharedMesh=planked;
+    rampRenderer.sharedMaterials=new[]{stone,wood};
+    PrefabUtility.RecordPrefabInstancePropertyModifications(rampFilter);
+    PrefabUtility.RecordPrefabInstancePropertyModifications(rampRenderer);
+    foreach(var oldRenderer in tower.GetComponentsInChildren<MeshRenderer>()){
+        Undo.RecordObject(oldRenderer,"기존 등대 렌더");
+        oldRenderer.enabled=false;PrefabUtility.RecordPrefabInstancePropertyModifications(oldRenderer);
+    }
+    var art=(GameObject)PrefabUtility.InstantiatePrefab(model,tower);
+    Undo.RegisterCreatedObjectUndo(art,"새 등대");
+    art.transform.localPosition=Vector3.zero;
+    art.transform.localRotation=Quaternion.Euler(0,90,0)*model.transform.localRotation;
+    art.transform.localScale=model.transform.localScale/tower.lossyScale.x;
+    var g=art.GetComponent<LODGroup>()??Undo.AddComponent<LODGroup>(art);
+    Undo.RecordObject(g,"등대 LOD");
+    Renderer r0=null,r1=null;
+    foreach(var rr in art.GetComponentsInChildren<MeshRenderer>()){
+        if(rr.name.EndsWith("_LOD0"))r0=rr;
+        if(rr.name.EndsWith("_LOD1"))r1=rr;
+        foreach(var m in rr.sharedMaterials)if(!m||AssetDatabase.GetAssetPath(m)!=mats)
+            throw new System.InvalidOperationException("등대 재질 임포트 확인 "+rr.name);
+    }
+    if(!r0||!r1||r0.bounds.size.y<12.9f||r0.bounds.size.y>13.7f||r0.bounds.size.x>4.4f)
+        throw new System.InvalidOperationException("등대 역스케일 또는 LOD 확인");
+    g.SetLODs(new[]{new LOD(.17f,new[]{r0}),new LOD(.009f,new[]{r1})});g.RecalculateBounds();
+    PrefabUtility.RecordPrefabInstancePropertyModifications(g);
+    oldCollider.sharedMesh=proxy;
+    PrefabUtility.RecordPrefabInstancePropertyModifications(oldCollider);
+    AssetDatabase.CreateAsset(planked,meshes);
+    AssetDatabase.AddObjectToAsset(proxy,meshes);
+    AssetDatabase.SaveAssetIfDirty(planked);
+    Physics.SyncTransforms();
+    Undo.CollapseUndoOperations(group);
+    return "사석 세 곳 이동, 기존 목재 적용 "+strips+"줄, 등대 "+r0.bounds.size.ToString("F2")+"m, LOD 두 단계";
+}catch{
+    Undo.RevertAllDownToGroup(group);
+    throw;
+}

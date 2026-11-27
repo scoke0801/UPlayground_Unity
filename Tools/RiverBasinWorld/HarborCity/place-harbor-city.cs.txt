@@ -1,0 +1,230 @@
+// Unity MCP의 RiverBasin4km 프리뷰 편집용 메서드 본문.
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (!scene.path.EndsWith("/Preview/RiverBasin4km.unity") || scene.isDirty || EditorApplication.isPlaying)
+    throw new System.InvalidOperationException("저장된 RiverBasin4km Edit Mode 프리뷰가 필요합니다.");
+const string title = "항구도시 · 교역항";
+if (GameObject.Find(title) != null)
+    throw new System.InvalidOperationException("이미 배치된 항구도시 루트를 확인하세요.");
+
+const string city = "Assets/03.Prefabs/Environment/WorldCities/";
+const string revision = "Assets/03.Prefabs/Environment/HarborRevision/";
+const string model = "Assets/08.Models/WorldCities/";
+const string output = "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinHarborCitySurfaces.asset";
+var terrainTiles = Terrain.activeTerrains;
+System.Func<float, float, float> ground = (x,z) => {
+    foreach (var tile in terrainTiles) {
+        var origin = tile.transform.position;
+        var size = tile.terrainData.size;
+        if (x >= origin.x && x <= origin.x+size.x && z >= origin.z && z <= origin.z+size.z)
+            return origin.y + tile.SampleHeight(new Vector3(x,0,z));
+    }
+    throw new System.InvalidOperationException("항구 부지가 Terrain 타일 밖에 있습니다.");
+};
+var houses = new[]{"HarborHouse", "CastleTownHouse", "HarborWarehouse"};
+var prefabs = new System.Collections.Generic.Dictionary<string,GameObject>();
+foreach (var name in new[]{"HarborHouse","CastleTownHouse","HarborWarehouse","MarketStall","TownFountain","TownBench","CargoCrate","CargoBarrel","HarborPier","Harbor_StoneQuay","Harbor_TimberDeck","Harbor_Mooring","RiverBasinMerchantShip","LakeHouse_Boathouse"}) {
+    string path = name == "RiverBasinMerchantShip" ?
+        "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Authoring/HarborCity/"+name+".fbx" :
+        name == "LakeHouse_Boathouse" ? "Assets/03.Prefabs/Environment/LakeVillage/"+name+".prefab" :
+        (name.StartsWith("Harbor_") ? revision : city)+name+".prefab";
+    var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+    if (prefab == null) throw new System.InvalidOperationException(path);
+    prefabs.Add(name,prefab);
+}
+var paver = AssetDatabase.LoadAssetAtPath<Material>(model+"ShadeCastle/Materials/M_Shade_Ground.mat");
+var stone = AssetDatabase.LoadAssetAtPath<Material>(model+"ShadeCastle/Materials/M_Shade_Stone.mat");
+if (paver == null || stone == null || AssetDatabase.LoadMainAssetAtPath(output) != null)
+    throw new System.InvalidOperationException("항구 재질 또는 생성 에셋 경로를 확인하세요.");
+
+Undo.IncrementCurrentGroup();
+int group = Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName("River Basin 항구도시 배치");
+try {
+    var root = new GameObject(title);
+    Undo.RegisterCreatedObjectUndo(root, title);
+    System.Func<string,Transform> section = name => {
+        var obj = new GameObject(name);
+        Undo.RegisterCreatedObjectUndo(obj, title);
+        obj.transform.SetParent(root.transform, false);
+        return obj.transform;
+    };
+    var market = section("중앙 시장과 상점가");
+    var homes = section("서부 주거와 창고 뒤편");
+    var east = section("동부 조선 골목");
+    var west = section("서부 상선과 창고");
+    var port = section("세관과 동부 접안");
+    var surfaces = section("시장 포석과 항만 대로");
+    var retired = GameObject.Find("항구마을");
+    if (retired == null) throw new System.InvalidOperationException("기존 항구 루트 확인 필요");
+    foreach (Transform t in retired.transform) {
+        if ((t.position.z > 250 && (t.name == "HarborWarehouse" || t.name == "HarborHouse")) ||
+            (t.name == "TGV_Wood_Signpost_01A" && t.position.z > 230)) {
+            Undo.RecordObject(t.gameObject, title);
+            t.gameObject.SetActive(false);
+        }
+    }
+
+    System.Func<Transform,string,float,float,float,float,Vector3,GameObject> place = (parent,name,x,y,z,yaw,scale) => {
+        var prefab = prefabs[name];
+        var obj = (GameObject)PrefabUtility.InstantiatePrefab(prefab, parent);
+        Undo.RegisterCreatedObjectUndo(obj, title);
+        obj.name = name;
+        obj.transform.position = new Vector3(x,y,z);
+        obj.transform.rotation = Quaternion.Euler(0,yaw,0) * prefab.transform.rotation;
+        obj.transform.localScale = Vector3.Scale(prefab.transform.localScale,scale);
+        return obj;
+    };
+    var surfaceMeshes = new System.Collections.Generic.List<Mesh>();
+    System.Action<Transform,string,Mesh,Material,Vector3> meshObject = (parent,name,mesh,material,pos) => {
+        var obj=new GameObject(name,typeof(MeshFilter),typeof(MeshRenderer));
+        Undo.RegisterCreatedObjectUndo(obj,title);
+        obj.transform.SetParent(parent,false);
+        obj.transform.position=pos;
+        obj.GetComponent<MeshFilter>().sharedMesh=mesh;
+        obj.GetComponent<MeshRenderer>().sharedMaterial=material;
+        obj.isStatic=true;
+        surfaceMeshes.Add(mesh);
+    };
+    // 지붕 메시의 폭과 실제 지면 기울기를 기준으로 기단의 노출 높이를 결정한다.
+    var foundation = new Mesh { name = "항구 석재 기단" };
+    var verts = new System.Collections.Generic.List<Vector3>();
+    var uvs = new System.Collections.Generic.List<Vector2>();
+    var tris = new System.Collections.Generic.List<int>();
+    var corners = new[]{new Vector3(-.5f,0,-.5f),new Vector3(-.5f,0,.5f),new Vector3(.5f,0,.5f),new Vector3(.5f,0,-.5f)};
+    for(int side=0;side<4;side++){
+        var a=corners[side];var b=corners[(side+1)%4];int k=verts.Count;
+        verts.Add(a);verts.Add(a+Vector3.up);verts.Add(b+Vector3.up);verts.Add(b);
+        uvs.Add(Vector2.zero);uvs.Add(Vector2.up);uvs.Add(Vector2.one);uvs.Add(Vector2.right);
+        tris.AddRange(new[]{k,k+2,k+1,k,k+3,k+2});
+    }
+    foundation.SetVertices(verts);foundation.SetUVs(0,uvs);foundation.SetTriangles(tris,0);foundation.RecalculateNormals();foundation.RecalculateBounds();
+    surfaceMeshes.Add(foundation);
+    var zones = new[] {
+        new float[,] {{0,2763,284,0,1},{1,2776,285,0,.94f},{0,2790,290,0,.97f},{1,2804,294,0,.91f},{0,2758,260,0,.95f},{1,2772,255,180,.95f},{0,2784,245,180,.93f},{0,2798,244,180,1},{1,2814,278,270,.95f},{0,2830,267,270,1},{1,2841,251,270,.96f},{2,2807,227,90,1}},
+        new float[,] {{0,2726,287,0,.93f},{1,2740,282,0,.9f},{0,2742,267,180,1},{1,2727,262,180,.92f},{0,2712,264,180,1},{1,2726,241,0,.94f},{0,2741,242,0,1},{1,2754,240,0,.95f},{0,2769,230,180,.98f}},
+        new float[,] {{0,2850,277,180,.99f},{1,2864,275,180,.93f},{0,2879,269,180,.94f},{1,2894,260,180,.92f},{0,2862,244,0,.92f},{1,2878,240,0,.91f},{0,2892,232,0,.97f},{2,2902,216,0,1}},
+        new float[,] {{2,2732,193,0,1},{2,2753,195,0,1.05f},{2,2776,195,0,1},{1,2793,197,0,.98f},{2,2729,218,180,1}},
+        new float[,] {{2,2850,186,90,1.15f},{2,2876,190,0,1.15f},{0,2895,191,0,.97f},{2,2851,209,270,1}}
+    };
+    var parents = new[]{market,homes,east,west,port};
+    int buildingCount=0;
+    for(int zone=0;zone<zones.Length;zone++){
+        var rows=zones[zone];
+        for(int row=0;row<rows.GetLength(0);row++){
+            int kind=(int)rows[row,0];
+            float x=rows[row,1],z=rows[row,2],yaw=rows[row,3],s=rows[row,4];
+            float w=(kind==2?14.8f:kind==1?8.5f:9.2f)*s,d=(kind==2?11.1f:8.4f)*s;
+            var q=Quaternion.Euler(0,yaw,0);
+            float lowest=ground(x,z),highest=lowest;
+            foreach(var c in corners){
+                var p=q*new Vector3(c.x*w,0,c.z*d);
+                float y=ground(x+p.x,z+p.z);
+                lowest=Mathf.Min(lowest,y);
+                highest=Mathf.Max(highest,y);
+            }
+            float baseY=highest+.05f;
+            place(parents[zone],houses[kind],x,baseY,z,yaw,new Vector3(s,s,s));
+            var skirt=new GameObject("기단",typeof(MeshFilter),typeof(MeshRenderer));Undo.RegisterCreatedObjectUndo(skirt,title);
+            skirt.transform.SetParent(parents[zone],false);
+            skirt.transform.SetPositionAndRotation(new Vector3(x,lowest-.17f,z),q);
+            skirt.transform.localScale=new Vector3(w,baseY-lowest+.28f,d);
+            skirt.GetComponent<MeshFilter>().sharedMesh=foundation;
+            skirt.GetComponent<MeshRenderer>().sharedMaterial=stone;
+            skirt.isStatic=true;
+            buildingCount++;
+        }
+    }
+
+    // 포석은 지형을 따라가며, 양쪽 끝은 자연 지면에 얕게 묻어 접합한다.
+    System.Action<string,Vector2[],float,float> pave = (name,points,width,bias) => {
+        var pv=new System.Collections.Generic.List<Vector3>();
+        var pu=new System.Collections.Generic.List<Vector2>();
+        var pt=new System.Collections.Generic.List<int>();
+        var samples=new System.Collections.Generic.List<Vector2>();
+        for(int i=0;i<points.Length-1;i++){
+            int steps=Mathf.CeilToInt(Vector2.Distance(points[i],points[i+1])/.75f);
+            for(int j=0;j<steps;j++)samples.Add(Vector2.Lerp(points[i],points[i+1],j/(float)steps));
+        }
+        samples.Add(points[points.Length-1]);
+        int columns=Mathf.CeilToInt(width/.75f)+1;
+        var origin=new Vector3(samples[0].x,0,samples[0].y);
+        for(int i=0;i<samples.Count;i++){
+            var dir=(samples[Mathf.Min(i+1,samples.Count-1)]-samples[Mathf.Max(i-1,0)]).normalized;
+            var across=new Vector2(-dir.y,dir.x);
+            for(int col=0;col<columns;col++){
+                float t=col/(float)(columns-1);
+                var p=samples[i]+across*((t-.5f)*width);
+                float y=ground(p.x,p.y)+bias;
+                if(col==0||col==columns-1)y-=.07f;
+                if(i==0||i==samples.Count-1)y-=.07f;
+                pv.Add(new Vector3(p.x-origin.x,y,p.y-origin.z));
+                pu.Add(p/2.6f);
+                if(i==0||col==0)continue;
+                int k=pv.Count-1;
+                pt.AddRange(new[]{k-columns-1,k-columns,k-1,k-columns,k,k-1});
+            }
+        }
+        var m=new Mesh{name=name};
+        if(pv.Count>65535)m.indexFormat=UnityEngine.Rendering.IndexFormat.UInt32;
+        m.SetVertices(pv);m.SetUVs(0,pu);m.SetTriangles(pt,0);m.RecalculateNormals();m.RecalculateTangents();m.RecalculateBounds();
+        meshObject(surfaces,name,m,paver,origin);
+    };
+    pave("항만 대로",new[]{new Vector2(2748,279),new Vector2(2777,270),new Vector2(2795,270),new Vector2(2815,249),new Vector2(2823,226),new Vector2(2827,209),new Vector2(2826,190),new Vector2(2826,171),new Vector2(2826,162)},8.6f,.14f);
+    pave("시장 광장",new[]{new Vector2(2770,270),new Vector2(2810,270)},26,.13f);
+    pave("서부 주거와 창고 길",new[]{new Vector2(2787,249),new Vector2(2765,248),new Vector2(2749,251),new Vector2(2718,251),new Vector2(2717,221),new Vector2(2717,187),new Vector2(2720,164)},5.7f,.13f);
+    pave("동부 주거와 조선 골목",new[]{new Vector2(2815,258),new Vector2(2842,260),new Vector2(2878,255),new Vector2(2906,247),new Vector2(2915,229),new Vector2(2917,205),new Vector2(2910,188),new Vector2(2900,176)},5.7f,.13f);
+    pave("상선 창고 하역가",new[]{new Vector2(2717,174),new Vector2(2755,176),new Vector2(2797,176),new Vector2(2826,173)},6.7f,.16f);
+    pave("동부 수변 보행로",new[]{new Vector2(2826,174),new Vector2(2851,173),new Vector2(2877,176),new Vector2(2900,176)},6.4f,.16f);
+
+    var dockScale=new Vector3(1.02f,1,1.01f);
+    for(int i=0;i<10;i++)
+        place(west,"Harbor_StoneQuay",2719+8*i,1.34f,156.5f,0,dockScale);
+    for(int i=0;i<7;i++)
+        place(port,"Harbor_StoneQuay",2842+8*i,1.33f,160.25f+1.4f*i,-8,dockScale);
+    for(int i=0;i<4;i++){
+        place(west,"Harbor_TimberDeck",2738,1.06f,150-i*7.85f,0,Vector3.one);
+        place(west,"Harbor_TimberDeck",2771,1.06f,150-i*7.85f,0,Vector3.one);
+    }
+    place(port,"HarborPier",2879,1.05f,157,0,Vector3.one);
+    place(port,"Harbor_TimberDeck",2903,1.04f,159,0,Vector3.one);
+    place(port,"Harbor_TimberDeck",2903,1.04f,151,0,Vector3.one);
+    var shipA=place(west,"RiverBasinMerchantShip",2731,.04f,122,4,Vector3.one);
+    var shipB=place(west,"RiverBasinMerchantShip",2764,.04f,114,174,Vector3.one*.87f);
+    foreach(var ship in new[]{shipA,shipB}){
+        var r=ship.GetComponentInChildren<MeshRenderer>();
+        if(r==null||r.bounds.size.y<15||r.bounds.size.y>30)
+            throw new System.InvalidOperationException("상선 축 또는 크기가 맞지 않습니다.");
+        var b=r.bounds;
+        var collider=ship.AddComponent<BoxCollider>();
+        collider.center=ship.transform.InverseTransformPoint(new Vector3(b.center.x,1.24f,b.center.z));
+        var m=ship.transform.lossyScale;
+        // 메시 임포트 축이 회전된 경우에도 세로 높이를 월드 좌표로 해석한다.
+        var forward=ship.transform.InverseTransformVector(Quaternion.Euler(0,ship==shipA?4:174,0)*new Vector3(6.3f,2.5f,25.5f));
+        collider.size=new Vector3(Mathf.Abs(forward.x),Mathf.Abs(forward.y),Mathf.Abs(forward.z));
+    }
+    foreach(var p in new[]{new Vector3(2777,0,262),new Vector3(2785,0,260),new Vector3(2813,0,271),new Vector3(2808,0,279),new Vector3(2846,0,253)})
+        place(market,"MarketStall",p.x,ground(p.x,p.z)+.02f,p.z,p.z<270?180:0,Vector3.one*.8f);
+    place(market,"TownFountain",2790,ground(2790,277)+.08f,277,0,Vector3.one*.7f);
+    foreach(var p in new[]{new Vector3(2783,0,278),new Vector3(2801,0,276),new Vector3(2772,0,266)})
+        place(market,"TownBench",p.x,ground(p.x,p.z)+.07f,p.z,0,Vector3.one);
+    for(int i=0;i<7;i++){
+        float x=2723+i*10.1f;
+        place(west,"CargoCrate",x,1.37f,158.4f,i*19,Vector3.one*.76f);
+        place(west,"CargoBarrel",x+.95f,1.37f,157.8f,i*11,Vector3.one*.73f);
+        place(west,"Harbor_Mooring",x+2.2f,1.34f,153.2f,0,Vector3.one);
+    }
+    place(port,"LakeHouse_Boathouse",2891,ground(2891,178),178,180,Vector3.one);
+
+    if(buildingCount!=38||surfaceMeshes.Count!=7)
+        throw new System.InvalidOperationException("항구 시가지 배치 수와 포석 에셋 수가 예상과 다릅니다.");
+    AssetDatabase.CreateAsset(surfaceMeshes[0],output);
+    for(int i=1;i<surfaceMeshes.Count;i++)AssetDatabase.AddObjectToAsset(surfaceMeshes[i],output);
+    AssetDatabase.SaveAssets();
+    if(!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene))
+        throw new System.InvalidOperationException("항구 프리뷰 저장 실패");
+    Undo.CollapseUndoOperations(group);
+    return "항구 건물 "+buildingCount+"동, 포석 6개, 상선 2척 배치 저장";
+} catch {
+    Undo.RevertAllDownToGroup(group);
+    throw;
+}

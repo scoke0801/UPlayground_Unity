@@ -1,0 +1,102 @@
+var root=GameObject.Find(label);
+var kitPath=product+"/WorldTreeVillageArt.asset";
+if(!root||!root.transform.Find("세계수 광장")||root.transform.Find("WB_P04_Bridge_R1_WorldTree")||!AssetDatabase.LoadMainAssetAtPath(kitPath))
+    throw new Exception("세계수 광장과 목교의 적용 상태를 확인해야 합니다.");
+var elfPath=world+"/Production/RegionArt/RiverBasinElvenVillageArt.asset";
+var elfPalette=AssetDatabase.LoadAllAssetsAtPath(elfPath).OfType<Material>().ToDictionary(m=>m.name);
+elfPalette["RBElf_Ash"]=AssetDatabase.LoadAssetAtPath<Material>(elfPath);
+Func<string,Transform,GameObject> child=(name,parent)=>{
+    var g=new GameObject(name);g.transform.SetParent(parent,false);return g;
+};
+Func<string,Transform,Mesh,Material,GameObject> render=(name,parent,mesh,mat)=>{
+    mesh.name=name;AssetDatabase.AddObjectToAsset(mesh,kitPath);
+    var g=child(name,parent);
+    g.AddComponent<MeshFilter>().sharedMesh=mesh;g.AddComponent<MeshRenderer>().sharedMaterial=mat;
+    return g;
+};
+var bridge=child("WB_P04_Bridge_R1_WorldTree",root.transform);
+var crossing=new Vector2(1272.2f,2199f);
+var forward=new Vector2(-.352f,.936f).normalized;
+var direction=new Vector3(forward.x,0,forward.y);
+var rotation=Quaternion.LookRotation(direction);
+float end=12.3f, inner=8.35f;
+var a0=crossing-forward*end;var b0=crossing+forward*end;
+var entrance=new Vector3(a0.x,ground(a0.x,a0.y)+.07f,a0.y);
+var exit=new Vector3(b0.x,ground(b0.x,b0.y)+.07f,b0.y);
+float deck=Mathf.Max(57.25f,Mathf.Max(entrance.y,exit.y)-.07f);
+var center=new Vector3(crossing.x,deck,crossing.y);
+bridge.transform.SetPositionAndRotation(center,rotation);
+var bridgePieces=new List<GameObject>();
+Func<string,Vector3,Quaternion,Vector3,Material,bool,GameObject> box=(name,p,q,size,mat,physical)=>{
+    var part=GameObject.CreatePrimitive(PrimitiveType.Cube);part.name=name;part.transform.SetParent(bridge.transform,false);
+    part.transform.SetPositionAndRotation(p,q);part.transform.localScale=size;
+    part.GetComponent<MeshRenderer>().sharedMaterial=mat;
+    if(!physical)UnityEngine.Object.DestroyImmediate(part.GetComponent<BoxCollider>());
+    bridgePieces.Add(part);return part;
+};
+var beam=elfPalette["RBElf_Ash"];var pale=elfPalette["RBElf_PaleAsh"];
+var stone=elfPalette["RBElf_Stone"];var dark=elfPalette["RBElf_EndGrain"];
+var parts=new[]{entrance,center-direction*inner,center+direction*inner,exit};
+for(int i=1;i<parts.Length;i++){
+    var mid=(parts[i]+parts[i-1])*.5f;var d=parts[i]-parts[i-1];var q=Quaternion.LookRotation(d);
+    box("받침과 보행판",mid-q*Vector3.up*.17f,q,new Vector3(4.95f,.34f,d.magnitude+.045f),dark,true);
+    int count=Mathf.CeilToInt(d.magnitude/.39f);
+    for(int k=0;k<count;k++){
+        var p=Vector3.Lerp(parts[i-1],parts[i],(k+.5f)/count);
+        box("널판",p-q*Vector3.up*.035f,q,new Vector3(5.15f,.086f,d.magnitude/count),k%7==0?beam:pale,false);
+    }
+    for(int side=-1;side<=1;side+=2){
+        var right=rotation*Vector3.right*side;
+        box("난간",mid+right*2.39f+Vector3.up*1.07f,q,new Vector3(.16f,.21f,d.magnitude),beam,true);
+        box("아래 난간",mid+right*2.41f+Vector3.up*.54f,q,new Vector3(.092f,.116f,d.magnitude),dark,false);
+    }
+}
+foreach(float s in new[]{-11.8f,-8.35f,-4.4f,0f,4.4f,8.35f,11.8f}){
+    var p=center+direction*s;
+    if(s < -inner)p.y=Mathf.Lerp(deck,entrance.y,Mathf.InverseLerp(inner,end,-s));
+    if(s > inner)p.y=Mathf.Lerp(deck,exit.y,Mathf.InverseLerp(inner,end,s));
+    foreach(int sign in new[]{-1,1}){
+        var right=rotation*Vector3.right*sign;
+        box("난간 기둥",p+right*2.4f+Vector3.up*.52f,rotation,new Vector3(.24f,1.36f,.25f),dark,true);
+        if(Mathf.Abs(s)<8 || Mathf.Abs(s)>9)continue;
+        var q=p+right*1.8f;
+        float low=ground(q.x,q.z)-.6f;
+        box("돌 받침",new Vector3(q.x,(low+deck)*.5f-.16f,q.z),rotation,new Vector3(.80f,Mathf.Max(.4f,deck-low),1.20f),stone,true);
+    }
+}
+// 널판과 난간을 재질별로 합쳐 렌더러 수를 줄이고, 보행·난간 충돌체는 그대로 쓴다.
+foreach(var group in bridgePieces.GroupBy(g=>g.GetComponent<MeshRenderer>().sharedMaterial)){
+    var instances=new List<CombineInstance>();
+    foreach(var obj in group){
+        var f=obj.GetComponent<MeshFilter>();
+        instances.Add(new CombineInstance{ mesh=f.sharedMesh,transform=bridge.transform.worldToLocalMatrix*obj.transform.localToWorldMatrix });
+        UnityEngine.Object.DestroyImmediate(obj.GetComponent<MeshRenderer>());
+        UnityEngine.Object.DestroyImmediate(f);
+        if(!obj.GetComponent<Collider>())UnityEngine.Object.DestroyImmediate(obj);
+    }
+    var mesh=new Mesh();mesh.CombineMeshes(instances.ToArray(),true,true);
+    render("목교 "+group.Key.name,bridge.transform,mesh,group.Key);
+}
+var stoneRoot=child("폭포 협곡의 암반",root.transform).transform;
+const string cliffPath="Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/Cliffs/";
+var random=new System.Random(12632);
+for(int i=0;i<29;i++){
+    int side=i<14?-1:1;int step=i<14?i:i-14;
+    float x=850+step%5*7.1f+(float)random.NextDouble()*7;
+    float z=2188+side*(15+step/5*16+step%5*1.8f+(float)random.NextDouble()*6);
+    var template=AssetDatabase.LoadAssetAtPath<GameObject>(cliffPath+"PF_EastLands_Cliff_0"+(1+i%3)+".prefab");
+    if(!template)continue;
+    var rock=(GameObject)PrefabUtility.InstantiatePrefab(template,stoneRoot);
+    rock.transform.SetPositionAndRotation(new Vector3(x,ground(x,z),z),Quaternion.Euler(0,55+i*47.3f,0));
+    var rr=rock.GetComponentsInChildren<Renderer>();var rb=rr[0].bounds;
+    foreach(var r in rr)rb.Encapsulate(r.bounds);
+    float size=14f+(float)random.NextDouble()*12;
+    rock.transform.localScale*=size/Mathf.Max(rb.size.x,rb.size.z);
+    rb=rr[0].bounds;foreach(var r in rr)rb.Encapsulate(r.bounds);
+    rock.transform.position+=Vector3.up*(ground(x,z)-rb.min.y-rb.size.y*.62f);
+}
+AssetDatabase.SaveAssetIfDirty(AssetDatabase.LoadMainAssetAtPath(kitPath));
+UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+Physics.SyncTransforms();
+return "목교 24.6m / 진입 경사 "+(Mathf.Max(Mathf.Abs(deck-entrance.y),Mathf.Abs(deck-exit.y))/(end-inner)).ToString("P1")+
+    " / 암반 "+stoneRoot.childCount;

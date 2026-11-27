@@ -1,0 +1,249 @@
+// 지형에 안착하는 관개 농지와 동쪽 외해 및 사암 해안을 저작한다.
+const string world = "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34";
+const string scenePath = world + "/Preview/RiverBasin4km.unity";
+const string assetPath = world + "/Production/RegionArt/RiverBasinDesertLandscape.asset";
+var scene = UnityEngine.SceneManagement.SceneManager.GetSceneByPath(scenePath);
+if(EditorApplication.isPlayingOrWillChangePlaymode) throw new InvalidOperationException("편집 모드 필요");
+if(!scene.isLoaded) scene = UnityEditor.SceneManagement.EditorSceneManager.OpenScene(scenePath,UnityEditor.SceneManagement.OpenSceneMode.Additive);
+var savedAssets=AssetDatabase.LoadAllAssetsAtPath(assetPath);
+var boundMeshes=new System.Collections.Generic.HashSet<Mesh>();
+var baseRoot = scene.GetRootGameObjects().Single(g=>g.name=="RiverBasin · 사막 물길과 해안 전망대");
+var shore = baseRoot.transform.GetChild(0);
+var market = baseRoot.transform.GetChild(1);
+var coast = baseRoot.transform.GetChild(2);
+if(market.Find("우물 마을 · 관개 텃밭"))return "사막 조경이 이미 연결되어 있습니다.";
+var originalWater=AssetDatabase.LoadAssetAtPath<Material>(world+"/Production/Water/Surface.mat");
+var lit=Shader.Find("Universal Render Pipeline/Lit");
+if(!originalWater||!lit)throw new InvalidOperationException("원본 수면 또는 URP Lit 누락");
+var terrains = Terrain.activeTerrains.Where(t=>t.gameObject.scene==scene).ToDictionary(t=>(int)(t.transform.position.x/512)*32+(int)(t.transform.position.z/512));
+Func<float,float,float> height=(x,z)=>{
+    float safeX=Mathf.Min(4095.999f,x);
+    var terrain=terrains[Mathf.FloorToInt(safeX/512)*32+Mathf.FloorToInt(z/512)];
+    return terrain.SampleHeight(new Vector3(safeX,0,z))+terrain.transform.position.y;
+};
+var assets=new System.Collections.Generic.List<UnityEngine.Object>();
+Func<string,Color,Material> material=(name,color)=>{
+    var mat=savedAssets.OfType<Material>().FirstOrDefault(m=>m.name==name);
+    if(mat)return mat;
+    mat=new Material(lit){name=name};
+    mat.SetColor("_BaseColor",color);
+    mat.SetFloat("_Smoothness",.07f);
+    assets.Add(mat);
+    return mat;
+};
+var rockColors=new[]{new Color(.67f,.41f,.27f),new Color(.78f,.55f,.37f),new Color(.59f,.35f,.26f),new Color(.83f,.65f,.44f)};
+var stone=rockColors.Select((c,i)=>material("사암층 "+i,c)).ToArray();
+var soils=new[]{new Color(.42f,.30f,.18f),new Color(.48f,.35f,.21f),new Color(.38f,.26f,.17f)}.Select((c,i)=>material("밭 흙 "+i,c)).ToArray();
+var wood=material("수문 목재",new Color(.35f,.22f,.13f));
+var atl=AssetDatabase.GetAllAssetPaths();
+var names=new[]{"PF_Farm_Wheat_02","PF_Farm_Wheat_03","PF_Farm_Carrot_Plant_01","PF_Farm_Carrot_Plant_02","PF_Farm_WatermelonGrown_01"};
+var foliage=names.Select(n=>AssetDatabase.LoadAssetAtPath<GameObject>(atl.First(p=>p.EndsWith("/"+n+".prefab")))).ToArray();
+if(foliage.Any(g=>!g))throw new InvalidOperationException("작물 원본 누락");
+var sourceMesh=foliage.Select(g=>{
+    var lg=g.GetComponentInChildren<LODGroup>(true);
+    return lg?lg.GetLODs()[Mathf.Min(1,lg.GetLODs().Length-1)].renderers.OfType<MeshRenderer>().ToArray():g.GetComponentsInChildren<MeshRenderer>(true);
+}).ToArray();
+if(sourceMesh.Any(rs=>rs.Length==0||rs.Any(r=>!r.GetComponent<MeshFilter>()||!r.GetComponent<MeshFilter>().sharedMesh)))throw new InvalidOperationException("작물 메시 누락");
+var undo=Undo.GetCurrentGroup();
+Undo.IncrementCurrentGroup();
+undo=Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName("사막 조경 마감");
+Func<Transform,string,GameObject> child=(parent,name)=>{
+    var obj=new GameObject(name);
+    obj.transform.SetParent(parent,false);
+    Undo.RegisterCreatedObjectUndo(obj,name);
+    return obj;
+};
+Func<Transform,string,Vector3[],int[][],Material[],GameObject> meshObject=(parent,name,vertices,triangles,materials)=>{
+    var obj=child(parent,name);
+    var origin=vertices[0];
+    var mesh=savedAssets.OfType<Mesh>().FirstOrDefault(m=>m.name==name&&m.vertexCount==vertices.Length&&!boundMeshes.Contains(m));
+    if(mesh){boundMeshes.Add(mesh);mesh.Clear();}else{mesh=new Mesh{name=name};assets.Add(mesh);}
+    mesh.indexFormat=vertices.Length>64000?UnityEngine.Rendering.IndexFormat.UInt32:UnityEngine.Rendering.IndexFormat.UInt16;
+    obj.transform.position=origin;
+    mesh.vertices=vertices.Select(v=>v-origin).ToArray();
+    mesh.uv=vertices.Select(v=>new Vector2(v.x*.1f,v.z*.1f)).ToArray();
+    mesh.subMeshCount=triangles.Length;
+    for(int i=0;i<triangles.Length;i++)mesh.SetTriangles(triangles[i],i);
+    mesh.RecalculateNormals();mesh.RecalculateBounds();
+    obj.AddComponent<MeshFilter>().sharedMesh=mesh;
+    obj.AddComponent<MeshRenderer>().sharedMaterials=materials;
+    EditorUtility.SetDirty(mesh);
+    return obj;
+};
+Action<System.Collections.Generic.List<Vector3>,System.Collections.Generic.List<int>,Vector3,Vector3,Vector3,Vector3,Vector3> quad=(verts,tris,a,b,c,d,normal)=>{
+    int index=verts.Count;
+    verts.AddRange(new[]{a,b,c,d});
+    if(Vector3.Dot(Vector3.Cross(b-a,c-a),normal)>0)tris.AddRange(new[]{index,index+1,index+2,index,index+2,index+3});
+    else tris.AddRange(new[]{index,index+2,index+1,index,index+3,index+2});
+};
+int cropCount=0;
+try {
+    var gardenMarket=child(market,"우물 마을 · 관개 텃밭").transform;
+    var gardenShore=child(shore,"호숫가 · 계단 텃밭").transform;
+    var border=child(coast,"동쪽 바다와 사암 벼랑").transform;
+    Action<Transform,float,float,int,int,float> garden=(parent,cx,cz,rows,seed,length)=>{
+        const float spacing=1.12f;
+        float half=rows*spacing*.5f;
+        var plot=child(parent,"텃밭 "+seed).transform;
+        var groundVerts=new System.Collections.Generic.List<Vector3>();
+        var groundTris=Enumerable.Range(0,3).Select(i=>new System.Collections.Generic.List<int>()).ToArray();
+        var random=new System.Random(seed);
+        Func<float,float,Vector3> soil=(u,v)=>{
+            float end=Mathf.Min(v,length-v);
+            float taper=Mathf.SmoothStep(.77f,1f,end/1.4f);
+            float offset=.12f*Mathf.Sin(v*.64f+seed)+.06f*Mathf.Sin(v*1.4f);
+            float x=cx+u*taper+offset;
+            float z=cz+v+.17f*Mathf.Cos(u);
+            float center=Mathf.Cos((u+(rows%2==0?spacing*.5f:0))*Mathf.PI*2/spacing);
+            float ridge=.13f*Mathf.Pow(Mathf.Max(0,center),1.5f);
+            float blend=Mathf.SmoothStep(0,1,Mathf.Min(end/.48f,(half-Mathf.Abs(u))/.37f));
+            return new Vector3(x,height(x,z)+Mathf.Lerp(-.075f,.13f+ridge,blend),z);
+        };
+        int count=Mathf.CeilToInt(length/.28f), across=rows*5;
+        for(int a=0;a<count;a++)for(int b=0;b<across;b++){
+            float u=-half+2*half*b/across,u1=-half+2*half*(b+1)/across;
+            float v=length*a/count,v1=length*(a+1)/count;
+            int tone=Mathf.PerlinNoise((cx+u)*1.31f,(cz+v)*.97f)>.68f?1:(Mathf.Abs(u)>half-.45f?2:0);
+            quad(groundVerts,groundTris[tone],soil(u,v),soil(u,v1),soil(u1,v1),soil(u1,v),Vector3.up);
+        }
+        meshObject(plot,"흙두둑",groundVerts.ToArray(),groundTris.Select(t=>t.ToArray()).ToArray(),soils);
+        var batches=new System.Collections.Generic.Dictionary<Material,System.Collections.Generic.List<CombineInstance>>();
+        for(int row=0;row<rows;row++){
+            bool wheat=(row+seed)%4==1;
+            bool melon=(row+seed)%6==2;
+            float step=wheat?.50f:(melon?1.3f:.77f);
+            float u=(row-(rows-1)*.5f)*spacing;
+            for(float v=.86f;v<length-.60f;v+=step){
+                if(random.NextDouble()<.085)continue;
+                int model=wheat?random.Next(0,2):melon?4:random.Next(2,4);
+                var p=soil(u+(float)(random.NextDouble()-.5)*.34f,v+(float)(random.NextDouble()-.5)*.33f);
+                float size=(float)(.77+random.NextDouble()*.38);
+                var transform=Matrix4x4.TRS(p-Vector3.up*.025f,Quaternion.Euler(0,(float)(random.NextDouble()*360),0),Vector3.one*size);
+                foreach(var r in sourceMesh[model]){
+                    var source=r.GetComponent<MeshFilter>().sharedMesh;
+                    var origin=foliage[model].transform.worldToLocalMatrix*r.transform.localToWorldMatrix;
+                    for(int part=0;part<source.subMeshCount;part++){
+                        var m=r.sharedMaterials[Mathf.Min(part,r.sharedMaterials.Length-1)];
+                        if(!m)throw new InvalidOperationException(r.name+" 재질 누락");
+                        if(!batches.ContainsKey(m))batches[m]=new System.Collections.Generic.List<CombineInstance>();
+                        batches[m].Add(new CombineInstance{mesh=source,subMeshIndex=part,transform=transform*origin});
+                    }
+                }
+                cropCount++;
+            }
+        }
+        foreach(var pair in batches){
+            var obj=child(plot,"작물 · "+pair.Key.name);
+            Vector3 pivot=new Vector3(cx,height(cx,cz),cz);
+            obj.transform.position=pivot;
+            var instances=pair.Value.Select(c=>{c.transform=Matrix4x4.Translate(-pivot)*c.transform;return c;}).ToArray();
+            var meshName=plot.name+" "+pair.Key.name;
+            var mesh=savedAssets.OfType<Mesh>().FirstOrDefault(m=>m.name==meshName);
+            if(mesh){mesh.Clear();}else{mesh=new Mesh{name=meshName};assets.Add(mesh);}
+            mesh.indexFormat=instances.Sum(c=>c.mesh.vertexCount)>64000?UnityEngine.Rendering.IndexFormat.UInt32:UnityEngine.Rendering.IndexFormat.UInt16;
+            mesh.CombineMeshes(instances,true,true,false);
+            if(mesh.vertexCount==0)throw new InvalidOperationException("작물 결합 실패 "+pair.Key.name);
+            EditorUtility.SetDirty(mesh);
+            obj.AddComponent<MeshFilter>().sharedMesh=mesh;
+            obj.AddComponent<MeshRenderer>().sharedMaterial=pair.Key;
+        }
+    };
+    garden(gardenMarket,3597.5f,1487.5f,6,92,15f);
+    garden(gardenMarket,3597f,1507f,5,37,14f);
+    garden(gardenShore,3329f,932f,5,98,13f);
+    var canalWater=savedAssets.OfType<Material>().FirstOrDefault(m=>m.name=="좁은 관개 수면") ?? new Material(originalWater){name="좁은 관개 수면"};
+    canalWater.SetColor("_ShallowColor",new Color(.24f,.51f,.45f));
+    canalWater.SetColor("_DeepColor",new Color(.08f,.29f,.27f));
+    canalWater.SetFloat("_SurfaceOpacity",.86f);
+    canalWater.SetFloat("_FoamStrength",.09f);
+    canalWater.SetFloat("_ShoreFade",0);
+    if(!AssetDatabase.Contains(canalWater))assets.Add(canalWater);
+    Action<Transform,Vector2[]> canal=(parent,points)=>{
+        var bed=new System.Collections.Generic.List<Vector3>();
+        var faces=Enumerable.Range(0,3).Select(i=>new System.Collections.Generic.List<int>()).ToArray();
+        var fluid=new System.Collections.Generic.List<Vector3>();
+        var waterTris=new System.Collections.Generic.List<int>();
+        var centerline=new System.Collections.Generic.List<Vector2>();
+        for(int k=1;k<points.Length;k++){
+            int steps=Mathf.CeilToInt(Vector2.Distance(points[k-1],points[k])/.62f);
+            for(int i=0;i<steps;i++)centerline.Add(Vector2.Lerp(points[k-1],points[k],i/(float)steps));
+        }
+        centerline.Add(points.Last());
+        var cross=centerline.Select((p,i)=>{
+            var d=(centerline[Mathf.Min(centerline.Count-1,i+1)]-centerline[Mathf.Max(0,i-1)]).normalized;
+            var side=new Vector2(-d.y,d.x);
+            float y=height(p.x,p.y)+.24f;
+            var row=new[]{-.64f,-.44f,-.33f,.33f,.44f,.64f};
+            return row.Select((f,j)=>{
+                var q=p+side*f;
+                return new Vector3(q.x,j==0||j==5?Mathf.Min(y-.15f,height(q.x,q.y)-.11f):y+(j==1||j==4?.25f:0),q.y);
+            }).ToArray();
+        }).ToArray();
+        for(int i=1;i<cross.Length;i++){
+            var a=cross[i-1];var b=cross[i];
+            for(int j=0;j<5;j++){
+                var dest=faces[j==2?2:(i*31+j*9)%7==0?1:0];
+                var bias=j==2?Vector3.down*.05f:Vector3.zero;
+                quad(bed,dest,a[j]+bias,b[j]+bias,b[j+1]+bias,a[j+1]+bias,Vector3.up);
+            }
+            quad(fluid,waterTris,a[2],b[2],b[3],a[3],Vector3.up);
+        }
+        meshObject(parent,"사암 관개 수로",bed.ToArray(),faces.Select(x=>x.ToArray()).ToArray(),stone.Take(3).ToArray());
+        meshObject(parent,"관개 수면",fluid.ToArray(),new[]{waterTris.ToArray()},new[]{canalWater});
+    };
+    canal(gardenMarket,new[]{new Vector2(3604.8f,1483.8f),new Vector2(3602.4f,1490),new Vector2(3601.9f,1502),new Vector2(3602.2f,1512),new Vector2(3600.2f,1521.5f)});
+    canal(gardenShore,new[]{new Vector2(3321.7f,932),new Vector2(3324.3f,935.7f),new Vector2(3324.2f,942),new Vector2(3326.0f,946),new Vector2(3330.7f,948)});
+    var sea=savedAssets.OfType<Material>().FirstOrDefault(m=>m.name=="동쪽 외해") ?? new Material(originalWater){name="동쪽 외해"};
+    sea.SetColor("_ShallowColor",new Color(.15f,.43f,.51f));
+    sea.SetColor("_DeepColor",new Color(.038f,.23f,.34f));
+    sea.SetColor("_UnderwaterColor",new Color(.048f,.22f,.29f));
+    sea.SetFloat("_ShoreFade",0);sea.SetFloat("_SurfaceOpacity",.96f);
+    sea.SetFloat("_WaveScale",.07f);sea.SetFloat("_FoamWidth",2.6f);sea.SetFloat("_FoamStrength",.43f);
+    sea.SetFloat("_DepthDistance",13);sea.SetFloat("_RefractionStrength",0);
+    if(!AssetDatabase.Contains(sea))assets.Add(sea);
+    float level=.04f;
+    var ocean=meshObject(border,"동쪽 외해 수면",new[]{new Vector3(4092,level,-7800),new Vector3(4092,level,9000),
+        new Vector3(18100,level,9000),new Vector3(18100,level,-7800)},new[]{new[]{0,1,2,0,2,3}},new[]{sea});
+    ocean.GetComponent<MeshRenderer>().shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;
+    var cliffVerts=new System.Collections.Generic.List<Vector3>();
+    var cliffTriangles=Enumerable.Range(0,4).Select(i=>new System.Collections.Generic.List<int>()).ToArray();
+    float[] shelves={0,.075f,.16f,.26f,.33f,.45f,.55f,.64f,.72f,.82f,.90f,1f};
+    int[] strata={3,1,2,0,1,2,0,1,0,2,1};
+    const int sections=226;
+    var rings=new Vector3[sections+1][];
+    for(int i=0;i<=sections;i++){
+        float z=Mathf.Lerp(590,2390,i/(float)sections);
+        float top=height(4095.95f,z)-.05f;
+        float margin=Mathf.SmoothStep(0,1,Mathf.Min((z-590)/134,(2390-z)/170));
+        float spur=(.3f+Mathf.PerlinNoise(z*.013f,4f)*.7f)*22f*margin;
+        float fluting=(Mathf.PerlinNoise(z*.035f,2.9f)-.5f)*13f*margin;
+        rings[i]=shelves.Select((depth,j)=>{
+            float lip=j%3==1?3.7f:j%3==2?-1.2f:1.7f;
+            float x=j==0?4095.78f:4095.8f+depth*spur+margin*(lip+fluting*depth+.9f*Mathf.Sin(z*.05f+j));
+            float y=Mathf.Lerp(top,level-5.2f,depth)+(j==0||j==shelves.Length-1?0:(Mathf.PerlinNoise(z*.019f,j*.51f)-.5f)*3.6f*margin);
+            return new Vector3(x,y,z);
+        }).ToArray();
+    }
+    for(int i=1;i<rings.Length;i++)for(int j=0;j<shelves.Length-1;j++){
+        int band=strata[j];
+        if(Mathf.PerlinNoise(i*.27f,j*.9f)>.74f)band=(band+1)%4;
+        quad(cliffVerts,cliffTriangles[band],rings[i-1][j],rings[i-1][j+1],rings[i][j+1],rings[i][j],Vector3.right);
+    }
+    meshObject(border,"동쪽 사암 절벽",cliffVerts.ToArray(),cliffTriangles.Select(t=>t.ToArray()).ToArray(),stone);
+    foreach(var t in new[]{shore,market}.SelectMany(p=>p.Cast<Transform>()).Where(t=>t.name.StartsWith("계단밭")).ToArray()){
+        Undo.RecordObject(t.gameObject,"기존 임시 밭 보관");
+        t.gameObject.SetActive(false);
+    }
+    var main=AssetDatabase.LoadMainAssetAtPath(assetPath);
+    if(!main){main=assets[0];AssetDatabase.CreateAsset(main,assetPath);}
+    foreach(var asset in assets.Where(a=>a!=main)) AssetDatabase.AddObjectToAsset(asset,assetPath);
+    EditorUtility.SetDirty(main);
+    AssetDatabase.SaveAssetIfDirty(main);
+    Undo.CollapseUndoOperations(undo);
+    UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+    return "저작한 작물 "+cropCount+"포기, 농지 3곳, 수로 2줄, 바다와 절벽. 에셋 "+assets.Count;
+} catch {
+    Undo.RevertAllDownToGroup(undo);
+    throw;
+}

@@ -1,0 +1,100 @@
+// 원경은 Farmlands의 마지막 LOD를 사용하고 밭별로 머티리얼을 묶는다.
+const string world="Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34";
+const string assetPath=world+"/Production/RegionArt/RiverBasinDesertLandscape.asset";
+var scene=UnityEngine.SceneManagement.SceneManager.GetSceneByName("RiverBasin4km");
+var main=AssetDatabase.LoadMainAssetAtPath(assetPath);
+var root=scene.GetRootGameObjects().Single(g=>g.name=="RiverBasin · 사막 물길과 해안 전망대").transform;
+var market=root.GetChild(1).Find("우물 마을 · 관개 텃밭");
+var lakeside=root.GetChild(0).Find("호숫가 · 계단 텃밭");
+if(!market||!lakeside||!main)throw new InvalidOperationException("관개 텃밭이 필요합니다.");
+if(market.GetComponentInChildren<LODGroup>())return "작물 원경 LOD 적용 완료";
+var terrains = Terrain.activeTerrains.Where(t=>t.gameObject.scene==scene).ToDictionary(t=>(int)(t.transform.position.x/512)*32+(int)(t.transform.position.z/512));
+Func<float,float,float> height=(x,z)=>{
+    float safeX=Mathf.Min(4095.999f,x);
+    var terrain=terrains[Mathf.FloorToInt(safeX/512)*32+Mathf.FloorToInt(z/512)];
+    return terrain.SampleHeight(new Vector3(safeX,0,z))+terrain.transform.position.y;
+};
+
+var atl=AssetDatabase.GetAllAssetPaths();
+var names=new[]{"PF_Farm_Wheat_02","PF_Farm_Wheat_03","PF_Farm_Carrot_Plant_01","PF_Farm_Carrot_Plant_02","PF_Farm_WatermelonGrown_01"};
+var foliage=names.Select(n=>AssetDatabase.LoadAssetAtPath<GameObject>(atl.First(p=>p.EndsWith("/"+n+".prefab")))).ToArray();
+if(foliage.Any(g=>!g))throw new InvalidOperationException("작물 원본 누락");
+var sourceMesh=foliage.Select(g=>{
+    var lg=g.GetComponentInChildren<LODGroup>(true);
+    return lg?lg.GetLODs()[lg.GetLODs().Length-1].renderers.OfType<MeshRenderer>().ToArray():g.GetComponentsInChildren<MeshRenderer>(true);
+}).ToArray();
+if(sourceMesh.Any(rs=>rs.Length==0||rs.Any(r=>!r.GetComponent<MeshFilter>()||!r.GetComponent<MeshFilter>().sharedMesh)))throw new InvalidOperationException("작물 메시 누락");
+
+Undo.IncrementCurrentGroup();int group=Undo.GetCurrentGroup();Undo.SetCurrentGroupName("사막 작물 원경 LOD");
+int close=0,distant=0;
+Action<Transform,float,float,int,int,float> lodPlot=(parent,cx,cz,rows,seed,length)=>{
+        const float spacing=1.12f;
+        float half=rows*spacing*.5f;
+        var plot=parent.Find("텃밭 "+seed);
+        var random=new System.Random(seed);
+        Func<float,float,Vector3> soil=(u,v)=>{
+            float end=Mathf.Min(v,length-v);
+            float taper=Mathf.SmoothStep(.77f,1f,end/1.4f);
+            float offset=.12f*Mathf.Sin(v*.64f+seed)+.06f*Mathf.Sin(v*1.4f);
+            float x=cx+u*taper+offset;
+            float z=cz+v+.17f*Mathf.Cos(u);
+            float center=Mathf.Cos((u+(rows%2==0?spacing*.5f:0))*Mathf.PI*2/spacing);
+            float ridge=.13f*Mathf.Pow(Mathf.Max(0,center),1.5f);
+            float blend=Mathf.SmoothStep(0,1,Mathf.Min(end/.48f,(half-Mathf.Abs(u))/.37f));
+            return new Vector3(x,height(x,z)+Mathf.Lerp(-.075f,.13f+ridge,blend),z);
+        };
+
+        var batches=new System.Collections.Generic.Dictionary<Material,System.Collections.Generic.List<CombineInstance>>();
+        for(int row=0;row<rows;row++){
+            bool wheat=(row+seed)%4==1;
+            bool melon=(row+seed)%6==2;
+            float step=wheat?.50f:(melon?1.3f:.77f);
+            float u=(row-(rows-1)*.5f)*spacing;
+            for(float v=.86f;v<length-.60f;v+=step){
+                if(random.NextDouble()<.085)continue;
+                int model=wheat?random.Next(0,2):melon?4:random.Next(2,4);
+                var p=soil(u+(float)(random.NextDouble()-.5)*.34f,v+(float)(random.NextDouble()-.5)*.33f);
+                float size=(float)(.77+random.NextDouble()*.38);
+                var transform=Matrix4x4.TRS(p-Vector3.up*.025f,Quaternion.Euler(0,(float)(random.NextDouble()*360),0),Vector3.one*size);
+                foreach(var r in sourceMesh[model]){
+                    var source=r.GetComponent<MeshFilter>().sharedMesh;
+                    var origin=foliage[model].transform.worldToLocalMatrix*r.transform.localToWorldMatrix;
+                    for(int part=0;part<source.subMeshCount;part++){
+                        var m=r.sharedMaterials[Mathf.Min(part,r.sharedMaterials.Length-1)];
+                        if(!m)throw new InvalidOperationException(r.name+" 재질 누락");
+                        if(!batches.ContainsKey(m))batches[m]=new System.Collections.Generic.List<CombineInstance>();
+                        batches[m].Add(new CombineInstance{mesh=source,subMeshIndex=part,transform=transform*origin});
+                    }
+                }
+            }
+        }
+
+    var near=plot.Cast<Transform>().Where(t=>t.name.StartsWith("작물 · ")).Select(t=>t.GetComponent<Renderer>()).ToArray();
+    if(near.Length==0)throw new InvalidOperationException("근경 식생 누락 "+plot.name);
+    var far=new System.Collections.Generic.List<Renderer>();
+    foreach(var pair in batches){
+        var obj=new GameObject("원경 작물 · "+pair.Key.name);
+        obj.transform.SetParent(plot,false);Undo.RegisterCreatedObjectUndo(obj,obj.name);
+        Vector3 pivot=new Vector3(cx,height(cx,cz),cz);obj.transform.position=pivot;
+        var instances=pair.Value.Select(c=>{c.transform=Matrix4x4.Translate(-pivot)*c.transform;return c;}).ToArray();
+        var mesh=new Mesh{name=plot.name+" 원경 "+pair.Key.name};
+        mesh.CombineMeshes(instances,true,true,false);AssetDatabase.AddObjectToAsset(mesh,assetPath);
+        obj.AddComponent<MeshFilter>().sharedMesh=mesh;
+        var renderer=obj.AddComponent<MeshRenderer>();renderer.sharedMaterial=pair.Key;
+        renderer.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;
+        far.Add(renderer);
+        distant+=mesh.vertexCount;
+    }
+    close+=near.Sum(r=>r.GetComponent<MeshFilter>().sharedMesh.vertexCount);
+    var lod=Undo.AddComponent<LODGroup>(plot.gameObject);
+    lod.SetLODs(new[]{new LOD(.115f,near),new LOD(.012f,far.ToArray())});
+    lod.RecalculateBounds();
+};
+try{
+    lodPlot(market,3597.5f,1487.5f,6,92,15f);
+    lodPlot(market,3597f,1507f,5,37,14f);
+    lodPlot(lakeside,3329f,932f,5,98,13f);
+    EditorUtility.SetDirty(main);AssetDatabase.SaveAssetIfDirty(main);
+    Undo.CollapseUndoOperations(group);UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+    return "작물 정점 근경 "+close+" / 원경 "+distant;
+}catch{Undo.RevertAllDownToGroup(group);throw;}

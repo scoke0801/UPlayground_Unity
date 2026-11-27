@@ -1,0 +1,12 @@
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+var go=new GameObject("산정호 검수 카메라");
+var camera=go.AddComponent<Camera>();camera.enabled=false;camera.scene=scene;camera.farClipPlane=2200;camera.nearClipPlane=.2f;
+var dir="docs/work-status/river-basin-world-tree-evidence";
+var cams=new[]{new Vector3(1604,385,1950),new Vector3(974,126,2137),new Vector3(1345,111,2220),new Vector3(1288,63,2178),new Vector3(1160,82,2200),new Vector3(1236,63.5f,2294),new Vector3(1598,83,2155),new Vector3(1580,560,2155)};
+var look=new[]{new Vector3(1020,94,2213),new Vector3(852,113,2188),new Vector3(1251,70,2307),new Vector3(1261,62,2235),new Vector3(1222,58,2231),new Vector3(1258,71,2310),new Vector3(1557,53,2131),new Vector3(905,85,2290)};
+var fov=new[]{50f,48f,48f,58f,54f,68f,55f,42f};
+var name=new[]{"overview","falls","village","bridge","upstream","plaza","confluence","overview-match"};
+var old=RenderTexture.active;var rt=RenderTexture.GetTemporary(1440,900,24);var tx=new Texture2D(1440,900,TextureFormat.RGB24,false);
+var fx=GameObject.Find("R1 · 산정호와 세계수").GetComponentsInChildren<ParticleSystem>();foreach(var ps in fx)ps.Simulate(3.3f,true,true);try{for(int i=0;i<cams.Length;i++){camera.transform.position=cams[i];camera.transform.LookAt(look[i]);camera.fieldOfView=fov[i];camera.targetTexture=rt;camera.Render();RenderTexture.active=rt;tx.ReadPixels(new Rect(0,0,1440,900),0,0);tx.Apply();System.IO.File.WriteAllBytes(dir+"/"+name[i]+".jpg",tx.EncodeToJPG(91));}}
+finally{foreach(var ps in fx)ps.Stop(true,ParticleSystemStopBehavior.StopEmittingAndClear);RenderTexture.active=old;camera.targetTexture=null;RenderTexture.ReleaseTemporary(rt);UnityEngine.Object.DestroyImmediate(tx);UnityEngine.Object.DestroyImmediate(go);}
+return "고정 화면 "+name.Length+"개";

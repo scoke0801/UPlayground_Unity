@@ -1,0 +1,78 @@
+// 항구 건축 FBX를 읽고 프로젝트 텍스처를 사용하는 전용 재질을 연결한다.
+const string world="Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/";
+const string folder=world+"Authoring/HarborCity/";
+const string palettePath=world+"Production/RegionArt/RiverBasinHarborArchitecturePalette.asset";
+const string textures="Assets/08.Models/WorldCities/ShadeCastle/Textures/";
+var kinds=new[]{"MerchantInn","PilotHouse","Fishmonger","RopewalkHouse","BondedStore","NetLoft","FreightYard","NetYard","MarketGoods","KitchenGarden"};
+var colors=new System.Collections.Generic.Dictionary<string,Material>();
+foreach(var asset in AssetDatabase.LoadAllAssetsAtPath(palettePath))
+    if(asset is Material)colors.Add(AssetDatabase.IsMainAsset(asset)?"RBA_Masonry":asset.name,(Material)asset);
+var shader=Shader.Find("Universal Render Pipeline/Lit");
+if(!shader)throw new System.InvalidOperationException("URP Lit 셰이더 누락");
+var wood=AssetDatabase.LoadAssetAtPath<Texture2D>(textures+"T_WoodPlank_Dark.png");
+var stone=AssetDatabase.LoadAssetAtPath<Texture2D>(textures+"T_Stone_Rough.png");
+var plaster=AssetDatabase.LoadAssetAtPath<Texture2D>(textures+"T_Plaster_Aged.png");
+if(!wood||!stone||!plaster)throw new System.InvalidOperationException("항구 표면 텍스처 누락");
+foreach(var kind in kinds)
+    if(!System.IO.File.Exists(folder+"RBA_"+kind+".fbx"))throw new System.InvalidOperationException("FBX 누락 "+kind);
+if(colors.Count==0){
+    System.Action<string,float,float,float,Texture2D,float> make=(name,r,g,b,map,smooth)=>{
+        string key="RBA_"+name;
+        var m=new Material(shader){name=key,enableInstancing=true};
+        m.SetColor("_BaseColor",new Color(r,g,b));
+        m.SetFloat("_Smoothness",smooth);
+        if(map)m.SetTexture("_BaseMap",map);
+        colors.Add(key,m);
+    };
+    make("Masonry",.79f,.73f,.64f,stone,.13f);
+    make("Mortar",.46f,.42f,.37f,null,.09f);
+    make("Carved",.88f,.80f,.66f,stone,.13f);
+    make("Ochre",.94f,.74f,.53f,plaster,.125f);
+    make("Chalk",.88f,.85f,.76f,plaster,.12f);
+    make("Sage",.70f,.84f,.76f,plaster,.12f);
+    make("Oak",.74f,.58f,.43f,wood,.17f);
+    make("Painted",.20f,.40f,.41f,null,.21f);
+    make("Glass",.095f,.17f,.21f,null,.45f);
+    make("Metal",.29f,.23f,.14f,null,.31f);
+    make("Slate",.165f,.245f,.28f,null,.22f);
+    make("SlateLight",.205f,.287f,.32f,null,.23f);
+    make("Clay",.56f,.263f,.172f,null,.15f);
+    make("ClayLight",.61f,.314f,.205f,null,.15f);
+    make("Canvas",.77f,.42f,.14f,null,.09f);
+    make("Linen",.80f,.73f,.55f,null,.09f);
+    make("Rope",.49f,.37f,.21f,null,.097f);
+    make("Earth",.42f,.28f,.19f,null,.07f);
+    make("Leaves",.33f,.47f,.19f,null,.14f);
+    make("Fruit",.74f,.335f,.10f,null,.19f);
+    AssetDatabase.CreateAsset(colors["RBA_Masonry"],palettePath);
+    foreach(var p in colors)if(p.Key!="RBA_Masonry")AssetDatabase.AddObjectToAsset(p.Value,palettePath);
+    AssetDatabase.SaveAssetIfDirty(colors["RBA_Masonry"]);
+}
+var result=new System.Text.StringBuilder();
+foreach(var kind in kinds){
+    string path=folder+"RBA_"+kind+".fbx";
+    var model=AssetDatabase.LoadAssetAtPath<GameObject>(path);
+    if(!model){
+        AssetDatabase.ImportAsset(path,ImportAssetOptions.ForceSynchronousImport);
+        model=AssetDatabase.LoadAssetAtPath<GameObject>(path);
+    }
+    var importer=(ModelImporter)AssetImporter.GetAtPath(path);
+    var remaps=new System.Collections.Generic.HashSet<string>();
+    foreach(var renderer in model.GetComponentsInChildren<MeshRenderer>()){
+        foreach(var mat in renderer.sharedMaterials){
+            if(AssetDatabase.GetAssetPath(mat)==palettePath)continue;
+            var key=System.Text.RegularExpressions.Regex.Replace(mat.name,@"\.\d{3}$","");
+            if(!colors.ContainsKey(key))throw new System.InvalidOperationException("항구 재질 누락 "+mat.name);
+            if(remaps.Add(mat.name))importer.AddRemap(new AssetImporter.SourceAssetIdentifier(typeof(Material),mat.name),colors[key]);
+        }
+    }
+    importer.SaveAndReimport();
+    model=AssetDatabase.LoadAssetAtPath<GameObject>(path);
+    var renderers=model.GetComponentsInChildren<MeshRenderer>();
+    if(renderers.Length<1)throw new System.InvalidOperationException(path);
+    foreach(var renderer in renderers)
+        foreach(var mat in renderer.sharedMaterials)
+            if(AssetDatabase.GetAssetPath(mat)!=palettePath)throw new System.InvalidOperationException("임포트 재질 연결 실패 "+kind+" "+mat.name);
+    result.AppendLine(kind+" "+renderers.Length+" 메시 "+renderers[0].bounds.size.ToString("F2")+" 재질 "+remaps.Count);
+}
+return result.ToString();

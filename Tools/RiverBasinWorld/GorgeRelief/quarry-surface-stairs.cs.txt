@@ -1,0 +1,153 @@
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+var root=scene.GetRootGameObjects().Single(g=>g.name=="채석장 · 노천 작업장 재구성");
+var terrain=Terrain.activeTerrains.Single(t=>t.gameObject.scene==scene&&t.name=="Terrain_6_4");
+var data=terrain.terrainData;
+var origin=terrain.transform.position;
+var cut=root.GetComponentsInChildren<MeshFilter>().First(t=>t.name=="Dng_Wall_QuarryOpenCut");
+var assetPath=AssetDatabase.GetAssetPath(cut.sharedMesh);
+var timber=root.GetComponentsInChildren<MeshRenderer>().First(t=>t.name=="기둥 버팀").sharedMaterial;
+if(EditorApplication.isPlayingOrWillChangePlaymode||root.transform.Find("인양 광장으로 오르는 목계단")||!timber)
+    throw new InvalidOperationException("지상 계단 저작 조건을 확인하세요.");
+
+var start=new Vector3(3249,77.57f,2267.3f);
+var end=new Vector3(3249,83.82f,2255.1f);
+var axis=end-start;
+float length=start.z-end.z;
+const float half=1.03f;
+int x0=3245-(int)origin.x,z0=2252-(int)origin.z;
+var heights=data.GetHeights(x0,z0,9,18);
+for(int z=0;z<heights.GetLength(0);z++)
+for(int x=0;x<heights.GetLength(1);x++)
+{
+    float wx=origin.x+x0+x,wz=origin.z+z0+z;
+    float t=Mathf.Clamp01((start.z-wz)/length);
+    float depth=Mathf.Lerp(start.y,end.y,t)-.18f;
+    float across=1-Mathf.SmoothStep(0,1,Mathf.InverseLerp(1.08f,2.6f,Mathf.Abs(wx-start.x)));
+    float near=1-Mathf.SmoothStep(0,1,Mathf.Clamp01(Mathf.Max(wz-start.z,end.z-wz)));
+    float target=Mathf.Min(heights[z,x],(depth-origin.y)/data.size.y);
+    heights[z,x]=Mathf.Lerp(heights[z,x],target,across*near);
+    float upper=1-Mathf.SmoothStep(0,1,Mathf.InverseLerp(.8f,2.4f,Mathf.Abs(wz-2254.6f)));
+    float lower=1-Mathf.SmoothStep(0,1,Mathf.InverseLerp(.40f,1.7f,Mathf.Abs(wz-2268)));
+    if(wz<=2255f) heights[z,x]=Mathf.Lerp(heights[z,x],(83.79f-origin.y)/data.size.y,upper*across);
+    if(wz>=2268f) heights[z,x]=Mathf.Lerp(heights[z,x],(77.53f-origin.y)/data.size.y,lower*across);
+}
+
+var points=new List<Vector3>();
+var triangles=new List<int>();
+var uv=new List<Vector2>();
+Action<Vector3,Vector3,Vector3,Vector3> quad=(a,b,c,d)=>
+{
+    int i=points.Count;
+    points.AddRange(new[]{a,b,c,d});
+    uv.AddRange(new[]{Vector2.zero,Vector2.right,Vector2.one,Vector2.up});
+    triangles.AddRange(new[]{i,i+1,i+2,i,i+2,i+3});
+};
+Func<string,Mesh> finish=name=>
+{
+    var m=new Mesh{name=name};
+    m.SetVertices(points);m.SetUVs(0,uv);m.SetTriangles(triangles,0);
+    m.RecalculateNormals();m.RecalculateTangents();m.RecalculateBounds();
+    points.Clear();triangles.Clear();uv.Clear();
+    return m;
+};
+const int steps=30;
+for(int i=0;i<steps;i++)
+{
+    var a=axis*((float)i/steps);
+    var b=axis*((float)(i+1)/steps);
+    var left=new Vector3(-half,b.y,a.z);
+    var right=new Vector3(half,b.y,a.z);
+    var tread=new Vector3(0,0,b.z-a.z);
+    quad(left,right,right+tread,left+tread);
+    quad(left+Vector3.down*.2f,right+Vector3.down*.2f,right,left);
+}
+var side=Vector3.right*half;
+var over=Vector3.back*1.63f;
+quad(axis-side,axis+side,axis+side+over,axis-side+over);
+var boards=finish("채석장 외곽 목계단 · 발판");
+quad(-side,side,axis+side,axis-side);
+quad(axis-side,axis+side,axis+side+over,axis-side+over);
+var ramp=finish("채석장 외곽 목계단 · 연속 충돌");
+
+Undo.IncrementCurrentGroup();
+int undo=Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName("인양장 목계단 연결");
+Undo.RegisterCompleteObjectUndo(data,"목계단 매입부");
+var stairs=new GameObject("인양 광장으로 오르는 목계단");
+Undo.RegisterCreatedObjectUndo(stairs,"인양장 목계단");
+stairs.transform.SetParent(root.transform);
+stairs.transform.position=start;
+try
+{
+    data.SetHeights(x0,z0,heights);
+    int upperX=3244-(int)origin.x;
+    var landing=data.GetHeights(upperX,z0,9,6);
+    for(int z=0;z<landing.GetLength(0);z++)
+    for(int x=0;x<landing.GetLength(1);x++)
+    {
+        float wx=origin.x+upperX+x,wz=origin.z+z0+z;
+        if(wx>=3248&&wz>=2256) continue;
+        float across=1-Mathf.SmoothStep(0,1,Mathf.InverseLerp(1.7f,4.1f,Mathf.Abs(wx-3247.5f)));
+        float along=1-Mathf.SmoothStep(0,1,Mathf.InverseLerp(.55f,2.28f,Mathf.Abs(wz-2254.6f)));
+        float target=83.77f-.42f*Mathf.Clamp(3249-wx,0,4.8f);
+        landing[z,x]=Mathf.Lerp(landing[z,x],(target-origin.y)/data.size.y,across*along);
+    }
+    data.SetHeights(upperX,z0,landing);
+    var apron=data.GetHeights(upperX+1,z0+1,5,3);
+    var apronLevels=new[]{82.55f,83.05f,83.64f,83.75f,83.77f};
+    for(int z=0;z<apron.GetLength(0);z++)
+    for(int x=0;x<apron.GetLength(1);x++)
+        apron[z,x]=(apronLevels[x]-origin.y)/data.size.y;
+    data.SetHeights(upperX+1,z0+1,apron);
+    var floor=new GameObject("Dng_Stairs");
+    floor.isStatic=true;
+    floor.transform.SetParent(stairs.transform,false);
+    floor.AddComponent<MeshFilter>().sharedMesh=boards;
+    floor.AddComponent<MeshRenderer>().sharedMaterial=timber;
+    floor.AddComponent<MeshCollider>().sharedMesh=ramp;
+    Action<string,Vector3,Vector3,float> beam=(name,a,b,size)=>
+    {
+        var bar=GameObject.CreatePrimitive(PrimitiveType.Cube);
+        bar.name=name;
+        bar.transform.SetParent(stairs.transform,false);
+        bar.transform.localPosition=(a+b)*.5f;
+        bar.transform.localRotation=Quaternion.FromToRotation(Vector3.up,(b-a).normalized);
+        bar.transform.localScale=new Vector3(size,Vector3.Distance(a,b),size);
+        bar.GetComponent<MeshRenderer>().sharedMaterial=timber;
+        UnityEngine.Object.DestroyImmediate(bar.GetComponent<BoxCollider>());
+    };
+    foreach(int sign in new[]{-1,1})
+    {
+        var rail=Vector3.right*(half+.1f)*sign;
+        beam("목계단 장선",rail-Vector3.up*.14f,axis+rail-Vector3.up*.14f,.18f);
+        for(int i=1;i<5;i++)
+        {
+            var foot=axis*(i*.20f)+rail;
+            beam("난간 기둥",foot-Vector3.up*.29f,foot+Vector3.up*.95f,.15f);
+        }
+        beam("목계단 난간",axis*.16f+rail+Vector3.up*.87f,axis*.84f+rail+Vector3.up*.87f,.13f);
+    }
+    terrain.Flush();
+    Physics.SyncTransforms();
+    for(int i=1;i<steps;i++)
+    {
+        var test=start+axis*(i/(float)steps);
+        RaycastHit hit;
+        if(!Physics.Raycast(test+Vector3.up*.65f,Vector3.down,out hit,1.05f,~0,QueryTriggerInteraction.Ignore)||
+            Mathf.Abs(hit.point.y-test.y)>.18f)
+            throw new InvalidOperationException("목계단 바닥이 끊겼습니다. "+test);
+    }
+    AssetDatabase.AddObjectToAsset(boards,assetPath);
+    AssetDatabase.AddObjectToAsset(ramp,assetPath);
+    AssetDatabase.SaveAssetIfDirty(boards);
+    AssetDatabase.SaveAssetIfDirty(data);
+    if(!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene))
+        throw new InvalidOperationException("인양장 목계단 씬 저장 실패");
+    Undo.CollapseUndoOperations(undo);
+    return "양쪽 난간을 포함한 30단 목계단, 보행 경사 "+Vector3.Angle(Vector3.ProjectOnPlane(axis,Vector3.up),axis).ToString("F1");
+}
+catch
+{
+    Undo.RevertAllDownToGroup(undo);
+    throw;
+}

@@ -1,0 +1,136 @@
+if (GameObject.Find(label) || !tiles[1,4].terrainData.name.EndsWith("_WorldTreeBasin"))
+    throw new Exception("산정호 파생 지형을 먼저 적용해야 합니다.");
+var northFall=AssetDatabase.LoadAssetAtPath<Material>("Assets/10.Datas/World/RiverBasinWorld/NorthFalls/NorthFalls_Fall.mat");
+var lakeSource=GameObject.Find("RiverBasin 수면/Water_1_4");
+var waterMaterial=lakeSource.GetComponent<MeshRenderer>().sharedMaterial;
+var waterProfile=lakeSource.GetComponent<UPlayGround.Components.FootstepWaterSurface>().profile;
+if(!northFall||!waterMaterial||!waterProfile)throw new Exception("기존 물 표현 또는 물 판정 에셋이 없습니다.");
+var root=new GameObject(label);
+Undo.RegisterCreatedObjectUndo(root,"산정호 수계 배치");
+Func<string,Transform,GameObject> child=(name,parent)=>{
+    var g=new GameObject(name);g.transform.SetParent(parent,false);return g;
+};
+var waterRoot=child("산정호에서 숲 마을까지",root.transform).transform;
+Func<string,Mesh,Material,GameObject> render=(name,m,mat)=>{
+    var g=child(name,waterRoot);
+    g.AddComponent<MeshFilter>().sharedMesh=m;
+    var r=g.AddComponent<MeshRenderer>();r.sharedMaterial=mat;
+    r.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;
+    return g;
+};
+Func<Mesh,string,Mesh> save=(mesh,name)=>{
+    mesh.name=name;
+    AssetDatabase.CreateAsset(mesh,product+"/"+name+".asset");AssetDatabase.SaveAssetIfDirty(mesh);return mesh;
+};
+Func<GameObject,UPlayGround.Components.FootstepWaterSurface> register=g=>{
+    var s=g.GetComponent<UPlayGround.Components.FootstepWaterSurface>();
+    if(!s)s=Undo.AddComponent<UPlayGround.Components.FootstepWaterSurface>(g);
+    Undo.RecordObject(s,"산정호 수면 판정 갱신");
+    s.surfaceMesh=g.GetComponent<MeshFilter>();s.queryMesh=null;s.profile=waterProfile;
+    s.useVolumeBounds=true;
+    var b=s.surfaceMesh.sharedMesh.bounds;b.Expand(new Vector3(0,16,0));s.volumeBounds=b;
+    s.RefreshMesh();
+    return s;
+};
+var lakeReports=new List<string>();
+foreach(var name in new[]{"Water_0_3","Water_1_3","Water_0_4","Water_1_4"}){
+    var g=GameObject.Find("RiverBasin 수면/"+name);if(!g)continue;
+    var f=g.GetComponent<MeshFilter>();var mesh=UnityEngine.Object.Instantiate(f.sharedMesh);
+    var verts=mesh.vertices;int changes=0;
+    for(int i=0;i<verts.Length;i++){
+        var p=g.transform.TransformPoint(verts[i]);float y=lift(new Vector2(p.x,p.z));
+        if(y<.001f)continue;
+        p.y+=y;verts[i]=g.transform.InverseTransformPoint(p);changes++;
+    }
+    if(changes==0){UnityEngine.Object.DestroyImmediate(mesh);continue;}
+    mesh.vertices=verts;
+    if(name=="Water_1_4"){
+        var before=mesh.triangles;var keep=new List<int>(before.Length);
+        for(int k=0;k<before.Length;k+=3){
+            var p=g.transform.TransformPoint((verts[before[k]]+verts[before[k+1]]+verts[before[k+2]])/3);
+            if(p.x>849&&Mathf.Abs(p.z-2188)<11.3f)continue;
+            keep.Add(before[k]);keep.Add(before[k+1]);keep.Add(before[k+2]);
+        }
+        mesh.triangles=keep.ToArray();
+    }
+    mesh.RecalculateNormals();mesh.RecalculateBounds();
+    Undo.RecordObject(f,"산정호 수면 높이 이동");f.sharedMesh=save(mesh,"Lake_"+name);
+    register(g);lakeReports.Add(name+" "+changes);
+}
+
+Func<int,int,Mesh> ribbon=(start,end)=>{
+    const int cols=16;
+    var v=new List<Vector3>();var uv=new List<Vector2>();var tris=new List<int>();
+    for(int j=start;j<=end;j++){
+        var row=rows[j];var p=xy(row);
+        var d=(xy(rows[Mathf.Min(end,j+1)])-xy(rows[Mathf.Max(start,j-1)])).normalized;
+        var side=new Vector2(-d.y,d.x);
+        for(int k=0;k<=cols;k++){
+            float s=2*k/(float)cols-1;
+            var q=p+side*(row.w*(1.02f+(Mathf.PerlinNoise(p.x*.067f+s,p.y*.063f)-.5f)*.019f)*s);
+            v.Add(new Vector3(q.x,row.z,q.y));uv.Add(new Vector2(q.x/6,q.y/6));
+            if(j==start||k==0)continue;
+            int b=v.Count-1,a=b-cols-1;
+            tris.AddRange(new[]{a-1,a,b-1,a,b,b-1});
+        }
+    }
+    var mesh=new Mesh();mesh.SetVertices(v);mesh.SetUVs(0,uv);mesh.SetTriangles(tris,0);
+    mesh.RecalculateNormals();
+    if(mesh.normals[cols/2].y<0){tris.Reverse();mesh.SetTriangles(tris,0);mesh.RecalculateNormals();}
+    mesh.RecalculateTangents();mesh.RecalculateBounds();return mesh;
+};
+int lipRow=rowsPerSegment[0]+rowsPerSegment[1];
+int riverRow=lipRow+rowsPerSegment[2]+rowsPerSegment[3];
+var lip=register(render("산정호 낙구",save(ribbon(0,lipRow),"LakeOutlet"),waterMaterial));
+var river=register(render("폭포 소와 세계수 강",save(ribbon(riverRow,rows.Count-1),"WorldTreeRiver"),waterMaterial));
+river.priority=1;
+
+var fallVerts=new List<Vector3>();var fallUV=new List<Vector2>();var fallColor=new List<Color>();var fallTris=new List<int>();
+const int R=68,C=26, skin=(R+1)*(C+1);
+for(int side=0;side<2;side++)for(int row=0;row<=R;row++){
+    float a=row/(float)R;float spill=Mathf.InverseLerp(.19f,1,a);
+    float x=a<.19f?Mathf.Lerp(843.5f,851f,a/.19f):Mathf.Lerp(851,870.5f,spill);
+    float y=134.014f-39.2f*(.16f*spill+.84f*spill*spill);
+    float half=Mathf.Lerp(9.7f,11.3f,spill);float alpha=smooth(0,.17f,a);
+    for(int col=0;col<=C;col++){
+        float u=col/(float)C;float noise=(Mathf.PerlinNoise(u*7.1f,a*4.25f)-.5f);
+        float thick=side==0?.04f:-.04f;
+        fallVerts.Add(new Vector3(x+spill*(thick+noise*.64f),y+noise*.24f*spill+thick*(1-spill),
+            2188f+(u*2-1)*half));
+        fallUV.Add(new Vector2(.012f+.976f*u,Mathf.Lerp(.01f,1,a)));
+        fallColor.Add(new Color(alpha,0,0,1));
+        if(row==0||col==0)continue;
+        int b=side*skin+row*(C+1)+col;int k=b-C-1;
+        if(side==0)fallTris.AddRange(new[]{k-1,k,b-1,k,b,b-1});
+        else fallTris.AddRange(new[]{k-1,b-1,k,k,b-1,b});
+    }
+}
+var fm=new Mesh();fm.SetVertices(fallVerts);fm.SetUVs(0,fallUV);fm.SetColors(fallColor);fm.SetTriangles(fallTris,0);
+fm.RecalculateNormals();fm.RecalculateTangents();fm.RecalculateBounds();
+var fall=render("산정호 본 폭포",save(fm,"WorldTreeFall"),northFall);
+var impact=child("낙수 입수 지점",fall.transform);impact.transform.position=new Vector3(870.5f,95.65f,2188);
+var link=fall.AddComponent<UPlayGround.Gameplay.World.WaterfallLink>();link.source=lip;link.target=river;link.impact=impact.transform;
+var currentRoot=child("낙구 물살",waterRoot);
+currentRoot.transform.SetPositionAndRotation(new Vector3(851,134,2188),Quaternion.LookRotation(Vector3.right));
+var current=currentRoot.AddComponent<UPlayGround.Components.WaterfallCurrent>();
+var cso=new SerializedObject(current);
+cso.FindProperty("_region").boundsValue=new Bounds(new Vector3(0,-17,5),new Vector3(16,52,44));
+cso.FindProperty("_fallStart").floatValue=-.5f;cso.FindProperty("_releaseHeight").floatValue=-38.6f;
+cso.FindProperty("_flowSpeed").floatValue=8f;cso.FindProperty("_minimumFallSpeed").floatValue=4f;
+cso.ApplyModifiedPropertiesWithoutUndo();
+
+var existing=GameObject.Find("북부 폭포/물보라와 소리");
+if(existing){
+    foreach(Transform fx in existing.transform){
+        if(fx.name!="본 폭포 물보라 2"&&fx.name!="본 폭포 미스트"&&fx.name!="본 폭포 굉음")continue;
+        int count=fx.GetComponent<ParticleSystem>()?3:1;
+        for(int i=0;i<count;i++){
+            var copy=UnityEngine.Object.Instantiate(fx.gameObject,waterRoot);
+            copy.name=fx.name+" · 숲 폭포";
+            copy.transform.position=impact.transform.position+new Vector3(.9f,.45f,(i-(count-1)*.5f)*5.5f);
+            copy.transform.rotation=Quaternion.LookRotation(Vector3.right);
+        }
+    }
+}
+UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+return "높인 수면 "+string.Join(", ",lakeReports)+" / 물길 단면 "+(rows.Count-riverRow)+" / 낙차 39m";

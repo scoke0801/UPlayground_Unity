@@ -1,0 +1,100 @@
+var root=GameObject.Find(label);
+var water=root.transform.Find("산정호에서 숲 마을까지");
+var rocks=root.transform.Find("폭포 협곡의 암반");
+var bridge=root.transform.Find("WB_P04_Bridge_R1_WorldTree");
+var fallObject=water.Find("산정호 본 폭포");
+if(!rocks||!bridge||!fallObject||root.transform.Find("강둑의 자갈과 바위"))throw new Exception("초기 배치 확인 필요");
+var oldMat=fallObject.GetComponent<MeshRenderer>().sharedMaterial;
+var whitewater=new Material(oldMat){name="WorldTreeWhitewater"};
+whitewater.SetColor("_ShallowColor",new Color(.46f,.62f,.66f));
+whitewater.SetColor("_DeepColor",new Color(.28f,.445f,.48f));
+whitewater.SetColor("_FoamColor",new Color(.91f,.96f,.97f));
+whitewater.SetFloat("_FoamStart",.025f);
+whitewater.SetFloat("_FoamAmount",1.72f);
+whitewater.SetFloat("_SideFade",.135f);
+whitewater.SetVector("_NoiseTiling",new Vector4(6.5f,1.7f,0,0));
+whitewater.SetVector("_FallBlendRange",new Vector4(.135f,.28f,0,0));
+AssetDatabase.CreateAsset(whitewater,product+"/WorldTreeWhitewater.mat");
+AssetDatabase.SaveAssetIfDirty(whitewater);
+fallObject.GetComponent<MeshRenderer>().sharedMaterial=whitewater;
+
+var reference=GameObject.Find("북부 폭포/물보라와 소리");
+var roar=reference.transform.Find("본 폭포 소리");
+if(roar){
+    var source=UnityEngine.Object.Instantiate(roar.gameObject,water);
+    source.name="숲 폭포 소리";
+    source.transform.position=new Vector3(872,97,2188);
+    source.GetComponent<AudioSource>().maxDistance=145;
+}
+var mist=water.Cast<Transform>().FirstOrDefault(t=>t.name.StartsWith("본 폭포 미스트"));
+if(mist)fallObject.GetComponent<UPlayGround.Gameplay.World.WaterfallLink>().mist=mist.GetComponentInChildren<ParticleSystem>();
+
+const string stonePath="Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Stones/";
+var rng=new System.Random(7823);
+Func<float> next=()=>(float)rng.NextDouble();
+Func<string,Transform,Vector2,float,float,float,GameObject> stone=(path,parent,p,size,sink,tilt)=>{
+    var prefab=AssetDatabase.LoadAssetAtPath<GameObject>(stonePath+path);
+    if(!prefab)throw new Exception("바위 프리팹 없음 "+path);
+    var g=(GameObject)PrefabUtility.InstantiatePrefab(prefab,parent);
+    g.transform.SetPositionAndRotation(new Vector3(p.x,ground(p.x,p.y),p.y),
+        Quaternion.Euler((next()-.5f)*tilt,next()*360,(next()-.5f)*tilt));
+    var rr=g.GetComponentsInChildren<Renderer>();var b=rr[0].bounds;foreach(var r in rr)b.Encapsulate(r.bounds);
+    g.transform.localScale*=size/Mathf.Max(b.size.x,b.size.z);
+    b=rr[0].bounds;foreach(var r in rr)b.Encapsulate(r.bounds);
+    float bed=ground(p.x,p.y);
+    foreach(var d in new[]{new Vector2(-.24f,0),new Vector2(.24f,0),new Vector2(0,-.24f),new Vector2(0,.24f)})
+        bed=Mathf.Min(bed,ground(p.x+d.x*b.size.x,p.y+d.y*b.size.z));
+    g.transform.position+=Vector3.up*(bed-b.min.y-b.size.y*sink);
+    return g;
+};
+var oldRocks=rocks.Cast<Transform>().ToArray();
+foreach(var r in oldRocks)Undo.DestroyObjectImmediate(r.gameObject);
+var escarpment=new[] {
+    new Vector4(854,2168,27,.33f),new Vector4(864,2158,30,.28f),new Vector4(863,2142,25,.31f),
+    new Vector4(872,2129,31,.31f),new Vector4(877,2151,24,.29f),new Vector4(884,2172,18,.33f),
+    new Vector4(856,2208,28,.30f),new Vector4(864,2224,33,.29f),new Vector4(870,2243,30,.30f),
+    new Vector4(877,2263,27,.60f),new Vector4(883,2208,21,.24f),new Vector4(893,2233,26,.34f),
+    new Vector4(846,2167,16,.28f),new Vector4(846,2210,16,.28f)
+};
+for(int i=0;i<escarpment.Length;i++){
+    var rock=escarpment[i];
+    stone("Boulders/PF_EastLands_BigBoulder_0"+(i%2+1)+".prefab",rocks,xy(rock),rock.z,rock.w,52);
+}
+var banks=new GameObject("강둑의 자갈과 바위").transform;banks.SetParent(root.transform,false);
+for(int i=0;i<rows.Count;i++){
+    var row=rows[i];if(row.x<879||row.x>1550||next()>.26f)continue;
+    if(Vector2.Distance(xy(row),new Vector2(1272,2199))<17)continue;
+    var d=(xy(rows[i+1])-xy(rows[i-1])).normalized;
+    var side=new Vector2(-d.y,d.x)*(i%2==0?1:-1);
+    var p=xy(row)+side*(row.w*(.73f+next()*.57f));
+    float size=row.x<920?3.1f+next()*4.0f:1.6f+next()*3.2f;
+    stone("RiverRocks/PF_EastLands_RiverRock_Cluster_0"+(i%2+1)+".prefab",banks,p,size,.24f,35);
+}
+var cliffTile=tiles[1,4];var data=cliffTile.terrainData;var layers=data.terrainLayers;
+var alpha=data.GetAlphamaps(0,0,data.alphamapResolution,data.alphamapResolution);
+var o=cliffTile.GetPosition();int alphaResolution=data.alphamapResolution;
+int cliff=Array.FindIndex(layers,l=>l.name=="NorthCliff"),rockIndex=Array.FindIndex(layers,l=>l.name=="Rock");
+for(int z=0;z<alphaResolution;z++)for(int x=0;x<alphaResolution;x++){
+    float px=o.x+(x+.5f)*data.size.x/alphaResolution,pz=o.z+(z+.5f)*data.size.z/alphaResolution;
+    if(px<830||px>916||Mathf.Abs(pz-2188)>92)continue;
+    float localSlope=Mathf.Abs(ground(px+2,pz)-ground(px-2,pz))/4f;
+    float face=(1-smooth(37,92,Mathf.Abs(pz-2188)))*smooth(834,850,px)*(1-smooth(880,916,px));
+    float patch=.68f+.27f*Mathf.PerlinNoise(px*.08f,pz*.112f);
+    float w=face*smooth(.36f,1.05f,localSlope)*patch;
+    if(w<.001f)continue;
+    for(int k=0;k<layers.Length;k++)alpha[z,x,k]*=1-w;
+    alpha[z,x,cliff]+=w*.66f;alpha[z,x,rockIndex]+=w*.34f;
+}
+data.SetAlphamaps(0,0,alpha);AssetDatabase.SaveAssetIfDirty(data);
+
+var road=GameObject.Find("WB_P04_Road_R1");var roadFilter=road.GetComponent<MeshFilter>();var roadMesh=roadFilter.sharedMesh;
+var vertices=roadMesh.vertices;var tris=roadMesh.triangles;var kept=new List<int>(tris.Length);
+for(int i=0;i<tris.Length;i+=3){
+    var point=road.transform.TransformPoint((vertices[tris[i]]+vertices[tris[i+1]]+vertices[tris[i+2]])/3);
+    var local=bridge.InverseTransformPoint(point);
+    if(Mathf.Abs(local.x)<5.3f&&Mathf.Abs(local.z)<11.8f)continue;
+    kept.Add(tris[i]);kept.Add(tris[i+1]);kept.Add(tris[i+2]);
+}
+roadMesh.triangles=kept.ToArray();EditorUtility.SetDirty(roadMesh);AssetDatabase.SaveAssetIfDirty(roadMesh);
+UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+return "폭포 전용 재질과 음원, 절벽 바위 "+rocks.childCount+" / 강돌 "+banks.childCount+" / 목교 아래 길 삼각형 "+(tris.Length-kept.Count)/3+" 정리";

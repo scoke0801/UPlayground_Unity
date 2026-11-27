@@ -1,0 +1,85 @@
+const string world = "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34";
+const string product = world + "/Production/WorldTreeBasin";
+const string label = "R1 · 산정호와 세계수";
+const float lakeRise = 43f;
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (scene.path != world + "/Preview/RiverBasin4km.unity" || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new Exception("RiverBasin4km 프리뷰 편집 상태가 필요합니다.");
+var village = new Vector2(1252f, 2308f);
+var profile = new[] {
+    new Vector4(803,2187,134,10), new Vector4(827,2187,134,10), new Vector4(851,2188,134,10),
+    new Vector4(856,2188,127,10), new Vector4(866,2188,96,12), new Vector4(879,2188,95,16),
+    new Vector4(908,2186,93,12), new Vector4(938,2177,89,9), new Vector4(966,2163,82,8),
+    new Vector4(995,2145,76,8), new Vector4(1024,2126,75,8), new Vector4(1059,2126,73,8),
+    new Vector4(1097,2145,70,8), new Vector4(1135,2173,66,8), new Vector4(1171,2202,61,8),
+    new Vector4(1210,2228,57.6f,7), new Vector4(1245,2212,55.8f,7), new Vector4(1275,2199,55.3f,6.2f),
+    new Vector4(1310,2193,54.9f,7), new Vector4(1346,2179,54.6f,8), new Vector4(1387,2183,54.25f,7),
+    new Vector4(1423,2201,54.05f,7), new Vector4(1462,2191,53.77f,8), new Vector4(1501,2169,53.45f,8),
+    new Vector4(1532,2147,53.18f,7), new Vector4(1556,2133,52.98f,7), new Vector4(1571,2127,52.87f,6.4f),
+};
+Func<float,float,float,float> smooth = (a,b,v) => Mathf.SmoothStep(0,1,Mathf.InverseLerp(a,b,v));
+Func<Vector2,float> lift = p => {
+    float z = p.y;
+    float envelope = smooth(318,416,p.x) * smooth(1940,2010,z) * (1-smooth(2398,2520,z));
+    float slope = 1-smooth(835,1005,p.x);
+    float face = 1-smooth(848+5*Mathf.Sin(z*.067f),878+6*Mathf.Sin(z*.056f),p.x);
+    float waterfall = 1-smooth(29,91,Mathf.Abs(z-2188));
+    return lakeRise*envelope*Mathf.Lerp(slope,face,waterfall);
+};
+var tiles = new Terrain[8,8];
+foreach(var t in Terrain.activeTerrains){
+    var p=t.GetPosition(); tiles[Mathf.RoundToInt(p.x/512),Mathf.RoundToInt(p.z/512)]=t;
+}
+Func<float,float,float> ground = (x,z) => {
+    var t=tiles[Mathf.Clamp(Mathf.FloorToInt(x/512),0,7),Mathf.Clamp(Mathf.FloorToInt(z/512),0,7)];
+    return t.GetPosition().y+t.SampleHeight(new Vector3(x,0,z));
+};
+Func<Vector4,Vector2> xy = n => new Vector2(n.x,n.y);
+Func<float,int,Vector4> curve = (a, segment) => {
+    // 낙구의 짧은 낙차는 별도 메시가 맡고, 강굽이 평면 경로만 완만하게 연결한다.
+    var p0=profile[Mathf.Max(0,segment-1)];var p1=profile[segment];
+    var p2=profile[segment+1];var p3=profile[Mathf.Min(profile.Length-1,segment+2)];
+    var b=Vector4.Lerp(p1,p2,a);
+    if(segment>=4){ var q=.5f*((2*p1)+(-p0+p2)*a+(2*p0-5*p1+4*p2-p3)*a*a+(-p0+3*p1-3*p2+p3)*a*a*a); b.x=q.x;b.y=q.y;}
+    return b;
+};
+var rows = new List<Vector4>();
+var rowsPerSegment = new int[profile.Length-1];
+for(int i=0;i<profile.Length-1;i++){
+    int count = Mathf.CeilToInt(Vector2.Distance(xy(profile[i]),xy(profile[i+1]))/2.5f);
+    rowsPerSegment[i]=count;
+    for(int j=0;j<count;j++)rows.Add(curve(j/(float)count,i));
+}
+rows.Add(profile[profile.Length-1]);
+var rowArray=rows.ToArray();
+Func<Vector2,Vector4> channel = p => {
+    var result=Vector4.zero;float best=10000;
+    if(p.x<766||p.x>1603||p.y<2085||p.y>2260)return new Vector4(100,0,0,0);
+    for(int i=1;i<rowArray.Length;i++){
+        var a=rowArray[i-1];var b=rowArray[i];
+        if(Mathf.Abs(p.x-a.x)>42||Mathf.Abs(p.y-a.y)>42)continue;
+        var dir=xy(b-a);float f=Mathf.Clamp01(Vector2.Dot(p-xy(a),dir)/dir.sqrMagnitude);
+        var c=Vector4.Lerp(a,b,f);float d=(p-xy(c)).sqrMagnitude;
+        if(d<best){best=d;result=c;}
+    }
+    return new Vector4(Mathf.Sqrt(best),result.z,result.w,result.x);
+};
+float plazaY = 59.15f;
+Func<Vector2,float,float> shape = (p,old) => {
+    float y=old+lift(p);
+    var r=channel(p);
+    if(r.z>0 && r.x<r.z+20){
+        float rough=(Mathf.PerlinNoise(p.x*.13f,p.y*.13f)-.5f)*1.4f;
+        float width=r.z;float u=r.x/width;
+        float depth=width >= 12 ? 3.6f : 2.15f;
+        float bed=r.y-Mathf.Lerp(depth,.34f,smooth(.34f,.97f,u));
+        float bank=r.y+Mathf.Lerp(-.34f,1.65f,smooth(.97f,1.22f,u))+rough*.38f;
+        float bankWeight=1-smooth(width+2,width+17,r.x);
+        float mouth=smooth(800,820,r.w)*(1-smooth(1558,1571,r.w));
+        float goal=u<.97f?bed:bank;
+        y=Mathf.Lerp(y,goal,bankWeight*mouth);
+    }
+    float d=Vector2.Distance(p,village);
+    float plaza=(1-smooth(12,18,d))*.9f;
+    return Mathf.Lerp(y,plazaY+(Mathf.PerlinNoise(p.x*.09f,p.y*.09f)-.5f)*.28f,plaza);
+};

@@ -1,0 +1,35 @@
+var root=GameObject.Find(label);
+var refer=GameObject.Find("B3 보행 내비게이션").GetComponents<Component>().First(c=>c.GetType().Name=="NavMeshSurface");
+var type=refer.GetType();
+if(root.transform.Find("세계수 마을 보행 내비게이션"))throw new Exception("마을 내비게이션이 이미 있습니다.");
+var navRoot=new GameObject("세계수 마을 보행 내비게이션");
+navRoot.transform.SetParent(root.transform,false);
+navRoot.transform.position=new Vector3(1255,63,2292);
+var component=navRoot.AddComponent(type);
+var reference=new SerializedObject(refer);
+var settings=new SerializedObject(component);
+settings.FindProperty("m_AgentTypeID").intValue=reference.FindProperty("m_AgentTypeID").intValue;
+settings.FindProperty("m_CollectObjects").intValue=1;
+settings.FindProperty("m_UseGeometry").intValue=1;
+settings.FindProperty("m_LayerMask").intValue=reference.FindProperty("m_LayerMask").intValue;
+settings.FindProperty("m_Size").vector3Value=new Vector3(240,42,269);
+settings.ApplyModifiedPropertiesWithoutUndo();
+var modifierType=type.Assembly.GetType("Unity.AI.Navigation.NavMeshModifierVolume");
+for(int k=0;k<rows.Count-7;k+=6){
+    var first=rows[k];var last=rows[k+7];var mid=(first+last)*.5f;
+    if(mid.x<1128||mid.x>1382)continue;
+    var span=new Vector3(last.x-first.x,0,last.y-first.y);
+    var mask=new GameObject("물속 보행 차단");
+    mask.transform.SetParent(navRoot.transform,false);
+    mask.transform.SetPositionAndRotation(new Vector3(mid.x,mid.z-3f,mid.y),Quaternion.LookRotation(span));
+    var ser=new SerializedObject(mask.AddComponent(modifierType));
+    ser.FindProperty("m_Area").intValue=1;
+    ser.FindProperty("m_Size").vector3Value=new Vector3(mid.w*1.76f,6.5f,span.magnitude+.8f);
+    ser.ApplyModifiedPropertiesWithoutUndo();
+}
+type.GetMethod("BuildNavMesh").Invoke(component,null);
+var nav=type.GetProperty("navMeshData").GetValue(component,null) as UnityEngine.AI.NavMeshData;
+if(!nav)throw new Exception("세계수 마을 내비게이션 베이크 실패");
+AssetDatabase.CreateAsset(nav,product+"/WorldTreeVillageNav.asset");AssetDatabase.SaveAssetIfDirty(nav);
+UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+return "마을과 진입 목교 보행 내비게이션";

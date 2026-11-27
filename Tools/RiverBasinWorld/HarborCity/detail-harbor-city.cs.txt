@@ -1,0 +1,233 @@
+// RiverBasin4km 항구에 근접 아트와 통행 보정분을 적용한다. 씬 저장은 편집기에서 따로 한다.
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+var root = GameObject.Find("항구도시 · 교역항");
+if (!root || !scene.path.EndsWith("/Preview/RiverBasin4km.unity") || EditorApplication.isPlaying)
+    throw new System.InvalidOperationException("항구도시가 있는 RiverBasin4km Edit Mode 프리뷰가 필요합니다.");
+if (root.transform.Find("시장과 항만 근접 아트"))
+    throw new System.InvalidOperationException("근접 아트가 이미 반영되어 있습니다.");
+const string world = "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/";
+const string kit = world + "Authoring/HarborCity/";
+const string colorsPath = world + "Production/RegionArt/RiverBasinHarborCityPalette.asset";
+const string surfPath = world + "Production/RegionArt/RiverBasinHarborCitySurfaces.asset";
+const string tex = "Assets/08.Models/WorldCities/ShadeCastle/Textures/";
+const string props = "Assets/03.Prefabs/Environment/WorldCities/";
+const string coast = "Assets/03.Prefabs/Environment/HarborRevision/";
+if (AssetDatabase.LoadMainAssetAtPath(colorsPath) != null)
+    throw new System.InvalidOperationException("기존 팔레트 에셋을 확인하세요.");
+var meshAsset = AssetDatabase.LoadAssetAtPath<Mesh>(surfPath);
+var shader = Shader.Find("Universal Render Pipeline/Lit");
+var wood = AssetDatabase.LoadAssetAtPath<Texture2D>(tex+"T_WoodPlank_Dark.png");
+var stone = AssetDatabase.LoadAssetAtPath<Texture2D>(tex+"T_Stone_Rough.png");
+const string cobble = "Assets/ExternalAssets/Environment/Idyllic Fantasy Nature/Textures/Ground/Cobblestone/";
+var cobbleColor = AssetDatabase.LoadAssetAtPath<Texture2D>(cobble+"Cobblestone_Albedo.png");
+var cobbleNormal = AssetDatabase.LoadAssetAtPath<Texture2D>(cobble+"Cobblestone_Normal.png");
+if (!meshAsset || !shader || !wood || !stone || !cobbleColor || !cobbleNormal)
+    throw new System.InvalidOperationException("항구 메시 또는 표면 재질 참조 누락");
+
+var models = new[]{"RiverBasinMerchantShip","RiverBasinHarborArcade","RiverBasinHarborCrane","RiverBasinHarborSlipway"};
+foreach (var name in models){
+    AssetDatabase.ImportAsset(kit+name+".fbx",ImportAssetOptions.ForceSynchronousImport);
+    if (!AssetDatabase.LoadAssetAtPath<GameObject>(kit+name+".fbx"))
+        throw new System.InvalidOperationException("FBX 임포트 확인 필요 "+name);
+}
+var terrains=Terrain.activeTerrains;
+System.Func<float,float,float> h=(x,z)=>{
+    foreach(var t in terrains){
+        var p=t.transform.position;var s=t.terrainData.size;
+        if(x>=p.x&&x<=p.x+s.x&&z>=p.z&&z<=p.z+s.z)
+            return p.y+t.SampleHeight(new Vector3(x,0,z));
+    }
+    throw new System.InvalidOperationException("지형 타일 밖 "+x+", "+z);
+};
+var palette=new System.Collections.Generic.Dictionary<string,Material>();
+System.Action<string,Color,Texture2D,float> color=(name,c,texture,smooth)=>{
+    var mat=new Material(shader){name=name};
+    mat.SetColor("_BaseColor",c);
+    mat.SetFloat("_Smoothness",smooth);
+    if(texture)mat.SetTexture("_BaseMap",texture);
+    mat.enableInstancing=true;
+    palette.Add(name,mat);
+};
+color("HB_Paving",new Color(.90f,.84f,.72f),cobbleColor,.13f);
+palette["HB_Paving"].SetTexture("_BumpMap",cobbleNormal);
+palette["HB_Paving"].SetFloat("_BumpScale",.52f);
+palette["HB_Paving"].EnableKeyword("_NORMALMAP");
+color("HB_Limestone",new Color(.92f,.82f,.67f),stone,.17f);
+color("HB_LimestoneTrim",new Color(.98f,.90f,.75f),stone,.19f);
+color("HB_Oak",new Color(.69f,.52f,.35f),wood,.15f);
+color("HB_OakEnd",new Color(.89f,.68f,.45f),wood,.21f);
+color("HB_Brass",new Color(.57f,.34f,.115f),null,.4f);
+color("HB_Iron",new Color(.14f,.17f,.18f),null,.31f);
+color("HB_GoldCanvas",new Color(.77f,.42f,.10f),null,.06f);
+color("HB_IvoryCanvas",new Color(.83f,.72f,.51f),null,.06f);
+color("HB_BlueCanvas",new Color(.15f,.28f,.41f),null,.06f);
+color("HB_Rope",new Color(.36f,.255f,.139f),null,.12f);
+for(int i=0;i<5;i++)color("RB_Oak"+i.ToString("D2"),new Color(.67f+i*.039f,.43f+i*.035f,.25f+i*.02f),wood,.16f);
+for(int i=0;i<3;i++)color("RB_Deck"+i.ToString("D2"),new Color(.86f+i*.035f,.68f+i*.025f,.47f+i*.025f),wood,.20f);
+color("RB_PaintedBlue",new Color(.084f,.225f,.32f),null,.21f);
+color("RB_BurnishedBrass",new Color(.67f,.43f,.16f),null,.33f);
+color("RB_Hemp",new Color(.28f,.19f,.11f),null,.12f);
+for(int i=0;i<3;i++)color("RB_Linen"+i.ToString("D2"),new Color(.91f-i*.043f,.83f-i*.042f,.64f-i*.036f),null,.07f);
+
+Undo.IncrementCurrentGroup();
+int group=Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName("항구도시 근접 아트");
+try{
+    AssetDatabase.CreateAsset(palette["HB_Paving"],colorsPath);
+    foreach(var pair in palette) if(pair.Key!="HB_Paving")AssetDatabase.AddObjectToAsset(pair.Value,colorsPath);
+    AssetDatabase.SaveAssets();
+    foreach(var name in models){
+        var path=kit+name+".fbx";
+        var prefab=AssetDatabase.LoadAssetAtPath<GameObject>(path);
+        var importer=(ModelImporter)AssetImporter.GetAtPath(path);
+        foreach(var r in prefab.GetComponentsInChildren<MeshRenderer>())
+            foreach(var mat in r.sharedMaterials)
+                if(mat&&palette.ContainsKey(mat.name))
+                    importer.AddRemap(new AssetImporter.SourceAssetIdentifier(typeof(Material),mat.name),palette[mat.name]);
+        importer.SaveAndReimport();
+    }
+
+    var detail=new GameObject("시장과 항만 근접 아트");Undo.RegisterCreatedObjectUndo(detail,"항구도시");
+    detail.transform.SetParent(root.transform,false);
+    System.Func<string,Transform> layer=name=>{
+        var obj=new GameObject(name);Undo.RegisterCreatedObjectUndo(obj,"항구도시");
+        obj.transform.SetParent(detail.transform,false);
+        return obj.transform;
+    };
+    var urban=layer("시장 아케이드와 가로 시설");
+    var cargo=layer("상선 하역 기중기와 계류");
+    var repair=layer("동쪽 조선 선대");
+    var walk=layer("보행로 접속");
+    var outer=layer("외항 석축");
+    System.Func<Transform,string,float,float,float,float,Vector3,GameObject> place=(parent,path,x,y,z,yaw,s)=>{
+        var prefab=AssetDatabase.LoadAssetAtPath<GameObject>(path);
+        if(!prefab)throw new System.InvalidOperationException(path);
+        var obj=(GameObject)PrefabUtility.InstantiatePrefab(prefab,parent);
+        Undo.RegisterCreatedObjectUndo(obj,"항구도시");
+        obj.transform.SetPositionAndRotation(new Vector3(x,y,z),Quaternion.Euler(0,yaw,0)*prefab.transform.rotation);
+        obj.transform.localScale=Vector3.Scale(prefab.transform.localScale,s);
+        return obj;
+    };
+    System.Action<Transform,string,Vector3> move=(t,name,pos)=>{
+        if(!t)throw new System.InvalidOperationException("항구 이동 원본 없음 "+name);
+        Undo.RecordObject(t,"항구도시");
+        t.position=pos;
+        PrefabUtility.RecordPrefabInstancePropertyModifications(t);
+    };
+    var legacy=GameObject.Find("항구마을").transform;
+    var work=GameObject.Find("항구 하역과 수선").transform;
+    move(legacy.Find("CargoCrate"),"시장 상자",new Vector3(2803,h(2803,255),255));
+    move(legacy.Find("CargoBarrel"),"시장 통",new Vector3(2801.5f,h(2801.5f,255),255));
+    move(work.Find("LakeHouse_Boathouse"),"기존 수선막",new Vector3(2807.9f,h(2807.9f,169),169));
+    move(work.Find("PF_Farm_RockMedium_07"),"동부 호안 바위",new Vector3(2848,h(2848,164)-.3f,164));
+    var lighthouse=legacy.Find("HarborLighthouse");
+    move(lighthouse,"등대",new Vector3(2863.5f,1.22f,110.5f));
+    var eastBoathouse=root.transform.Find("세관과 동부 접안/LakeHouse_Boathouse");
+    move(eastBoathouse,"어선 창고",new Vector3(2916,h(2916,168),168));
+    foreach(var t in root.transform.Find("시장 포석과 항만 대로").GetComponentsInChildren<MeshRenderer>()){
+        Undo.RecordObject(t,"항구도시");
+        t.sharedMaterial=palette["HB_Paving"];
+    }
+
+    System.Action<Transform,string,Vector3,Vector3,float> box=(parent,name,pos,size,yaw)=>{
+        var obj=new GameObject(name,typeof(BoxCollider));
+        Undo.RegisterCreatedObjectUndo(obj,"항구도시");
+        obj.transform.SetParent(parent,false);
+        obj.transform.SetPositionAndRotation(pos,Quaternion.Euler(0,yaw,0));
+        obj.GetComponent<BoxCollider>().size=size;
+        obj.isStatic=true;
+    };
+    foreach(var entry in new[]{new Vector4(2778,282,180,1),new Vector4(2790,282,180,1),new Vector4(2803,282,176,1),
+        new Vector4(2785,258,0,.95f),new Vector4(2834,250,270,.91f),new Vector4(2836,185,270,.94f)}){
+        float x=entry.x,z=entry.y,y=h(x,z)-.10f;
+        var obj=place(urban,kit+"RiverBasinHarborArcade.fbx",x,y,z,entry.z,Vector3.one*entry.w);
+        var b=obj.GetComponentInChildren<MeshRenderer>().bounds;
+        if(b.size.y<4||b.size.y>6)throw new System.InvalidOperationException("아케이드 축·크기 불일치");
+        for(int i=-1;i<=1;i++){
+            var p=Quaternion.Euler(0,entry.z,0)*new Vector3(i*4.8f*entry.w,0,0)+new Vector3(x,0,z);
+            float y0=Mathf.Min(y,h(p.x,p.z))-.10f;
+            box(urban,"시장 아케이드 기둥",new Vector3(p.x,y0+1.45f,p.z),new Vector3(.77f,2.90f,.83f)*entry.w,entry.z);
+        }
+    }
+    foreach(var c in new[]{new Vector4(2735,149,180,1),new Vector4(2768,148,180,1),new Vector4(2790,154,160,.88f)}){
+        var obj=place(cargo,kit+"RiverBasinHarborCrane.fbx",c.x,1.36f,c.y,c.z,Vector3.one*c.w);
+        box(cargo,"기중기 받침",new Vector3(c.x,2.12f,c.y),new Vector3(1.88f,1.5f,1.95f)*c.w,c.z);
+    }
+    var slip=place(repair,kit+"RiverBasinHarborSlipway.fbx",2877,1.1f,161,0,Vector3.one);
+    Undo.RecordObject(slip.transform,"항구도시");
+    slip.transform.rotation=Quaternion.AngleAxis(6.3f,Vector3.right)*slip.transform.rotation;
+    PrefabUtility.RecordPrefabInstancePropertyModifications(slip.transform);
+    box(repair,"조선 선대 작업 경계",new Vector3(2877,2.14f,161),new Vector3(5.4f,2.45f,16.1f),0);
+
+    // 외항 석축의 상단을 한 높이로 잇고 각 구간의 수중 기초를 연장한다.
+    var westHead=new[]{new Vector2(2708,151),new Vector2(2711,133),new Vector2(2714,113),new Vector2(2719,91),
+        new Vector2(2734,85),new Vector2(2752,82),new Vector2(2767,84)};
+    var eastHead=new[]{new Vector2(2912,176),new Vector2(2919,157),new Vector2(2917,139),new Vector2(2914,122),new Vector2(2903,113),new Vector2(2891,108)};
+    foreach(var wall in new[]{westHead,eastHead})for(int i=0;i<wall.Length-1;i++){
+        var a=wall[i];var d=wall[i+1]-a;int count=Mathf.CeilToInt(d.magnitude/8.05f);
+        for(int j=0;j<count;j++){
+            var p=a+d*((j+.5f)/count);
+            float depth=Mathf.Max(1,(1.22f-h(p.x,p.y)+.40f)/3.04f);
+            place(outer,coast+"Harbor_StoneQuay.prefab",p.x,1.22f,p.y,
+                Mathf.Atan2(-d.y,d.x)*Mathf.Rad2Deg,new Vector3(d.magnitude/count/7.88f,depth,.71f));
+        }
+    }
+    foreach(var p in new[]{new Vector3(2756,0,274),new Vector3(2772,0,279),new Vector3(2798,0,281),
+        new Vector3(2815,0,285),new Vector3(2844,0,267),new Vector3(2728,0,250),new Vector3(2897,0,246)}){
+        string tree="Assets/03.Prefabs/Environment/ReactiveTrees/PF_ReactiveEastLandsOsmanthus.prefab";
+        place(urban,tree,p.x,h(p.x,p.z),p.z,p.x%85,Vector3.one*.64f);
+    }
+    foreach(var p in new[]{new Vector3(2775,0,280),new Vector3(2791,0,281),new Vector3(2800,0,280),new Vector3(2832,0,247),
+        new Vector3(2787,0,257),new Vector3(2731,0,153),new Vector3(2762,0,152),new Vector3(2885,0,168)}){
+        float y=Mathf.Max(h(p.x,p.z),p.z<169?1.35f:0);
+        place(p.z<169?cargo:urban,props+"CargoCrate.prefab",p.x,y,p.z,p.x%67,Vector3.one*.68f);
+        place(p.z<169?cargo:urban,props+"CargoBarrel.prefab",p.x+.86f,y,p.z+.57f,p.x%89,Vector3.one*.73f);
+    }
+
+    // 부두 단차를 건너는 상판은 지형과 같은 높이에서 시작한다.
+    System.Action<string,Vector2,Vector2,float,float,float,bool> ribbon=(name,a,b,width,y0,y1,physical)=>{
+        var d=b-a;var side=Vector2.Perpendicular(d.normalized);
+        var pos=new Vector3(a.x,0,a.y);
+        var v=new System.Collections.Generic.List<Vector3>();
+        var uv=new System.Collections.Generic.List<Vector2>();
+        var indices=new System.Collections.Generic.List<int>();
+        int along=Mathf.CeilToInt(d.magnitude/.55f),cols=Mathf.CeilToInt(width/.65f);
+        for(int i=0;i<=along;i++)for(int j=0;j<=cols;j++){
+            float t=i/(float)along;
+            var p=a+d*t+side*((j/(float)cols-.5f)*width);
+            float y=physical?Mathf.Max(Mathf.Lerp(y0,y1,t),h(p.x,p.y)+.025f):h(p.x,p.y)+.12f;
+            v.Add(new Vector3(p.x-pos.x,y,p.y-pos.z));
+            uv.Add(p/2.6f);
+            if(i>0&&j>0){
+                int k=v.Count-1,n=cols+1;
+                indices.AddRange(new[]{k-n-1,k-n,k-1,k-n,k,k-1});
+            }
+        }
+        var m=new Mesh{name=name};m.SetVertices(v);m.SetUVs(0,uv);m.SetTriangles(indices,0);m.RecalculateNormals();m.RecalculateTangents();m.RecalculateBounds();
+        AssetDatabase.AddObjectToAsset(m,meshAsset);
+        var obj=new GameObject(physical?"Harbor_StoneQuay":name,typeof(MeshFilter),typeof(MeshRenderer));
+        Undo.RegisterCreatedObjectUndo(obj,"항구도시");
+        obj.transform.SetParent(walk,false);obj.transform.position=pos;
+        obj.GetComponent<MeshFilter>().sharedMesh=m;
+        obj.GetComponent<MeshRenderer>().sharedMaterial=palette["HB_Paving"];
+        if(physical)obj.AddComponent<MeshCollider>().sharedMesh=m;
+        obj.isStatic=true;
+    };
+    ribbon("서부 안벽 접속",new Vector2(2720,167),new Vector2(2720,155),5.6f,h(2720,167)+.05f,1.36f,true);
+    ribbon("창고길 입구",new Vector2(2777,271),new Vector2(2779,248),4.5f,0,0,false);
+    ribbon("서부 하역 마당",new Vector2(2720,166),new Vector2(2791,166),8.8f,0,0,false);
+    ribbon("동부 조선소 마당",new Vector2(2857,181),new Vector2(2896,177),9.2f,0,0,false);
+    ribbon("세관 앞 포석",new Vector2(2816,182),new Vector2(2844,182),10.8f,0,0,false);
+
+    Physics.SyncTransforms();
+    foreach(var r in root.GetComponentsInChildren<MeshRenderer>()){
+        foreach(var mat in r.sharedMaterials)
+            if(!mat)throw new System.InvalidOperationException("누락 재질 "+r.name);
+    }
+    AssetDatabase.SaveAssets();
+    Undo.CollapseUndoOperations(group);
+    return "시장 아케이드 6, 기중기 3, 선대 1, 외항과 연결로 편집기 반영";
+}catch{
+    Undo.RevertAllDownToGroup(group);
+    throw;
+}

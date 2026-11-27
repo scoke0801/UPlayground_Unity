@@ -1,0 +1,282 @@
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+var world = "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34";
+if (scene.path != world + "/Preview/RiverBasin4km.unity" || EditorApplication.isPlaying)
+    throw new Exception("편집 모드의 RiverBasin4km 프리뷰를 열어야 합니다.");
+var blockout = GameObject.Find("R1 엘프 마을 · 블록아웃");
+if (!blockout || GameObject.Find("R1 엘프 마을 · 아트"))
+    throw new Exception("배치 원본 또는 기존 아트 상태를 확인해야 합니다.");
+var assetPath = world + "/Production/RegionArt/RiverBasinElvenVillageArt.asset";
+if (AssetDatabase.LoadMainAssetAtPath(assetPath))
+    throw new Exception("기존 미술 에셋을 확인해야 합니다.");
+
+var models = new System.Collections.Generic.Dictionary<string, Mesh[]>();
+foreach (var key in new[] { "Hall", "Market", "Rail", "Deck", "Brace" })
+{
+    var modelPath = world + "/Authoring/ElvenVillage/SM_RBElf_" + key + ".fbx";
+    var model = AssetDatabase.LoadAssetAtPath<GameObject>(modelPath);
+    if (!model)
+        throw new Exception(modelPath + " 가져오기 실패");
+    var meshes = new Mesh[3];
+    foreach (var mesh in model.GetComponentsInChildren<MeshFilter>())
+        for (var i = 0; i < 3; i++)
+            if (mesh.name.EndsWith("_LOD" + i))
+                meshes[i] = mesh.sharedMesh;
+    if (System.Array.Exists(meshes, mesh => !mesh))
+        throw new Exception(modelPath + " LOD 메시 누락");
+    models.Add(key, meshes);
+}
+var woodRoot = "Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Textures/Buildings/Tileables/";
+var woodNormal = AssetDatabase.LoadAssetAtPath<Texture2D>(woodRoot + "T_Farm_WoodFloor_02_N.png");
+var shader = Shader.Find("Universal Render Pipeline/Lit");
+if (!shader) throw new Exception("URP Lit 셰이더 누락");
+
+var palette = new System.Collections.Generic.Dictionary<string, Color> {
+    {"Ash",new Color(.62f,.43f,.25f)}, {"PaleAsh",new Color(.75f,.57f,.34f)}, {"EndGrain",new Color(.34f,.22f,.13f)},
+    {"Verdigris",new Color(.18f,.42f,.35f)}, {"VerdigrisLight",new Color(.25f,.52f,.41f)}, {"VerdigrisDark",new Color(.12f,.30f,.26f)},
+    {"Bronze",new Color(.64f,.40f,.17f)}, {"Canvas",new Color(.80f,.64f,.37f)}, {"CanvasRed",new Color(.52f,.19f,.13f)},
+    {"Stone",new Color(.41f,.39f,.32f)}, {"Glass",new Color(.94f,.59f,.23f)}, {"Shadow",new Color(.35f,.31f,.25f)}
+};
+var importedMats = new System.Collections.Generic.Dictionary<string, Material>();
+foreach (var key in palette.Keys)
+{
+    var m = new Material(shader);
+    m.name = "RBElf_" + key;
+    m.color = palette[key];
+    m.SetFloat("_Smoothness", key.StartsWith("Verdigris") ? .34f : .22f);
+    if (key.StartsWith("Verdigris") || key == "Bronze")
+        m.SetFloat("_Metallic", key == "Bronze" ? .62f : .36f);
+    if ((key == "Ash" || key == "PaleAsh" || key == "EndGrain") && woodNormal)
+    {
+        m.SetTexture("_BumpMap", woodNormal);
+        m.SetFloat("_BumpScale", .22f);
+        m.EnableKeyword("_NORMALMAP");
+    }
+    if (key == "Glass")
+    {
+        m.SetColor("_EmissionColor", new Color(3.0f,1.25f,.30f));
+        m.EnableKeyword("_EMISSION");
+    }
+    if (importedMats.Count == 0) AssetDatabase.CreateAsset(m, assetPath);
+    else AssetDatabase.AddObjectToAsset(m, assetPath);
+    importedMats.Add(key, m);
+}
+
+// FBX 머티리얼 슬롯은 LOD마다 달라질 수 있어 이름으로 연결한다.
+var renderMats = new System.Collections.Generic.Dictionary<Mesh, Material[]>();
+var meshTransform = new System.Collections.Generic.Dictionary<Mesh, Matrix4x4>();
+foreach (var key in models.Keys)
+{
+    var model = AssetDatabase.LoadAssetAtPath<GameObject>(world + "/Authoring/ElvenVillage/SM_RBElf_" + key + ".fbx");
+    foreach (var mf in model.GetComponentsInChildren<MeshFilter>())
+    {
+        var source = mf.GetComponent<MeshRenderer>().sharedMaterials;
+        var target = new Material[source.Length];
+        for (int i = 0; i < source.Length; i++)
+        {
+            var matKey = source[i].name.Replace("RBElf_", "");
+            if (!importedMats.TryGetValue(matKey, out target[i]))
+                throw new Exception("머티리얼 매핑 실패 " + source[i].name);
+        }
+        renderMats[mf.sharedMesh] = target;
+        meshTransform[mf.sharedMesh] = model.transform.worldToLocalMatrix * mf.transform.localToWorldMatrix;
+    }
+}
+
+var group = new GameObject("R1 엘프 마을 · 아트");
+group.transform.SetParent(blockout.transform.parent, false);
+Func<string, Transform, GameObject> child = (name, parent) => {
+    var o = new GameObject(name);
+    o.transform.SetParent(parent,false);
+    return o;
+};
+var architecture = child("회관과 수관 건축", group.transform).transform;
+var commerce = child("장터와 공방", group.transform).transform;
+var walks = child("회랑과 전망대", group.transform).transform;
+var proxyRoot = blockout.transform.Find("회랑 · 연결 경사로");
+var allRenders = new System.Collections.Generic.List<Renderer>();
+var pendingHide = new System.Collections.Generic.List<Renderer>();
+
+Action<LODGroup, LOD[]> configure = (lodGroup, lods) => {
+    lodGroup.fadeMode = LODFadeMode.None;
+    lodGroup.SetLODs(lods);
+    lodGroup.RecalculateBounds();
+};
+
+Action<string, string, Transform, Vector3, Quaternion, Vector3> place = (key, label, parent, position, rot, size) => {
+    var obj = child(label, parent);
+    obj.transform.SetPositionAndRotation(position, rot);
+    obj.transform.localScale = size;
+    var lods = new LOD[3];
+    for (int i = 0; i < 3; i++)
+    {
+        var mesh = models[key][i];
+        var item = child(key + "_LOD" + i, obj.transform);
+        item.AddComponent<MeshFilter>().sharedMesh = mesh;
+        var r = item.AddComponent<MeshRenderer>();
+        r.sharedMaterials = renderMats[mesh];
+        allRenders.Add(r);
+        // Blender 내보내기는 원점과 축 보정을 포함한다.
+        var matrix = meshTransform[mesh];
+        item.transform.localPosition = matrix.GetColumn(3);
+        item.transform.localRotation = matrix.rotation;
+        item.transform.localScale = matrix.lossyScale;
+        lods[i] = new LOD(new[] {.13f,.055f,.006f}[i], new Renderer[] {r});
+    }
+    configure(obj.AddComponent<LODGroup>(), lods);
+};
+
+// 동일 구간의 바닥과 난간은 LOD마다 재질별로 결합한다.
+Action<string, string, Transform, System.Collections.Generic.List<Matrix4x4>> repeated = (key,label,anchor,parts) => {
+    var obj = child(label, walks);
+    obj.transform.SetPositionAndRotation(anchor.position,anchor.rotation);
+    var lods = new LOD[3];
+    for (int i = 0; i < 3; i++)
+    {
+        var source = models[key][i];
+        var sections = new CombineInstance[source.subMeshCount];
+        var subMeshes = new Mesh[source.subMeshCount];
+        for (int sub = 0; sub < source.subMeshCount; sub++)
+        {
+            var ci = new CombineInstance[parts.Count];
+            for (int j = 0; j < ci.Length; j++)
+                ci[j] = new CombineInstance { mesh=source, subMeshIndex=sub, transform=parts[j] * meshTransform[source] };
+            var section = new Mesh();
+            section.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+            section.CombineMeshes(ci, true, true);
+            subMeshes[sub] = section;
+            sections[sub] = new CombineInstance { mesh=section,subMeshIndex=0,transform=Matrix4x4.identity };
+        }
+        var mesh = new Mesh();
+        mesh.name = label + "_" + obj.transform.GetSiblingIndex() + "_LOD" + i;
+        mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
+        mesh.CombineMeshes(sections,false,false);
+        foreach (var sub in subMeshes) UnityEngine.Object.DestroyImmediate(sub);
+        MeshUtility.SetMeshCompression(mesh, ModelImporterMeshCompression.Medium);
+        AssetDatabase.AddObjectToAsset(mesh, assetPath);
+        var item = child(key + "_LOD" + i, obj.transform);
+        item.AddComponent<MeshFilter>().sharedMesh = mesh;
+        var r = item.AddComponent<MeshRenderer>(); r.sharedMaterials = renderMats[source];
+        allRenders.Add(r);
+        lods[i] = new LOD(new[] {.18f,.07f,.008f}[i], new Renderer[] {r});
+    }
+    configure(obj.AddComponent<LODGroup>(), lods);
+};
+
+try
+{
+    foreach (Transform h in blockout.transform.Find("회관 · 수관 주거"))
+    {
+        var center = h.name == "중앙 회관";
+        var workshop = h.name == "솔가지 공방";
+        var size = center ? Vector3.one : (workshop ? new Vector3(.72f,.65f,.62f) : new Vector3(.56f,.58f,.62f));
+        place("Hall", h.name, architecture, h.position, h.rotation, size);
+        pendingHide.AddRange(h.GetComponentsInChildren<Renderer>());
+    }
+
+    var marketRoot = blockout.transform.Find("남쪽 장터 · 공방");
+    var n = 0;
+    foreach (Transform booth in marketRoot)
+    {
+        if (booth.name == "공방 받침")
+        {
+            var planks = new System.Collections.Generic.List<Matrix4x4>();
+            for (var j = 0; j < 3; j++)
+                planks.Add(Matrix4x4.TRS(new Vector3(0,.665f,(j-1)*1.74f), Quaternion.identity, new Vector3(1.53f,1,.87f)));
+            repeated("Deck","장터 작업대 바닥",booth,planks);
+            booth.GetComponent<Renderer>().sharedMaterial = importedMats["Stone"];
+            continue;
+        }
+        var angle = n % 2 == 0 ? 8f : 173f;
+        var size = n % 3 == 0 ? new Vector3(1.07f,1.10f,1.0f) : new Vector3(.98f,1.0f,.98f);
+        place("Market","천막과 판매대 " + ++n,commerce,booth.position,Quaternion.Euler(0,angle,0),size);
+        pendingHide.AddRange(booth.GetComponentsInChildren<Renderer>());
+    }
+
+    foreach (Transform segment in proxyRoot)
+    {
+        if (segment.name == "RB_ElvenWalk_회랑" || segment.name == "RB_ElvenWalk_전망대")
+        {
+            var sz = segment.localScale;
+            var cols = Mathf.CeilToInt(sz.x / 3.4f);
+            var rows = Mathf.CeilToInt(sz.z / 2f);
+            var width = sz.x / cols;
+            var length = sz.z / rows;
+            var tiles = new System.Collections.Generic.List<Matrix4x4>();
+            for (int x = 0; x < cols; x++)
+                for (int z = 0; z < rows; z++)
+                    tiles.Add(Matrix4x4.TRS(new Vector3(-sz.x/2+(x+.5f)*width,sz.y/2,-sz.z/2+(z+.5f)*length),Quaternion.identity,new Vector3(width/3.4f,1,length/2)));
+            repeated("Deck", segment.name.EndsWith("전망대") ? "전망대 널판" : "회랑 널판", segment, tiles);
+            pendingHide.Add(segment.GetComponent<Renderer>());
+            continue;
+        }
+        if (segment.name == "RB_ElvenWalk_난간" || segment.name == "RB_ElvenWalk_전망대 난간")
+        {
+            var sz = segment.localScale;
+            var count = Mathf.Max(1, Mathf.RoundToInt(sz.z / 2));
+            var length = sz.z / count;
+            var drop = segment.name.EndsWith("전망대 난간") ? .84f : .57f;
+            var tiles = new System.Collections.Generic.List<Matrix4x4>();
+            for (int z = 0; z < count; z++)
+                tiles.Add(Matrix4x4.TRS(new Vector3(0,-drop,-sz.z/2+(z+.5f)*length),Quaternion.identity,new Vector3(1,1.12f,length/2)));
+            repeated("Rail","잎무늬 난간",segment,tiles);
+            pendingHide.Add(segment.GetComponent<Renderer>());
+            continue;
+        }
+        if (segment.name == "RB_ElvenWalk_난간살" || segment.name == "난간 기둥")
+            pendingHide.Add(segment.GetComponent<Renderer>());
+        else if (segment.name == "회랑 교각" || segment.name == "전망대 기둥")
+            segment.GetComponent<Renderer>().sharedMaterial = importedMats["EndGrain"];
+    }
+
+    foreach (var position in new[] {new Vector3(1261,68.75f,2290),new Vector3(1269,68.75f,2302),new Vector3(1272,69.75f,2334),new Vector3(1226,68.75f,2327),new Vector3(1234,68.75f,2320)})
+    {
+        place("Brace","갈래 버팀목",walks,position,Quaternion.Euler(0,0,0),new Vector3(.84f,1,.83f));
+        place("Brace","갈래 버팀목",walks,position,Quaternion.Euler(0,90,0),new Vector3(.72f,.93f,.80f));
+    }
+
+    var prefabNames = new[]{"PF_Tomato_Crate","PF_Farm_Basket_01","PF_Farm_Barrel_01","PF_EastLands_WoodenLantern"};
+    var propAssets = new GameObject[prefabNames.Length];
+    for (int i=0;i<prefabNames.Length;i++)
+    {
+        foreach(var guid in AssetDatabase.FindAssets(prefabNames[i]+" t:Prefab",new[]{"Assets/ExternalAssets/Environment/PolyartStudio"}))
+        {
+            var candidate=AssetDatabase.GUIDToAssetPath(guid);
+            if (candidate.EndsWith("/"+prefabNames[i]+".prefab")) {propAssets[i]=AssetDatabase.LoadAssetAtPath<GameObject>(candidate);break;}
+        }
+        if(!propAssets[i]) throw new Exception("기존 소품을 찾지 못함 " + prefabNames[i]);
+    }
+    var sourceBooths = new System.Collections.Generic.List<Transform>();
+    foreach(Transform t in marketRoot) if(t.name!="공방 받침")sourceBooths.Add(t);
+    for(int k=0;k<sourceBooths.Count;k++)
+    {
+        var sourceBooth = sourceBooths[k];
+        var angle = k % 2 == 0 ? 8f : 173f;
+        var rot = Quaternion.Euler(0,angle,0);
+        var locations = new[]{new Vector3(-.56f,.92f,1.0f),new Vector3(.65f,.9f,1.04f),new Vector3(-1.67f,0,1.34f),new Vector3(1.4f,.89f,.92f)};
+        for(int m=0;m<locations.Length;m++)
+        {
+            var prop=(GameObject)PrefabUtility.InstantiatePrefab(propAssets[m],scene);
+            prop.transform.SetParent(commerce,true);
+            prop.transform.SetPositionAndRotation(sourceBooth.position+rot*locations[m],rot*Quaternion.Euler(0,m*22,0));
+        }
+    }
+
+    var missing = 0;
+    foreach (var r in allRenders)
+        if (!r.GetComponent<MeshFilter>().sharedMesh || System.Array.Exists(r.sharedMaterials, m => !m))
+            missing++;
+    if (missing > 0) throw new Exception("미술 메시·재질 참조 누락 " + missing);
+    foreach (var r in pendingHide)
+        if (r) r.enabled = false;
+    var artColliders = group.GetComponentsInChildren<Collider>();
+    // 작은 소품은 기존 장터 보행 충돌에 관여하지 않는다.
+    foreach (var collider in artColliders) collider.enabled = false;
+    UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+    AssetDatabase.SaveAssetIfDirty(importedMats["Ash"]);
+    return "LOD 렌더러 "+allRenders.Count+"개 · 기존 매스 렌더 "+pendingHide.Count+"개 교체 · 장터 소품 "+(sourceBooths.Count*4)+"개";
+}
+catch
+{
+    UnityEngine.Object.DestroyImmediate(group);
+    throw;
+}

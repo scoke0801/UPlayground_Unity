@@ -1,0 +1,101 @@
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+var root=GameObject.Find("채석장 · 권역 갱구 연결");
+var entries=root.transform.Find("표시 구역의 지상 입구 네 곳");
+var rooms=root.transform.Find("서쪽과 중앙의 지하 집하장");
+var meshPath=AssetDatabase.GetAssetPath(entries.GetChild(0).Find("Dng_Floor_QuarryMaze").GetComponent<MeshFilter>().sharedMesh);
+var terrains=Terrain.activeTerrains.Where(t=>t.gameObject.scene==scene).ToArray();
+if(EditorApplication.isPlayingOrWillChangePlaymode||entries.childCount!=4||entries.GetChild(0).Find("갱구 문턱 가장자리"))
+    throw new InvalidOperationException("권역 갱구 마감 조건을 확인하세요.");
+Func<Vector3,float> ground=q=>
+{
+    var t=terrains.First(o=>q.x>=o.transform.position.x&&q.x<o.transform.position.x+512&&
+        q.z>=o.transform.position.z&&q.z<o.transform.position.z+512);
+    return t.SampleHeight(q)+t.transform.position.y;
+};
+
+var points=new List<Vector3>();
+var triangles=new List<int>();
+var uv=new List<Vector2>();
+Action<Vector3,Vector3,Vector3,Vector3,Vector3> quad=(a,b,c,d,normal)=>
+{
+    int i=points.Count;
+    points.AddRange(new[]{a,b,c,d});
+    uv.AddRange(new[]{Vector2.zero,Vector2.right,Vector2.one,Vector2.up});
+    if(Vector3.Dot(Vector3.Cross(b-a,c-a),normal)>0) triangles.AddRange(new[]{i,i+1,i+2,i,i+2,i+3});
+    else triangles.AddRange(new[]{i,i+2,i+1,i,i+3,i+2});
+};
+Action<string,Transform,Material> publish=(name,parent,mat)=>
+{
+    var mesh=new Mesh{name=name+" · "+parent.name};
+    mesh.SetVertices(points);mesh.SetTriangles(triangles,0);mesh.SetUVs(0,uv);
+    mesh.RecalculateNormals();mesh.RecalculateTangents();
+    var go=new GameObject(name);
+    Undo.RegisterCreatedObjectUndo(go,name);
+    go.transform.SetParent(parent,false);
+    go.isStatic=true;
+    go.AddComponent<MeshFilter>().sharedMesh=mesh;
+    go.AddComponent<MeshRenderer>().sharedMaterial=mat;
+    AssetDatabase.AddObjectToAsset(mesh,meshPath);
+    AssetDatabase.SaveAssetIfDirty(mesh);
+    points.Clear();triangles.Clear();uv.Clear();
+};
+
+Undo.IncrementCurrentGroup();
+int undo=Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName("갱구 문턱과 지하 집하장 마감");
+try
+{
+    foreach(Transform entry in entries)
+    {
+        var arch=entry.Find("Dng_Arch");
+        var forward=arch.forward;
+        var side=arch.right;
+        var sill=entry.Find("Dng_Floor_QuarryMaze").GetComponent<MeshRenderer>();
+        foreach(float sign in new[]{-1f,1f})
+        {
+            var a=side*(sign*2.03f)-forward*1.10f;
+            var b=side*(sign*2.99f)-forward*.97f;
+            var c=side*(sign*3.06f)+forward*1.52f;
+            var d=side*(sign*2.03f)+forward*1.50f;
+            var wa=a+entry.position;var wb=b+entry.position;var wc=c+entry.position;var wd=d+entry.position;
+            a.y=Mathf.Min(0,ground(wa)-entry.position.y+.025f);
+            b.y=ground(wb)-entry.position.y+.025f;
+            c.y=ground(wc)-entry.position.y+.035f;
+            d.y=Mathf.Min(0,ground(wd)-entry.position.y+.02f);
+            quad(a,b,c,d,Vector3.up);
+        }
+        publish("갱구 문턱 가장자리",entry,sill.sharedMaterial);
+    }
+
+    var cardinals=new[]{Vector3.forward,Vector3.right,Vector3.back,Vector3.left};
+    for(int roomIndex=0;roomIndex<rooms.childCount;roomIndex++)
+    {
+        var room=rooms.GetChild(roomIndex);
+        var wall=room.Find("Dng_Wall_QuarryRegionalRoom").GetComponent<MeshRenderer>();
+        foreach(var direction in cardinals)
+        {
+            if(roomIndex==0&&direction==Vector3.back) continue;
+            var side=Vector3.Cross(Vector3.up,direction);
+            var portal=direction*6;
+            var a=portal-side*2.18f+Vector3.up*2.60f;
+            var b=portal-side*1.20f+Vector3.up*3.48f;
+            var c=portal+side*1.20f+Vector3.up*3.48f;
+            var d=portal+side*2.18f+Vector3.up*2.60f;
+            var before=-direction*.11f;
+            var after=direction*.16f;
+            quad(a+before,b+before,b+after,a+after,Vector3.down);
+            quad(b+before,c+before,c+after,b+after,Vector3.down);
+            quad(c+before,d+before,d+after,c+after,Vector3.down);
+        }
+        publish("집하장 갱도 천장 이음",room,wall.sharedMaterial);
+    }
+    if(!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene))
+        throw new InvalidOperationException("권역 갱구 마감 저장 실패");
+    Undo.CollapseUndoOperations(undo);
+    return "갱구 문턱 양쪽과 지하 집하장 개구부 천장 이음 7곳";
+}
+catch
+{
+    Undo.RevertAllDownToGroup(undo);
+    throw;
+}

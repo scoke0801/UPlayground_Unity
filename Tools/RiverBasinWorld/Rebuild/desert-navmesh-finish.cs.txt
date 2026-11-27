@@ -1,0 +1,69 @@
+// 기존 B3 보행 에이전트를 사용해 사막 거점의 충돌 기준 내비게이션을 베이크한다.
+const string path="Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinDesertNav.asset";
+var scene=UnityEngine.SceneManagement.SceneManager.GetSceneByName("RiverBasin4km");
+if(!scene.isLoaded||EditorApplication.isPlayingOrWillChangePlaymode)throw new InvalidOperationException("편집 중인 사막 프리뷰 필요");
+if(AssetDatabase.LoadMainAssetAtPath(path))return "이미 베이크됨";
+var sceneObjects=scene.GetRootGameObjects();
+var root=sceneObjects.Single(g=>g.name=="RiverBasin · 사막 물길과 해안 전망대");
+var b3=sceneObjects.SelectMany(g=>g.GetComponentsInChildren<Unity.AI.Navigation.NavMeshSurface>(true)).First(s=>s.name=="B3 보행 내비게이션");
+var terrains=Terrain.activeTerrains.Where(t=>t.gameObject.scene==scene).ToArray();
+Func<Vector2,Vector3> point=v=>{
+    var t=terrains.First(q=>v.x>=q.transform.position.x&&v.x<q.transform.position.x+512&&v.y>=q.transform.position.z&&v.y<q.transform.position.z+512);
+    return new Vector3(v.x,t.SampleHeight(new Vector3(v.x,0,v.y))+t.transform.position.y,v.y);
+};
+Undo.IncrementCurrentGroup();int undo=Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName("동부 사막 거점 내비게이션");
+var data=new System.Collections.Generic.List<UnityEngine.AI.NavMeshData>();
+var report=new System.Text.StringBuilder();
+try{
+    Action<int,string,Vector3,Vector3,Vector2[]> bake=(region,name,center,size,checks)=>{
+        var go=new GameObject(name);go.transform.SetParent(root.transform.GetChild(region),false);go.transform.position=center;
+        Undo.RegisterCreatedObjectUndo(go,name);
+        if(region==0){
+            var below=new GameObject("호수 수면 아래 이동 제외");below.transform.SetParent(go.transform);
+            below.transform.position=new Vector3(center.x,14f,center.z);
+            var mask=below.AddComponent<Unity.AI.Navigation.NavMeshModifierVolume>();
+            mask.area=UnityEngine.AI.NavMesh.GetAreaFromName("Not Walkable");
+            mask.size=new Vector3(size.x,20.02f,size.z);
+        }
+        var nav=go.AddComponent<Unity.AI.Navigation.NavMeshSurface>();
+        nav.agentTypeID=b3.agentTypeID;
+        nav.collectObjects=Unity.AI.Navigation.CollectObjects.Volume;
+        nav.useGeometry=UnityEngine.AI.NavMeshCollectGeometry.PhysicsColliders;
+        nav.layerMask=b3.layerMask;
+        nav.size=size;
+        nav.overrideVoxelSize=true;
+        nav.voxelSize=.25f;
+        Physics.SyncTransforms();
+        nav.BuildNavMesh();
+        if(!nav.navMeshData)throw new InvalidOperationException(name+" 베이크 실패");
+        nav.navMeshData.name=name;
+        data.Add(nav.navMeshData);
+        var filter=new UnityEngine.AI.NavMeshQueryFilter{agentTypeID=nav.agentTypeID,areaMask=UnityEngine.AI.NavMesh.AllAreas};
+        UnityEngine.AI.NavMeshHit last;
+        if(!UnityEngine.AI.NavMesh.SamplePosition(point(checks[0]),out last,3.1f,filter))
+            throw new InvalidOperationException(name+" 시작점 보행 불가 "+checks[0]);
+        foreach(var v in checks.Skip(1)){
+            UnityEngine.AI.NavMeshHit next;
+            var p=new UnityEngine.AI.NavMeshPath();
+            if(!UnityEngine.AI.NavMesh.SamplePosition(point(v),out next,3.1f,filter)
+                ||!UnityEngine.AI.NavMesh.CalculatePath(last.position,next.position,filter,p)||p.status!=UnityEngine.AI.NavMeshPathStatus.PathComplete)
+                throw new InvalidOperationException(name+" 동선 없음 "+v+" "+p.status);
+            report.AppendLine(name+" "+last.position.ToString("F1")+" → "+next.position.ToString("F1")+" "+p.status+" "+p.corners.Length);
+            last=next;
+        }
+    };
+    bake(0,"포구와 호숫가 보행",new Vector3(3320,31,904),new Vector3(110,44,155),
+        new[]{new Vector2(3300,855),new Vector2(3304,903),new Vector2(3315,927)});
+    bake(1,"우물 교역소 보행",new Vector3(3630,72,1516),new Vector3(135,54,108),
+        new[]{new Vector2(3651,1489),new Vector2(3634,1509),new Vector2(3610,1507)});
+    bake(2,"망루와 절벽 조망 보행",new Vector3(3900,62,1768),new Vector3(386,65,123),
+        new[]{new Vector2(3724,1738),new Vector2(3860,1762),new Vector2(3918,1783),new Vector2(4077,1768)});
+    AssetDatabase.CreateAsset(data[0],path);
+    foreach(var asset in data.Skip(1))AssetDatabase.AddObjectToAsset(asset,path);
+    AssetDatabase.SaveAssetIfDirty(data[0]);
+    Undo.CollapseUndoOperations(undo);
+    UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+    System.IO.File.WriteAllText("docs/work-status/river-basin-desert-finish-evidence/navmesh-check.txt",report.ToString());
+    return report.ToString();
+}catch{Undo.RevertAllDownToGroup(undo);throw;}

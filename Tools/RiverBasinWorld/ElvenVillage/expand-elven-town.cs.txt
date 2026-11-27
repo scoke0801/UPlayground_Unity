@@ -1,0 +1,266 @@
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+var world="Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34";
+if(scene.path!=world+"/Preview/RiverBasin4km.unity"||scene.isDirty||EditorApplication.isPlaying)throw new Exception("저장된 RiverBasin4km 편집 상태가 필요합니다.");
+var old=GameObject.Find("R1 엘프 마을 · 아트");
+var terrain=GameObject.Find("Terrain_2_4").GetComponent<Terrain>();
+var data=terrain.terrainData;
+var destination=world+"/Production/RegionArt/RiverBasinElvenTownPaths.asset";
+var terrainPath=world+"/Production/Terrain/Terrain_2_4_ElvenTown.asset";
+if(!old||!data.name.EndsWith("ElvenVillage")||GameObject.Find("R1 엘프 마을 · 외곽 지구")||AssetDatabase.LoadMainAssetAtPath(destination)||AssetDatabase.LoadMainAssetAtPath(terrainPath))
+    throw new Exception("마을 확장의 원본 상태를 확인해야 합니다.");
+var trailObject=System.Array.Find(UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsInactive.Include,FindObjectsSortMode.None),t=>t.name=="R1 수관 아래 낙엽 흙");
+var trail=trailObject.GetComponent<Renderer>().sharedMaterial;
+var palette=new System.Collections.Generic.Dictionary<string,Material>();
+var artPath=world+"/Production/RegionArt/RiverBasinElvenVillageArt.asset";
+foreach(var entry in AssetDatabase.LoadAllAssetsAtPath(artPath))if(entry is Material)palette[entry.name]=(Material)entry;
+palette["RBElf_Ash"]=AssetDatabase.LoadAssetAtPath<Material>(artPath);
+var kit=new System.Collections.Generic.Dictionary<string,GameObject>();
+foreach(var key in new[]{"Hall","Dwelling","Dye","Market","StoneCourse","Brace"}){
+    var model=AssetDatabase.LoadAssetAtPath<GameObject>(world+"/Authoring/ElvenVillage/SM_RBElf_"+key+".fbx");
+    if(!model||model.GetComponentsInChildren<MeshFilter>().Length!=3)throw new Exception("건축 모듈 누락 "+key);
+    foreach(var r in model.GetComponentsInChildren<MeshRenderer>())
+        if(System.Array.Exists(r.sharedMaterials,m=>!m||!palette.ContainsKey(m.name)))throw new Exception("건축 재질 누락 "+key);
+    kit.Add(key,model);
+}
+var origin=terrain.GetPosition();
+Func<float,float,float> ground=(x,z)=>terrain.SampleHeight(new Vector3(x,0,z))+origin.y;
+Func<float,float,Vector2> v=(x,z)=>new Vector2(x,z);
+Func<Vector2,float,Vector3> worldPoint=(p,y)=>new Vector3(p.x,y,p.y);
+
+var routes=new System.Collections.Generic.List<Vector2[]>{
+    new[]{v(1257,2238),v(1277,2244),v(1295,2258),v(1311,2265),v(1329,2274),v(1338,2295),v(1341,2319),v(1330,2343),v(1316,2358),v(1292,2372),v(1269,2380),v(1248,2382),v(1224,2374),v(1201,2358),v(1193,2343),v(1189,2324),v(1195,2302),v(1201,2277),v(1210,2257),v(1228,2247),v(1257,2238)},
+    new[]{v(1275,2319),v(1295,2314),v(1315,2323),v(1341,2319)},
+    new[]{v(1244,2333),v(1240,2350),v(1247,2368),v(1248,2382)},
+    new[]{v(1224,2285),v(1211,2293),v(1195,2302)},
+    new[]{v(1207,2330),v(1197,2333),v(1190,2331)},
+    new[]{v(1248,2382),v(1254,2396),v(1253,2413)}
+};
+var routeNames=new[]{"외곽 순환길","동쪽 장터 연결길","북쪽 주거 연결길","서쪽 공방 연결길","서쪽 회랑 접속로","북쪽 숲길 이음"};
+var widths=new[]{4.4f,4.1f,3.6f,3.5f,3.2f,3.6f};
+var layouts=new[]{
+    new[]{v(1243,2233),v(1273,2234),v(1280,2255),v(1303,2246),v(1308,2277),v(1325,2261)},
+    new[]{v(1345,2276),v(1352,2292),v(1324,2296),v(1354,2315),v(1325,2335),v(1350,2344),v(1328,2354)},
+    new[]{v(1306,2375),v(1291,2387),v(1271,2366),v(1266,2395),v(1239,2395),v(1229,2359),v(1213,2381),v(1203,2371)},
+    new[]{v(1180,2351),v(1205,2348),v(1178,2327),v(1200,2317),v(1183,2302),v(1212,2280),v(1192,2270),v(1202,2249)}
+};
+var districtNames=new[]{"남쪽 문간과 여관","동쪽 장터와 직물 공방","북쪽 주거와 수관 회관","서쪽 공방과 숲지기 주거"};
+var routeRoot=new GameObject("R1 엘프 마을 · 외곽 지구");
+routeRoot.transform.SetParent(old.transform.parent,false);
+var streets=new GameObject("외곽 길과 각 건물 진입로").transform;
+streets.SetParent(routeRoot.transform,false);
+var pads=new System.Collections.Generic.List<Vector4>();
+var porchLinks=new System.Collections.Generic.List<Vector2[]>();
+var walkChecks=new System.Collections.Generic.List<Vector3[]>();
+var buildingCount=0;
+var maxWalkGrade=0f;
+var assetCreated=false;
+
+Func<Vector2,Vector2,Vector2,Vector2> closest=(p,a,b)=>{
+    var d=b-a;
+    return a+d*Mathf.Clamp01(Vector2.Dot(p-a,d)/d.sqrMagnitude);
+};
+Func<Vector2,Vector2> nearest=p=>{
+    Vector2 best=Vector2.zero;var distance=float.PositiveInfinity;
+    foreach(var line in routes)for(int i=1;i<line.Length;i++){
+        var q=closest(p,line[i-1],line[i]);var sq=(q-p).sqrMagnitude;
+        if(sq<distance){distance=sq;best=q;}
+    }
+    return best;
+};
+Func<string,Transform,GameObject> child=(label,parent)=>{
+    var go=new GameObject(label);go.transform.SetParent(parent,false);return go;
+};
+Action<string,string,Transform,Vector3,Quaternion,Vector3> place=(tag,label,parent,pos,rot,scale)=>{
+    var model=kit[tag];var g=child(label,parent);
+    g.transform.SetPositionAndRotation(pos,rot);g.transform.localScale=scale;
+    var lods=new LOD[3];
+    foreach(var f in model.GetComponentsInChildren<MeshFilter>()){
+        var level=int.Parse(f.name.Substring(f.name.Length-1));
+        var p=child(f.name,g.transform);
+        var m=model.transform.worldToLocalMatrix*f.transform.localToWorldMatrix;
+        p.transform.localPosition=m.GetColumn(3);p.transform.localRotation=m.rotation;p.transform.localScale=m.lossyScale;
+        p.AddComponent<MeshFilter>().sharedMesh=f.sharedMesh;
+        p.AddComponent<MeshRenderer>().sharedMaterials=System.Array.ConvertAll(f.GetComponent<MeshRenderer>().sharedMaterials,mat=>palette[mat.name]);
+        lods[level]=new LOD(new[]{.17f,.063f,.008f}[level],new Renderer[]{p.GetComponent<MeshRenderer>()});
+    }
+    var lg=g.AddComponent<LODGroup>();lg.SetLODs(lods);lg.RecalculateBounds();
+};
+Action<string,Transform,Vector3,Quaternion,Vector3,Material,bool> box=(label,parent,pos,rot,size,mat,enabled)=>{
+    var q=GameObject.CreatePrimitive(PrimitiveType.Cube);q.name=label;q.transform.SetParent(parent,false);
+    q.transform.SetPositionAndRotation(pos,rot);q.transform.localScale=size;
+    q.GetComponent<Renderer>().sharedMaterial=mat;q.GetComponent<Renderer>().enabled=enabled;
+};
+Func<Vector2[],Vector2[]> smooth=line=>{
+    var pts=new System.Collections.Generic.List<Vector2>();
+    for(int i=0;i<line.Length-1;i++){
+        var a=line[Mathf.Max(0,i-1)];var b=line[i];var c=line[i+1];var d=line[Mathf.Min(line.Length-1,i+2)];
+        var count=Mathf.CeilToInt(Vector2.Distance(b,c)/.85f);
+        for(int j=0;j<count;j++){
+            var t=j/(float)count;
+            pts.Add(.5f*((2*b)+(-a+c)*t+(2*a-5*b+4*c-d)*t*t+(-a+3*b-3*c+d)*t*t*t));
+        }
+    }
+    pts.Add(line[line.Length-1]);return pts.ToArray();
+};
+for(int i=0;i<routes.Count;i++)routes[i]=smooth(routes[i]);
+try{
+    for(int district=0;district<layouts.Length;district++){
+        var parent=child(districtNames[district],routeRoot.transform).transform;
+        for(int j=0;j<layouts[district].Length;j++){
+            var p=layouts[district][j];
+            var landmark=j==0||district==2&&j==4;
+            var market=district==1&&(j==2||j==3||j==6);
+            var cloth=district==1&&j==6;
+            var street=nearest(p);
+            var front=(street-p).normalized;
+            var yaw=Quaternion.LookRotation(new Vector3(-front.x,0,-front.y),Vector3.up);
+            var scale=landmark?new Vector3(.94f,1.03f,.90f):market?Vector3.one:new Vector3(.57f+.049f*(j%3),.69f+.055f*(j%3),.65f+.035f*(j%2));
+            var fit=market?new Vector2(2.65f,2.65f):new Vector2(3.38f*scale.x+.30f,4.52f*scale.z+.22f);
+            var centerY=ground(p.x,p.y);
+            var right=new Vector2(front.y,-front.x);
+            var maxY=centerY;
+            foreach(var x in new[]{-1,1})foreach(var z in new[]{-1,1}){
+                var at=p+right*(fit.x*x)+front*(fit.y*z);
+                maxY=Mathf.Max(maxY,ground(at.x,at.y));
+            }
+            var y=maxY+.10f;
+            var position=worldPoint(p,y);
+            var label=landmark?(district==0?"숲길 여관":district==1?"직물 길드":district==2?"북쪽 회관":"목공 작업장"):market?(cloth?"염색 공방":"가판과 판매대"):"엘프 주거 "+(j+1);
+            var house=child(label,parent).transform;
+            place(market?(cloth?"Dye":"Market"):"Hall","지붕과 골조",house,position,yaw,scale);
+            var w=fit.x*2;
+            var d=fit.y*2;
+            var bottom=centerY-1.4f;
+            box("RB_ElvenWalk_기단 상판",house,worldPoint(p,(y+bottom)*.5f),yaw,new Vector3(w,y-bottom,d),palette["RBElf_Ash"],false);
+            box("RB_ElvenWalk_마루",house,position-Vector3.up*.082f,yaw,new Vector3(w,.164f,d),palette["RBElf_Ash"],true);
+            foreach(var side in new[]{-1,1}){
+                var stoneYaw=yaw*Quaternion.Euler(0,side==1?90:270,0);
+                var at=position+yaw*Vector3.right*(side*(fit.x-.07f));
+                place("StoneCourse","측면 기단 석축",house,at-Vector3.up*.62f,stoneYaw,new Vector3(d/3.11f,1.02f,.90f));
+            }
+            place("StoneCourse","정면 기단 석축",house,position+yaw*Vector3.back*(fit.y-.06f)-Vector3.up*.61f,yaw,new Vector3(w/3.11f,1.02f,.9f));
+            if(!landmark&&!market){
+                place("Dwelling","창과 현관",house,position,yaw,scale);
+                var walls=child("RB_ElvenHouse_벽과 지붕",house).transform;
+                walls.SetPositionAndRotation(position,yaw);walls.localScale=scale;
+                Action<Vector3,Vector3> collider=(center,size)=>{
+                    var q=child("RB_ElvenHouse_충돌",walls);
+                    q.transform.localPosition=center;q.AddComponent<BoxCollider>().size=size;
+                };
+                foreach(var side in new[]{-1,1}){
+                    collider(new Vector3(side*2.47f,1.52f,.26f),new Vector3(.13f,3.04f,4.28f));
+                    collider(new Vector3(side*1.65f,1.53f,-1.88f),new Vector3(1.50f,3.06f,.14f));
+                }
+                collider(new Vector3(0,1.52f,2.4f),new Vector3(4.88f,3.04f,.14f));
+                collider(new Vector3(0,5.04f,0),new Vector3(4.82f,.18f,4.15f));
+            }
+            var rampEnd=p+front*(fit.y-.03f);
+            var length=Mathf.Clamp(Vector2.Distance(street,rampEnd)-1.55f,.45f,5.4f);
+            var rampStart=rampEnd+front*length;
+            var lower=ground(rampStart.x,rampStart.y)+.025f;
+            var hi=worldPoint(rampEnd,y+.005f);
+            var lo=worldPoint(rampStart,lower);
+            var vector=hi-lo;
+            var rot=Quaternion.LookRotation(vector,Vector3.up);
+            var rampWidth=landmark?2.7f:1.65f;
+            if(Mathf.Abs(y-lower)>.12f){
+                box("RB_ElvenWalk_현관 진입판",house,(hi+lo)*.5f-rot*Vector3.up*.102f,rot,new Vector3(rampWidth,.204f,vector.magnitude+.16f),palette["RBElf_PaleAsh"],true);
+                walkChecks.Add(new[]{lo,hi});
+            }
+            if(Vector2.Distance(street,rampStart)>.5f)porchLinks.Add(new[]{street,rampStart});
+            pads.Add(new Vector4(p.x,p.y,Mathf.Max(fit.x,fit.y)+1.75f,Mathf.Max(fit.x,fit.y)+.45f));
+            buildingCount++;
+        }
+    }
+    var m=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/ExternalAssets/Environment/PolyartStudio/DreamscapeEastLands/Prefabs/Props/WoodenProps/PF_EastLands_WoodenLantern.prefab");
+    foreach(var pos in new[]{v(1256,2242),v(1289,2252),v(1329,2277),v(1338,2314),v(1326,2345),v(1296,2373),v(1268,2378),v(1246,2379),v(1220,2373),v(1198,2355),v(1191,2324),v(1198,2301),v(1201,2279),v(1213,2255)}){
+        var lamp=(GameObject)PrefabUtility.InstantiatePrefab(m,scene);
+        lamp.name="외곽 길 등잔";lamp.transform.SetParent(streets,true);
+        lamp.transform.position=worldPoint(pos,ground(pos.x,pos.y)-.025f);
+        lamp.transform.localScale=Vector3.one*.90f;
+        foreach(var c in lamp.GetComponentsInChildren<Collider>())c.enabled=false;
+    }
+    var lines=new System.Collections.Generic.List<Vector2[]>(routes);lines.AddRange(porchLinks);
+    Func<int,float> pathWidth=i=>i<widths.Length?widths[i]:2.3f;
+    for(int lineId=0;lineId<lines.Count;lineId++){
+        var label=lineId<routeNames.Length?routeNames[lineId]:"현관 샛길 "+(lineId-routeNames.Length+1);
+        var line=lines[lineId];
+        if(lineId>=widths.Length)line=smooth(line);
+        var verts=new Vector3[line.Length*5];
+        var colors=new Color[verts.Length];
+        var triangles=new int[(line.Length-1)*24];
+        var at=0;
+        for(int j=0;j<line.Length;j++){
+            var p=line[j];var f=(line[Mathf.Min(j+1,line.Length-1)]-line[Mathf.Max(0,j-1)]).normalized;
+            var right=new Vector2(f.y,-f.x);
+            var width=pathWidth(lineId)*(.92f+.11f*Mathf.Sin(j*.31f+lineId));
+            for(int k=0;k<5;k++){
+                var q=p+right*((k-2)*width*.35f);
+                var n=j*5+k;
+                verts[n]=worldPoint(q,ground(q.x,q.y)+.047f+(lineId<widths.Length?0:.013f));
+                colors[n]=new Color(1,1,1,k==0||k==4?0:k==2?.96f:.85f);
+            }
+            if(j==0)continue;
+            for(int k=0;k<4;k++){
+                var a=(j-1)*5+k;var b=a+5;
+                triangles[at++]=a;triangles[at++]=b;triangles[at++]=a+1;
+                triangles[at++]=a+1;triangles[at++]=b;triangles[at++]=b+1;
+            }
+        }
+        var mesh=new Mesh();mesh.name=label;mesh.vertices=verts;mesh.triangles=triangles;mesh.colors=colors;mesh.RecalculateNormals();mesh.RecalculateBounds();
+        if(!assetCreated){AssetDatabase.CreateAsset(mesh,destination);assetCreated=true;}else AssetDatabase.AddObjectToAsset(mesh,destination);
+        var road=child(label,streets);road.AddComponent<MeshFilter>().sharedMesh=mesh;var renderer=road.AddComponent<MeshRenderer>();renderer.sharedMaterial=trail;renderer.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;
+    }
+
+    var treeList=new System.Collections.Generic.List<TreeInstance>();var removed=0;
+    foreach(var tree in data.treeInstances){
+        var p=origin+Vector3.Scale(data.size,tree.position);var q=new Vector2(p.x,p.z);var blocked=false;
+        foreach(var pad in pads)if((q-v(pad.x,pad.y)).sqrMagnitude<pad.z*pad.z){blocked=true;break;}
+        if(!blocked&&p.x>=1165&&p.x<=1365&&p.z>=2220&&p.z<=2415){
+            foreach(var line in routes){
+                for(int i=1;i<line.Length;i++)if((q-closest(q,line[i-1],line[i])).sqrMagnitude<2.4f){blocked=true;break;}
+                if(blocked)break;
+            }
+        }
+        if(blocked)removed++;else treeList.Add(tree);
+    }
+    var copy=UnityEngine.Object.Instantiate(data);copy.name="Terrain_2_4_ElvenTown";
+    copy.SetTreeInstances(treeList.ToArray(),false);
+    // 디테일 패치의 원본은 유지하고, 거리와 마루 밑만 밀도를 내린다.
+    var cell=data.size.x/data.detailWidth;
+    var minX=1168;var minZ=2224;
+    var x0=Mathf.FloorToInt((minX-origin.x)/cell);var z0=Mathf.FloorToInt((minZ-origin.z)/cell);
+    var nx=Mathf.CeilToInt((1363-minX)/cell);var nz=Mathf.CeilToInt((2415-minZ)/cell);
+    var mask=new bool[nz,nx];
+    for(int z=0;z<nz;z++)for(int x=0;x<nx;x++){
+        var pos=v(origin.x+(x0+x+.5f)*cell,origin.z+(z0+z+.5f)*cell);
+        foreach(var pad in pads)if((pos-v(pad.x,pad.y)).sqrMagnitude<pad.w*pad.w){mask[z,x]=true;break;}
+        if(mask[z,x])continue;
+        for(int li=0;li<lines.Count;li++){
+            var w=pathWidth(li)*.55f;
+            var line=lines[li];
+            for(int i=1;i<line.Length;i++){
+                var a=line[i-1];var b=line[i];
+                if(pos.x<Mathf.Min(a.x,b.x)-w||pos.x>Mathf.Max(a.x,b.x)+w||pos.y<Mathf.Min(a.y,b.y)-w||pos.y>Mathf.Max(a.y,b.y)+w)continue;
+                if((pos-closest(pos,a,b)).sqrMagnitude<w*w){mask[z,x]=true;break;}
+            }
+            if(mask[z,x])break;
+        }
+    }
+    for(int i=0;i<copy.detailPrototypes.Length;i++){
+        var layer=copy.GetDetailLayer(x0,z0,nx,nz,i);
+        for(int z=0;z<nz;z++)for(int x=0;x<nx;x++)if(mask[z,x])layer[z,x]=0;
+        copy.SetDetailLayer(x0,z0,i,layer);
+    }
+    AssetDatabase.CreateAsset(copy,terrainPath);
+    terrain.terrainData=copy;terrain.GetComponent<TerrainCollider>().terrainData=copy;terrain.Flush();
+    AssetDatabase.SaveAssetIfDirty(copy);
+    AssetDatabase.SaveAssetIfDirty(AssetDatabase.LoadMainAssetAtPath(destination));
+    Physics.SyncTransforms();
+    foreach(var check in walkChecks)maxWalkGrade=Mathf.Max(maxWalkGrade,Mathf.Abs(check[1].y-check[0].y)/Vector2.Distance(v(check[1].x,check[1].z),v(check[0].x,check[0].z)));
+    UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+    return "외곽 지구 4곳 / 건물 "+buildingCount+"동 / 길 "+lines.Count+" / 수목 "+removed+"개 정리 / 현관 최대 경사 "+maxWalkGrade.ToString("P0");
+}catch{
+    UnityEngine.Object.DestroyImmediate(routeRoot);
+    throw;
+}

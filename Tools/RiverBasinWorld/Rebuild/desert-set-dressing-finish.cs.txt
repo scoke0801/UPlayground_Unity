@@ -1,0 +1,299 @@
+// 실제 보행 거리에서 길·채광·포구·망루의 외해 조망을 다듬는다.
+const string world="Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34";
+const string path=world+"/Production/RegionArt/RiverBasinDesertDetails.asset";
+var scene=UnityEngine.SceneManagement.SceneManager.GetSceneByPath(world+"/Preview/RiverBasin4km.unity");
+if(!scene.isLoaded||EditorApplication.isPlayingOrWillChangePlaymode)throw new InvalidOperationException("편집 프리뷰 필요");
+var main=scene.GetRootGameObjects().Single(g=>g.name=="RiverBasin · 사막 물길과 해안 전망대").transform;
+var shore=main.GetChild(0);var market=main.GetChild(1);var coast=main.GetChild(2);
+if(coast.Find("외해 전망 마당"))return "이미 디테일이 연결되었습니다.";
+var terrains=Terrain.activeTerrains.Where(t=>t.gameObject.scene==scene).ToDictionary(t=>(int)(t.transform.position.x/512)*32+(int)(t.transform.position.z/512));
+Func<float,float,float> h=(x,z)=>{
+    float xx=Mathf.Clamp(x,.001f,4095.995f);
+    float zz=Mathf.Clamp(z,.001f,4095.995f);
+    var tile=terrains[Mathf.FloorToInt(xx/512)*32+Mathf.FloorToInt(zz/512)];
+    return tile.SampleHeight(new Vector3(xx,0,zz))+tile.transform.position.y;
+};
+var assets=new System.Collections.Generic.List<UnityEngine.Object>();
+var lit=Shader.Find("Universal Render Pipeline/Lit");
+var a=world+"/Production/RegionArt/RiverBasinDesertArchitecture.asset";
+var ls=world+"/Production/RegionArt/RiverBasinDesertLandscape.asset";
+var rulePath="Assets/10.Datas/Camera/CameraOccluderNameRules.asset";
+var rules=AssetDatabase.LoadMainAssetAtPath(rulePath);
+var all=AssetDatabase.GetAllAssetPaths();
+Func<string,Texture2D> tex=name=>AssetDatabase.LoadAssetAtPath<Texture2D>(all.Single(p=>p.EndsWith("/"+name+".tga")));
+var plaster=tex("T_Farm_PlasterWall_Light_01_C");
+var plasterN=tex("T_Farm_PlasterWall_Light_01_N");
+var sandstone=AssetDatabase.LoadAssetAtPath<TerrainLayer>(world+"/Production/Layers/Sandstone.terrainlayer");
+var oldTrail=scene.GetRootGameObjects().SelectMany(g=>g.GetComponentsInChildren<MeshRenderer>(true)).First(r=>r.name=="WB_P04_Road_R4a").sharedMaterial;
+var trail=new Material(oldTrail){name="바람 닳은 외해 접근로"};
+trail.SetColor("_Tint",new Color(.96f,.91f,.81f));
+trail.SetFloat("_GravelMix",.21f);
+assets.Add(trail);
+Func<string,Color,Material> mat=(name,color)=>{
+    var m=new Material(lit){name=name};m.SetColor("_BaseColor",color);m.SetFloat("_Smoothness",.10f);assets.Add(m);return m;
+};
+Action<Material,Texture2D,Texture2D,Vector2,float> bind=(m,col,norm,scale,strength)=>{
+    if(col)m.SetTexture("_BaseMap",col);
+    if(norm){m.SetTexture("_BumpMap",norm);m.SetFloat("_BumpScale",strength);m.EnableKeyword("_NORMALMAP");}
+    m.SetTextureScale("_BaseMap",scale);m.SetTextureScale("_BumpMap",scale);
+    EditorUtility.SetDirty(m);
+};
+var blocks=new[]{mat("전망대 절석",new Color32(198,151,112,255)),mat("적갈색 절석",new Color32(166,119,83,255)),mat("물에 닳은 목재",new Color32(129,91,58,255))};
+bind(blocks[0],sandstone.diffuseTexture,sandstone.normalMapTexture,Vector2.one,.4f);
+bind(blocks[1],sandstone.diffuseTexture,sandstone.normalMapTexture,Vector2.one,.5f);
+var decorNames=new[]{"CargoBarrel","CargoCrate","TownBench","CoastalBoat","PF_B1_SmallGrass_03_Detail","Reeds_02_Green_29"};
+var decor=decorNames.ToDictionary(n=>n,n=>AssetDatabase.LoadAssetAtPath<GameObject>(all.First(p=>p.EndsWith("/"+n+".prefab",StringComparison.Ordinal))));
+var assetRoot=AssetDatabase.LoadMainAssetAtPath(path);
+if(assetRoot)throw new InvalidOperationException("이미 생성된 디테일 에셋이 연결되지 않았습니다.");
+Undo.IncrementCurrentGroup();
+int group=Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName("사막 생활 공간과 해안 조망");
+Func<Transform,string,GameObject> child=(parent,name)=>{
+    var go=new GameObject(name);go.transform.SetParent(parent,false);Undo.RegisterCreatedObjectUndo(go,name);return go;
+};
+Action<System.Collections.Generic.List<Vector3>,System.Collections.Generic.List<int>,Vector3,Vector3,Vector3,Vector3,Vector3> quad=(v,t,a0,b,c,d,n)=>{
+    int i=v.Count;v.AddRange(new[]{a0,b,c,d});
+    if(Vector3.Dot(Vector3.Cross(b-a0,c-a0),n)>0)t.AddRange(new[]{i,i+1,i+2,i,i+2,i+3});
+    else t.AddRange(new[]{i,i+2,i+1,i,i+3,i+2});
+};
+Func<Transform,string,Vector3[],int[][],Material[],GameObject> meshObject=(parent,name,vertices,faces,materials)=>{
+    var go=child(parent,name);var origin=vertices[0];go.transform.position=origin;
+    var mesh=new Mesh{name=name};
+    mesh.vertices=vertices.Select(v=>v-origin).ToArray();
+    mesh.uv=vertices.Select(v=>new Vector2((v.z+v.x*.58f)*.22f,(v.y+v.z*.17f)*.27f)).ToArray();
+    mesh.subMeshCount=faces.Length;
+    for(int i=0;i<faces.Length;i++)mesh.SetTriangles(faces[i],i);
+    mesh.RecalculateNormals();mesh.RecalculateTangents();mesh.RecalculateBounds();
+    go.AddComponent<MeshFilter>().sharedMesh=mesh;go.AddComponent<MeshRenderer>().sharedMaterials=materials;
+    assets.Add(mesh);
+    return go;
+};
+Action<Mesh> feather=m=>{
+    var v=m.vertices;
+    var colors=new Color[v.Length];
+    for(int i=0;i<v.Length;i++){
+        float across=Mathf.Abs((i%9-4)*.25f);
+        float alpha=Mathf.SmoothStep(0,1,(1-across)/.56f);
+        colors[i]=new Color(1,1,1,alpha);
+    }
+    m.colors=colors;
+    EditorUtility.SetDirty(m);
+};
+Action<Transform,string,Vector2[],float> road=(parent,name,points,width)=>{
+    var samples=new System.Collections.Generic.List<Vector2>();
+    for(int segment=1;segment<points.Length;segment++){
+        var start=points[segment-1];var end=points[segment];
+        int n=Mathf.CeilToInt(Vector2.Distance(start,end)/.62f);
+        for(int k=0;k<n;k++)samples.Add(Vector2.Lerp(start,end,k/(float)n));
+    }
+    samples.Add(points.Last());
+    var vertices=new System.Collections.Generic.List<Vector3>();
+    var tris=new System.Collections.Generic.List<int>();
+    for(int i=0;i<samples.Count;i++){
+        var p=samples[i];var d=(samples[Mathf.Min(i+1,samples.Count-1)]-samples[Mathf.Max(i-1,0)]).normalized;
+        var side=new Vector2(-d.y,d.x);
+        float half=width*.5f*(.88f+.10f*Mathf.PerlinNoise(p.x*.10f,p.y*.10f));
+        for(int j=0;j<9;j++){
+            var q=p+side*half*((j-4)*.25f);
+            vertices.Add(new Vector3(q.x,h(q.x,q.y)+.045f,q.y));
+            if(i==0||j==0)continue;
+            int k=vertices.Count-1;
+            tris.AddRange(new[]{k-10,k-1,k-9,k-1,k,k-9});
+        }
+    }
+    var vv=vertices.ToArray();
+    if(Vector3.Cross(vv[tris[1]]-vv[tris[0]],vv[tris[2]]-vv[tris[0]]).y<0)
+       for(int i=0;i<tris.Count;i+=3){int swap=tris[i+1];tris[i+1]=tris[i+2];tris[i+2]=swap;}
+    var obj=meshObject(parent,name,vv,new[]{tris.ToArray()},new[]{trail});
+    obj.GetComponent<MeshRenderer>().shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;
+    var mesh=obj.GetComponent<MeshFilter>().sharedMesh;
+    feather(mesh);
+    Color[] colors=mesh.colors;
+    for(int i=0;i<colors.Length;i++){var c=colors[i];c.a*=Mathf.SmoothStep(0,1,Mathf.Min(i/9,samples.Count-1-i/9)/6f);colors[i]=c;}
+    mesh.colors=colors;
+};
+Func<Transform,string,float,float,float,float,GameObject> prop=(parent,name,x,z,angle,scale)=>{
+    var g=(GameObject)PrefabUtility.InstantiatePrefab(decor[name],parent);
+    Undo.RegisterCreatedObjectUndo(g,name);
+    g.transform.SetPositionAndRotation(new Vector3(x,h(x,z)-.035f,z),Quaternion.Euler(0,angle,0)*decor[name].transform.localRotation);
+    g.transform.localScale*=scale;
+    return g;
+};
+var layers=LayerMask.NameToLayer("Ground");
+try{
+    var shoreProps=child(shore,"호숫가 포구와 작업물").transform;
+    var marketProps=child(market,"교역소 물자와 바닥길").transform;
+    var outlook=child(coast,"외해 전망 마당").transform;
+    var roof=AssetDatabase.LoadAllAssetsAtPath(a).OfType<Material>().ToDictionary(m=>m.name);
+    if(!roof.ContainsKey("RB_AdobePlaster"))roof.Add("RB_AdobePlaster",AssetDatabase.LoadAssetAtPath<Material>(a));
+    foreach(var n in new[]{"RB_AdobePlaster","RB_Limewash"})
+        bind(roof[n],plaster,plasterN,new Vector2(1.7f,1.7f),.28f);
+    foreach(var n in new[]{"RB_Sandstone","기단 밝은 절석","기단 어두운 이음"}){
+        var c=roof[n].GetColor("_BaseColor");
+        roof[n].SetColor("_BaseColor",Color.Lerp(c,Color.white,.34f));
+        bind(roof[n],sandstone.diffuseTexture,sandstone.normalMapTexture,new Vector2(.69f,.69f),.45f);
+    }
+    foreach(var m in AssetDatabase.LoadAllAssetsAtPath(ls).OfType<Material>().Where(m=>m.name.StartsWith("사암층")||m.name=="RiverBasinDesertLandscape")){
+        var c=m.GetColor("_BaseColor");
+        m.SetColor("_BaseColor",Color.Lerp(c,new Color(.88f,.76f,.64f),.44f));
+        bind(m,sandstone.diffuseTexture,sandstone.normalMapTexture,new Vector2(.52f,.82f),.52f);
+    }
+    var old=coast.Find("해안 전망대 샛길").GetComponent<MeshRenderer>();
+    Undo.RecordObject(old,"망루 접근로 재질");
+    old.sharedMaterial=trail;
+    old.shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;
+    feather(old.GetComponent<MeshFilter>().sharedMesh);
+    var workPath=new[]{new Vector2(3918,1783),new Vector2(3935,1788),new Vector2(3954,1780),
+        new Vector2(3980,1775),new Vector2(4005,1764),new Vector2(4031,1760),new Vector2(4054,1760),new Vector2(4078,1768)};
+    road(outlook,"해안 조망 오솔길",workPath,4.6f);
+    road(marketProps,"우물 마당 샛길",new[]{new Vector2(3651,1489),new Vector2(3646,1500),new Vector2(3640,1506),new Vector2(3634,1509),new Vector2(3625,1508),new Vector2(3610,1507)},5.8f);
+    road(marketProps,"물지게 길",new[]{new Vector2(3610,1507),new Vector2(3604,1505),new Vector2(3602,1505),new Vector2(3595,1504)},2.65f);
+    prop(marketProps,"CargoBarrel",3636.3f,1519.4f,118,.85f);
+    prop(marketProps,"CargoCrate",3638.1f,1519.9f,24,.95f);
+    prop(marketProps,"CargoCrate",3615.1f,1512.4f,115,.77f);
+    prop(marketProps,"CargoBarrel",3622.5f,1499.3f,0,.8f);
+    prop(marketProps,"TownBench",3636.4f,1513.3f,57,.78f);
+    var canopy=coast.Find("PF_Farm_Canopy_01");
+    Undo.RecordObject(canopy,"그늘막 동선 보정");
+    canopy.position=new Vector3(3927,h(3927,1777)-.15f,1777);
+    PrefabUtility.RecordPrefabInstancePropertyModifications(canopy);
+    prop(shoreProps,"CargoCrate",3315,915,-47,.78f);
+    prop(shoreProps,"CargoBarrel",3317,914,25,.81f);
+    prop(outlook,"CargoBarrel",3901,1790,35,.85f);
+    prop(outlook,"CargoCrate",3900,1791,72,.84f);
+    var planting=new[]{new Vector2(3608,1491),new Vector2(3594,1480),new Vector2(3602,1520),new Vector2(3592,1521),new Vector2(3608,1532),
+        new Vector2(3625,1545),new Vector2(3656,1513),new Vector2(3638,1490),new Vector2(3641,1537),new Vector2(3607,1518)};
+    for(int i=0;i<planting.Length;i++)for(int j=0;j<3;j++){
+        var p=planting[i]+new Vector2(Mathf.Sin(i*3+j)*1.5f,Mathf.Cos(i*2+j)*1.3f);
+        prop(marketProps,"PF_B1_SmallGrass_03_Detail",p.x,p.y,i*25+j*63,.84f+j*.14f);
+    }
+    var dockPivot=new Vector3(3298,24.38f,899.9f);
+    var dock=child(shoreProps,"RB_DesertStonework_포구");
+    dock.layer=layers;dock.transform.position=dockPivot;
+    var cube=Resources.GetBuiltinResource<Mesh>("Cube.fbx");
+    if(!cube)throw new InvalidOperationException("포구 목재 메시가 필요합니다.");
+    var boards=new System.Collections.Generic.List<CombineInstance>();
+    for(int i=0;i<22;i++){
+        float x=.13f+i*.42f;
+        boards.Add(new CombineInstance{mesh=cube,transform=Matrix4x4.TRS(new Vector3(-x,Mathf.Sin(i)*.018f,0),
+            Quaternion.Euler(0,Mathf.Sin(i*7)*1.57f,0),new Vector3(.39f,.13f,2.4f+Mathf.Cos(i)*.11f))});
+    }
+    foreach(float x in new[]{-.40f,-3.7f,-7.15f,-8.9f})foreach(float z in new[]{-1.17f,1.17f})
+        boards.Add(new CombineInstance{mesh=cube,transform=Matrix4x4.TRS(new Vector3(x,-.70f,z),Quaternion.Euler(0,3,1),new Vector3(.21f,1.76f,.21f))});
+    var boardMesh=new Mesh{name="포구 판재"};boardMesh.CombineMeshes(boards.ToArray(),true,true,false);
+    assets.Add(boardMesh);
+    dock.AddComponent<MeshFilter>().sharedMesh=boardMesh;
+    dock.AddComponent<MeshRenderer>().sharedMaterial=blocks[2];
+    var dockCollision=dock.AddComponent<BoxCollider>();dockCollision.center=new Vector3(-4.57f,0,0);dockCollision.size=new Vector3(9.2f,.15f,2.40f);
+    var approachV=new System.Collections.Generic.List<Vector3>();
+    var approachT=new System.Collections.Generic.List<int>();
+    float bankX=3301.2f, bankZ=900.7f;
+    quad(approachV,approachT,new Vector3(3298,24.44f,898.7f),new Vector3(3298,24.44f,901.1f),
+        new Vector3(bankX,h(bankX,bankZ+.92f)-.135f,bankZ+.92f),new Vector3(bankX,h(bankX,bankZ-.92f)-.135f,bankZ-.92f),Vector3.up);
+    var ramp=meshObject(shoreProps,"RB_DesertStonework_포구접근",approachV.ToArray(),new[]{approachT.ToArray()},new[]{blocks[2]});
+    ramp.layer=layers;ramp.AddComponent<MeshCollider>().sharedMesh=ramp.GetComponent<MeshFilter>().sharedMesh;
+    var boat=(GameObject)PrefabUtility.InstantiatePrefab(decor["CoastalBoat"],shoreProps);
+    Undo.RegisterCreatedObjectUndo(boat,"호수 계류정");
+    boat.transform.SetPositionAndRotation(new Vector3(3291,24.02f,897.0f),Quaternion.Euler(0,-75,0)*decor["CoastalBoat"].transform.localRotation);
+    boat.transform.localScale*=.66f;
+    foreach(var collider in boat.GetComponentsInChildren<Collider>(true)){Undo.RecordObject(collider,"계류정 장식 충돌");collider.enabled=false;}
+
+    var parapet=child(outlook,"RB_DesertStonework_전망대난간");
+    parapet.layer=layers;
+    var rockV=new System.Collections.Generic.List<Vector3>();
+    var rockT=new[]{new System.Collections.Generic.List<int>(),new System.Collections.Generic.List<int>()};
+    var line=new[]{new Vector2(4075,1761),new Vector2(4082,1763),new Vector2(4086,1768),new Vector2(4085,1774),new Vector2(4081,1777),new Vector2(4075,1777)};
+    for(int i=1;i<line.Length;i++){
+        Vector2 from=line[i-1],to=line[i],axis=(to-from).normalized;
+        var nor=new Vector2(-axis.y,axis.x);
+        int n=Mathf.CeilToInt(Vector2.Distance(from,to)/.66f);
+        for(int j=0;j<n;j++){
+            Vector2 p=Vector2.Lerp(from,to,(j+.025f)/n),q=Vector2.Lerp(from,to,(j+.975f)/n);
+            float aY=h(p.x,p.y)-.10f,bY=h(q.x,q.y)-.10f;
+            float tall=.90f+Mathf.PerlinNoise(p.x*1.3f,p.y*1.7f)*.14f;
+            Func<Vector2,float,float,Vector3> at=(v,y,d)=>new Vector3(v.x+nor.x*d,y,v.y+nor.y*d);
+            for(int layer=0;layer<3;layer++){
+                float lo=tall*layer/3,hi=tall*(layer+1)/3;
+                float width=layer==2?.36f:layer==1?.29f:.35f;
+                var aa=at(p,aY+lo,-width);var bb=at(q,bY+lo,-width);var cc=at(q,bY+hi,-width);var dd=at(p,aY+hi,-width);
+                var ee=at(p,aY+lo,width);var ff=at(q,bY+lo,width);var gg=at(q,bY+hi,width);var hh=at(p,aY+hi,width);
+                var dst=rockT[(i+j+layer)%5==0?1:0];
+                quad(rockV,dst,aa,bb,cc,dd,new Vector3(-nor.x,0,-nor.y));
+                quad(rockV,dst,ff,ee,hh,gg,new Vector3(nor.x,0,nor.y));
+                quad(rockV,dst,dd,cc,gg,hh,Vector3.up);
+                if(j==0)quad(rockV,dst,aa,dd,hh,ee,new Vector3(-axis.x,0,-axis.y));
+                if(j==n-1)quad(rockV,dst,bb,ff,gg,cc,new Vector3(axis.x,0,axis.y));
+            }
+        }
+    }
+    var wall=meshObject(parapet.transform,"절석 난간",rockV.ToArray(),rockT.Select(t=>t.ToArray()).ToArray(),blocks.Take(2).ToArray());
+    wall.layer=layers;wall.AddComponent<MeshCollider>().sharedMesh=wall.GetComponent<MeshFilter>().sharedMesh;
+    prop(outlook,"TownBench",4078.2f,1773.8f,-80,.88f);
+    road(outlook,"사암 전망 마당",new[]{new Vector2(4072,1766),new Vector2(4079,1769),new Vector2(4083,1769)},9.4f);
+    
+    // 타일 옆면 전체를 덮어 멀리서 육지의 지형 절단이 드러나지 않도록 한다.
+    var cliff=coast.Find("동쪽 바다와 사암 벼랑").Find("동쪽 사암 절벽").GetComponent<MeshFilter>();
+    var vtx=new System.Collections.Generic.List<Vector3>();
+    var dt=Enumerable.Range(0,4).Select(i=>new System.Collections.Generic.List<int>()).ToArray();
+    var depthLevels=new[]{0f,.085f,.15f,.25f,.31f,.43f,.51f,.63f,.70f,.82f,.91f,1f};
+    var levels=new[]{3,1,2,0,1,2,0,1,0,2,1};
+    Func<float,Vector3[]> profile=z=>{
+        float top=h(4095.995f,z)-.06f;
+        float desert=Mathf.SmoothStep(0,1,Mathf.Min((z-445)/145,(2650-z)/330));
+        float swell=(.15f+Mathf.PerlinNoise(z*.0085f,4f)*.85f)*(9+17*desert);
+        float n=(Mathf.PerlinNoise(z*.029f,2.9f)-.5f)*(5+9*desert);
+        return depthLevels.Select((d,j)=>{
+            float lip=(j%3==1?3.3f:j%3==2?-1.35f:1.1f)*(.42f+.58f*desert);
+            float x=j==0?4095.76f:4095.8f+d*swell+lip+n*d;
+            float yy=Mathf.Lerp(top,-5.1f,d)+(j==0||j==depthLevels.Length-1?0:(Mathf.PerlinNoise(z*.015f,j*.54f)-.5f)*2.4f*desert);
+            return new Vector3(x,yy,z);
+        }).ToArray();
+    };
+    var last=profile(.05f);
+    const int edgeSections=426;
+    for(int i=1;i<=edgeSections;i++){
+        float z=Mathf.Lerp(.05f,4095.95f,i/(float)edgeSections);
+        var next=profile(z);
+        for(int j=0;j<levels.Length;j++){
+            int k=(z<490||z>2620)?(j%3==0?0:2):levels[j];
+            quad(vtx,dt[k],last[j],last[j+1],next[j+1],next[j],Vector3.right);
+        }
+        last=next;
+    }
+    var cliffMesh=cliff.sharedMesh;
+    cliffMesh.Clear();
+    cliffMesh.vertices=vtx.Select(p=>cliff.transform.InverseTransformPoint(p)).ToArray();
+    cliffMesh.uv=vtx.Select(p=>new Vector2(p.z*.18f,p.y*.48f)).ToArray();
+    cliffMesh.subMeshCount=4;
+    for(int i=0;i<4;i++)cliffMesh.SetTriangles(dt[i],i);
+    cliffMesh.RecalculateNormals();cliffMesh.RecalculateTangents();cliffMesh.RecalculateBounds();
+    EditorUtility.SetDirty(cliffMesh);
+    var ocean=coast.Find("동쪽 바다와 사암 벼랑").Find("동쪽 외해 수면").GetComponent<MeshFilter>();
+    var seaMesh=ocean.sharedMesh;
+    seaMesh.vertices=new[]{new Vector3(4087,.04f,-16000),new Vector3(4087,.04f,20000),new Vector3(35500,.04f,20000),new Vector3(35500,.04f,-16000)}.Select(p=>ocean.transform.InverseTransformPoint(p)).ToArray();
+    seaMesh.RecalculateBounds();EditorUtility.SetDirty(seaMesh);
+
+    var sr=new SerializedObject(rules);var arr=sr.FindProperty("_rules");
+    Undo.RecordObject(rules,"사막 건축 카메라 분류");
+    foreach(var rule in new[]{"RB_Adobe","RB_DesertStonework_"}){
+        bool exists=false;
+        for(int i=0;i<arr.arraySize;i++)exists|=arr.GetArrayElementAtIndex(i).FindPropertyRelative("namePattern").stringValue==rule;
+        if(exists)continue;
+        int index=arr.arraySize;arr.InsertArrayElementAtIndex(index);
+        var p=arr.GetArrayElementAtIndex(index);
+        p.FindPropertyRelative("namePattern").stringValue=rule;
+        p.FindPropertyRelative("isPrefix").boolValue=true;
+        p.FindPropertyRelative("mode").enumValueIndex=rule=="RB_Adobe"?0:1;
+        p.FindPropertyRelative("coversInterior").boolValue=rule=="RB_Adobe";
+        p.FindPropertyRelative("note").stringValue=rule=="RB_Adobe"?"평지붕 사암 주택·망루의 지붕 충돌":"포구의 보행면과 전망대 난간";
+    }
+    sr.ApplyModifiedProperties();
+    AssetDatabase.CreateAsset(assets[0],path);
+    foreach(var asset in assets.Skip(1))AssetDatabase.AddObjectToAsset(asset,path);
+    foreach(var asset in new[]{assets[0],AssetDatabase.LoadMainAssetAtPath(a),AssetDatabase.LoadMainAssetAtPath(ls),rules,AssetDatabase.LoadMainAssetAtPath(world+"/Production/RegionArt/RiverBasinDesertCoast.asset")}){
+        EditorUtility.SetDirty(asset);AssetDatabase.SaveAssetIfDirty(asset);
+    }
+    Undo.CollapseUndoOperations(group);
+    UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+    return "포구, 생활 소품, 절벽 연결과 전망 마당, 카메라 분류 적용";
+}catch{Undo.RevertAllDownToGroup(group);throw;}

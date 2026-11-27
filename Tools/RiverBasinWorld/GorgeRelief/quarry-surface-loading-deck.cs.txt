@@ -1,0 +1,125 @@
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+var root=scene.GetRootGameObjects().Single(g=>g.name=="채석장 · 노천 작업장 재구성");
+var terrain=Terrain.activeTerrains.Single(t=>t.gameObject.scene==scene&&t.name=="Terrain_6_4");
+var data=terrain.terrainData;
+var origin=terrain.transform.position;
+var storage=root.transform.Find("상부 목재 적재대와 천막");
+var timber=root.GetComponentsInChildren<MeshRenderer>().First(t=>t.name=="기둥 버팀").sharedMaterial;
+var face=root.GetComponentsInChildren<MeshFilter>().First(t=>t.name=="Dng_Wall_QuarryOpenCut");
+var assetPath=AssetDatabase.GetAssetPath(face.sharedMesh);
+if(storage.Find("Dng_Floor_QuarryMaze")||EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("상부 적재대 저작 조건을 확인하세요.");
+
+const float level=90.75f;
+var anchor=new Vector3(3255,level,2194);
+int x0=3248-(int)origin.x,z0=2190-(int)origin.z;
+var heights=data.GetHeights(x0,z0,13,7);
+for(int z=0;z<heights.GetLength(0);z++)
+for(int x=0;x<heights.GetLength(1);x++)
+{
+    float wx=origin.x+x0+x,wz=origin.z+z0+z;
+    float side=Mathf.SmoothStep(0,1,Mathf.InverseLerp(3248,3251,wx))*(1-Mathf.SmoothStep(0,1,Mathf.InverseLerp(3258,3260,wx)));
+    float depth=Mathf.SmoothStep(0,1,Mathf.InverseLerp(2190,2193,wz))*(1-Mathf.SmoothStep(0,1,Mathf.InverseLerp(2195,2196.2f,wz)));
+    heights[z,x]=Mathf.Lerp(heights[z,x],(level-.19f-origin.y)/data.size.y,side*depth);
+}
+
+var vertices=new List<Vector3>();var triangles=new List<int>();var uv=new List<Vector2>();
+Action<Vector3,Vector3,Vector3,Vector3> quad=(a,b,c,d)=>
+{
+    int i=vertices.Count;
+    vertices.AddRange(new[]{a,b,c,d});
+    triangles.AddRange(new[]{i,i+1,i+2,i,i+2,i+3});
+    uv.AddRange(new[]{Vector2.zero,Vector2.right,Vector2.one,Vector2.up});
+};
+const float left=-3.84f,right=3.44f, near=1.92f,far=-1.76f;
+for(int board=0;board<20;board++)
+{
+    float a=Mathf.Lerp(left,right,board/20f);
+    float b=Mathf.Lerp(left,right,(board+1)/20f)-.016f;
+    var p=new Vector3(a,0,near);
+    var q=new Vector3(b,0,near);
+    quad(p,q,new Vector3(b,0,far),new Vector3(a,0,far));
+    quad(p+Vector3.down*.11f,q+Vector3.down*.11f,q,p);
+}
+var mesh=new Mesh{name="윗갱구 적재 데크 · 판재"};
+mesh.SetVertices(vertices);mesh.SetTriangles(triangles,0);mesh.SetUVs(0,uv);mesh.RecalculateNormals();mesh.RecalculateTangents();
+var plane=new Mesh{name="윗갱구 적재 데크 · 보행면",vertices=new[]{new Vector3(left,0,near),new Vector3(right,0,near),
+    new Vector3(right,0,far),new Vector3(left,0,far)},triangles=new[]{0,1,2,0,2,3}};
+plane.RecalculateNormals();plane.RecalculateBounds();
+
+Undo.IncrementCurrentGroup();
+int undo=Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName("상부 적재 데크");
+Undo.RegisterCompleteObjectUndo(data,"상부 채석면 정지");
+Undo.RecordObjects(storage.Cast<Transform>().Cast<UnityEngine.Object>().ToArray(),"상부 적재 소품 안착");
+var deck=new GameObject("Dng_Floor_QuarryMaze");
+Undo.RegisterCreatedObjectUndo(deck,"상부 적재 데크");
+deck.transform.SetParent(storage);
+deck.transform.position=anchor;
+try
+{
+    var oldGround=new Func<Vector3,float>(p=>terrain.SampleHeight(p)+origin.y);
+    var props=storage.Cast<Transform>().Where(t=>t!=deck.transform&&t.name!="작업 천막").ToArray();
+    var offsets=props.Select(t=>t.position.y-oldGround(t.position)).ToArray();
+    data.SetHeights(x0,z0,heights);
+    int entryX=3258-(int)origin.x,entryZ=2193-(int)origin.z;
+    var entry=data.GetHeights(entryX,entryZ,3,3);
+    var entryLevels=new[]{90.64f,90.75f,90.98f};
+    for(int z=0;z<3;z++)
+    for(int x=0;x<3;x++)
+        entry[z,x]=(entryLevels[x]-origin.y)/data.size.y;
+    data.SetHeights(entryX,entryZ,entry);
+    var floor=new Func<Vector3,float>(p=>p.x>=anchor.x+left&&p.x<=anchor.x+right&&p.z>=anchor.z+far&&p.z<=anchor.z+near?
+        level:terrain.SampleHeight(p)+origin.y);
+    for(int i=0;i<props.Length;i++)
+    {
+        var prop=props[i];
+        var p=prop.position;
+        if(prop.name=="천막 기둥")
+        {
+            float beforeTop=p.y+prop.localScale.y*.5f;
+            float foot=floor(p)-.08f;
+            float h=beforeTop-foot;
+            prop.localScale=new Vector3(prop.localScale.x,h,prop.localScale.z);
+            prop.position=new Vector3(p.x,foot+h*.5f,p.z);
+        }
+        else if(prop.name=="Dng_Crates_Barrels") prop.position=new Vector3(3254.5f,level,2192.28f);
+        else prop.position=new Vector3(p.x,floor(p)+offsets[i],p.z);
+    }
+    deck.isStatic=true;
+    deck.AddComponent<MeshFilter>().sharedMesh=mesh;
+    deck.AddComponent<MeshRenderer>().sharedMaterial=timber;
+    deck.AddComponent<MeshCollider>().sharedMesh=plane;
+    Action<Vector3,Vector3,string> beam=(p,size,name)=>
+    {
+        var wood=GameObject.CreatePrimitive(PrimitiveType.Cube);
+        wood.name=name;
+        wood.transform.SetParent(deck.transform,false);
+        wood.transform.localPosition=p;
+        wood.transform.localScale=size;
+        wood.GetComponent<MeshRenderer>().sharedMaterial=timber;
+        UnityEngine.Object.DestroyImmediate(wood.GetComponent<BoxCollider>());
+    };
+    beam(new Vector3(-.2f,-.18f,near-.06f),new Vector3(7.34f,.28f,.25f),"적재대 들보");
+    foreach(float x in new[]{-3.52f,-2.23f,1.98f,3.18f})
+    {
+        var top=anchor+new Vector3(x,0,near-.16f);
+        float h=top.y-(terrain.SampleHeight(top)+origin.y)+.28f;
+        beam(new Vector3(x,-h*.5f,near-.16f),new Vector3(.25f,h,.25f),"적재대 받침");
+    }
+    Physics.SyncTransforms();
+    AssetDatabase.AddObjectToAsset(mesh,assetPath);
+    AssetDatabase.AddObjectToAsset(plane,assetPath);
+    AssetDatabase.SaveAssetIfDirty(mesh);
+    EditorUtility.SetDirty(data);
+    AssetDatabase.SaveAssetIfDirty(data);
+    if(!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene))
+        throw new InvalidOperationException("상부 적재 데크 저장 실패");
+    Undo.CollapseUndoOperations(undo);
+    return "윗갱구 목재 적재 데크 7.28 × 3.68m";
+}
+catch
+{
+    Undo.RevertAllDownToGroup(undo);
+    throw;
+}

@@ -1,0 +1,81 @@
+// 최종 검수 지적을 반영해 난간 이음과 동북 수평선, 교역소 암석 색을 마감한다.
+const string world="Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34";
+const string path=world+"/Production/RegionArt/RiverBasinDesertDetails.asset";
+var s=UnityEngine.SceneManagement.SceneManager.GetSceneByName("RiverBasin4km");
+var root=s.GetRootGameObjects().Single(g=>g.name=="RiverBasin · 사막 물길과 해안 전망대");
+var coast=root.transform.GetChild(2);
+var border=coast.Find("동쪽 바다와 사암 벼랑");
+var lookout=coast.Find("외해 전망 마당/RB_DesertStonework_전망대난간");
+if(lookout.Find("메운 돌담 줄눈"))return "최종 표면 보정이 이미 적용되었습니다.";
+var ts=Terrain.activeTerrains.Where(t=>t.gameObject.scene==s).ToArray();
+Func<float,float,float> h=(x,z)=>{var t=ts.First(q=>x>=q.transform.position.x&&x<q.transform.position.x+512&&z>=q.transform.position.z&&z<q.transform.position.z+512);return t.SampleHeight(new Vector3(x,0,z))+t.transform.position.y;};
+var main=AssetDatabase.LoadMainAssetAtPath(path);
+var mortar=AssetDatabase.LoadAllAssetsAtPath(path).OfType<Material>().Single(m=>m.name=="전망대 절석");
+var sea=border.Find("동쪽 외해 수면").GetComponent<MeshRenderer>().sharedMaterial;
+var crust=AssetDatabase.LoadAssetAtPath<TerrainLayer>(world+"/Production/Layers/Sandstone.terrainlayer");
+Undo.IncrementCurrentGroup();int undo=Undo.GetCurrentGroup();Undo.SetCurrentGroupName("사막 아트 검수 보정");
+Func<Transform,string,System.Collections.Generic.List<Vector3>,System.Collections.Generic.List<int>,Material,GameObject> draw=(parent,name,vs,indices,mat)=>{
+    var go=new GameObject(name);go.transform.SetParent(parent,false);go.transform.position=vs[0];Undo.RegisterCreatedObjectUndo(go,name);
+    var m=new Mesh{name=name};
+    m.vertices=vs.Select(v=>v-vs[0]).ToArray();
+    m.uv=vs.Select(v=>new Vector2((v.x+v.z)*.22f,v.y*.28f+v.z*.11f)).ToArray();
+    m.triangles=indices.ToArray();m.RecalculateNormals();m.RecalculateTangents();m.RecalculateBounds();
+    go.AddComponent<MeshFilter>().sharedMesh=m;go.AddComponent<MeshRenderer>().sharedMaterial=mat;
+    AssetDatabase.AddObjectToAsset(m,path);
+    return go;
+};
+try{
+    var wall=new[]{new Vector2(4075,1761),new Vector2(4082,1763),new Vector2(4086,1768),new Vector2(4085,1774),new Vector2(4081,1777),new Vector2(4075,1777)};
+    var v=new System.Collections.Generic.List<Vector3>();
+    var f=new System.Collections.Generic.List<int>();
+    for(int i=1;i<wall.Length;i++){
+        var first=wall[i-1];var last=wall[i];var axis=(last-first).normalized;
+        var normal=new Vector2(-axis.y,axis.x);
+        int count=Mathf.CeilToInt(Vector2.Distance(first,last)/.52f);
+        var rects=new Vector3[count+1][];
+        for(int j=0;j<=count;j++){
+            var p=Vector2.Lerp(first,last,j/(float)count);
+            var outer=p+normal*.21f;var inner=p-normal*.21f;
+            float y=h(p.x,p.y);
+            rects[j]=new[]{new Vector3(outer.x,y-.16f,outer.y),new Vector3(inner.x,y-.16f,inner.y),
+                new Vector3(inner.x,y+.76f,inner.y),new Vector3(outer.x,y+.76f,outer.y)};
+        }
+        for(int j=1;j<=count;j++)for(int k=0;k<4;k++){
+            int n=(k+1)%4,index=v.Count;
+            v.AddRange(new[]{rects[j-1][k],rects[j][k],rects[j][n],rects[j-1][n]});
+            f.AddRange(new[]{index,index+1,index+2,index,index+2,index+3,index,index+2,index+1,index,index+3,index+2});
+        }
+    }
+    draw(lookout,"메운 돌담 줄눈",v,f,mortar);
+    var horizon=draw(border,"동북 원경 수면",new[]{new Vector3(3050,.04f,4095.9f),new Vector3(3050,.04f,20000),
+        new Vector3(4087,.04f,20000),new Vector3(4087,.04f,4095.9f)}.ToList(),
+        new System.Collections.Generic.List<int>{0,1,2,0,2,3},sea);
+    horizon.GetComponent<MeshRenderer>().shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;
+    var rocks=s.GetRootGameObjects().SelectMany(g=>g.GetComponentsInChildren<Transform>(true)).Where(t=>t.gameObject.activeInHierarchy
+      &&PrefabUtility.IsAnyPrefabInstanceRoot(t.gameObject)&&t.name.StartsWith("PF_EastLands_")&&t.name.Contains("Boulder")
+      &&t.position.x>=3648&&t.position.x<3661&&t.position.z>=1497&&t.position.z<1525).ToArray();
+    foreach(var rock in rocks){
+        Undo.RecordObject(rock,"교역소 입구 암석 실루엣");
+        if(rock.position.z<1507){
+            rock.localScale*=.82f;rock.position+=Vector3.down*.21f;
+            PrefabUtility.RecordPrefabInstancePropertyModifications(rock);
+        }
+        foreach(var renderer in rock.GetComponentsInChildren<MeshRenderer>(true)){
+            Undo.RecordObject(renderer,"사막 입구 암석 색");
+            var replacement=renderer.sharedMaterials.Select(m=>{
+                var target=AssetDatabase.LoadAllAssetsAtPath(path).OfType<Material>().FirstOrDefault(a=>a.name=="사막 입구 "+m.name);
+                if(target)return target;
+                var copy=new Material(m){name="사막 입구 "+m.name};
+                if(copy.HasProperty("_BaseColor"))copy.SetColor("_BaseColor",new Color(.92f,.75f,.59f));
+                if(copy.HasProperty("_Color"))copy.SetColor("_Color",new Color(.92f,.75f,.59f));
+                AssetDatabase.AddObjectToAsset(copy,path);
+                return copy;
+            }).ToArray();
+            renderer.sharedMaterials=replacement;
+            PrefabUtility.RecordPrefabInstancePropertyModifications(renderer);
+        }
+    }
+    EditorUtility.SetDirty(main);AssetDatabase.SaveAssetIfDirty(main);
+    Undo.CollapseUndoOperations(undo);UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(s);
+    return "돌담 줄눈, 동북 바다, 마을 암석 "+rocks.Length+" 적용";
+}catch{Undo.RevertAllDownToGroup(undo);throw;}

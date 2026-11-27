@@ -1,0 +1,77 @@
+// 방파제 양쪽과 중앙 부두 이음부의 지지면, 단차, 장애물 겹침을 검사한다.
+var harbor=GameObject.Find("항구마을");
+var tower=harbor?harbor.transform.Find("HarborLighthouse"):null;
+if(!tower||!tower.Find("RBL_Lighthouse"))throw new System.InvalidOperationException("새 등대를 확인하세요.");
+var paths=new[]{
+    new[]{new Vector2(2787.84f,161.0f),new Vector2(2787.84f,155.35f),new Vector2(2788.17f,148.50f),
+          new Vector2(2788.50f,141.50f),new Vector2(2788.83f,134.50f),new Vector2(2791.50f,130.33f),new Vector2(2801.50f,127.67f)},
+    new[]{new Vector2(2865.28f,163.75f),new Vector2(2865.28f,158.08f),new Vector2(2866.43f,151.35f),
+          new Vector2(2867.60f,144.50f),new Vector2(2871.20f,123.50f),new Vector2(2872.40f,116.50f),
+          new Vector2(2869.83f,112.17f),new Vector2(2866.50f,111.30f)},
+    new[]{new Vector2(2826,164.5f),new Vector2(2826,146.75f)}
+};
+Physics.SyncTransforms();
+var log=new System.Text.StringBuilder();
+var names=new[]{"서쪽 방파제","동쪽 방파제와 등대 입구","중앙 부두 접속"};
+for(int path=0;path<paths.Length;path++){
+    int sample=0,missing=0,hitCount=0,stepCount=0;
+    var failures=new System.Collections.Generic.List<string>();
+    for(int lane=-1;lane<=1;lane++){
+        float last=float.NaN;
+        for(int segment=1;segment<paths[path].Length;segment++){
+            var a=paths[path][segment-1];var b=paths[path][segment];
+            var side=Vector2.Perpendicular((b-a).normalized);
+            int n=Mathf.CeilToInt(Vector2.Distance(a,b)/.32f);
+            for(int i=segment==1?0:1;i<=n;i++){
+                var p=Vector2.Lerp(a,b,i/(float)n)+side*(lane*1.05f);
+                var rayOrigin=new Vector3(p.x,15,p.y);
+                var hits=Physics.RaycastAll(rayOrigin,Vector3.down,35,Physics.DefaultRaycastLayers,QueryTriggerInteraction.Ignore);
+                Collider floor=null;float y=-100;
+                foreach(var hit in hits){
+                    var c=hit.collider;
+                    if(!(c is TerrainCollider)&&!c.name.StartsWith("Harbor_StoneQuay",System.StringComparison.Ordinal)&&c.name!="Harbor_TimberDeck"&&!c.name.Contains("방파제 ·"))continue;
+                    if(hit.point.y<=y||hit.normal.y<.65f)continue;
+                    y=hit.point.y;floor=c;
+                }
+                sample++;
+                if(!floor||y<.12f){
+                    missing++;
+                    if(failures.Count<14)failures.Add("지지면 "+p.ToString("F2")+" y "+y.ToString("F2"));
+                    continue;
+                }
+                if(!float.IsNaN(last)&&Mathf.Abs(y-last)>.32f){
+                    stepCount++;
+                    if(failures.Count<14)failures.Add("단차 "+p.ToString("F2")+" "+(y-last).ToString("F2")+" "+floor.name);
+                }
+                last=y;
+                var p0=new Vector3(p.x,y+.50f,p.y);
+                foreach(var c in Physics.OverlapCapsule(p0,p0+Vector3.up*1.1f,.35f,Physics.DefaultRaycastLayers,QueryTriggerInteraction.Ignore))
+                    if(c!=floor){
+                        hitCount++;
+                        if(failures.Count<14)failures.Add("겹침 "+p.ToString("F2")+" "+c.name);
+                    }
+            }
+        }
+    }
+    log.AppendLine(names[path]+" "+sample+" 표본 / 지지면 누락 "+missing+" / 단차 "+stepCount+" / 장애물 겹침 "+hitCount);
+    foreach(var f in failures)log.AppendLine(f);
+}
+var art=tower.Find("RBL_Lighthouse");
+var g=art.GetComponent<LODGroup>();
+var mesh=tower.GetComponentInChildren<MeshCollider>().sharedMesh;
+var collider=tower.GetComponentInChildren<MeshCollider>();
+RaycastHit towerHit;
+if(g.GetLODs().Length!=2||mesh.name!="항구 등대 원형 충돌"||
+    !collider.Raycast(new Ray(tower.position+Vector3.up*15,Vector3.down),out towerHit,5))
+    throw new System.InvalidOperationException("등대 LOD 또는 충돌 확인");
+MeshRenderer cap=null,deck=null;
+foreach(var r in harbor.GetComponentsInChildren<MeshRenderer>()){
+    var f=r.GetComponent<MeshFilter>();if(!f||!f.sharedMesh)continue;
+    if(f.sharedMesh.subMeshCount==2&&AssetDatabase.GetAssetPath(f.sharedMesh).EndsWith("/RiverBasinHarborWaterfrontMeshes.asset"))cap=r;
+}
+foreach(Transform t in harbor.transform)if(t.name=="Harbor_TimberDeck"&&
+    Vector3.Distance(t.position,new Vector3(2826,.84f,150.3f))<.2f)deck=t.GetComponentInChildren<MeshRenderer>();
+if(!cap||!deck||cap.sharedMaterials.Length!=2||cap.sharedMaterials[1]!=deck.sharedMaterial)
+    throw new System.InvalidOperationException("목재 부두와 경사 상판 재질 비교 실패");
+log.AppendLine("등대 LOD 2단계, 원형 충돌 상향 지지 확인. 중앙 경사 상판과 부두 목재 재질 같은 참조.");
+return log.ToString();

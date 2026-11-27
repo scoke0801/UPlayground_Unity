@@ -1,0 +1,89 @@
+var scene=UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+var root=scene.GetRootGameObjects().Single(g=>g.name=="채석장 · 노천 작업장 재구성");
+var terrain=Terrain.activeTerrains.Single(t=>t.gameObject.scene==scene&&t.name=="Terrain_6_4");
+var work=terrain.terrainData;
+var terrainPath=AssetDatabase.GetAssetPath(work);
+var source=AssetDatabase.LoadAssetAtPath<TerrainData>(terrainPath.Replace("QuarrySurfaceRebuild","QuarryConcept"));
+var origin=terrain.transform.position;
+var terrainLayers=source.terrainLayers;
+var alpha=source.GetAlphamaps(0,0,source.alphamapWidth,source.alphamapHeight);
+var painted=new float[alpha.GetLength(0),alpha.GetLength(1),alpha.GetLength(2)+1];
+int meadow=Array.FindIndex(terrainLayers,t=>t.name=="Meadow"), weathered=Array.FindIndex(terrainLayers,t=>t.name=="WeatheredRock");
+int forestLayer=Array.FindIndex(terrainLayers,t=>t.name=="Forest");
+var grove=root.transform.Find("운반길 바깥 사면의 나무와 관목");
+var trees=grove.Cast<Transform>().Where(t=>
+    PrefabUtility.GetPrefabAssetPathOfNearestInstanceRoot(t.gameObject).Contains("/Trees/TGV_Birch_Tree_")).ToArray();
+const string treePath="Assets/ExternalAssets/Environment/PolyartStudio/FarmLand/PolyartStudio/Farmlands/Prefabs/Foliage/Trees/";
+var treePrefabs=new[]{"PF_Farm_GenTree_A_FullTree_01","PF_Farm_GenTree_B_FullTree_01","PF_Farm_GenTree_D_Young_01"}
+    .Select(name=>AssetDatabase.LoadAssetAtPath<GameObject>(treePath+name+".prefab")).ToArray();
+var rails=root.GetComponentsInChildren<Transform>().Where(t=>t.name=="PF_Farm_Railways_400_01").ToArray();
+var cart=root.GetComponentsInChildren<Transform>().Single(t=>t.name=="PF_Farm_MineCart_01");
+var oldFlags=scene.GetRootGameObjects().Single(g=>g.name=="채석장 · 첫 시안 배치").transform.Find("갱구와 적재장 깃발");
+if(EditorApplication.isPlayingOrWillChangePlaymode||meadow<0||weathered<0||forestLayer<0||
+    work.alphamapLayers!=painted.GetLength(2)||treePrefabs.Any(p=>!p)||trees.Length!=23||rails.Length!=3)
+    throw new InvalidOperationException("노천 작업장 마감 조건을 확인하세요.");
+
+Func<float,float> smooth=v=>Mathf.SmoothStep(0,1,Mathf.Clamp01(v));
+Func<float,float,float,float,float> edge=(x,min,max,blend)=>smooth((x-min)/blend)*smooth((max-x)/blend);
+Func<float,float,float> y=(x,z)=>work.GetInterpolatedHeight((x-origin.x)/512,(z-origin.z)/512)+origin.y;
+for(int z=0;z<painted.GetLength(0);z++)
+for(int x=0;x<painted.GetLength(1);x++)
+{
+    float wx=origin.x+(x+.5f)*512/painted.GetLength(1),wz=origin.z+(z+.5f)*512/painted.GetLength(0);
+    float n=Mathf.PerlinNoise(wx*.043f,wz*.043f);
+    float area=edge(wx,3108,3301,26)*edge(wz,2144,2312,24);
+    float workMask=edge(wx+(n-.5f)*11,3191,3261,14)*edge(wz+(n-.5f)*7,2218,2274,12);
+    float staging=edge(wx,3240,3270,8)*edge(wz,2182,2215,10)*.92f;
+    float oldLanding=edge(wx,3184,3231,12)*edge(wz,2181,2218,9)*.45f;
+    workMask=Mathf.Max(Mathf.Max(workMask,staging),oldLanding);
+    float grade=Vector2.Distance(new Vector2(y(wx-1,wz),y(wx,wz-1)),new Vector2(y(wx+1,wz),y(wx,wz+1)))*.5f;
+    float banks=area*(1-workMask)*Mathf.Lerp(.63f,.97f,n);
+    float cut=workMask*Mathf.Lerp(.98f,.83f,smooth((grade-.4f)/1.8f));
+    float green=Mathf.Lerp(.66f,.91f,1-smooth(grade));
+    for(int i=0;i<terrainLayers.Length;i++) painted[z,x,i]=alpha[z,x,i]*(1-banks)*(1-cut);
+    painted[z,x,meadow]+=banks*(1-cut)*green;
+    painted[z,x,forestLayer]+=banks*(1-cut)*.09f;
+    painted[z,x,weathered]+=banks*(1-cut)*Mathf.Max(0,1-.09f-green);
+    painted[z,x,terrainLayers.Length]=cut;
+}
+
+Undo.IncrementCurrentGroup();
+int undo=Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName("석분 바닥과 운반 작업대 마감");
+Undo.RegisterCompleteObjectUndo(work,"석회암 지표");
+Undo.RecordObjects(rails.Cast<UnityEngine.Object>().Concat(new UnityEngine.Object[]{cart,oldFlags.gameObject}).ToArray(),"운반 작업대와 갱구 깃발");
+try
+{
+    work.SetAlphamaps(0,0,painted);
+    terrain.Flush();
+    float layerValue=work.GetAlphamaps(38,51,1,1)[0,0,work.alphamapLayers-1];
+    if(layerValue<.80f) throw new InvalidOperationException("중앙 작업면의 석분 레이어가 적용되지 않았습니다. "+layerValue);
+    for(int i=0;i<trees.Length;i++)
+    {
+        var old=trees[i];
+        var replacement=(GameObject)PrefabUtility.InstantiatePrefab(treePrefabs[i%treePrefabs.Length],grove);
+        Undo.RegisterCreatedObjectUndo(replacement,"사면 수목 교체");
+        replacement.transform.SetPositionAndRotation(old.position,old.rotation);
+        replacement.transform.localScale=old.localScale*(i%3==2?.97f:.82f);
+        Undo.DestroyObjectImmediate(old.gameObject);
+    }
+    oldFlags.gameObject.SetActive(false);
+    foreach(var rail in rails)
+    {
+        var p=rail.position;
+        rail.SetPositionAndRotation(new Vector3(p.x,y(p.x,2256)+.035f,2256),Quaternion.identity);
+    }
+    cart.SetPositionAndRotation(new Vector3(3220.85f,y(3220.85f,2256)+.095f,2256),Quaternion.identity);
+    Physics.SyncTransforms();
+    EditorUtility.SetDirty(work);
+    AssetDatabase.SaveAssetIfDirty(work);
+    if(!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene))
+        throw new InvalidOperationException("노천 작업장 마감 저장 실패");
+    Undo.CollapseUndoOperations(undo);
+    return "석분 중앙 가중치 "+layerValue.ToString("F2")+" / 수목 23그루 교체 / 운반 궤도 안착";
+}
+catch
+{
+    Undo.RevertAllDownToGroup(undo);
+    throw;
+}

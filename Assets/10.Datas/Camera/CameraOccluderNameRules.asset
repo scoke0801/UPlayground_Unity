@@ -179,7 +179,7 @@ MonoBehaviour:
       \uAC00\uB4DC \uB300\uC0C1."
   - namePattern: Dng_Roof_QuarryMaze
     isPrefix: 0
-    mode: 0
+    mode: 1
     coversInterior: 1
     note: "\uCC44\uC11D \uAC31\uB3C4 \uC554\uBC18 \uCC9C\uC7A5"
   - namePattern: Dng_Barracks
@@ -600,3 +600,13 @@ MonoBehaviour:
     mode: 1
     coversInterior: 0
     note: "\uD3EC\uAD6C\uC758 \uBCF4\uD589\uBA74\uACFC \uC804\uB9DD\uB300 \uB09C\uAC04"
+  - namePattern: SnowboundCrownKeep
+    isPrefix: 1
+    mode: 0
+    coversInterior: 1
+    note: "설산 본성의 외벽과 실내 천장 충돌."
+  - namePattern: RB_DesertWaterworks
+    isPrefix: 1
+    mode: 0
+    coversInterior: 1
+    note: "사막 취수장의 외벽과 중앙 통로 천장 충돌."

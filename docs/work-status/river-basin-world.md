@@ -6,6 +6,64 @@
 - 분야 위키: [월드와 아트](../wiki/world-art.md) (표의 「강 유역 월드」 행)
 - 현재 판정은 **성마을 북동 문루 프리뷰 저장 · 사용자 미술 확인 대기 · P5 정규 등록 미제작**이다.
 
+## 건축 배치 전수 조사
+
+맵 배치 작업에 공통 검수 기준을 연결했다. 중첩, 경사면 접지와 건물 지지대, 동일 건물 반복, 도로 배치에 적용한다. 이번 반영 범위는 문서이며 씬 변경과 Unity 재검증은 미수행이다. [환경 배치 검수 기준](../../Assets/docs/guide/OPENWORLD_MAP_AUTHORING_GUIDE.md#환경-배치-검수-기준)
+
+설산 성채의 바위와 경사 장터는 후속 제보를 받아 지역 프리팹의 배치와 포석을 추가로 보정했다. [바위 관통과 경사 장터 보정](snow-fortress.md#바위-관통과-경사-장터-보정)
+
+**BUG-RB-BUILDING-01 · S3 · Unity Editor 재현.** 제보 원문은 “건물들이 서로 겹쳐있는 문제가 발생하고 있다.”이다. 기본 `RiverBasin4km` 씬에서 중앙 성채의 동쪽 내성 외곽과 남서쪽 가판대를 조감하면 성벽이 지붕과 기둥을 절단한다. 재현 빈도는 현재 저장본에서 동일하며 회귀 시점 및 플레이 시작 상태는 미상이다. 기대 결과는 건물과 가판대의 지붕·기둥에 구조물 관통이 없고 기존 길에서 접근할 수 있는 배치다.
+
+### 구현 반영
+
+64개 지형 타일에 걸쳐 가옥, 장터, 차양, 성벽, 문루, 채석장 갱구와 설산 본성 등 활성 건축 배치 689개를 조사했다. 중앙 성채 9개, 항구·사막 R4·설산 각 1개를 옮겼다. 변경 지점의 포석·창고 진입로, 함께 배치된 소품 4개와 설산 공방 석축을 맞췄다. 설산 본성에서는 창과 탑을 관통하던 성벽 끝단 2개를 비활성화하고 서쪽 인접 모듈의 끝을 0.70m 늘렸다. 동쪽에 남은 옛 석축 13면을 정리하고 진입로 상면·옹벽을 본성 바닥에 이었다. [기본 씬](../../Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Preview/RiverBasin4km.unity) · [설산 지역 프리팹](../../Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinSnowFortressCity.prefab)
+
+| 지점 | Unity 확인 화면 |
+|---|---|
+| 중앙 성채 동쪽 내성 외곽 `(2343, 90, 2143)` | [수정 전](river-basin-building-overlap-evidence/east-market-before.jpg) · [수정 후](river-basin-building-overlap-evidence/east-market-after.jpg) |
+| 중앙 성채 남서쪽 가판 `(2274, 92, 2058)` | [수정 전](river-basin-building-overlap-evidence/southwest-market-before.jpg) · [수정 후](river-basin-building-overlap-evidence/southwest-market-after.jpg) |
+| 중앙 성채 중성 창고 `(2260, 95, 2044)` | [수정 전](river-basin-building-overlap-evidence/warehouse-before.jpg) · [수정 후](river-basin-building-overlap-evidence/warehouse-after.jpg) |
+| 항구 중앙 시장 `(2845, 11, 253)` | [수정 전](river-basin-building-overlap-evidence/harbor-before.jpg) · [수정 후](river-basin-building-overlap-evidence/harbor-after.jpg) |
+| 사막 R4 호숫가 차양 `(3316, 29, 918)` | [수정 후](river-basin-building-overlap-evidence/desert-r4-after.jpg) |
+| 설산 시장과 주거가의 공방·여관 `(3274, 205, 3297)` | [수정 전](river-basin-building-overlap-evidence/snow-workshop-before.jpg) · [이동한 공방과 석축](river-basin-building-overlap-evidence/snow-workshop-after.jpg) |
+| 설산 본성 동·서 성벽 끝단 | [동쪽 전](river-basin-building-overlap-evidence/snow-keep-east-before.jpg) · [동쪽 후](river-basin-building-overlap-evidence/snow-keep-east-after.jpg) · [서쪽 전](river-basin-building-overlap-evidence/snow-keep-west-before.jpg) · [서쪽 후](river-basin-building-overlap-evidence/snow-keep-west-after.jpg) |
+| 설산 본성 문턱 `(3304, 233, 3343)` | [수정 전](river-basin-building-overlap-evidence/snow-keep-entry-before.jpg) · [수정 후](river-basin-building-overlap-evidence/snow-keep-entry-after.jpg) |
+
+### 검증
+
+- **건축 배치 검사 통과.** Unity에서 저장본을 단독 재개방했다. 활성 배치 687개에서 Y 0.12m, 회전된 XZ 경계 0.08m 이상이 겹치는 후보 35쌍의 렌더 삼각형을 대조했다. 검출된 12쌍은 계단·난간, 등잔, 갱구 이음, 붕괴 제방처럼 서로 맞물리도록 저작된 접점이었다. 이 범위에서 비의도 교차는 0쌍이다. 모듈식 성벽끼리 만나는 경계 323쌍은 후보 집계에서 제외했고, 건물과 성벽이 만나는 쌍은 검사에 포함했다. [검사 결과와 재배치 좌표](river-basin-building-overlap-evidence/placement-review.txt)
+- **Editor 보행 검사 통과.** 변경 구역 9개 경로, 924개 보행 캡슐 표본에서 지지면 누락과 구조물 겹침이 0이었다. 설산 본성은 문루 밖에서 홀까지, 홀에서 양쪽 방과 상층 갤러리까지 충돌체로 생성한 임시 NavMesh 4경로가 모두 연결됐다. [Editor 검사 원본](river-basin-building-overlap-evidence/editor-traversal.txt)
+- **사용자 테스트 대기.** 기본 씬을 열고 평소 입력 장치로 `RB-BLD-01` 내성 동쪽·남서쪽 포석 진입, `RB-BLD-02` 항구 장터와 R4 호숫가 차양 주변, `RB-BLD-03` 설산 공방 옆 골목과 본성 문턱 왕복을 확인한다. 처마 관통, 도로 단절 또는 카메라가 구조물에 끼는 증상이 보이면 항목 ID·좌표·화면을 남긴다. Player·Addressables 빌드는 미수행이다. [월드와 아트](../wiki/world-art.md)
+
+## 동부 사막 정착지 확장 설계
+
+사용자 표시 지도의 네 구역을 저장된 프리뷰와 대조해 부지를 실측했다. 아래 좌표는 건축 검토 범위이며, 사용자 표시의 픽셀을 필지 경계로 해석한 값은 아니다. [사용자 표시 지도](../../Assets/docs/design/world-art/open-world/river_basin_desert_settlement_assets/user-marked-map.png) · [Unity 권역 조감](river-basin-desert-expansion-evidence/region-survey.jpg) · [인계 설계](../../Assets/docs/design/world-art/open-world/RIVER_BASIN_DESERT_SETTLEMENT_EXPANSION_DESIGN.md)
+
+| 구역 | Unity 실측과 배치 판단 |
+|---|---|
+| 절벽 교역 마을 | 우물 시장 X3632/Z1512. 서쪽 X3498~3553/Z1534~1558 완경사와 중턱 X3553~3600/Z1489~1520, R5 동쪽 X3691~3720/Z1514~1538을 건축 후보로 잡았다. 필지 중심 경사는 약 2~18°. X3560/Z1552의 기존 절벽 충돌은 피한다. |
+| 호숫가 관개 농경촌 | R4 포구 X3320/Z904. 호수 메시 Y24.04m. 기존 북쪽 수로 X3322/Z932 주변을 우선 검토한다. X3336~3362/Z977~1007의 저지 표본은 Y16.68~20.93m이며, X3360/Z952는 Y29.99m에 경사 46.6°다. 주거는 수면 위의 작은 단으로 나누고, 공급 수로는 호수와 별도 양수·저수 경로가 필요하다. |
+| 해안 망루 마을 | R5 분기 X3724/Z1735, 망루 X3911/Z1796, 전망 마당 X4074/Z1762. X3888~3929/Z1811~1819 후보의 높이는 Y54.75~59.02m, 경사 1.9~14.6°. 건축 후보의 가장 동쪽 표본은 외해 마당보다 서쪽으로 145m 떨어져 있다. 외해 수면 Y0.04m. |
+| 사구 발치 쉼터 | 서쪽 발치 X3797~3824/Z1359~1386은 Y59.51~61.85m, 경사 2.9~6.9°. 사구 X3870/Z1350의 Y81.12m 표본보다 약 19.6m 낮다. 기존 도로 메시까지 직선으로 약 161~186m 남아 별도 샛길이 필요하다. |
+
+### 중심 교역 마을 블록아웃
+
+**2026-11-27 Unity 프리뷰 저장.** `RiverBasin · 사막 물길과 해안 전망대` 아래 `절벽 교역 마을 확장 · 블록아웃`에 기존 사암 주택 키트로 서쪽 주거단 9동, 시장 서편 주거 골목 9동, 동쪽 하역 마당 6동을 배치했다. 기존 시장 주변 주택과 부속채 8동을 포함하면 32동이다. 새 건물 중심의 동서 범위는 222m다. 기존 수로의 두 텃밭 사이로 시장에 들어오는 길과 북쪽 절벽 발치의 복귀 길을 두고, R5의 동쪽에는 차양과 화물 적치부를 배치했다. 기존 R4/R5와 지형·물 데이터를 사용해 보행로 메시 네 개를 별도 에셋에 저장했다. [씬](../../Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Preview/RiverBasin4km.unity) · [보행로 메시](../../Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinDesertSettlementBlockout.asset) · [기존 키트 제작 원본](../../Tools/RiverBasinWorld/DesertArchitecture/)
+
+**Editor 검사.** 씬을 다시 열어 새 건물의 지붕 충돌 24/24와 필지 간 충돌을 확인했다. 기존 카메라 이름 규칙 `RB_Adobe`와 `RB_DesertStonework_`를 사용한다. 보행로 중앙과 좌우의 캡슐 1,650개에서 장애물 중첩 0건, 최대 지형 경사 22.5°다. 대상 씬의 충돌 형상으로 임시 NavMesh를 만들어 시장 진입·순환과 상단 계단·하역부까지 14/14 경로가 이어지는 것을 확인했다. 오류 재질과 누락 스크립트는 0건이다. [검사 원문](river-basin-desert-expansion-evidence/editor-check.txt)
+
+**Unity 조감·눈높이 확인.** 조감에서 새 주거 두 동이 기존 텃밭과 겹치는 것을 확인해 남쪽 빈 필지로 옮겼다. 하역 차양과 시장 천막은 토색 건물 사이에서 방향을 구분해 준다. 새 건물의 높은 기단과 계단, 서쪽 구역의 반복되는 실루엣은 아트 패스 검토 항목이다. [기존 조감](river-basin-desert-expansion-evidence/aerial-before.jpg) · [확장 조감](river-basin-desert-expansion-evidence/aerial-after.jpg) · [시장 동쪽 진입](river-basin-desert-expansion-evidence/market-east-after.jpg) · [시장 서쪽 진입](river-basin-desert-expansion-evidence/market-west-after.jpg) · [서쪽 주거 골목](river-basin-desert-expansion-evidence/west-lane.jpg) · [하역 마당](river-basin-desert-expansion-evidence/loading-court.jpg)
+
+**사용자 테스트 대기.** `RiverBasin4km` 프리뷰에서 X3503/Z1541 서쪽 골목 → X3634/Z1509 시장 → X3698/Z1523 하역 마당을 왕복한다. 시장에서 X3609/Z1524 계단과 북쪽 우회길을 각각 타 보고 입구의 가독성, 계단과 밭 경계의 걸림, 카메라 급당김을 확인한다. 임시 NavMesh는 Editor 검사용이며 런타임 Bake·실제 TPS 조작·독립 미술 검수는 미수행이다. 농경촌·망루 마을·사구 쉼터는 위 실측을 토대로 배치와 접속로를 설계할 단계다.
+
+## 동부 사막 우물 교역소 재구성
+
+사용자가 교역소 조감에서 지형과 따로 선 암봉과 비어 있는 마을 구성을 지적했다. 이전 프리뷰의 독립 아트 조건부 통과는 해당 시점 화면 검수 기록으로 남긴다. 현재 변경의 미술 수용 여부는 사용자 테스트 대기다.
+
+우물 교역소 뒤 암봉 그룹을 프리뷰 씬에서 제거하고, 기존 절벽 에셋을 사암 재질로 연결했다. 지형 두 타일에는 절벽 뒤로 이어지는 사면을 조형했다. 상단 주거 골목과 옹벽을 놓고, 기존 주거 앞 마당과 장터에서 계단을 따라 올라갈 수 있게 했다. 장터에 돌 포장, 천 차양 세 곳과 물자 배치를 더했다. [교역소 조감](river-basin-desert-market-composition/aerial.jpg) · [시장 접근](river-basin-desert-market-composition/market-eye.jpg) · [주거단](river-basin-desert-market-composition/upper-lane.jpg)
+
+Unity Editor에서 상·하단을 잇는 NavMesh 경로 5/5, 기존 네 길의 보행 캡슐 겹침 0/3,130, 지붕 콜라이더 13/13을 확인했다. 저장본을 다시 열어 두 타일 접합부의 추가 높이차, 원본 도색 픽셀차와 R5 길 아래 높이차가 모두 0임을 확인했다. 실제 TPS 카메라·보행 및 최종 미술 인수는 사용자 테스트 대기다. [Editor 검사](river-basin-desert-market-composition/editor-check.txt) · [NavMesh 검사](river-basin-desert-market-composition/navmesh-check.txt)
+
 ## 동부 사막 실게임 아트 마감
 
 **2026-11-27 프리뷰 저장.** 호숫가·교역소·전망대에서 기존 반지하 흙집과 임시 밭을 교체했다. Astra와 Blender로 평지붕 주택 2종, 부속채와 사각 망루를 제작했다. 사면에는 현관 계단과 접지 기단을 맞추고, 포구에 목재 접속로와 배를 배치했다. 시장 쪽 사암 기둥은 판매대 뒤에 두고, 구매 에셋의 밀·당근·수박 274포기를 흙두둑과 두 줄의 물 수로에 연결했다. 원경 작물 정점은 근경 203,745개에서 15,042개로 줄었다. [Blender 원본과 미리보기](../../Tools/RiverBasinWorld/DesertArchitecture/) · [호숫가](river-basin-desert-finish-evidence/lake-ground.jpg) · [교역소](river-basin-desert-finish-evidence/market-approach.jpg) · [작물과 수로](river-basin-desert-finish-evidence/irrigation.jpg)
@@ -28,9 +86,39 @@ R5 망루에서 보행 가능한 절석 난간까지 오솔길을 이어 외해�
 
 ## 도로 생성 지침 연결
 
+**R5 분기 지형·방향 표식 · 2026-11-27 · 프리뷰 저장.** X3724/Z1738 분기 전후의 본선과 망루 보급길 첫 굽이에 저폭 절·성토를 적용했다. 본선은 넓은 노면으로 이어지고, 보급길 입구는 폭을 줄여 X3733/Z1747.6 사암 돌무더기가 갈래를 짚는다. 첫 굽이를 넘어 망루까지는 노면이 이어지며, 해안 전망 쪽으로 갈수록 옅어진다. 지형은 별도 TerrainData로 저장하고 렌더러와 TerrainCollider에 함께 연결했다. [탑뷰 전](river-basin-road-evidence/r5-fork-baseline-0.jpg) · [후](river-basin-road-evidence/r5-fork-saved-0.jpg) · [교역소 방향 전](river-basin-road-evidence/r5-fork-baseline-2.jpg) · [후](river-basin-road-evidence/r5-fork-saved-2.jpg) · [망루 방향](river-basin-road-evidence/r5-fork-saved-3.jpg)
+
+저장본의 실제 높이 표본 911곳에서 최대 절·성토량은 0.391m였다. 작업 구간 코어 최대 횡경사는 보정 전 9.1°에서 7.2°로 낮아졌다. 저장 후 지면 레이 1,935곳과 같은 지점의 통행용 캡슐 검사에서 지면 누락과 장애물 접촉이 0건이었다. 원본 도색 가중치를 복제 타일에 명시적으로 넣고 전체 알파맵, 영향 범위 밖 높이, 원본 두 에셋 해시가 동일함을 확인했다. 기존 NavMesh 지지 표본 26곳을 확인했다. [제작 스크립트](../../Tools/RiverBasinWorld/Rebuild/r5-fork-landform.cs.txt) · [단면 계측](river-basin-road-evidence/r5-fork-applied.txt) · [저장 후 검사](river-basin-road-evidence/r5-fork-verify.txt)
+
+**사용자 테스트 대기 · RB-ROAD-03.** 프리뷰에서 실제 플레이어로 R5 남쪽 X3724/Z1726과 북쪽 X3730/Z1754에서 각각 분기로 들어간다. 지도와 퀘스트 표식을 참고하지 않고 본선과 망루 갈래를 구분한 뒤, 돌무더기 앞에서 보급길로 들어가 X3764/Z1747 첫 굽이에서 망루가 읽히는지 확인한다. 돌아올 때도 폭 차이가 읽히고 경사 전이에서 캐릭터가 튀거나 미끄러지지 않는지 본다. 위 화면은 동일 위치의 Editor 고정 카메라다. NavMesh 재Bake와 Player·Addressables 빌드는 미수행이다.
+
+**레퍼런스 재평가 · 2026-11-27.** 원신은 석문과 망서 객잔을 잇는 이동에서 낭떠러지 길, 습지, 멀리 보이는 거점을 이어 썼고, 수메르 사막에서는 아루 마을과 협곡·오아시스가 각각 독립된 방향 단서가 된다. 명조의 리나시타 외곽은 풍차와 물길로 열린 지형의 방향을 전하고, 라군나는 항구 수로와 도시 접근 구조로 거점 진입을 구분한다. 이 사례를 근거로 River Basin의 R5 본선, 망루 보급길, 망루 뒤 조망 오솔길에 각각 별도 가독성 기준을 정했다. 저장된 2차 표면은 본선과 갈래의 읽힘이 약해 미술 인수 보류다. 중단된 가독성 보정은 스크립트에 남았으며 씬과 생성 에셋의 저장 해시는 2차와 동일했다. [지역 설계](../../Assets/docs/design/world-art/open-world/RIVER_BASIN_REGION_CONCEPT_DESIGN.md) · [원신 수메르 개발자 소개](https://blog.playstation.com/?p=369917) · [원신 리월 개발자 해설](https://genshin.hoyoverse.com/en/news/detail/103681) · [명조 라군나](https://www.youtube.com/watch?v=-jaT9w0Dj1U) · [명조 리나시타 외곽](https://www.youtube.com/watch?v=yMMkg12m7pA)
+
+**2차 마감 · 2026-11-27 · 프리뷰 반영, 미술 인수 대기.** 사용자 첨부 화면에서 잔존한 R5와 해안길의 각진 선형, 균일하고 흐린 폭을 1차 파일럿의 시각 결함으로 확정했다. R5 분기 전후 175.4m와 전망대를 지나 해안 조망 지점까지 365.7m를 다시 연결했다. R5는 바위 남쪽에서 능선을 감싸도록 옮겼고, 전망대 전후 길은 한 곡선으로 연결했다. 모래와 잔자갈의 농도, 폭과 풍화 무늬를 달리하고 분기·암석 발치·전망대 주변에 기존 East Lands 석편을 모아 배치했다. 정점 표면과 잔자갈 노멀은 전용 재질에서만 활성화했다. [1차 탑뷰](river-basin-road-evidence/after-0.jpg) · [2차 탑뷰](river-basin-road-evidence/r2-after-0.jpg) · [분기 지상](river-basin-road-evidence/r2-after-4.jpg) · [암석 지상](river-basin-road-evidence/r2-after-5.jpg) · [해안 연결](river-basin-road-evidence/r2-after-6.jpg)
+
+노견까지 27,125점의 충돌 0건, 최소 회전 반경은 R5 14.91m·해안길 33.17m, 최대 횡경사는 16.33°·22.50°다. 기존 NavMesh에서 지지된 인접 구간 양방향 46/46가 연결됐다. R5 서쪽과 남쪽 외곽의 기존 지지점 누락 5곳은 남아 있다. Terrain 높이와 도색 원본을 유지했고, 저장 참조와 재생성 해시 일치, Undo/Redo, Editor 셰이더 진단 0건을 확인했다. [2차 Bake 스크립트](../../Tools/RiverBasinWorld/Rebuild/desert-lookout-road-r2.cs.txt) · [저장 에셋](../../Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinLookoutRoadR2.asset) · [2차 수치와 NavMesh 공백 좌표](river-basin-road-evidence/r2-corridor.json)
+
+`RB-ROAD-02`는 새 프리뷰 씬에서 R5 곡선 X3734/Z1765 → 분기 X3724/Z1738 → 망루 X3918/Z1783 → 해안 X4078/Z1768까지 왕복한다. 지상 화면은 고정 카메라 캡처다. 실제 TPS에서 분기 가독성, 풍화된 모래 위의 길 식별, 횡경사와 발자국을 확인하는 작업은 사용자 테스트 대기다. 월드 전체 확장과 Player·Addressables 빌드는 미수행이다.
+
+아래는 1차 파일럿 이력이다.
+
 **2026-11-27 지침 연결 완료.** 대상은 [RiverBasin4km 프리뷰 씬](../../Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Preview/RiverBasin4km.unity)이다. 병행 작업 중이므로 이번 단계는 문서 연결로 마쳤다. 기존 생성 코드·데이터 분석, 기준 화면 촬영, 도로 변경, Bake 및 Unity 검증은 미수행이다. [도로 제작·품질 검증 지침](../전달용/world_road/world_road_generation_guidelines.html) · [월드와 아트 위키](../wiki/world-art.md#본편-월드-제작-지침)
 
-재개 시 지침의 P0부터 진행한다. 사막 우선 적용 방침에 따라 문제 도로 한 구간에서 기존 생성·도색·Bake 경로와 Terrain 해상도를 확인하고, 탑뷰와 실제 TPS 카메라의 기준 화면을 확보한다. 원문에 적힌 원인 가설은 현행 코드와 데이터로 검증한다.
+**P0 기준선 · 2026-11-27.** 지침 사진의 망루와 분기를 저장 씬과 대조해 `해안 전망대 샛길`(R5 X3724/Z1738 → 해안 오솔길 X3918/Z1783)을 선정했다. 기존 [샛길 제작 스크립트](../../Tools/RiverBasinWorld/Rebuild/desert-coast-art.cs.txt)는 꺾은선 제어점을 선형 보간해 지형을 따라가는 별도 메시를 만든다. [후속 마감](../../Tools/RiverBasinWorld/Rebuild/desert-set-dressing-finish.cs.txt)은 재질과 메시 가장자리를 조정하지만 꺾은선은 그대로다. 따라서 해당 구간의 각진 방향 전환과 단색 띠는 그리드 탐색보다 저장된 선형 표면에서 직접 재현된다. 해당 512m 타일의 높이맵은 513, 알파맵은 128로 간격은 각각 1m, 약 4m다. [전체 탑뷰](river-basin-road-evidence/before-0.jpg) · [R5 합류 근접](river-basin-road-evidence/before-1.jpg) · [암석 옆 지상 구도](river-basin-road-evidence/before-2.jpg) · [망루 접근 지상 구도](river-basin-road-evidence/before-3.jpg).
+
+**P1 선형 후보 검증.** 원래 제어점을 둥글게 처리했을 때 전체 회랑에서 암석 두 곳에 걸렸다. 제어점을 조정한 세 후보는 암석을 피했고, 그중 전체 종단 경사가 가장 낮았던 후보를 선택했다. R5 분기점은 X3724/Z1738에 유지했고, 전망대 쪽 X3918/Z1783 주변에서 후속 오솔길과 표면이 만나도록 약 5m를 겹쳤다. 0.5m 간격의 종단과 11.6m 폭을 검사했다. [파일럿 계측](river-basin-road-evidence/corridor.json)
+
+**P2·P3 파일럿 반영.** 사막 발자국이 사용하는 인접 Terrain의 공통 알파맵 해상도를 유지하기 위해 기존 도로 셰이더에 중심선 거리, 노견 폭 변화, 가장자리 침식과 접속부 감쇠를 메시 정점 마스크로 구웠다. R5에서 갈라지는 곳과 해안 오솔길로 이어지는 곳은 폭을 좁히고 투명도를 낮춰 겹침을 줄였다. Terrain 높이와 충돌은 유지했다. [탑뷰 전](river-basin-road-evidence/before-0.jpg) · [후](river-basin-road-evidence/after-0.jpg) · [분기 근접 전](river-basin-road-evidence/before-1.jpg) · [후](river-basin-road-evidence/after-1.jpg) · [암석 구간 전](river-basin-road-evidence/before-2.jpg) · [후](river-basin-road-evidence/after-2.jpg) · [망루 접근 전](river-basin-road-evidence/before-3.jpg) · [후](river-basin-road-evidence/after-3.jpg)
+
+**P4 파일럿 Bake·Editor 검사.** 208.5m 구간, 10,475개 회랑 표본에서 장애물 충돌은 0건, 최소 회전 반경은 17.78m였다. 최대 종단 19.01°, 횡단 22.10°는 파일럿에서 잡은 25° 차단 기준 이내이며, 지침의 Trail 시작 권장값 18°·10°는 초과한다. 특히 X3811.7/Z1760.7의 횡경사는 플레이 검증 대상으로 남긴다. 기존 NavMesh에서 R5 접근부터 해안 연결까지 체크포인트 5개와 구간 4개가 연결됐다. [회랑 JSON](river-basin-road-evidence/corridor.json) · [NavMesh 기록](river-basin-road-evidence/navmesh.txt)
+
+같은 입력으로 생성한 메시와 저장된 메시의 SHA-256이 일치했고 Undo/Redo로 원본과 새 메시 참조가 돌아오는 것을 확인했다. 적용 전 씬과 비교했을 때 샛길 MeshFilter의 참조 한 줄이 바뀌었다. 기존 사막 TerrainData와 표면 에셋의 해시는 동일했다. [Bake 스크립트](../../Tools/RiverBasinWorld/Rebuild/desert-lookout-road.cs.txt) · [저장 메시](../../Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinLookoutRoad.asset)
+
+재실행은 편집 모드의 저장된 RiverBasin4km 씬에서 스크립트 본문을 Unity MCP `execute_code`에 전달한다. 기본 `validate`는 회랑 리포트를 만들고 `apply`는 한 구간을 갱신한다. `verify`는 저장 참조와 메시 해시를 대조한다. 적용 직후 Unity Undo로 원본을 복구할 수 있다. 스크립트의 실패 복구는 이번 작업에서 새로 생성한 출력 에셋을 삭제하므로 이를 실행할 때 MCP 코드의 기본 패턴 검사 해제가 필요하다.
+
+**사용자 테스트 대기.** 전후 지상 화면은 같은 Editor 고정 카메라에서 촬영했다. 실제 플레이어와 평소 입력 장치로 R5 분기 X3724/Z1738에서 암석 옆 X3791/Z1759와 횡경사 지점 X3812/Z1761을 지나 전망대 접속 X3918/Z1783까지 왕복한다. `RB-ROAD-01`에서 분기가 방향을 유도하는지, 암석 구간에서 막힘이나 발 미끄러짐이 있는지, 접속부에서 길이 끊기거나 발자국이 사라지는지 확인한다. 회신 형식은 `RB-ROAD-01 / 통과·실패·미수행 / 좌표와 증상 / 화면`이다.
+
+월드 전체 확장, 지형 절·성토, 공용 Junction 도구, 타일 경계·3개 Seed 회귀, 에셋 생성 실패 주입, Player·Addressables 빌드는 미수행이다.
 
 ## 동부 사막 환경 배치
 
@@ -246,6 +334,46 @@ Unity 반영과 확인 항목은 [산정호와 세계수 마을 구현](#산정�
 **RB-B3-ART-01 · 사용자 테스트 대기.** 대상 씬의 기본 TPS로 마을에서 B3 방향을 따라 간다. 지도와 마커를 끄고 갈림길에서 다리와 하강로를 각각 찾는다. 다리 입구와 발판 사이에서 지표가 끊겨 보이거나 조작이 걸리는지 확인한다. E2로 내려갔다가 같은 갈림길로 돌아오며 방향을 놓친 지점을 남긴다. 야간과 안개에서 이정표 및 하강로 가독성은 별도 확인한다. `RB-B3-ART-01 / 시간·구간 / 통과·실패·미수행 / 실제 결과 / 화면`으로 기록한다.
 
 **백업과 Editor 상태.** 작업 전 [디스크 씬](../../output/river-basin-b3-art-20261125/disk-before.unity)과 [열린 씬](../../output/river-basin-b3-art-20261125/open-before.unity)을 각각 백업했다. 새 판재와 길 메시를 권역용 에셋에 저장했다. 기존 씬 인스턴스에만 발판, 이정표, 관목 보정을 적용했다. 작업 중 시작한 Play를 종료했고 종료 전후 Console 오류는 0건이다. Player·Addressables 빌드는 미수행이다. [Editor 종료 상태와 저장 데이터 해시 대조](river-basin-b3-art-evidence/editor-session.txt)
+
+### 호수 마을 시작 필드 재설계
+
+**2026-11-27 설계 작성.** 원신 몬드 서장, 젤다 시작의 대지, 명조 1.0 황룡 도입부를 참고했다. 남쪽 출발에서 우물 곁 작업마당으로 시선을 모으고, 동북 방향의 어구 작업길과 서안의 버드나무 섬을 차례로 발견하도록 계획했다. 북서 출구는 B3 본선으로 이어지는 다른 선택으로 두었다. [설계 정본](../../Assets/docs/design/world-art/open-world/RIVER_BASIN_STARTER_FIELD_DESIGN.md) · [월드와 아트 위키](../wiki/world-art.md)
+
+**프리뷰 씬 반영.** 작업마당을 다져진 흙과 양쪽 낮은 돌담으로 묶고, 우물을 X 2321.3 / Z 965.6으로 옮겼다. 시작점은 X 2317.4 / Z 958.8이다. 실제 TPS 초기화에서 카메라가 북쪽을 향하므로, 시작 방향을 별도로 강제하는 대신 마당 입구의 위치를 조정했다. 서안길 초입에 보트 창고·나룻배·건조대를 배치하고, 길 중간의 목서 군락과 바위에서 기존 둔덕까지 시선을 이었다. 서안에서는 수선 소품과 갈대를 입수로 옆에 모았다. 새 배치는 `RiverBasin · 호수 마을 시작 필드` 계층에 저장했다. 기존 환경 프리팹과 흙길 재질을 재사용했고 작업마당 메시를 권역 에셋으로 저장했다. [씬](../../Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Preview/RiverBasin4km.unity) · [작업마당 메시](../../Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Production/RegionArt/RiverBasinStarterFieldSurface.asset)
+
+**Unity Editor 검사.** 보행 캡슐 표본 4,286곳에서 신규 소품 및 이동한 우물과 겹침이 없었다. 플레이어를 제외한 시작 카메라 앞 구체 레이 적중 0개, 새 계층의 누락 스크립트·메시·지원되지 않는 재질 0개다. 기존 NavMesh에서 우물 갈림과 북서 출구에는 완전 경로가 있었고, 서안 조망과 얕은 물 진입 두 지점은 변경 전 배치에서도 2m 내 NavMesh 표본이 없었다. 서안의 각진 수면 명암은 고정 화면에서도 여전히 보인다. [Editor 검사](river-basin-starter-field-evidence/editor-checks.txt) · [같은 조감 전](river-basin-starter-field-evidence/before-overview.jpg) · [후](river-basin-starter-field-evidence/after-overview.jpg) · [서안길 전](river-basin-starter-field-evidence/before-lane.jpg) · [후](river-basin-starter-field-evidence/after-lane.jpg) · [섬 공개](river-basin-starter-field-evidence/after-island.jpg)
+
+**Editor Play 시작 화면 확인.** 입력 없이 시작해 플레이어가 X 2317.400 / Y 36.007 / Z 958.800에 접지하고 기본 북향 카메라에 작업마당·우물·양쪽 길이 들어오는 것을 확인했다. Console에는 작업 구역 밖 `Terrain_0_3`의 수목 원본과 ID 표 불일치 예외 1건이 있었다. 이 지형과 ID 표는 이번 배치에서 편집하지 않았다. Play를 종료했고 저장 슬롯 파일 5개의 해시와 열린 씬·디스크 씬의 일치를 확인했다. 연속 이동 입력은 미수행이다. [실제 TPS](river-basin-starter-field-evidence/play-start.jpg) · [시작 좌표](river-basin-starter-field-evidence/play-start.txt) · [종료 확인](river-basin-starter-field-evidence/editor-session.txt)
+
+**창고 앞 목선 배치 보정.** 사용자 지적을 반영해 마을 초원에 추가한 나룻배를 제거하고, 보트 창고 인스턴스는 기존 소형 목조 건물을 사용하는 어구 창고로 교체했다. 건조대는 출입구 옆에 두고 서안 수선터의 기존 목선은 유지했다. 저장본 Editor Play의 고정 카메라에서 창고 앞에 선박이 없는 것을 확인했고, 보행 캡슐 표본 4,286곳에서 새 겹침은 0건이다. [수정 화면](river-basin-starter-field-evidence/work-shed-play-lane.jpg) · [보정 검사](river-basin-starter-field-evidence/work-shed-checks.txt)
+
+**건조대 빨래 Magica Cloth.** 우물 곁 (2330 / 970.2)과 어구 창고 옆 (2356.6 / 982.2) 건조대에 각각 독립된 삼베 세 장을 연결했다. 기존 메시와 삼베 재질을 사용해 천을 나무 틀에서 분리했다. 설산 본성 깃발의 MeshCloth와 방향성 기류를 참고해 윗단을 고정하고, 건조대 두 곳에 작은 바람 구역을 하나씩 배치했다. Editor Play 194프레임에서 여섯 장이 초기화됐고, 고정 정점의 변위는 0mm, 아랫단의 시작 표본 대비 최대 이동은 천마다 2.9~9.6cm였다. 이전부터 기록된 `Terrain_0_3` 수목 ID 예외가 다시 나왔고, 빨래 초기화 오류는 없었다. Play 종료 후 저장 슬롯 5개의 해시가 일치했다. [설산 기준](snow-fortress.md#본성-실내-소품과-깃발) · [우물 곁 천](river-basin-starter-field-evidence/laundry-final-0-b.jpg) · [창고 옆 천](river-basin-starter-field-evidence/laundry-final-1-b.jpg) · [실측](river-basin-starter-field-evidence/laundry-final-magica-play.txt)
+
+**RB-START-04 · 사용자 테스트 대기.** 기본 프리뷰를 Play하고 두 건조대의 양쪽에서 빨래를 5초씩 본다. 윗단이 가로봉에 붙고 아랫단의 움직임이 장마다 조금씩 다르며, 천이 갈라지거나 나무를 뚫고 튀는 흔들림이 없는지 확인한다.
+
+**북서 출구 돌담과 나무 배치 보정.** 기존 노란 잎 나무 `TGV_Hero_Tree_01A`의 뿌리가 민가 뜰 돌담을 가로지르고 있었다. 나무를 뜰 안쪽 약 6.2m 옮기고 줄기 밑동을 지면에 맞췄다. 돌담과 줄기 충돌 경계의 간격은 1.91m이며 북서 출구의 보행 캡슐 828곳에서 나무와 겹치지 않았다. 동일 위치의 Editor 화면으로 뿌리 접지를 확인했다. 연속 조작은 미수행이다. [변경 전](river-basin-starter-field-evidence/tree-wall-before.jpg) · [변경 후](river-basin-starter-field-evidence/tree-wall-after.jpg) · [실측](river-basin-starter-field-evidence/tree-wall-checks.txt)
+
+**호수 마을 생활 소품 재제작.** Astra와 Blender MCP로 손수레·나무 대야·뚜껑 달린 통·짚더미·통나무를 만들고, 민가 뜰과 마을 길의 기존 배치 8곳에 연결했다. 곡면을 세분하고 나무판 이음, 철띠, 바퀴 살과 짚줄기를 실루엣으로 표현했다. ImageGen으로 목재·나이테·철·짚 아틀라스를 만들고 얕은 반사의 URP Lit 재질 네 개에 연결했다. 보행 회랑 캡슐 표본 4,545곳에서 새 충돌체 겹침 0건이다. [Blender 원본](../../ArtSource/WorldCities/LakeVillage/LakeStarterProps.blend) · [ImageGen 아틀라스](../../Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Authoring/LakeStarterProps/LakeStarterProps_Albedo.png) · [배치와 충돌 검사](river-basin-starter-props-evidence/editor-checks.txt)
+
+**생활 소품 근접 검증.** Blender에서 다섯 형태를 확인했다. 짚더미는 초기 Unity 화면에서 가운데로 잔디가 많이 보여 낮은 중심부와 가는 겉줄기로 다시 정리했다. 최종 저장본 Editor Play에서 여덟 배치의 접지·충돌체·ImageGen 재질을 확인하고 정오 고정 화면을 남겼다. 재질의 Smoothness는 0.05~0.19이며 커스텀 셰이더는 사용하지 않았다. 기존 `Terrain_0_3` 수목 ID 예외가 다시 나왔다. Play 이후 저장 슬롯 파일 다섯 개의 해시는 일치했다. [Blender 화면](river-basin-starter-props-evidence/blender-viewport.png) · [제작 전](river-basin-starter-props-evidence/before-overview.jpg) · [최종 배치](river-basin-starter-props-evidence/final-all.jpg) · [정오 근접](river-basin-starter-props-evidence/final-details.jpg) · [Play 검사](river-basin-starter-props-evidence/play-checks.txt)
+
+**RB-START-05 · 사용자 테스트 대기.** 프리뷰를 Play하고 민가 뜰 (2301 / 976)에서 손수레, 나무 대야, 통과 짚더미를 기본 TPS로 둘러본다. 햇빛을 받는 곡면의 반사, 처마 그늘 안에서 재질이 구분되는지, 민가 계단과 북서 출구 사이가 자연스럽게 통행되는지 확인한다.
+
+**갈림길 시설과 가게 차양 재제작.** Astra와 Blender MCP로 화살표 표지판, 목책, 기둥 등잔, 가게 삼베 차양 네 종을 제작했다. 표지판 두 개는 북서 B3와 동북 물가의 진행 방향을 각각 가리킨다. 북서 민가의 분절 목책은 연속 가로널로 교체하고 길 어깨 안으로 물렸다. 북서 출구와 서안 내리막의 새 등잔은 기존 시각 제어에 연결했다. 가게 차양은 기존 기둥을 활용하고 벽등을 삼베 아래로 내렸다. 기존 목재·철 재질과 새 ImageGen 석재·앰버 유리·삼베 재질을 사용했다. [Blender 원본](../../ArtSource/WorldCities/LakeVillage/LakeStarterFixtures.blend) · [재질 아틀라스](../../Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Authoring/LakeStarterFixtures/LakeStarterFixtures_Albedo.png) · [Editor 배치 검사](river-basin-starter-fixtures-evidence/editor-checks.txt)
+
+**시설 검증.** Blender에서 네 모델을 확인했다. Unity에서는 보행 표본 4,321곳에서 새 시설과 겹침 0건을 확인했고, 표지 방향과 등잔 위치를 보정한 뒤 북서길 1,085곳을 다시 검사했다. 차양 장선과 기존 두 기둥의 수평 편차는 각각 5mm이며, 천 전면을 가로대에 맞춰 내려 재임포트했다. Editor Play 12:00에 두 길가 등잔이 꺼지고 22:00에 유리 발광과 점광이 켜졌다. 저장 파일 5개 해시는 일치했다. 기존 `Terrain_0_3` 수목 ID 예외는 다시 확인됐다. [Blender 화면](river-basin-starter-fixtures-evidence/blender-review.png) · [표지판](river-basin-starter-fixtures-evidence/day-signs.jpg) · [목책과 등잔](river-basin-starter-fixtures-evidence/night-fence-lamp.jpg) · [가게 차양](river-basin-starter-fixtures-evidence/day-shop.jpg) · [Play 검사](river-basin-starter-fixtures-evidence/play-checks.txt)
+
+**RB-START-06 · 사용자 테스트 대기.** 기본 TPS에서 우물과 북서 출구를 오가며 표지판이 길 방향과 맞는지, 목책이 중간에서 끊겨 보이지 않는지 확인한다. 22:00에는 북서 출구와 서안 내리막의 등잔빛을 보고, 가게 앞에서는 삼베 차양과 기둥 접합부를 양쪽에서 확인한다.
+
+**사용자 테스트 대기.** `RiverBasin4km` 프리뷰에서 저장 불러오기 없이 시작한다. 기본 TPS, 지도·마커 숨김, 12:00과 22:00을 각각 사용하고 입력 장치를 기록한다. 실제 수영·미술 인수와 출발 시각별 길 찾기는 이 검증에 남는다.
+
+| 항목 | 절차와 판정 |
+|---|---|
+| RB-START-01 | 움직이기 전 프레임에서 처음 향하고 싶은 곳을 말하고 30초 동안 직접 이동한다. 우물·작업마당까지 이어지는 발밑과 건물 출입면을 알아볼 수 있는지 확인한다. |
+| RB-START-02 | 우물에서 동북쪽을 선택한다. 먼저 눈에 띈 단서와 멈칫한 지점을 기록한다. 시작 후 3분 내 섬이 보이는 위치에 도달하는지, 물가에서 마을 방향을 다시 찾는지 확인한다. |
+| RB-START-03 | 우물에서 북서쪽을 먼저 선택해 B3 접속부까지 갔다가 되돌아온다. 입구를 찾는 데 지도나 물가 방문이 필요한지, 걷기·달리기와 카메라 회전에 길막·당김이 있는지 확인한다. |
+
+`항목 ID / 시간대·입력 장치 / 통과·실패·미수행 / 실제 결과와 위치 / 화면 또는 로그`로 기록한다.
 
 ### 호수 마을 첫 방문 아트 패스
 
@@ -493,6 +621,8 @@ Play를 종료하고 대상 씬 한 개, 미저장 변경 0건, 기존 저장 �
 
 ### 4km 미니맵 재촬영과 Ctrl 이동
 
+- **2026-11-27 전역 재촬영 · Editor 에셋 확인 통과.** 저장된 `RiverBasin4km`를 편집 모드에서 정북 기준으로 다시 촬영했다. 설산 성채 도시, 채석장 작업장, 사막 정착지, 항구도시 등 11월 23일 이후 배치가 지도에 반영됐다. 수면은 부모 이름 대신 물 셰이더 3종으로 찾아 렌더러 65개를 촬영 중에만 파랑으로 표시했다. 옛 `quarry` 점선은 재구성한 채석장 작업장을 가로질러 제외했고, 설산 산길 점선은 성벽 안(X 3158~3348 / Z 3168~3392)에서 생략했다. 나머지 탐험로와 B3 본선 점선은 유지했다. 그 밖의 새 길은 씬의 지형·메시로 찍힌 모습이며 점선을 추가하지 않았다. 기존 GUID·4096×4096·BC7·밉맵 13단계·중심 (2048, 2048)를 확인했고, `.meta`와 `MinimapConfig.asset`은 변경이 없으며 촬영 후 씬은 저장 상태다. 직전 지도는 `output/RiverBasinWorld/MapRefresh/20261127-213202/`에 보존했다. [지도 PNG](../../Assets/10.Datas/Map/RiverBasin4km/Minimap.png) · [촬영 스크립트](../../Tools/RiverBasinWorld/Rebuild/map-recapture.cs.txt)
+- **RB-MAP03 · 사용자 테스트 대기.** 이 씬을 Play하고 키보드 `M`으로 전체 지도를 연다. 설산 성채, 채석장, 사막 마을, 항구의 모습이 보이고 현재 위치 표시가 주변 지형과 맞으면 통과다. 결과는 `RB-MAP03 / 통과·실패·미수행 / 증상·위치 / 화면`으로 기록한다.
 - **2026-11-23 전역 재촬영.** B3 사면 반영 후 저장된 `RiverBasin4km`의 Terrain 64개를 정북 기준으로 다시 촬영하고, 탐험로와 B3 본선 점선을 원본 경로로 다시 그렸다. 수면과 낙수 렌더러 56개는 촬영 중에만 파랑으로 표시했다. Unity에서 기존 지도 GUID·4096×4096·BC7·밉맵 13단계와 중심 X/Z (2048, 2048)를 확인했다. PNG `.meta` 해시는 동일하고 촬영 후 씬은 저장 상태를 유지했다. 새 배경의 실제 HUD 확인은 `RB-MAP02` 사용자 테스트 대기다. [지도 PNG](../../Assets/10.Datas/Map/RiverBasin4km/Minimap.png) · [직전 사면 작업](river-basin-gorge-relief.md#b3에서-호수-마을로-이어지는-사면--2026-11-23)
 - **구현 반영.** 2026-11-22에 열린 `RiverBasin4km` 씬의 활성 Terrain 64개를 정북 기준으로 다시 촬영했다. 수면은 촬영 중에만 밝은 파랑으로 표시했다. [지도 PNG](../../Assets/10.Datas/Map/RiverBasin4km/Minimap.png)는 4096×4096, BC7, 밉맵 13단계로 임포트됐다. 기존 스프라이트 참조, 중심 X/Z (2048, 2048), 범위 4096×4096m를 유지했다.
 - **Editor Play Mode 통과.** HUD의 지도 토글을 호출해 전체 지도를 열고 새 배경의 에셋 경로를 확인했다. 가상 좌측 Ctrl과 EventSystem 클릭으로 X/Z (1780.97, 1887.47)에 이동했다. Game View 포커스를 설정한 뒤 가상 우측 Ctrl과 마우스 클릭을 UI 입력 모듈로 처리해 X/Z (1687.97, 1863.47)의 지면에 도착했다. 두 시도 모두 X/Z 오차 0m, Console 오류 0건이다. 기존 치트 연결을 사용했다.
@@ -1095,6 +1225,14 @@ Play Mode에서 실제 플레이어를 남쪽 진입, 회관, 북동·서쪽 수
 | RB-QUARRY-REGION-04 | 동쪽 채광터 X 3414 / Z 2439 | 수레 옆 입구에서 중앙 집하장으로 간다. |
 | RB-QUARRY-REGION-05 | 중앙 집하장 X 3200 / Z 2356 | 남쪽 가지를 통해 기존 A 갱도와 묘실에 닿고, A에서 역방향으로 돌아온다. |
 
+## 권역 갱구 작업장 확장
+
+**프리뷰 구현 반영.** 네 갱구 양옆의 지형을 다듬고 석회암 절개면, 석분 작업면과 보조 적재 마당을 조성했다. 서쪽 고갯길에는 목재 인양틀과 궤도 수레, 강변 굽이에는 하역 차양, 북서 사면에는 절리 앞 작업 발판, 동쪽 채광터에는 선별 차양과 궤도를 배치했다. 각 작업장에 기존 운반길에서 갈라지는 연결길을 두 곳 냈다. [확장 전 권역](river-basin-quarry-regional-entrances-evidence/regional-overview.png) · [확장 후 권역](river-basin-quarry-entrance-yards-evidence/saved-overview.png) · [서쪽 고갯길](river-basin-quarry-entrance-yards-evidence/saved-west.png) · [강변 굽이](river-basin-quarry-entrance-yards-evidence/saved-riverside.png) · [북서 사면](river-basin-quarry-entrance-yards-evidence/saved-northwest.png) · [동쪽 채광터](river-basin-quarry-entrance-yards-evidence/saved-east.png)
+
+**Editor 검사 통과.** 작업 마당 연결길 8개에서 보행 공간을 확인했다. 갱구부터 중앙 묘실까지 5,796개 표본에서 바닥 누락과 장애물 겹침은 0건이다. 기존 권역길 주변 700개 표본에서 바닥 누락과 신규 배치물 충돌이 없었다. 기존 지형 홀은 두 타일 모두 같고, 신규 그룹의 누락 스크립트와 오류 재질은 0건이다. [검사 원본](river-basin-quarry-entrance-yards-evidence/editor-checks.txt) · [지형과 작업장 배치 소스](../../Tools/RiverBasinWorld/GorgeRelief/quarry-regional-workyards.cs.txt) · [절개면과 운반길 마감 소스](../../Tools/RiverBasinWorld/GorgeRelief/quarry-regional-workyards-finish.cs.txt) · [마당 연결길 소스](../../Tools/RiverBasinWorld/GorgeRelief/quarry-regional-workyard-trails.cs.txt)
+
+**사용자 테스트 대기.** 기존 RiverBasin4km Editor Play 진입 절차로 들어가 네 입구를 확인한다. `RB-QUARRY-YARD-01`은 각 입구에 도착하기 전부터 작업장과 갱구가 구분되는지 본다. `RB-QUARRY-YARD-02`는 두 마당을 걸어 보고 운반길과 갱구로 돌아온다. 절개면 근처에서의 카메라, 경사와 연결길의 이음, 미술 인수는 실제 조작으로 확인한다. 결과는 ID, 입력 장치, 증상, 화면 또는 로그를 적는다.
+
 ## 채석장 권역 확장
 
 **프리뷰 구현 반영.** 사용자 표식을 같은 방향의 Unity 전경과 대조했다. 기존 작업장 주변에서 서쪽 강변, 분지 안쪽, 북쪽 능선, 동쪽 사면으로 확장했다. 지형 타일 3장에 강변 하역장, 3단 노천 채석장, 북쪽 옛 작업지, 동쪽 조망대를 배치했다. 기존 채석장의 A–D 입구와 묘실에 닿는 지상 길을 두 곳에서 연결했다. 새 운반로와 샛길의 합계는 약 1,968m다. 북쪽 갱구는 별개 동굴이며 상자에서 희귀 회복약 1개를 얻는다. [기존 전경](river-basin-quarry-region-evidence/before.jpg) · [확장 전경](river-basin-quarry-region-evidence/overview.jpg) · [권역 설계](../../Assets/docs/design/world-art/open-world/RIVER_BASIN_REGION_CONCEPT_DESIGN.md#강변에서-북쪽-능선까지) · [저작 소스](../../Tools/RiverBasinWorld/GorgeRelief/quarry-region.cs.txt)
@@ -1124,3 +1262,13 @@ Play Mode에서 실제 플레이어를 남쪽 진입, 회관, 북동·서쪽 수
 **프리뷰 저장 · 사용자 미술 확인 대기.** 숲의 크기에 비해 기존 마을이 작아 보인다는 사용자 지적을 반영했다. 수관 회관과 기존 R1을 중심에 두고 남쪽 여관, 동쪽 직물 장터, 북쪽 주거와 회관, 서쪽 공방의 네 지구를 둘렀다. 동쪽에는 판매대·공방·주거 여섯 동이 안쪽을 향하는 공동 작업 마당을 두었다. 신규 35동의 지붕 외곽은 동서 183.9m × 남북 175.9m다. 외곽 순환길은 464m이며 샛길로 기존 중심과 북쪽 숲길에 이어진다. 엘프 건축 모듈과 기존 숲길 재질을 재사용했다. [프리뷰 씬](../../Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Preview/RiverBasin4km.unity) · [권역 설계](../../Assets/docs/design/world-art/open-world/RIVER_BASIN_REGION_CONCEPT_DESIGN.md)
 
 같은 카메라에서 이전 배치와 확장 배치를 비교했다. 회랑과 실개천 주변의 기존 중심은 보존하고, 외곽 지구용 지형 사본에서 건물과 동선에 겹친 수목과 풀을 정리했다. 비탈에 있는 현관 아홉 곳은 계단으로 연결했다. Unity의 주요 길 중앙선 798개, 계단 디딤단 152개에서 인체 높이 충돌 0건, 신규 메시·재질 누락 0건이었다. 확장 지구 연속 조작, 야간 가독성, 성능과 정규 월드 발행은 미수행이다. [확장 전](river-basin-region-sites-evidence/elf-town-before.jpg) · [확장 후](river-basin-region-sites-evidence/elf-town-after.jpg) · [동쪽 장터 길](river-basin-region-sites-evidence/elf-town-east.jpg) · [월드와 아트 위키](../wiki/world-art.md)
+
+## 채석장 갱도 카메라 관통과 디더링
+
+**BUG-RIVERBASIN-QUARRY-01 · S3 · 실패 (사용자 제보).** “RiverBasin 4KM맵, 채석장 동굴안에 들어가면 카메라의 표면이 깨져서 보임”, “동굴 디더링도 문제임”. RiverBasin4km의 채석장 갱도를 들어가면 천장과 벽 바깥으로 지형·물색이 드러나고, 암반에 디더링이 보인다. 기대 결과는 카메라를 돌려도 갱도의 천장과 벽이 불투명하게 유지되고 지하 동선이 읽히는 것이다. 빈도, 회귀 여부, 입구, 캐릭터·무기, 저장 슬롯과 입력 장치는 확인되지 않았다.
+
+**구현 반영.** 굴곡이 있거나 경사진 천장은 자동 분류의 평판 판정을 통과하지 못하면 페이드 대상이 되어 카메라 암이 통과할 수 있었다. `Dng_Roof_QuarryMaze`를 `Solid`로 지정하고 지붕 제공 플래그를 유지했다. Unity에서 활성 천장 50개의 렌더·충돌 메시가 일치했다. 변경 전 규칙으로 48개가 `Fade`였으며 변경 후 50개 모두 `Solid`와 지붕 제공으로 분류됐다. 채석장 벽·바닥 콜라이더 171개도 `Solid`였다. [카메라 이름 규칙](../../Assets/10.Datas/Camera/CameraOccluderNameRules.asset)
+
+**Unity Editor 검사 통과.** 실제 천장 50곳에서 표면 1m 아래부터 카메라 암을 1.5m 뻗었다. 변경 전에는 44곳에서 천장을 넘어갔고, 변경 후에는 50곳 모두 천장 앞에서 멈췄다. 이름 규칙 EditMode 테스트 8개도 통과했다.
+
+**사용자 테스트 대기 (QCAM-01).** Unity Editor에서 `RiverBasin4km`를 새 Play 세션으로 시작한다. 평소 쓰는 마우스 또는 게임패드로 제보한 갱구에 진입하고 경사로와 꺾이는 지점에서 카메라를 좌우·상하로 돌린다. 천장이 불투명하게 보이고, 카메라가 천장 아래에서 가까워지며, 벽 뒤 지형·하늘·물색이 드러나지 않아야 한다. 출구로 돌아 나올 때 시야가 다시 넓어지는지도 확인한다. 결과는 `QCAM-01 / 통과·실패·미수행 / 실제 결과`로 기록하고, 실패하면 입구나 분기 위치와 카메라 방향이 보이는 화면을 첨부한다.

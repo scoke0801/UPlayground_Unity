@@ -1,0 +1,10 @@
+city=1 keep=1 terrains=64
+bounds=(67.68, 52.65, 46.66) triangles=248760 front=(3304.00, 233.25, 3342.97)
+snowShaderSlots=268 snowMeshes=0 crownSnowPolygons=0 shaderErrors=0
+terrainColliderMatch=True affectedHeights=4481 outside=0 alphamapDelta=0
+Nav sources=280
+Nav 1 True PathComplete corners=3 from=(3291.00, 218.59, 3322.00) to=(3304.00, 233.26, 3358.82)
+Nav 2 True PathComplete corners=6 from=(3304.00, 233.26, 3358.82) to=(3321.28, 233.26, 3363.58)
+Nav 3 True PathComplete corners=6 from=(3304.00, 233.26, 3358.82) to=(3284.80, 233.26, 3363.58)
+Nav 4 True PathComplete corners=7 from=(3304.00, 233.26, 3358.82) to=(3304.00, 241.07, 3380.22)
+CameraOccluderNameRulesTests EditMode 8/8 passed (job ef75caa5b00b4bd9a1c0b54e315e7cf5)

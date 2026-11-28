@@ -1,0 +1,7 @@
+RiverBasin4km Editor Play 175 samples / 3.5s
+SnowboundCrownKeep_Interior_Banner_01 team=6 fixedVertices=34 maxFixedDrift=0.0000m maxHemMotion=0.0170m maxHemFromRest=0.4082m
+SnowboundCrownKeep_Interior_Banner_02 team=3 fixedVertices=34 maxFixedDrift=0.0000m maxHemMotion=0.0171m maxHemFromRest=0.4094m
+SnowboundCrownKeep_Interior_Banner_03 team=2 fixedVertices=34 maxFixedDrift=0.0000m maxHemMotion=0.0251m maxHemFromRest=0.4069m
+SnowboundCrownKeep_Interior_Banner_04 team=5 fixedVertices=34 maxFixedDrift=0.0000m maxHemMotion=0.0271m maxHemFromRest=0.4111m
+SnowboundCrownKeep_Interior_Banner_05 team=4 fixedVertices=34 maxFixedDrift=0.0000m maxHemMotion=0.0256m maxHemFromRest=0.4140m
+SnowboundCrownKeep_Interior_Banner_06 team=1 fixedVertices=34 maxFixedDrift=0.0000m maxHemMotion=0.0231m maxHemFromRest=0.4105m

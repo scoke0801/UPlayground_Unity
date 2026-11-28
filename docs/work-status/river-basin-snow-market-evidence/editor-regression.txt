@@ -1,0 +1,14 @@
+Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Preview/RiverBasin4km.unity terrains=64 roots=104
+내성 동쪽 가판 81 표본 · 지지면 누락 0 · 캡슐 겹침 0 · 최대 경사 6.2 · 
+내성 남서 가판 78 표본 · 지지면 누락 0 · 캡슐 겹침 0 · 최대 경사 13.8 · 
+내성 동남 가판 72 표본 · 지지면 누락 0 · 캡슐 겹침 0 · 최대 경사 8.4 · 
+중성 창고 진입 108 표본 · 지지면 누락 0 · 캡슐 겹침 0 · 최대 경사 32.8 · 
+내성 대장간 옆 샛문 90 표본 · 지지면 누락 0 · 캡슐 겹침 0 · 최대 경사 15.9 · 
+항구 시장 가판 69 표본 · 지지면 누락 0 · 캡슐 겹침 0 · 최대 경사 13.5 · 
+사막 R4 호숫가 길 96 표본 · 지지면 누락 0 · 캡슐 겹침 0 · 최대 경사 25.2 · 
+설산 공방 옆 골목 150 표본 · 지지면 누락 0 · 캡슐 겹침 0 · 최대 경사 25.4 · 
+설산 본성 진입 180 표본 · 지지면 누락 0 · 캡슐 겹침 0 · 최대 경사 34.6 · 
+본성 임시 NavMesh 1 True PathComplete
+본성 임시 NavMesh 2 True PathComplete
+본성 임시 NavMesh 3 True PathComplete
+본성 임시 NavMesh 4 True PathComplete

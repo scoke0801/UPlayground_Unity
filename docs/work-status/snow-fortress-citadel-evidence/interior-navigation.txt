@@ -1,0 +1,7 @@
+Scene RiverBasin4km colliders used=293
+Nav 1 True PathComplete start=(3291.00, 218.59, 3322.00) end=(3304.00, 233.26, 3358.82) corners=3
+Nav 2 True PathComplete start=(3304.00, 233.26, 3358.82) end=(3321.28, 233.26, 3363.58) corners=6
+Nav 3 True PathComplete start=(3304.00, 233.26, 3358.82) end=(3284.80, 233.26, 3363.58) corners=6
+Nav 4 True PathComplete start=(3304.00, 233.26, 3358.82) end=(3304.00, 241.07, 3380.22) corners=7
+Stair x=-6.8 contacts=32/32 capsuleClear=32/32 maxHeightError=0.000
+Stair x=6.8 contacts=32/32 capsuleClear=32/32 maxHeightError=0.000

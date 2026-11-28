@@ -1,0 +1,16 @@
+Scene Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Preview/RiverBasin4km.unity loadedScenes=1 terrains=64 city=1 keep=1 colliderTerrainMatch=True
+진입과 중앙 홀 support=91/91 clear=91/91 
+중앙 홀·양쪽 방 support=142/142 clear=136/142 (3314.85, 233.56, 3353.40) SnowboundCrownKeep_Collision | (3310.13, 233.25, 3353.84) SnowboundCrownKeep_Collision | (3310.13, 233.25, 3353.84) SnowboundCrownKeep_Collision | (3297.88, 233.25, 3353.84) SnowboundCrownKeep_Collision | (3297.88, 233.25, 3353.84) SnowboundCrownKeep_Collision | (3293.16, 233.56, 3353.40) SnowboundCrownKeep_Collision
+상층 갤러리 support=48/48 clear=48/48 
+계단 -1 support=62/62 clear=62/62 
+계단 1 support=62/62 clear=62/62 
+실내 천장 -14 3.70
+실내 천장 -6 17.93
+실내 천장 0 22.55
+실내 천장 6 17.93
+실내 천장 14 3.70
+Nav 1 True PathComplete (3291.00, 218.72, 3322.00) -> (3302.33, 232.83, 3342.67) -> (3304.00, 233.33, 3356.07)
+Nav 2 True PathComplete (3304.00, 233.33, 3356.07) -> (3310.17, 233.33, 3353.83) -> (3314.67, 233.83, 3353.17) -> (3317.00, 233.33, 3353.17) -> (3317.33, 233.33, 3353.50) -> (3321.50, 233.33, 3360.00)
+Nav 3 True PathComplete (3304.00, 233.33, 3356.07) -> (3297.83, 233.33, 3353.83) -> (3293.33, 233.83, 3353.17) -> (3291.00, 233.33, 3353.17) -> (3290.67, 233.33, 3353.50) -> (3286.50, 233.33, 3360.00)
+Nav 4 True PathComplete (3304.00, 233.33, 3356.07) -> (3297.83, 233.33, 3353.83) -> (3297.33, 234.00, 3353.83) -> (3297.00, 234.08, 3354.17) -> (3297.00, 239.33, 3370.50) -> (3297.83, 239.33, 3371.33) -> (3304.00, 239.33, 3373.76)
+Editor Play scene=RiverBasin4km activeCity=True keep=SnowboundCrownKeep terrainCollider=True hallFloor=SnowboundCrownKeep_Collision

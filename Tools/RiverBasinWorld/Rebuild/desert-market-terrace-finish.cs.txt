@@ -1,0 +1,55 @@
+// 복제 지형의 저장 후 도색을 원본과 일치시키고 주거단 가장자리를 정리한다.
+const string world="Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34";
+const string region=world+"/Production/RegionArt/RiverBasinDesertMarketComposition.asset";
+var scene=UnityEngine.SceneManagement.SceneManager.GetSceneByName("RiverBasin4km");
+var terrain=Terrain.activeTerrains.Where(t=>t.gameObject.scene==scene).ToDictionary(t=>t.name);
+var originals=new System.Collections.Generic.Dictionary<string,string>{
+ {"Terrain_6_3","e2ccb1560cd5b944fb1752afc8d006d6"},{"Terrain_7_3","58871245b54e1c945a56c8934f8152b6"}};
+var log=new System.Text.StringBuilder();
+foreach(var pair in originals){
+    var tile=terrain[pair.Key];var dest=tile.terrainData;
+    var src=AssetDatabase.LoadAssetAtPath<TerrainData>(AssetDatabase.GUIDToAssetPath(pair.Value));
+    if(!src||!dest.name.EndsWith("_DesertMarketRidge"))throw new InvalidOperationException(pair.Key+" 지형 참조가 필요합니다.");
+    var pixels=src.alphamapTextures.Select(x=>x.GetPixels32()).ToArray();
+    int resolution=src.alphamapResolution,layers=src.alphamapLayers;
+    var weights=new float[resolution,resolution,layers];
+    for(int z=0;z<resolution;z++)for(int x=0;x<resolution;x++)for(int l=0;l<layers;l++){
+        var color=pixels[l/4][z*resolution+x];
+        weights[z,x,l]=(l%4==0?color.r:l%4==1?color.g:l%4==2?color.b:color.a)/255f;
+    }
+    dest.SetAlphamaps(0,0,weights);
+    int diff=dest.alphamapTextures.Select((tex,i)=>tex.GetPixels32().Zip(pixels[i],(x,y)=>x.Equals(y)?0:1).Sum()).Sum();
+    if(diff!=0)throw new InvalidOperationException(pair.Key+" 도색 차이 "+diff);
+    tile.Flush();EditorUtility.SetDirty(dest);AssetDatabase.SaveAssetIfDirty(dest);
+    log.AppendLine(pair.Key+" 원본 도색 차이 "+diff+", 나무 "+dest.treeInstanceCount);
+}
+var market=scene.GetRootGameObjects().Single(g=>g.name=="RiverBasin · 사막 물길과 해안 전망대").transform.GetChild(1);
+var upper=market.Find("절벽 단과 우물 시장 골목/돌계단 위 주거 골목");
+if(!upper.Find("RB_DesertStonework_주거단 낮은 담")){
+    var go=new GameObject("RB_DesertStonework_주거단 낮은 담");go.transform.SetParent(upper,false);
+    Undo.RegisterCreatedObjectUndo(go,go.name);
+    const float terrace=67.20f;var origin=new Vector3(3622,terrace,1532);go.transform.position=origin;
+    go.layer=LayerMask.NameToLayer("Ground");
+    var edge=new[]{new Vector2(3618.1f,1531.45f),new Vector2(3622.8f,1531.45f),new Vector2(3630.2f,1534.45f),
+        new Vector2(3640.7f,1535.4f),new Vector2(3643.44f,1544.65f)};
+    var cube=Resources.GetBuiltinResource<Mesh>("Cube.fbx");
+    var parts=new System.Collections.Generic.List<CombineInstance>();
+    for(int i=1;i<edge.Length;i++){
+        var a=edge[i-1];var b=edge[i];var axis=b-a;float length=axis.magnitude;
+        var q=Quaternion.LookRotation(new Vector3(axis.x,0,axis.y));
+        for(int course=0;course<3;course++){
+            var p=(a+b)*.5f;
+            parts.Add(new CombineInstance{mesh=cube,transform=Matrix4x4.TRS(
+                new Vector3(p.x,terrace+.115f+course*.174f,p.y)-origin,q,
+                new Vector3(course==2?.47f:.40f,course==2?.17f:.193f,length+.027f))});
+        }
+    }
+    var mesh=new Mesh{name="주거단 담 돌맞춤"};mesh.CombineMeshes(parts.ToArray(),true,true,false);
+    var material=AssetDatabase.LoadAllAssetsAtPath(region).OfType<Material>().First(m=>m.name=="단 가장자리 밝은 석재");
+    go.AddComponent<MeshFilter>().sharedMesh=mesh;go.AddComponent<MeshRenderer>().sharedMaterial=material;
+    go.AddComponent<MeshCollider>().sharedMesh=mesh;
+    AssetDatabase.AddObjectToAsset(mesh,region);
+    var asset=AssetDatabase.LoadMainAssetAtPath(region);EditorUtility.SetDirty(asset);AssetDatabase.SaveAssetIfDirty(asset);
+    UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+}
+return log.ToString();

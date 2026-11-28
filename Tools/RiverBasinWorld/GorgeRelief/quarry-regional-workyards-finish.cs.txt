@@ -1,0 +1,184 @@
+var scene=UnityEngine.SceneManagement.SceneManager.GetSceneByName("RiverBasin4km");
+var roots=scene.GetRootGameObjects();
+var root=roots.Single(g=>g.name=="채석장 · 권역 갱구 작업장");
+if(EditorApplication.isPlayingOrWillChangePlaymode||root.transform.GetChild(0).Find("맞물린 석회암 절개면"))
+    throw new InvalidOperationException("작업장 마감 조건을 확인하세요.");
+var yards=root.transform.Cast<Transform>().ToArray();
+var entries=roots.Single(g=>g.name=="채석장 · 권역 갱구 연결").transform.Find("표시 구역의 지상 입구 네 곳")
+    .Cast<Transform>().ToArray();
+var sides=entries.Select(t=>t.Find("Dng_Arch").right).ToArray();
+var outwards=entries.Select(t=>-t.Find("Dng_Arch").forward).ToArray();
+var stones=roots.Single(g=>g.name=="채석장 · 노천 작업장 재구성").GetComponentsInChildren<MeshRenderer>()
+    .First(t=>t.name=="Dng_Wall_QuarryOpenCut").sharedMaterials;
+var prior=roots.Single(g=>g.name=="채석장 권역 · 강변에서 능선까지").transform.Find("권역 운반로").GetComponentsInChildren<MeshFilter>()
+    .Concat(roots.Single(g=>g.name=="채석장 권역 · 작업 흔적과 노출 암반").GetComponentsInChildren<MeshFilter>().Where(t=>t.name.Contains("샛길")))
+    .Concat(entries.Select(t=>t.Find("운반길에서 갱구로 이어지는 샛길").GetComponent<MeshFilter>())).ToArray();
+var tiles=Terrain.activeTerrains.Where(t=>t.gameObject.scene==scene).ToArray();
+var selected=tiles.Where(t=>t.name=="Terrain_5_4"||t.name=="Terrain_6_4").ToArray();
+var asset=AssetDatabase.GetAssetPath(yards[0].GetComponentsInChildren<MeshFilter>().First(m=>m.name=="Dng_Wall_QuarryRegionalCut").sharedMesh);
+Func<Vector3,Terrain> tileAt=p=>tiles.First(t=>p.x>=t.transform.position.x&&p.x<t.transform.position.x+512&&
+    p.z>=t.transform.position.z&&p.z<t.transform.position.z+512);
+Func<Vector3,float> y=p=>{var t=tileAt(p);return t.SampleHeight(p)+t.transform.position.y;};
+Func<int,float,float,Vector3> place=(i,x,z)=>entries[i].position+sides[i]*x+outwards[i]*z;
+Func<int,float,float,Vector3> ground=(i,x,z)=>{var p=place(i,x,z);p.y=y(p);return p;};
+Func<Vector3,Vector2> flat=p=>new Vector2(p.x,p.z);
+Func<float,float,float,float> fade=(p,a,b)=>Mathf.SmoothStep(0,1,Mathf.InverseLerp(a,b,p));
+var roadClouds=entries.Select(t=>new List<Vector2>()).ToArray();
+foreach(var road in prior)
+{
+    var points=road.sharedMesh.vertices;
+    for(int v=0;v<points.Length;v+=4)
+    {
+        var p=road.transform.TransformPoint(points[v]);
+        for(int i=0;i<entries.Length;i++) if((flat(p)-flat(entries[i].position)).sqrMagnitude<55*55) roadClouds[i].Add(flat(p));
+    }
+}
+Func<int,Vector3,float> roadDistance=(i,p)=>
+{
+    float best=float.PositiveInfinity;
+    var q=flat(p);
+    foreach(var other in roadClouds[i]) best=Mathf.Min(best,(q-other).sqrMagnitude);
+    return Mathf.Sqrt(best);
+};
+Func<float,int,float> cutZ=(u,i)=>-.84f+Mathf.Sin(u*.225f+i*.7f)*.85f+Mathf.Sin(u*.49f+i)*.38f;
+var touched=new List<Mesh>();
+var vtx=new List<Vector3>();
+var idx=new List<int>();
+var uvs=new List<Vector2>();
+Action<Vector3,Vector3,Vector3,Vector3,Vector3,Vector3> quad=(o,a,b,c,d,normal)=>
+{
+    int n=vtx.Count;
+    foreach(var p in new[]{a,b,c,d})
+    {
+        var v=p-o;vtx.Add(v);
+        uvs.Add(Mathf.Abs(normal.y)>.7f?new Vector2(v.x,v.z)*.39f:new Vector2(v.x+v.z*.75f,v.y)*.39f);
+    }
+    if(Vector3.Dot(Vector3.Cross(b-a,c-a),normal)>0) idx.AddRange(new[]{n,n+1,n+2,n,n+2,n+3});
+    else idx.AddRange(new[]{n,n+2,n+1,n,n+3,n+2});
+};
+Func<string,Mesh> finish=name=>
+{
+    var m=new Mesh{name=name};m.SetVertices(vtx);m.SetUVs(0,uvs);m.SetTriangles(idx,0);
+    m.RecalculateNormals();m.RecalculateTangents();m.RecalculateBounds();
+    vtx.Clear();idx.Clear();uvs.Clear();
+    touched.Add(m);return m;
+};
+Undo.IncrementCurrentGroup();
+int undo=Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName("채석장 작업장 절개면과 길 이음");
+foreach(var tile in selected) Undo.RegisterCompleteObjectUndo(tile.terrainData,"절개면 지반 마감");
+try
+{
+    for(int i=0;i<entries.Length;i++)
+    {
+        var origin=entries[i].position;
+        var tile=tileAt(origin);
+        var t=tile.terrainData;var o=tile.transform.position;
+        var old=AssetDatabase.LoadAssetAtPath<TerrainData>(AssetDatabase.GetAssetPath(t).Replace("QuarryRegionalWorkyards","QuarryRegionalEntrances"));
+        int x0=Mathf.Clamp(Mathf.FloorToInt(origin.x-o.x)-34,0,511),z0=Mathf.Clamp(Mathf.FloorToInt(origin.z-o.z)-34,0,511);
+        int width=Mathf.Min(513-x0,69),depth=Mathf.Min(513-z0,69);
+        var h=t.GetHeights(x0,z0,width,depth);
+        var before=old.GetHeights(x0,z0,width,depth);
+        for(int z=0;z<depth;z++)
+        for(int x=0;x<width;x++)
+        {
+            var p=new Vector3(o.x+x0+x,origin.y,o.z+z0+z);
+            var d=p-origin;float u=Vector3.Dot(d,sides[i]),w=Vector3.Dot(d,outwards[i]);
+            float roadDist=roadDistance(i,p);
+            float preserve=(1-fade(roadDist,1.25f,3.65f))*(1-fade(d.magnitude,25,33));
+            float desired=h[z,x];
+            if(Mathf.Abs(u)>6.2f&&Mathf.Abs(u)<24.8f)
+            {
+                float local=cutZ(u,i);
+                float front=w-local;
+                float apron=fade(front,-.6f,.40f)*(1-fade(front,1.7f,5.2f))*
+                    fade(Mathf.Abs(u),6.2f,8.3f)*(1-fade(Mathf.Abs(u),21.5f,24.8f));
+                float lowGround=y(place(i,u,local+4.65f));
+                desired=Mathf.Lerp(desired,Mathf.Min(desired,(lowGround-o.y)/t.size.y),apron*(1-preserve));
+            }
+            h[z,x]=Mathf.Lerp(desired,before[z,x],preserve);
+        }
+        t.SetHeights(x0,z0,h);
+        tile.Flush();
+        var yard=yards[i];
+        var oldCuts=yard.Cast<Transform>().Where(t0=>t0.name=="Dng_Wall_QuarryRegionalCut").ToArray();
+        Undo.RecordObjects(oldCuts.Select(t0=>(UnityEngine.Object)t0.gameObject).ToArray(),"절개면 교체");
+        foreach(var cut in oldCuts) cut.gameObject.SetActive(false);
+        var cutGroup=new GameObject("맞물린 석회암 절개면").transform;
+        Undo.RegisterCreatedObjectUndo(cutGroup.gameObject,"절개면");
+        cutGroup.SetParent(yard,false);
+        var random=new System.Random(731+i*17);
+        foreach(int sign in new[]{-1,1})
+        {
+            for(float x=6.6f;x<24.0f;)
+            {
+                float end=Mathf.Min(24,x+2.4f+(float)random.NextDouble()*2.65f);
+                float a=x*sign,b=end*sign;
+                float za=cutZ(a,i),zb=cutZ(b,i);
+                var middle=place(i,(a+b)*.5f,(za+zb)*.5f);
+                if(roadDistance(i,middle)<3.55f){x=end;continue;}
+                var a0=ground(i,a,za+.72f);var b0=ground(i,b,zb+.72f);
+                a0.y-=.42f;b0.y-=.42f;
+                var a1=ground(i,a,za-.35f);var b1=ground(i,b,zb-.35f);
+                a1.y=Mathf.Max(a0.y+2.9f,a1.y+.25f);b1.y=Mathf.Max(b0.y+2.75f,b1.y+.25f);
+                var frontA=Vector3.Lerp(a0,a1,.58f)+outwards[i]*.16f;
+                var frontB=Vector3.Lerp(b0,b1,.55f)+outwards[i]*.23f;
+                quad(origin,a0,b0,frontB,frontA,outwards[i]);
+                quad(origin,frontA,frontB,b1,a1,outwards[i]);
+                var r=ground(i,a,za-4.2f);var s=ground(i,b,zb-4.2f);
+                r.y-=.22f;s.y-=.24f;
+                quad(origin,a1,b1,s,r,Vector3.up);
+                x=end;
+            }
+            if(vtx.Count==0) continue;
+            var go=new GameObject("Dng_Wall_QuarryRegionalCut");
+            go.transform.SetParent(cutGroup,false);go.isStatic=true;
+            var mesh=finish(yard.name+" · "+(sign<0?"서측":"동측")+" 석회암 절리");
+            go.AddComponent<MeshFilter>().sharedMesh=mesh;
+            go.AddComponent<MeshRenderer>().sharedMaterial=stones[sign<0?0:1];
+            go.AddComponent<MeshCollider>().sharedMesh=mesh;
+        }
+    }
+
+    int corrected=0;
+    foreach(var road in prior)
+    {
+        if(road.GetComponent<MeshCollider>()) continue;
+        var source=road.sharedMesh;
+        var vertices=source.vertices;
+        bool changed=false;
+        for(int i=0;i<vertices.Length;i++)
+        {
+            var p=road.transform.TransformPoint(vertices[i]);
+            float d=entries.Min(t=>(flat(t.position)-flat(p)).magnitude);
+            if(d>36) continue;
+            float factor=1-fade(d,30,36);
+            p.y=Mathf.Lerp(p.y,y(p)+.068f,factor);
+            vertices[i]=road.transform.InverseTransformPoint(p);
+            changed=true;
+        }
+        if(!changed) continue;
+        var mesh=UnityEngine.Object.Instantiate(source);
+        mesh.name=source.name+" · 권역 갱구 길 이음";
+        mesh.vertices=vertices;mesh.RecalculateNormals();mesh.RecalculateTangents();mesh.RecalculateBounds();
+        Undo.RecordObject(road,"권역 운반로 단차 연결");
+        road.sharedMesh=mesh;touched.Add(mesh);corrected++;
+    }
+    foreach(var mesh in touched) AssetDatabase.AddObjectToAsset(mesh,asset);
+    AssetDatabase.SaveAssetIfDirty(touched[0]);
+    foreach(var tile in selected)
+    {
+        EditorUtility.SetDirty(tile.terrainData);
+        AssetDatabase.SaveAssetIfDirty(tile.terrainData);
+    }
+    Physics.SyncTransforms();
+    if(!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene))
+        throw new InvalidOperationException("작업장 마감 저장 실패");
+    Undo.CollapseUndoOperations(undo);
+    return "절개면 "+(touched.Count-corrected)+" 구간 / 새 지표에 맞춘 길 메시 "+corrected+"개";
+}
+catch
+{
+    Undo.RevertAllDownToGroup(undo);
+    throw;
+}

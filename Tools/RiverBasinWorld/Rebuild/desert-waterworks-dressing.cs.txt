@@ -1,0 +1,113 @@
+// 취수장의 수로·포장 흔적과 사암골의 길 표식을 씬에 저장한다.
+const string world = "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34";
+const string asset = world + "/Production/RegionArt/RiverBasinDesertWaterworks.asset";
+var scene = UnityEngine.SceneManagement.SceneManager.GetSceneByPath(world+"/Preview/RiverBasin4km.unity");
+if (!scene.isLoaded || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("저장된 RiverBasin4km 편집 씬 필요");
+var section = scene.GetRootGameObjects().Single(g => g.name=="RiverBasin · 사막 물길과 해안 전망대")
+    .transform.Find("붉은 사암골과 옛 취수장");
+const string name = "옛 수로와 길 표식";
+if (section.Find(name)) throw new InvalidOperationException("이미 배치한 석재입니다.");
+var tile = Terrain.activeTerrains.Single(t => t.gameObject.scene == scene && t.name=="Terrain_7_2");
+var palette = AssetDatabase.LoadAllAssetsAtPath(asset).OfType<Material>().ToArray();
+var masonry = AssetDatabase.LoadAssetAtPath<Material>(asset);
+var oldStone = palette.Single(m => m.name=="취수장 · 풍화된 짙은 석재");
+var metal = palette.Single(m => m.name=="취수장 · 산화 청동");
+var paving = new Material(masonry){name="취수장 · 모래 닳은 포장"};
+paving.SetColor("_BaseColor",new Color(.88f,1.19f,1.45f));
+var position = new Vector3(3830,65,1124);
+Func<float,float,float> h = (x,z) => tile.SampleHeight(new Vector3(x,0,z))+tile.transform.position.y;
+var v = new System.Collections.Generic.List<Vector3>();
+var uv = new System.Collections.Generic.List<Vector2>();
+var tris = Enumerable.Range(0,4).Select(i=>new System.Collections.Generic.List<int>()).ToArray();
+Action<Vector3,Vector3,Vector3,Vector3,int> quad = (a,b,c,d,slot) => {
+    int i=v.Count;
+    v.AddRange(new[]{a-position,b-position,c-position,d-position});
+    var normal=Vector3.Cross(b-a,c-a).normalized;
+    uv.AddRange(new[]{a,b,c,d}.Select(p=>{
+        var q=p-position;
+        return Mathf.Abs(normal.y)>.8f?new Vector2(q.x,q.z)*.42f:
+            new Vector2(Mathf.Abs(normal.x)>.67f?q.z:q.x,q.y)*.42f;
+    }));
+    tris[slot].AddRange(new[]{i,i+1,i+2,i,i+2,i+3});
+};
+Action<float,float,float,float,float,float,int,bool> stone = (x,z,width,depth,height,ang,slot,contour) => {
+    var basis=Quaternion.Euler(0,ang,0);
+    var offsets=new[]{new Vector3(-width/2,0,-depth/2),new Vector3(-width/2,0,depth/2),
+        new Vector3(width/2,0,depth/2),new Vector3(width/2,0,-depth/2)};
+    var top=offsets.Select(p=>{
+        var q=basis*p+new Vector3(x,0,z);
+        q.y=(contour?h(q.x,q.z):h(x,z))+height;return q;
+    }).ToArray();
+    var bottom=top.Select(p=>new Vector3(p.x,Mathf.Min(p.y-.18f,h(p.x,p.z)-.14f),p.z)).ToArray();
+    quad(top[0],top[1],top[2],top[3],slot);
+    for(int i=0;i<4;i++){int j=(i+1)%4;quad(bottom[i],bottom[j],top[j],top[i],slot);}
+};
+var random=new System.Random(449);
+for(int row=0;row<19;row++){
+    float z=1115.7f+1.27f*row;
+    for(int col=0;col<5;col++){
+        if(row>=14 && random.NextDouble()<.26+row*.021) continue;
+        float x=3827.33f+col*1.29f+((row%2)*.36f);
+        if(row<3 && (col==0||col==4)) continue;
+        stone(x,z,1.17f,1.09f,.035f+random.Next(3)*.012f,random.Next(-5,6),row%7==0&&col%4==0?1:0,true);
+    }
+}
+for(int i=0;i<15;i++){
+    float angle=(-136+i*12)*Mathf.Deg2Rad;
+    if(i==4||i==5||i==12)continue;
+    float x=3819+Mathf.Cos(angle)*6.7f;
+    float z=1139+Mathf.Sin(angle)*4.1f;
+    stone(x,z,1.45f,.87f,.14f+random.Next(4)*.09f,Mathf.Atan2(Mathf.Cos(angle)*4.1f,-Mathf.Sin(angle)*6.7f)*Mathf.Rad2Deg,i%4==0?1:0,true);
+}
+for(int row=0;row<6;row++){
+    float x=3822.8f-row*.36f;
+    float z=1130.4f+row*.86f;
+    stone(x,z,.52f,.83f,.055f,-21,1,true);
+    stone(x-.65f,z,.46f,.83f,.22f,-21,0,true);
+    if(row!=4)stone(x+.65f,z,.46f,.83f,.25f,-21,0,true);
+}
+var marks=new[]{
+    new Vector2(3709,1507),new Vector2(3714,1467),new Vector2(3717,1414),new Vector2(3722,1373),
+    new Vector2(3718,1331),new Vector2(3732,1290),new Vector2(3749.5f,1242),new Vector2(3769,1194),
+    new Vector2(3793,1168),new Vector2(3748,1348),new Vector2(3777,1326),new Vector2(3771,1284),
+    new Vector2(3785,1245),new Vector2(3807,1209),new Vector2(3814,1176)
+};
+for(int i=0;i<marks.Length;i++){
+    var p=marks[i];
+    float yaw=random.Next(90);
+    stone(p.x,p.y,1.14f,.83f,.29f,yaw,1,false);
+    stone(p.x+.06f,p.y-.02f,.56f,.56f,.82f+(i%4)*.17f,yaw+3,2,false);
+    if(i==0||i==3||i==9||i==14)stone(p.x+.06f,p.y-.02f,.62f,.62f,.94f+(i%4)*.17f,yaw+3,3,false);
+}
+var mesh=new Mesh{name=name};
+mesh.vertices=v.ToArray();
+mesh.uv=uv.ToArray();
+mesh.subMeshCount=4;
+for(int i=0;i<4;i++)mesh.SetTriangles(tris[i],i);
+mesh.RecalculateNormals();mesh.RecalculateBounds();
+Undo.IncrementCurrentGroup();
+int undo=Undo.GetCurrentGroup();
+try{
+    var go=new GameObject(name);
+    go.transform.SetParent(section,false);
+    go.transform.position=position;
+    Undo.RegisterCreatedObjectUndo(go,name);
+    go.AddComponent<MeshFilter>().sharedMesh=mesh;
+    go.AddComponent<MeshRenderer>().sharedMaterials=new[]{paving,oldStone,masonry,metal};
+    go.layer=LayerMask.NameToLayer("Ground");
+    for(int i=0;i<marks.Length;i++){
+        var p=marks[i];
+        float height=.82f+(i%4)*.17f;
+        var block=go.AddComponent<BoxCollider>();
+        block.center=new Vector3(p.x+.06f,h(p.x,p.y)+height*.48f,p.y-.02f)-position;
+        block.size=new Vector3(.59f,height,.59f);
+    }
+    AssetDatabase.AddObjectToAsset(paving,asset);
+    AssetDatabase.AddObjectToAsset(mesh,asset);
+    AssetDatabase.SaveAssetIfDirty(masonry);
+    UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+    if(!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene)) throw new InvalidOperationException("씬 저장 실패");
+    Undo.CollapseUndoOperations(undo);
+    return "석재 "+mesh.vertexCount+" 정점, 길 표식 "+marks.Length;
+}catch{Undo.RevertAllDownToGroup(undo);throw;}

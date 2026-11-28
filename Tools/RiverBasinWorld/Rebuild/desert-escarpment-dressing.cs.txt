@@ -1,0 +1,123 @@
+// 취수장 건물과 사암 단애 사이에 붕괴한 수문 제방을 연결하고 암벽의 낙석을 군락으로 배치한다.
+const string world="Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34";
+const string asset=world+"/Production/RegionArt/RiverBasinDesertEscarpment.asset";
+const string name="RB_DesertStonework_붕괴한 수문 제방";
+var scene=UnityEngine.SceneManagement.SceneManager.GetSceneByPath(world+"/Preview/RiverBasin4km.unity");
+if(!scene.isLoaded||scene.isDirty||EditorApplication.isPlayingOrWillChangePlaymode)throw new InvalidOperationException("저장된 편집 씬이 필요합니다.");
+var roots=scene.GetRootGameObjects();
+var section=roots.Single(g=>g.name=="RiverBasin · 사막 물길과 해안 전망대").transform.Find("붉은 사암골과 옛 취수장");
+var escarpment=section.Find("사암 단애와 침식 골짜기");
+if(!escarpment||escarpment.Find(name))throw new InvalidOperationException("암벽 루트 누락 또는 배치 중복");
+var tile=Terrain.activeTerrains.Single(t=>t.gameObject.scene==scene&&t.name=="Terrain_7_2");
+Func<float,float,float> h=(x,z)=>tile.SampleHeight(new Vector3(x,0,z))+tile.transform.position.y;
+var author=AssetDatabase.LoadAssetAtPath<Material>(world+"/Production/RegionArt/RiverBasinDesertWaterworks.asset");
+var rock=AssetDatabase.LoadAssetAtPath<Material>(asset);
+if(!author||!rock)throw new InvalidOperationException("기존 사암 재질이 없습니다.");
+var stone=new Material(author){name="제방 · 마모된 밝은 석재"};
+stone.SetColor("_BaseColor",new Color(1.02f,1.38f,1.61f));
+var dark=new Material(author){name="제방 · 물이 밴 하단"};
+dark.SetColor("_BaseColor",new Color(.75f,.99f,1.17f));
+var pivot=new Vector3(3848,65,1121);
+var geometry=new System.Collections.Generic.List<Vector3>();
+var uv=new System.Collections.Generic.List<Vector2>();
+var indices=Enumerable.Range(0,3).Select(i=>new System.Collections.Generic.List<int>()).ToArray();
+var random=new System.Random(6521);
+Action<Vector3,Vector3,Vector3,Vector3,int> quad=(a,b,c,d,id)=>{
+    int i=geometry.Count;
+    var n=Vector3.Cross(b-a,c-a).normalized;
+    foreach(var p in new[]{a,b,c,d}){
+        var v=p-pivot; geometry.Add(v);
+        uv.Add(Mathf.Abs(n.y)>.65f?new Vector2(v.x,v.z)*.41f:
+            new Vector2(Mathf.Abs(n.x)>Mathf.Abs(n.z)?v.z:v.x,v.y)*.41f);
+    }
+    indices[id].AddRange(new[]{i,i+1,i+2,i,i+2,i+3});
+};
+Action<Vector2,Vector2,float,float,float,int> block=(center,along,width,bottom,top,id)=>{
+    var side=new Vector2(-along.y,along.x).normalized*width*.5f;
+    var pts=new[]{center-along*.5f-side,center+along*.5f-side,center+along*.5f+side,center-along*.5f+side};
+    var upper=pts.Select(p=>new Vector3(p.x,top+(float)(random.NextDouble()-.5)*.08f,p.y)).ToArray();
+    var lower=pts.Select(p=>new Vector3(p.x,bottom,p.y)).ToArray();
+    quad(upper[0],upper[3],upper[2],upper[1],id);
+    for(int i=0;i<4;i++){int j=(i+1)%4;quad(lower[j],lower[i],upper[i],upper[j],id);}
+};
+var path=new[]{new Vector2(3843,1127),new Vector2(3850,1124),new Vector2(3861,1119),new Vector2(3868,1112),
+    new Vector2(3877,1105),new Vector2(3883,1098)};
+for(int segment=1;segment<path.Length;segment++){
+    var a=path[segment-1];var b=path[segment];var d=b-a;
+    var normal=new Vector2(-d.y,d.x).normalized;
+    int columns=Mathf.CeilToInt(d.magnitude/2.2f);
+    for(int k=0;k<columns;k++){
+        float t=(k+.5f)/columns;
+        var center=Vector2.Lerp(a,b,t);
+        float y=h(center.x,center.y);
+        float end=Mathf.Min(1,Mathf.Max(.25f,(path.Length-segment-t)*.32f));
+        for(int row=0;row<4;row++){
+            if(row>=2&&(segment==4||k%4==2)&&random.NextDouble()<.72)continue;
+            var p=center+normal*(row==0?-.18f:.06f*row);
+            float raise=row*.63f;
+            block(p,d/columns*(row==0?1.08f:.98f),(.96f+1.58f*(1-row/4f))*end,
+                y+raise-.31f,y+raise+.39f,(row==0||k%5==3)?1:row==3?0:2);
+        }
+    }
+}
+// 서로 다른 규모의 파편을 남기며 보행 공간 쪽으로 낮아지는 붕괴부를 만든다.
+for(int i=0;i<22;i++){
+    float f=(float)random.NextDouble();
+    float x=3839.5f+34f*f+(float)random.NextDouble()*2f,z=1135.8f-18.5f*f+(float)random.NextDouble()*5f;
+    float y=h(x,z), w=.33f+(float)random.NextDouble()*1.05f;
+    float angle=(float)random.NextDouble()*Mathf.PI;
+    block(new Vector2(x,z),new Vector2(Mathf.Cos(angle),Mathf.Sin(angle))*w,w*.7f,
+        y-.27f,y+.10f+w*.36f,i%4==0?1:2);
+}
+var mesh=new Mesh{name=name};
+mesh.vertices=geometry.ToArray();mesh.uv=uv.ToArray();mesh.subMeshCount=indices.Length;
+for(int i=0;i<indices.Length;i++)mesh.SetTriangles(indices[i],i);
+mesh.RecalculateNormals();mesh.RecalculateTangents();mesh.RecalculateBounds();
+var baseRocks=roots.Single(g=>g.name=="동부 사암 사막").transform.Cast<Transform>()
+    .GroupBy(g=>g.name).ToDictionary(g=>g.Key,g=>g.First());
+var palette=AssetDatabase.LoadAllAssetsAtPath(world+"/Production/RegionArt/RiverBasinDesertWaterworks.asset").OfType<Material>()
+    .Where(m=>m.name.EndsWith("_RedRavine")).ToDictionary(m=>m.name.Replace("_RedRavine",""));
+var clusters=new[]{
+    new Vector4(3677,1399,4.8f,3.8f),new Vector4(3686,1418,3.3f,4.6f),new Vector4(3935,1171,5.0f,5),
+    new Vector4(3958,1212,6.4f,5.1f),new Vector4(3980,1274,6.6f,5.2f),new Vector4(4006,1320,4.4f,4.4f),
+    new Vector4(4020,1379,6.1f,5.6f),new Vector4(3893,1111,5.4f,4.7f),new Vector4(3880,1094,3.2f,3.4f),
+    new Vector4(3832,1090,3.4f,4.1f),new Vector4(3789,1087,4.2f,3.7f)
+};
+Undo.IncrementCurrentGroup();int group=Undo.GetCurrentGroup();
+try{
+    var wall=new GameObject(name);
+    wall.transform.SetParent(escarpment,false);wall.transform.position=pivot;wall.layer=LayerMask.NameToLayer("Ground");
+    Undo.RegisterCreatedObjectUndo(wall,name);
+    wall.AddComponent<MeshFilter>().sharedMesh=mesh;
+    wall.AddComponent<MeshRenderer>().sharedMaterials=new[]{stone,dark,author};
+    wall.AddComponent<MeshCollider>().sharedMesh=mesh;
+    var talus=new GameObject("사암 절벽 아래 박리와 낙석");
+    talus.transform.SetParent(escarpment,false);Undo.RegisterCreatedObjectUndo(talus,talus.name);
+    foreach(var c in clusters){
+        var angle=(float)random.NextDouble()*180f;
+        for(int i=0;i<7;i++){
+            var key="PF_EastLands_"+(i==0?"BigBoulder_02":i==1?"MedBoulder_05":i<4?"FlatStone_03":"SmallBoulder_02");
+            var template=baseRocks[key];
+            var source=PrefabUtility.GetCorrespondingObjectFromSource(template.gameObject);
+            var go=(GameObject)PrefabUtility.InstantiatePrefab(source,talus.transform);
+            float shift=i==0?0:(float)(random.NextDouble()-.48)*c.w*3.4f;
+            float x=c.x+shift,z=c.y+(i==0?0:(float)(random.NextDouble()-.41)*c.w*3.6f);
+            float scale=i==0?c.z:i==1?c.z*.42f:c.z*(.14f+(float)random.NextDouble()*.23f);
+            go.transform.SetPositionAndRotation(new Vector3(x,h(x,z)-(i==0?scale*.77f:scale*.33f),z),
+                Quaternion.Euler(0,angle+i*41.7f,0)*source.transform.localRotation);
+            go.transform.localScale=Vector3.Scale(source.transform.localScale,new Vector3(scale*1.15f,scale*.82f,scale));
+            var original=template.GetComponentsInChildren<MeshRenderer>(true);
+            var placed=go.GetComponentsInChildren<MeshRenderer>(true);
+            for(int k=0;k<placed.Length;k++){
+                placed[k].sharedMaterials=original[k].sharedMaterials.Select(m=>palette.ContainsKey(m.name)?palette[m.name]:m).ToArray();
+                PrefabUtility.RecordPrefabInstancePropertyModifications(placed[k]);
+            }
+        }
+    }
+    foreach(var item in new UnityEngine.Object[]{stone,dark,mesh})AssetDatabase.AddObjectToAsset(item,asset);
+    AssetDatabase.SaveAssetIfDirty(rock);
+    UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+    if(!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene))throw new InvalidOperationException("씬 저장 실패");
+    Undo.CollapseUndoOperations(group);
+    return "제방 "+mesh.vertexCount+" 정점, 낙석 "+talus.transform.childCount+"개";
+}catch{Undo.RevertAllDownToGroup(group);throw;}

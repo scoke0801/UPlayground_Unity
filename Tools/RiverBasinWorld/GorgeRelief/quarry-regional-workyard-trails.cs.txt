@@ -1,0 +1,149 @@
+var scene=UnityEngine.SceneManagement.SceneManager.GetSceneByName("RiverBasin4km");
+var roots=scene.GetRootGameObjects();
+var root=roots.Single(g=>g.name=="채석장 · 권역 갱구 작업장");
+var yards=root.transform.Cast<Transform>().ToArray();
+const string trailsName="작업 마당 연결길";
+if(EditorApplication.isPlayingOrWillChangePlaymode||yards.Any(t=>t.Find(trailsName)))
+    throw new InvalidOperationException("작업장 연결길 저작 조건을 확인하세요.");
+var gates=roots.Single(g=>g.name=="채석장 · 권역 갱구 연결").transform.Find("표시 구역의 지상 입구 네 곳").Cast<Transform>().ToArray();
+var tiles=Terrain.activeTerrains.Where(t=>t.gameObject.scene==scene).ToArray();
+var regional=roots.Single(g=>g.name=="채석장 권역 · 강변에서 능선까지").transform.Find("권역 운반로").GetComponentsInChildren<MeshFilter>();
+var local=gates.Select(t=>t.Find("운반길에서 갱구로 이어지는 샛길").GetComponent<MeshFilter>()).ToArray();
+var paths=regional.Concat(local).ToArray();
+var cloud=yards.Select(t=>new List<Vector3>()).ToArray();
+foreach(var item in paths)
+{
+    var mesh=item.sharedMesh;
+    var v=mesh.vertices;
+    for(int k=0;k<v.Length;k+=12)
+    {
+        var p=item.transform.TransformPoint(v[k]);
+        for(int i=0;i<gates.Length;i++)
+        {
+            var delta=p-gates[i].position;
+            if(delta.sqrMagnitude<29*29) cloud[i].Add(p);
+        }
+    }
+}
+Func<Vector3,Vector3> ground=p=>
+{
+    var t=tiles.First(o=>p.x>=o.transform.position.x&&p.x<o.transform.position.x+512&&p.z>=o.transform.position.z&&p.z<o.transform.position.z+512);
+    return new Vector3(p.x,t.SampleHeight(p)+t.transform.position.y,p.z);
+};
+Func<Vector3,Vector3,float> distance=(a,b)=>new Vector2(a.x-b.x,a.z-b.z).magnitude;
+var prior=roots.Single(g=>g.name=="채석장 · 노천 작업장 재구성");
+var trackMat=prior.GetComponentsInChildren<MeshRenderer>().First(t=>t.name=="Dng_Wall_QuarryOpenCut").sharedMaterials[2];
+var meshes=new List<Mesh>();
+var report=new List<string>();
+var atlas=AssetDatabase.GetAssetPath(yards[0].Find("맞물린 석회암 절개면").GetComponentInChildren<MeshFilter>().sharedMesh);
+var stationNames=new[]{"목재 인양틀","하역 차양","절리 작업 발판","선별 차양"};
+Physics.SyncTransforms();
+Undo.IncrementCurrentGroup();
+int undo=Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName("입구 작업장 연결길");
+try
+{
+    for(int i=0;i<yards.Length;i++)
+    {
+        var yard=yards[i];
+        var frame=gates[i].Find("Dng_Arch");
+        var vertices=new List<Vector3>();
+        var indices=new List<int>();
+        var uv=new List<Vector2>();
+        int made=0;
+        foreach(var station in new[]{yard.Find(stationNames[i]),yard.Find("보조 적재 구획")})
+        {
+            var ends=new List<Vector3>();
+            var center=station.position;
+            for(int j=0;j<12;j++)
+            {
+                float angle=j*Mathf.PI/6;
+                var to=ground(center+(frame.right*Mathf.Cos(angle)-frame.forward*Mathf.Sin(angle))*5.0f);
+                if(distance(to,gates[i].position)>5) ends.Add(to);
+            }
+            Vector3[] best=null;
+            float bestScore=float.PositiveInfinity;
+            float bestSteep=0;
+            foreach(var end in ends)
+            {
+                var nearby=cloud[i].OrderBy(p=>distance(p,end)).Where(p=>distance(p,end)>3.1f).Take(8);
+                foreach(var candidate in nearby)
+                {
+                    var start=ground(candidate);
+                    float l=distance(start,end);
+                    if(l>30) continue;
+                    var side=Vector3.Cross(Vector3.up,end-start).normalized;
+                    foreach(float bow in new[]{0f,-2.9f,2.9f})
+                    {
+                        int segments=Mathf.CeilToInt(l/.58f);
+                        var line=new Vector3[segments+1];
+                        float steep=0,obstacles=0;
+                        for(int j=0;j<=segments;j++)
+                        {
+                            float t=j/(float)segments;
+                            var p=Vector3.Lerp(start,end,t)+side*Mathf.Sin(Mathf.PI*t)*bow;
+                            line[j]=ground(p);
+                            if(j>0) steep=Mathf.Max(steep,Vector3.Angle(Vector3.ProjectOnPlane(line[j]-line[j-1],Vector3.up),line[j]-line[j-1]));
+                            if(j==0||j==segments) continue;
+                            foreach(float offset in new[]{-.48f,0,.48f})
+                            {
+                                var test=ground(p+side*offset);
+                                RaycastHit floor;
+                                if(!Physics.Raycast(test+Vector3.up*.85f,Vector3.down,out floor,1.5f,~0,QueryTriggerInteraction.Ignore))
+                                {obstacles++;continue;}
+                                if(Physics.OverlapCapsule(floor.point+Vector3.up*.49f,floor.point+Vector3.up*1.44f,.30f,~0,QueryTriggerInteraction.Ignore)
+                                    .Any(c=>c!=floor.collider)) obstacles++;
+                            }
+                        }
+                        if(obstacles>0||steep>44.5f) continue;
+                        float score=l+Mathf.Max(0,steep-21)*.42f+Mathf.Abs(bow)*.17f;
+                        if(score>=bestScore) continue;
+                        bestScore=score;bestSteep=steep;best=line;
+                    }
+                }
+            }
+            if(best==null) continue;
+            made++;
+            for(int j=0;j<best.Length;j++)
+            {
+                var p=best[j];
+                var side=Vector3.Cross(Vector3.up,best[Math.Min(j+1,best.Length-1)]-best[Math.Max(0,j-1)]).normalized;
+                float half=Mathf.Lerp(.89f,1.29f,Mathf.PerlinNoise((p.x+49)*.29f,p.z*.23f));
+                float endTaper=Mathf.Lerp(.60f,1,Mathf.Clamp01(Mathf.Min(j,best.Length-1-j)/2f));
+                foreach(int lane in new[]{-2,-1,0,1,2})
+                {
+                    var localPoint=ground(p+side*(half*endTaper*lane*.5f))-yard.position;
+                    localPoint.y+=.048f;
+                    vertices.Add(localPoint);uv.Add(new Vector2(localPoint.x,localPoint.z)*.41f);
+                }
+                if(j==0)continue;
+                int row=vertices.Count-5;
+                for(int lane=0;lane<4;lane++)
+                    indices.AddRange(new[]{row-5+lane,row+lane,row+lane+1,row-5+lane,row+lane+1,row-4+lane});
+            }
+            report.Add(yard.name+" / "+station.name+" / 보행 구간 "+best[0].ToString("F1")+" → "+best.Last().ToString("F1")+
+                " / 경사 "+bestSteep.ToString("F1")+"°");
+        }
+        if(made==0){report.Add(yard.name+" / 안정 보행 지선 미선정");continue;}
+        var mesh=new Mesh{name=yard.name+" · "+trailsName};
+        mesh.SetVertices(vertices);mesh.SetTriangles(indices,0);mesh.SetUVs(0,uv);
+        mesh.RecalculateNormals();mesh.RecalculateTangents();mesh.RecalculateBounds();
+        var trail=new GameObject(trailsName);
+        Undo.RegisterCreatedObjectUndo(trail,trailsName);
+        trail.transform.SetParent(yard,false);trail.isStatic=true;
+        trail.AddComponent<MeshFilter>().sharedMesh=mesh;
+        trail.AddComponent<MeshRenderer>().sharedMaterial=trackMat;
+        meshes.Add(mesh);
+    }
+    foreach(var mesh in meshes) AssetDatabase.AddObjectToAsset(mesh,atlas);
+    if(meshes.Count>0) AssetDatabase.SaveAssetIfDirty(meshes[0]);
+    if(!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene))
+        throw new InvalidOperationException("연결길 저장 실패");
+    Undo.CollapseUndoOperations(undo);
+    return string.Join("\n",report);
+}
+catch
+{
+    Undo.RevertAllDownToGroup(undo);
+    throw;
+}

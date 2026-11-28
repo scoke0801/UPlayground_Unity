@@ -1,0 +1,274 @@
+// R5 분기와 망루 첫 굽이를 편집 모드에서 검사하고 선택적으로 적용한다.
+const string action = "preview"; // baseline, preview, apply
+const string root = "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34";
+const string sourceRoadPath = root + "/Production/RegionArt/RiverBasinLookoutRoadR2.asset";
+const string sourceTerrainPath = root + "/Production/Terrain/Terrain_7_3_DesertMarketRidge.asset";
+const string roadPath = root + "/Production/RegionArt/RiverBasinR5Fork.asset";
+const string terrainPath = root + "/Production/Terrain/Terrain_7_3_R5Fork.asset";
+const string evidence = "docs/work-status/river-basin-road-evidence/";
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (scene.path != root + "/Preview/RiverBasin4km.unity" || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("저장된 RiverBasin4km 편집 모드가 필요합니다.");
+if (action != "baseline" && action != "preview" && action != "apply") throw new InvalidOperationException("작업을 확인하세요.");
+if (AssetDatabase.LoadMainAssetAtPath(roadPath) || AssetDatabase.LoadMainAssetAtPath(terrainPath))
+    throw new InvalidOperationException("이름이 같은 출력 에셋이 있습니다.");
+
+var terrain = Terrain.activeTerrains.Single(t => t.gameObject.scene == scene && t.transform.position.x == 3584f && t.transform.position.z == 1536f);
+var terrainCollider = terrain.GetComponent<TerrainCollider>();
+var baseline = AssetDatabase.LoadAssetAtPath<TerrainData>(sourceTerrainPath);
+var road = GameObject.Find("해안 전망대 샛길").GetComponent<MeshFilter>();
+var scree = road.transform.Find("R5 사암 노견").GetComponent<MeshFilter>();
+var baselineRoad = AssetDatabase.LoadAssetAtPath<Mesh>(sourceRoadPath);
+if (baseline == null || terrain.terrainData != baseline || terrainCollider.terrainData != baseline || road.sharedMesh != baselineRoad)
+    throw new InvalidOperationException("2차 도로와 기존 사막 지형 참조를 확인하세요.");
+var origin = terrain.transform.position;
+var size = baseline.size;
+var junction = new Vector2(3724f,1738f);
+Func<TerrainData,Vector2,float> ground = (data,p) => origin.y + data.GetInterpolatedHeight((p.x-origin.x)/size.x,(p.y-origin.z)/size.z);
+Func<Vector3,Vector2> planar = p => new Vector2(p.x,p.z);
+const int columns = 25, spurRows = 733;
+var world = baselineRoad.vertices.Select(road.transform.TransformPoint).ToArray();
+if (world.Length != 27125) throw new InvalidOperationException("도로 단면 개수가 변경되었습니다.");
+var centers = new[]{world.Take(spurRows*columns).Where((p,i) => i % columns == 12).Select(planar).ToArray(),
+    world.Skip(spurRows*columns).Where((p,i) => i % columns == 12).Select(planar).ToArray()};
+int applyGroup = -1;
+int forkRow = Enumerable.Range(0,centers[1].Length).OrderBy(i => (centers[1][i]-junction).sqrMagnitude).First();
+Func<float,float> ease = t => Mathf.SmoothStep(0f,1f,t);
+Func<int,int,float> along = (type,row) =>
+{
+    float d = type == 0 ? row * .5f : Mathf.Abs(row-forkRow)*.5f;
+    return 1f-ease((d-(type == 0 ? 61f : 19f))/(type == 0 ? 17f : 16f));
+};
+var passRows = centers.Select((route,k) => Enumerable.Range(0,route.Length).Where(i => along(k,i) > 0f).ToArray()).ToArray();
+var protectedBounds = UnityEngine.Object.FindObjectsByType<Collider>(FindObjectsInactive.Exclude,FindObjectsSortMode.None)
+    .Where(c => !(c is TerrainCollider) && !c.isTrigger && c.gameObject.scene == scene
+        && c.bounds.max.x > 3710f && c.bounds.min.x < 3810f && c.bounds.max.z > 1695f && c.bounds.min.z < 1780f)
+    .Select(c => c.bounds).ToArray();
+var profiles = centers.Select(route => route.Select((p,i) =>
+    (ground(baseline,route[Mathf.Max(0,i-4)]) + ground(baseline,p)*2f + ground(baseline,route[Mathf.Min(route.Length-1,i+4)]))*.25f).ToArray()).ToArray();
+
+var graded = UnityEngine.Object.Instantiate(baseline);
+graded.name = "Terrain_7_3_R5Fork";
+var mesh = UnityEngine.Object.Instantiate(baselineRoad);
+mesh.name = "RiverBasinR5Fork";
+var revisedScree = UnityEngine.Object.Instantiate(scree.sharedMesh);
+revisedScree.name = "R5 노견 재안착";
+var marker = new Mesh { name = "R5 망루길 사암 표식" };
+GameObject markerObject = null;
+bool saved = false;
+bool createdTerrain = false, createdRoad = false;
+try
+{
+    // TerrainData 복제본에는 원본 제어 텍스처 가중치를 명시적으로 복사한다.
+    graded.SetAlphamaps(0,0,baseline.GetAlphamaps(0,0,baseline.alphamapWidth,baseline.alphamapHeight));
+    const int x0=123,z0=160, nx=106,nz=85;
+    var heights = baseline.GetHeights(x0,z0,nx,nz);
+    float maxDelta = 0f;
+    int changed = 0;
+    for (int z=1;z<nz-1;z++)
+    for (int x=1;x<nx-1;x++)
+    {
+        var p = new Vector2(origin.x+x0+x,origin.z+z0+z);
+        float y = heights[z,x]*size.y+origin.y;
+        float total=0f, weighted=0f, strength=0f, clearance=1f;
+        foreach(var box in protectedBounds)
+        {
+            float ex=Mathf.Max(box.min.x-p.x,p.x-box.max.x,0f);
+            float ez=Mathf.Max(box.min.z-p.y,p.y-box.max.z,0f);
+            clearance=Mathf.Min(clearance,ease((Mathf.Sqrt(ex*ex+ez*ez)-.30f)/1.20f));
+        }
+        if (clearance <= 0f) continue;
+        for(int k=0;k<2;k++)
+        {
+            int row = -1;
+            float near = 7f*7f;
+            foreach(int i in passRows[k])
+            {
+                float ds=(centers[k][i]-p).sqrMagnitude;
+                if(ds>=near) continue;
+                near=ds;row=i;
+            }
+            if(row<0) continue;
+            float d=Mathf.Sqrt(near);
+            float half = k==0 ? 1.50f : 2.36f;
+            float weight = along(k,row)*(1f-ease((d-half)/(k==0 ? 2.3f : 3.1f)));
+            if(weight<=0f) continue;
+            total+=weight*(k==0 ? 1f : 2f);
+            weighted+=(profiles[k][row]-.025f*d)*weight*(k==0 ? 1f : 2f);
+            strength=Mathf.Max(strength,weight);
+        }
+        if(total<=0f) continue;
+        float delta=Mathf.Clamp(weighted/total-y,-.42f,.42f)*strength*clearance;
+        if(Mathf.Abs(delta)<.004f) continue;
+        maxDelta=Mathf.Max(maxDelta,Mathf.Abs(delta));
+        heights[z,x]+=delta/size.y;
+        changed++;
+    }
+    graded.SetHeights(x0,z0,heights);
+    var vertices = mesh.vertices;
+    var normals = mesh.normals;
+    var colors = mesh.colors32;
+    int supportHits=0;
+    float crossBefore=0f,crossAfter=0f;
+    for(int v=0;v<world.Length;v++)
+    {
+        int k = v < spurRows*columns ? 0 : 1;
+        int local=v-(k==0 ? 0 : spurRows*columns), row=local/columns, c=local%columns;
+        float weight=along(k,row);
+        float paintWeight=k==0 ? 1f-ease((row*.5f-107f)/48f) : ease(Mathf.Min(row, centers[k].Length-1-row)/30f);
+        var p=planar(world[v]);
+        float y=ground(graded,p);
+        if(paintWeight<=0f&&Mathf.Abs(y-ground(baseline,p))<.001f) continue;
+        vertices[v]=road.transform.InverseTransformPoint(new Vector3(p.x,y+.047f,p.y));
+        normals[v]=road.transform.InverseTransformDirection(graded.GetInterpolatedNormal((p.x-origin.x)/size.x,(p.y-origin.z)/size.z));
+        if (c>0 && Mathf.Abs(c-12)<=6 && Mathf.Abs(c-13)<=6 && weight>.98f)
+        {
+            var neighbor=planar(world[v-1]);
+            float span=Vector2.Distance(p,neighbor);
+            crossBefore=Mathf.Max(crossBefore,Mathf.Atan2(Mathf.Abs(ground(baseline,p)-ground(baseline,neighbor)),span)*Mathf.Rad2Deg);
+            crossAfter=Mathf.Max(crossAfter,Mathf.Atan2(Mathf.Abs(y-ground(graded,neighbor)),span)*Mathf.Rad2Deg);
+        }
+        float offset=Vector2.Distance(p,centers[k][row]);
+        float weather = Mathf.PerlinNoise(p.x*.22f,p.y*.18f);
+        float width=(k==0 ? 1.62f : 2.35f)*Mathf.Lerp(.92f,1.10f,Mathf.PerlinNoise(p.x*.063f,p.y*.063f));
+        float face=1f-ease((offset-width*.50f+(weather-.5f)*.34f)/(width*.63f));
+        float rim=(1f-ease((offset-width*.93f)/.84f))*Mathf.Lerp(.12f,.28f,weather);
+        float opacity=Mathf.Lerp(rim,Mathf.Lerp(k==0 ? .55f : .64f,k==0 ? .69f : .78f,weather),face);
+        if(k==0) opacity*=Mathf.Lerp(.32f,1f,ease(row/8f));
+        if(c==0||c==columns-1)opacity=0f;
+        var paint=(Color)colors[v];
+        colors[v]=(Color32)Color.Lerp(paint,new Color(.79f*face,weather*rim,.51f,opacity),paintWeight);
+
+        if(c==12 && row%10==0 && weight>.35f)
+        {
+            UnityEngine.AI.NavMeshHit hit;
+            if(UnityEngine.AI.NavMesh.SamplePosition(new Vector3(p.x,y,p.y),out hit,1.5f,UnityEngine.AI.NavMesh.AllAreas))
+                supportHits++;
+        }
+    }
+    mesh.vertices=vertices;mesh.normals=normals;mesh.colors32=colors;mesh.RecalculateBounds();
+
+    var screeVertices=revisedScree.vertices;
+    for(int i=0;i<screeVertices.Length;i++)
+    {
+        var wp=scree.transform.TransformPoint(screeVertices[i]);
+        Vector2 p=planar(wp);
+        wp.y+=ground(graded,p)-ground(baseline,p);
+        screeVertices[i]=scree.transform.InverseTransformPoint(wp);
+    }
+    revisedScree.vertices=screeVertices;
+    revisedScree.RecalculateBounds();
+
+    var stone = AssetDatabase.GetAllAssetPaths().Single(p=>p.EndsWith("/SM_EastLands_FlatStone_03.fbx",StringComparison.Ordinal));
+    var slate = AssetDatabase.LoadAllAssetsAtPath(stone).OfType<Mesh>().Where(m=>m.vertexCount>30).OrderBy(m=>m.vertexCount).First();
+    var markerPoint=new Vector2(3733f,1747.6f);
+    float routeClearance=centers.Min(path=>path.Min(p=>Vector2.Distance(p,markerPoint)));
+    if(routeClearance<3.9f) throw new InvalidOperationException("표식이 도로와 너무 가깝습니다: "+routeClearance);
+    float h=ground(graded,markerPoint);
+    var parts=new System.Collections.Generic.List<CombineInstance>();
+    var widths=new[]{1.48f,1.17f,.82f,.47f};
+    var thickness=new[]{.29f,.25f,.23f,.17f};
+    float level=h-.09f;
+    for(int i=0;i<widths.Length;i++)
+    {
+        var b=slate.bounds;
+        var scale=new Vector3(widths[i]/b.size.x,thickness[i]/b.size.y,widths[i]*.79f/b.size.z);
+        var turn=Quaternion.Euler(0,27f+i*56f,0);
+        var pivot=new Vector3(b.center.x,b.min.y,b.center.z);
+        var place=new Vector3(markerPoint.x+(i%2)*.11f,level,markerPoint.y+i*.032f);
+        parts.Add(new CombineInstance{mesh=slate,transform=road.transform.worldToLocalMatrix*
+            Matrix4x4.TRS(place-turn*Vector3.Scale(pivot,scale),turn,scale)});
+        level+=thickness[i]*.84f;
+    }
+    marker.CombineMeshes(parts.ToArray(),true,true);
+    markerObject=new GameObject(marker.name);
+    if(action!="apply") markerObject.hideFlags=HideFlags.HideAndDontSave;
+    markerObject.transform.SetParent(road.transform,false);
+    markerObject.AddComponent<MeshFilter>().sharedMesh=marker;
+    markerObject.AddComponent<MeshRenderer>().sharedMaterial=scree.GetComponent<MeshRenderer>().sharedMaterial;
+    var markerCollider=markerObject.AddComponent<BoxCollider>();
+    markerCollider.center=marker.bounds.center;
+    markerCollider.size=new Vector3(marker.bounds.size.x*.76f,marker.bounds.size.y,marker.bounds.size.z*.76f);
+    string report=string.Format(System.Globalization.CultureInfo.InvariantCulture,
+        "높이표본 {0} / 최대 변화 {1:F3}m / 코어 최대 횡경사 이전 {2:F1}° → 보정 {3:F1}° / 기존 NavMesh 지지 표본 {4} / 표식 중심 회랑 거리 {5:F2}m",
+        changed,maxDelta,crossBefore,crossAfter,supportHits,routeClearance);
+    if(changed==0||maxDelta>.421f||crossAfter>crossBefore+.1f)throw new InvalidOperationException(report);
+
+    if(action=="apply")
+    {
+        Undo.IncrementCurrentGroup();applyGroup=Undo.GetCurrentGroup();Undo.SetCurrentGroupName("R5 분기 통행면과 방향 표식");
+        AssetDatabase.CreateAsset(graded,terrainPath);createdTerrain=true;
+        AssetDatabase.CreateAsset(mesh,roadPath);createdRoad=true;
+        AssetDatabase.AddObjectToAsset(revisedScree,mesh);AssetDatabase.AddObjectToAsset(marker,mesh);
+        AssetDatabase.SaveAssetIfDirty(mesh);AssetDatabase.SaveAssetIfDirty(graded);
+        Undo.RecordObjects(new UnityEngine.Object[]{terrain,terrainCollider,road,scree},"R5 통행면 연결");
+        Undo.RegisterCreatedObjectUndo(markerObject,"망루길 표식");
+    }
+    var originalScree=scree.sharedMesh;
+    try
+    {
+        if(action=="baseline") markerObject.SetActive(false);
+        else
+        {
+            terrain.terrainData=graded;terrainCollider.terrainData=graded;road.sharedMesh=mesh;scree.sharedMesh=revisedScree;
+        }
+        terrain.Flush();Physics.SyncTransforms();
+        if(action=="apply")
+        {
+            Undo.FlushUndoRecordObjects();
+            UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+            if(!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene)) throw new InvalidOperationException("분기를 저장하지 못했습니다.");
+            Undo.CollapseUndoOperations(applyGroup);saved=true;
+        }
+        else
+        {
+            System.IO.Directory.CreateDirectory(evidence);
+            var camRoot=new GameObject("R5 분기 검수"){hideFlags=HideFlags.HideAndDontSave};
+            var cam=camRoot.AddComponent<Camera>();cam.enabled=false;cam.fieldOfView=55;cam.farClipPlane=1000;
+            var rt=RenderTexture.GetTemporary(1200,720,24);
+            var old=RenderTexture.active;
+            var image=new Texture2D(1200,720,TextureFormat.RGB24,false);
+            try
+            {
+                cam.targetTexture=rt;
+                var eyes=new[]{new Vector2(3758,1749),new Vector2(3724,1726),new Vector2(3730,1754),new Vector2(3764,1747)};
+                var aims=new[]{eyes[0],new Vector2(3741,1741),new Vector2(3727,1734),new Vector2(3810,1760)};
+                for(int i=0;i<eyes.Length;i++)
+                {
+                    cam.orthographic=i==0;cam.orthographicSize=49f;
+                    var eye=eyes[i];var aim=aims[i];float eyeY=ground(graded,eye)+(i==0 ? 175f : 2.48f);
+                    cam.transform.SetPositionAndRotation(new Vector3(eye.x,eyeY,eye.y),
+                       Quaternion.LookRotation(new Vector3(aim.x,ground(graded,aim)+1.2f,aim.y)-new Vector3(eye.x,eyeY,eye.y),
+                       i==0 ? Vector3.forward : Vector3.up));
+                    cam.Render();RenderTexture.active=rt;image.ReadPixels(new Rect(0,0,1200,720),0,0);image.Apply();
+                    System.IO.File.WriteAllBytes(evidence+"r5-fork-"+action+"-"+i+".jpg",image.EncodeToJPG(91));
+                }
+            }
+            finally
+            {
+                cam.targetTexture=null;RenderTexture.active=old;RenderTexture.ReleaseTemporary(rt);
+                UnityEngine.Object.DestroyImmediate(image);UnityEngine.Object.DestroyImmediate(camRoot);
+            }
+        }
+    }
+    finally
+    {
+        if(!saved){terrain.terrainData=baseline;terrainCollider.terrainData=baseline;road.sharedMesh=baselineRoad;
+            scree.sharedMesh=originalScree;terrain.Flush();}
+    }
+    if(action!="baseline")
+        System.IO.File.WriteAllText(evidence+(saved ? "r5-fork-applied.txt" : "r5-fork-preview.txt"),report);
+    return report;
+}
+finally
+{
+    if(!saved)
+    {
+        if(applyGroup>=0) Undo.RevertAllDownToGroup(applyGroup);
+        if(markerObject!=null)UnityEngine.Object.DestroyImmediate(markerObject);
+        if(createdRoad)AssetDatabase.DeleteAsset(roadPath);
+        if(createdTerrain)AssetDatabase.DeleteAsset(terrainPath);
+        foreach(var asset in new UnityEngine.Object[]{marker,revisedScree,mesh,graded})
+            if(asset!=null&&!AssetDatabase.Contains(asset))UnityEngine.Object.DestroyImmediate(asset);
+    }
+}

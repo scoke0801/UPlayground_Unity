@@ -1,0 +1,106 @@
+// RiverBasin4km 전역 지도를 다시 촬영해 후보 PNG로 저장한다. 에셋과 씬은 바꾸지 않는다.
+// 열린 Unity MCP execute_code 입력이다. 후보를 눈으로 확인한 뒤 원본을 백업하고 Minimap.png에 덮어써 다시 임포트한다.
+const string candidate = "output/RiverBasinWorld/MapRefresh/Minimap.candidate.png";
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (scene.name != "RiverBasin4km" || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("저장된 RiverBasin4km 편집 모드가 필요합니다.");
+var config = AssetDatabase.LoadAssetAtPath<UPlayGround.Data.UI.MinimapIconConfigSO>("Assets/10.Datas/Map/RiverBasin4km/MinimapConfig.asset");
+if (config == null || config.captureWorldSizeXY != new Vector2(4096, 4096))
+    throw new InvalidOperationException("기존 월드 지도 좌표 확인");
+const int size = 4096;
+// 수면은 부모 이름이 아니라 셰이더로 찾는다. 새 권역의 물이 지도에서 빠지지 않게 한다.
+var waterShaders = new System.Collections.Generic.HashSet<string> {
+    "UPlayGround/Environment/Lake Water", "UPlayGround/Environment/Lake Wide Fall", "UPlayGround/WorldBuilder/Water" };
+var water = new System.Collections.Generic.List<MeshRenderer>();
+foreach (var root in scene.GetRootGameObjects())
+    foreach (var renderer in root.GetComponentsInChildren<MeshRenderer>())
+        foreach (var material in renderer.sharedMaterials)
+            if (material != null && material.shader != null && waterShaders.Contains(material.shader.name)) { water.Add(renderer); break; }
+var originals = new Material[water.Count][];
+for (int i = 0; i < water.Count; i++) originals[i] = water[i].sharedMaterials;
+var utility = typeof(UPlayGround.Tool.Editor.MinimapCaptureEditorWindow).Assembly.GetType("UPlayGround.Tool.Editor.MinimapCaptureUtility", true);
+var cameraObject = new GameObject("RiverBasin 지도 촬영") { hideFlags = HideFlags.HideAndDontSave };
+var camera = cameraObject.AddComponent<Camera>();
+camera.enabled = false;
+camera.orthographic = true;
+camera.orthographicSize = size / 2;
+camera.aspect = 1;
+camera.nearClipPlane = 0.2f;
+camera.farClipPlane = 2150f;
+camera.transform.SetPositionAndRotation(new Vector3(config.captureCenter.x, 1000, config.captureCenter.y), Quaternion.Euler(90, 0, 0));
+camera.clearFlags = CameraClearFlags.SolidColor;
+camera.backgroundColor = RenderSettings.ambientGroundColor;
+var mapWater = new Material(Shader.Find("Universal Render Pipeline/Unlit"));
+mapWater.SetColor("_BaseColor", new Color(0.10f, 0.49f, 0.70f, 1));
+mapWater.SetFloat("_Cull", 0);
+Texture2D map = null;
+try
+{
+    for (int i = 0; i < water.Count; i++)
+    {
+        var replaced = new Material[originals[i].Length];
+        for (int m = 0; m < replaced.Length; m++) replaced[m] = mapWater;
+        water[i].sharedMaterials = replaced;
+    }
+    map = (Texture2D)utility.GetMethod("Render").Invoke(null, new object[] { camera, new Vector2Int(size, size), true, 1000f });
+    // 지형 색이 비슷한 곳에서도 산길을 구별할 수 있게 저작 중심선을 점선으로 표시한다.
+    var pixels = map.GetPixels32();
+    var origin = config.captureCenter - config.captureWorldSizeXY * 0.5f;
+    Action<System.Collections.Generic.List<Vector2>, float, Color, float> draw = (points, radius, ink, opacity) =>
+    {
+        float travelled = 0;
+        for (int i = 1; i < points.Count; i++)
+        {
+            var a = points[i - 1] - origin; var b = points[i] - origin; var delta = b - a; float length = delta.magnitude;
+            if (length < 0.001f) continue;
+            for (int y = Mathf.Max(0, Mathf.FloorToInt(Mathf.Min(a.y, b.y) - radius)); y <= Mathf.Min(size - 1, Mathf.CeilToInt(Mathf.Max(a.y, b.y) + radius)); y++)
+            for (int x = Mathf.Max(0, Mathf.FloorToInt(Mathf.Min(a.x, b.x) - radius)); x <= Mathf.Min(size - 1, Mathf.CeilToInt(Mathf.Max(a.x, b.x) + radius)); x++)
+            {
+                var p = new Vector2(x, y);
+                float t = Mathf.Clamp01(Vector2.Dot(p - a, delta) / delta.sqrMagnitude);
+                if ((travelled + t * length) % 19f > 13.5f) continue;
+                // 설산 성채 성벽 안은 실제 시가지 길이 보이므로 옛 산길 점선을 겹치지 않는다.
+                if (new Rect(3158, 3168, 190, 224).Contains(p + origin)) continue;
+                float alpha = Mathf.Clamp01(radius - Vector2.Distance(p, a + t * delta)) * opacity;
+                if (alpha > 0) pixels[y * size + x] = Color.Lerp(pixels[y * size + x], ink, alpha);
+            }
+            travelled += length;
+        }
+    };
+    var trails = new System.Collections.Generic.Dictionary<string, System.Collections.Generic.List<Vector2>>();
+    var rows = System.IO.File.ReadAllLines("Tools/RiverBasinWorld/Rebuild/exploration-map-trails.csv");
+    for (int i = 1; i < rows.Length; i++)
+    {
+        var cell = rows[i].Split(',');
+        // quarry 점선은 채석장 재구성 전 경로다. 새 작업장 길은 실제 지형·메시로 찍힌다.
+        if (cell.Length < 3 || cell[0] == "quarry") continue;
+        if (!trails.ContainsKey(cell[0])) trails[cell[0]] = new System.Collections.Generic.List<Vector2>();
+        trails[cell[0]].Add(new Vector2(int.Parse(cell[1]), int.Parse(cell[2])));
+    }
+    foreach (var trail in trails)
+    {
+        bool snow = trail.Key == "alpine" || trail.Key == "view" || trail.Key == "outlook";
+        draw(trail.Value, snow ? 3.0f : 2.45f, snow ? new Color(0.25f, 0.20f, 0.19f) : new Color(0.28f, 0.20f, 0.15f), 0.71f);
+    }
+    // B3 본선은 plains-b3.json의 mainPathXZ가 원본이다.
+    var plains = System.IO.File.ReadAllText("Tools/RiverBasinWorld/GorgeRelief/plains-b3.json");
+    int from = plains.IndexOf("\"mainPathXZ\""), to = plains.IndexOf("\"thresholds\"");
+    var numbers = System.Text.RegularExpressions.Regex.Matches(plains.Substring(from, to - from).Replace("\"mainPathXZ\"", ""), @"-?\d+(\.\d+)?");
+    var mainPath = new System.Collections.Generic.List<Vector2>();
+    for (int i = 0; i + 1 < numbers.Count; i += 2)
+        mainPath.Add(new Vector2(float.Parse(numbers[i].Value, System.Globalization.CultureInfo.InvariantCulture),
+            float.Parse(numbers[i + 1].Value, System.Globalization.CultureInfo.InvariantCulture)));
+    draw(mainPath, 2.4f, new Color(0.31f, 0.23f, 0.17f), 0.68f);
+    map.SetPixels32(pixels);
+    map.Apply(false);
+    System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(candidate));
+    System.IO.File.WriteAllBytes(candidate, map.EncodeToPNG());
+}
+finally
+{
+    for (int i = 0; i < water.Count; i++) water[i].sharedMaterials = originals[i];
+    if (map != null) UnityEngine.Object.DestroyImmediate(map);
+    UnityEngine.Object.DestroyImmediate(mapWater);
+    UnityEngine.Object.DestroyImmediate(cameraObject);
+}
+return "water=" + water.Count + " dirty=" + scene.isDirty + " " + candidate;

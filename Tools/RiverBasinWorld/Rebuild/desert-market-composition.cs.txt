@@ -1,0 +1,259 @@
+// 우물 교역소의 암반과 주거·장터를 하나의 지형 단으로 재구성한다.
+const string world="Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34";
+const string assetPath=world+"/Production/RegionArt/RiverBasinDesertMarketComposition.asset";
+var scene=UnityEngine.SceneManagement.SceneManager.GetSceneByPath(world+"/Preview/RiverBasin4km.unity");
+if(!scene.isLoaded||EditorApplication.isPlayingOrWillChangePlaymode)throw new InvalidOperationException("저장된 사막 프리뷰 편집 모드 필요");
+var root=scene.GetRootGameObjects().Single(g=>g.name=="RiverBasin · 사막 물길과 해안 전망대");
+var market=root.transform.GetChild(1);
+if(market.Find("절벽 단과 우물 시장 골목"))return "교역소 공간 재구성이 연결되어 있습니다.";
+if(scene.isDirty||AssetDatabase.LoadMainAssetAtPath(assetPath))throw new InvalidOperationException("기존 편집 또는 동시 작업을 확인해야 합니다.");
+var terrain=Terrain.activeTerrains.Where(t=>t.gameObject.scene==scene).ToArray();
+Func<float,float,float> h=(x,z)=>{
+    var tile=terrain.First(q=>x>=q.transform.position.x&&x<q.transform.position.x+512&&z>=q.transform.position.z&&z<q.transform.position.z+512);
+    return tile.SampleHeight(new Vector3(x,0,z))+tile.transform.position.y;
+};
+var paths=AssetDatabase.GetAllAssetPaths();
+Func<string,GameObject> prefab=name=>{
+    var item=paths.First(p=>p.EndsWith("/"+name+".prefab",StringComparison.OrdinalIgnoreCase));
+    return AssetDatabase.LoadAssetAtPath<GameObject>(item);
+};
+var housing=AssetDatabase.LoadAllAssetsAtPath(world+"/Production/RegionArt/RiverBasinDesertArchitecture.asset").OfType<Material>().ToDictionary(m=>m.name);
+var sandstone=AssetDatabase.LoadAssetAtPath<TerrainLayer>(world+"/Production/Layers/Sandstone.terrainlayer");
+var shader=Shader.Find("Universal Render Pipeline/Lit");
+var assets=new System.Collections.Generic.List<UnityEngine.Object>();
+Func<string,Color,Material> soil=(name,col)=>{
+    var m=new Material(shader){name=name};
+    m.SetColor("_BaseColor",col);
+    m.SetFloat("_Smoothness",.068f);
+    m.SetTexture("_BaseMap",sandstone.diffuseTexture);
+    m.SetTexture("_BumpMap",sandstone.normalMapTexture);
+    m.SetFloat("_BumpScale",.48f);
+    m.EnableKeyword("_NORMALMAP");
+    assets.Add(m);return m;
+};
+var stone=new[]{soil("절벽 마을 지면",new Color(1.08f,.95f,.81f)),soil("오래된 붉은 사암",new Color(.91f,.64f,.47f)),
+    soil("단 가장자리 밝은 석재",new Color(1.16f,.99f,.79f)),soil("빗물에 밴 돌",new Color(.64f,.48f,.36f))};
+var lime=new Material(housing.ContainsKey("RB_AdobePlaster")?housing["RB_AdobePlaster"]:housing["RiverBasinDesertArchitecture"]){name="상부 단 밝은 석회 미장"};
+lime.SetColor("_BaseColor",new Color(1.16f,1.03f,.88f));assets.Add(lime);
+var timber=new Material(housing["RB_PalmTimber"]){name="그늘막 오래된 목재"};assets.Add(timber);
+Func<string,Color,Material> cloth=(name,col)=>{
+    var m=new Material(shader){name=name};m.SetColor("_BaseColor",col);m.SetFloat("_Cull",0);
+    m.SetFloat("_Smoothness",.07f);assets.Add(m);return m;
+};
+var canvas=new[]{cloth("붉은 물감이 바랜 천",new Color(.62f,.24f,.14f)),cloth("아마포 밝은 천",new Color(.86f,.72f,.52f)),cloth("말린 대추색 천",new Color(.33f,.47f,.43f))};
+Undo.IncrementCurrentGroup();
+int group=Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName("사막 우물 교역소 공간 재구성");
+int groundLayer=LayerMask.NameToLayer("Ground");
+Func<Transform,string,GameObject> child=(parent,name)=>{
+    var go=new GameObject(name);go.transform.SetParent(parent,false);Undo.RegisterCreatedObjectUndo(go,name);return go;
+};
+Action<System.Collections.Generic.List<Vector3>,System.Collections.Generic.List<int>,Vector3,Vector3,Vector3,Vector3,Vector3> quad=(verts,tris,a,b,c2,d,normal)=>{
+    int i=verts.Count;verts.AddRange(new[]{a,b,c2,d});
+    if(Vector3.Dot(Vector3.Cross(b-a,c2-a),normal)>0)tris.AddRange(new[]{i,i+1,i+2,i,i+2,i+3});
+    else tris.AddRange(new[]{i,i+2,i+1,i,i+3,i+2});
+};
+Func<Transform,string,System.Collections.Generic.List<Vector3>,System.Collections.Generic.List<int>[],Material[],bool,GameObject> makeMesh=(parent,name,vertices,indices,mats,collides)=>{
+    var go=child(parent,name);var origin=vertices[0];go.transform.position=origin;
+    var m=new Mesh{name=name};
+    m.vertices=vertices.Select(v=>v-origin).ToArray();
+    m.uv=vertices.Select(v=>new Vector2((v.x+v.z*.7f)*.33f,(v.z+v.y*1.1f)*.38f)).ToArray();
+    m.subMeshCount=indices.Length;
+    for(int i=0;i<indices.Length;i++)m.SetTriangles(indices[i],i);
+    m.RecalculateNormals();m.RecalculateTangents();m.RecalculateBounds();
+    go.AddComponent<MeshFilter>().sharedMesh=m;
+    go.AddComponent<MeshRenderer>().sharedMaterials=mats;
+    if(collides){go.layer=groundLayer;go.AddComponent<MeshCollider>().sharedMesh=m;}
+    assets.Add(m);return go;
+};
+Func<Transform,GameObject,Vector3,float,Vector3,GameObject> place=(parent,source,where,yaw,size)=>{
+    var go=(GameObject)PrefabUtility.InstantiatePrefab(source,parent);
+    Undo.RegisterCreatedObjectUndo(go,source.name);
+    go.transform.SetPositionAndRotation(where,Quaternion.Euler(0,yaw,0)*source.transform.localRotation);
+    go.transform.localScale=Vector3.Scale(go.transform.localScale,size);
+    return go;
+};
+var rockMaterialCopies=new System.Collections.Generic.Dictionary<Material,Material>();
+Action<GameObject> warmRock=go=>{
+    foreach(var r in go.GetComponentsInChildren<MeshRenderer>(true)){
+        var mats=r.sharedMaterials;
+        for(int i=0;i<mats.Length;i++){
+            var source=mats[i];
+            if(!source)continue;
+            Material tint;
+            if(!rockMaterialCopies.TryGetValue(source,out tint)){
+                tint=new Material(source){name="교역소 적층 사암 "+source.name};
+                if(tint.HasProperty("_USE_COVERAGE_LAYER")){tint.SetFloat("_USE_COVERAGE_LAYER",0);tint.DisableKeyword("_USE_COVERAGE_LAYER");}
+                if(tint.HasProperty("_Stylization_Color"))tint.SetColor("_Stylization_Color",new Color(.86f,.56f,.39f,0));
+                if(tint.HasProperty("_Dirt_Color"))tint.SetColor("_Dirt_Color",new Color(.72f,.44f,.28f,0));
+                if(tint.HasProperty("_Edgewear_Color"))tint.SetColor("_Edgewear_Color",new Color(.91f,.71f,.51f,0));
+                if(tint.HasProperty("_BaseColor"))tint.SetColor("_BaseColor",new Color(1f,.83f,.67f));
+                rockMaterialCopies.Add(source,tint);assets.Add(tint);
+            }
+            mats[i]=tint;
+        }
+        r.sharedMaterials=mats;PrefabUtility.RecordPrefabInstancePropertyModifications(r);
+    }
+};
+try{
+    var work=child(market,"절벽 단과 우물 시장 골목").transform;
+    var relief=child(work,"지형에 묻은 사암 절벽과 사면").transform;
+    var topQuarter=child(work,"돌계단 위 주거 골목").transform;
+    var square=child(work,"공동 우물과 교역 광장").transform;
+    var previous=market.Find("교역소를 감싸는 사암 단애");
+    Undo.RecordObject(previous.gameObject,"독립 암봉 교체");
+    previous.gameObject.SetActive(false);
+    var east2=prefab("PF_EastLands_Cliff_02");
+    var east3=prefab("PF_EastLands_Cliff_03");
+    var farm=prefab("PF_Farm_Cliff_Large_03");
+    var farm2=prefab("PF_Farm_Cliff_Large_02");
+    Action<GameObject,float,float,float,Vector3,float> outcrop=(prototype,x,z,yaw,scale,burial)=>{
+        var go=place(relief,prototype,new Vector3(x,h(x,z),z),yaw,scale);
+        var rr=go.GetComponentsInChildren<Renderer>(true);
+        var bounds=rr[0].bounds;foreach(var r in rr)bounds.Encapsulate(r.bounds);
+        go.transform.position+=Vector3.up*(h(x,z)-bounds.min.y-bounds.size.y*burial);
+        PrefabUtility.RecordPrefabInstancePropertyModifications(go.transform);
+        warmRock(go);
+    };
+    // 두 겹의 절벽이 서로 겹치고 낮은 암반이 사면으로 사라진다.
+    outcrop(east3,3586,1565,31,new Vector3(1.25f,1.12f,.76f),.48f);
+    outcrop(east2,3611,1570,145,new Vector3(1.24f,1.29f,1.02f),.33f);
+    outcrop(east3,3634,1580,227,new Vector3(1.20f,1.27f,.76f),.32f);
+    outcrop(east2,3648,1585,74,new Vector3(1.13f,1.08f,1.20f),.46f);
+    outcrop(east3,3615,1599,85,new Vector3(1.02f,1.11f,1.0f),.48f);
+    outcrop(farm,3586,1538,129,new Vector3(1.4f,.83f,1.12f),.51f);
+    outcrop(farm,3596,1546,156,new Vector3(1.52f,1.15f,1.06f),.55f);
+    outcrop(farm,3605,1551,194,new Vector3(1.1f,1f,.78f),.46f);
+    outcrop(farm,3640,1557,76,new Vector3(1.3f,1.28f,.92f),.51f);
+    outcrop(farm,3653,1548,233,new Vector3(.98f,.97f,.96f),.59f);
+    outcrop(farm2,3648,1534,188,new Vector3(1.3f,.59f,1.10f),.65f);
+    outcrop(farm2,3604,1531,178,new Vector3(.91f,.66f,.91f),.58f);
+    
+    // 주거 단은 그대로 걸을 수 있는 돌바닥과 땅까지 내려가는 옹벽을 공유한다.
+    const float level=67.2f;
+    var edge=new[]{new Vector2(3607,1535),new Vector2(3611,1531),new Vector2(3623,1531),new Vector2(3630,1534),
+      new Vector2(3641,1535),new Vector2(3644,1545),new Vector2(3636,1551),new Vector2(3612,1550)};
+    var tv=new System.Collections.Generic.List<Vector3>();var tf=Enumerable.Range(0,4).Select(i=>new System.Collections.Generic.List<int>()).ToArray();
+    var center=new Vector3(3625,level,1541);
+    for(int side=0;side<edge.Length;side++){
+        var p=edge[side];var q=edge[(side+1)%edge.Length];
+        var aa=new Vector3(p.x,level,p.y);var bb=new Vector3(q.x,level,q.y);
+        int first=tv.Count;tv.AddRange(new[]{center,aa,bb});
+        if(Vector3.Cross(aa-center,bb-center).y>0)tf[0].AddRange(new[]{first,first+1,first+2});else tf[0].AddRange(new[]{first,first+2,first+1});
+        int count=Mathf.CeilToInt(Vector2.Distance(p,q)/1.20f);
+        for(int k=0;k<count;k++){
+            var a0=Vector2.Lerp(p,q,k/(float)count);var b0=Vector2.Lerp(p,q,(k+1)/(float)count);
+            float minA=Mathf.Min(level-.22f,h(a0.x,a0.y)-.39f),minB=Mathf.Min(level-.22f,h(b0.x,b0.y)-.39f);
+            var outward=(new Vector3((a0.x+b0.x)*.5f,level,(a0.y+b0.y)*.5f)-center).normalized;
+            for(int band=0;band<7;band++){
+                float below=band/7f,over=(band+1)/7f;
+                float ledge=band==6?.125f:band==2?.08f:.023f*Mathf.Sin(k*2.4f+band);
+                var a=new Vector3(a0.x,Mathf.Lerp(minA,level,below),a0.y)+outward*ledge;
+                var b=new Vector3(b0.x,Mathf.Lerp(minB,level,below),b0.y)+outward*ledge;
+                var c0=new Vector3(b0.x,Mathf.Lerp(minB,level,over),b0.y)+outward*ledge;
+                var d0=new Vector3(a0.x,Mathf.Lerp(minA,level,over),a0.y)+outward*ledge;
+                quad(tv,tf[band==6?2:(k*5+band)%7==0?3:1],a,b,c0,d0,outward);
+            }
+        }
+    }
+    makeMesh(topQuarter,"RB_DesertStonework_사암 주거단",tv,tf,stone,true);
+    var pv=new System.Collections.Generic.List<Vector3>();var pt=Enumerable.Range(0,4).Select(i=>new System.Collections.Generic.List<int>()).ToArray();
+    var walkStart=new Vector2(3608,1523.8f);var walkEnd=new Vector2(3615,1531.02f);
+    var flow=(walkEnd-walkStart).normalized;var normal=new Vector2(-flow.y,flow.x);float startY=h(walkStart.x,walkStart.y)+.04f;
+    Func<Vector2,float,float,Vector3> walk=(p,y,w)=>new Vector3(p.x+normal.x*w,y,p.y+normal.y*w);
+    int steps=Mathf.Max(4,Mathf.CeilToInt((level-startY)/.16f));
+    for(int k=0;k<steps;k++){
+        var p=Vector2.Lerp(walkStart,walkEnd,k/(float)steps);var q=Vector2.Lerp(walkStart,walkEnd,(k+1f)/steps);
+        float from=Mathf.Lerp(startY,level,k/(float)steps),to=Mathf.Lerp(startY,level,(k+1f)/steps);
+        quad(pv,pt[k%3==0?2:0],walk(p,from,-1.30f),walk(q,from,-1.30f),walk(q,from,1.30f),walk(p,from,1.30f),Vector3.up);
+        quad(pv,pt[1],walk(q,from,-1.30f),walk(q,to,-1.30f),walk(q,to,1.30f),walk(q,from,1.30f),new Vector3(-flow.x,0,-flow.y));
+        foreach(float side in new[]{-1.30f,1.30f}){
+            var a=walk(p,from,side);var b=walk(q,from,side);
+            var lowerA=new Vector3(a.x,Mathf.Min(from-.055f,h(a.x,a.z)-.15f),a.z);
+            var lowerB=new Vector3(b.x,Mathf.Min(from-.055f,h(b.x,b.z)-.15f),b.z);
+            quad(pv,pt[1],lowerA,lowerB,b,a,new Vector3(normal.x,0,normal.y)*Mathf.Sign(side));
+        }
+    }
+    makeMesh(topQuarter,"RB_DesertStonework_주거단 순환 계단",pv,pt,stone,true);
+    Func<string,GameObject> model=n=>AssetDatabase.LoadAssetAtPath<GameObject>(world+"/Authoring/DesertArchitecture/"+n+".fbx");
+    Action<string,Vector3,float,float,Vector3> house=(name,where,yaw,scale,size)=>{
+        var pivot=child(topQuarter,name);pivot.transform.SetPositionAndRotation(where,Quaternion.Euler(0,yaw,0));pivot.layer=groundLayer;
+        var visual=(GameObject)PrefabUtility.InstantiatePrefab(model(name),pivot.transform);visual.transform.localScale*=scale;
+        foreach(var r in visual.GetComponentsInChildren<MeshRenderer>(true)){
+            r.sharedMaterials=r.sharedMaterials.Select(m=>m&&housing.ContainsKey(m.name)&&m.name!="RB_AdobePlaster"?housing[m.name]:lime).ToArray();
+            PrefabUtility.RecordPrefabInstancePropertyModifications(r);
+        }
+        var box=pivot.AddComponent<BoxCollider>();box.center=Vector3.up*size.y*scale*.5f;box.size=size*scale;
+    };
+    house("RB_AdobeHouseA",new Vector3(3619,level,1544),182,.98f,new Vector3(7.7f,3.59f,5.75f));
+    house("RB_AdobeAnnex",new Vector3(3627.7f,level,1545),202,.87f,new Vector3(5.75f,3.04f,4.0f));
+    house("RB_AdobeHouseB",new Vector3(3636,level,1544.2f),168,.92f,new Vector3(9.16f,4.0f,6.45f));
+    
+    // 세 채가 같은 마당을 바라보도록 계단의 끝을 광장 쪽으로 묶는다.
+    var random=new System.Random(141);
+    var v=new System.Collections.Generic.List<Vector3>();var indices=Enumerable.Range(0,4).Select(i=>new System.Collections.Generic.List<int>()).ToArray();
+    var yard=new[]{new Vector3(3633,1509,7.1f),new Vector3(3639,1512,7.4f),new Vector3(3623,1508,5.1f),new Vector3(3614,1509,4.6f)};
+    for(int iz=0;iz<14;iz++)for(int ix=0;ix<36;ix++){
+        float x=3609+ix*.98f+(iz%2)*.44f,z=1503+iz*.86f;
+        float mask=yard.Max(p=>1-Vector2.Distance(new Vector2(p.x,p.y),new Vector2(x,z))/p.z);
+        if(mask<0||random.NextDouble()>Mathf.Clamp01(mask*2.8f+.08f))continue;
+        float w=.43f+(float)random.NextDouble()*.045f;
+        float d=.36f+(float)random.NextDouble()*.046f;
+        Func<float,float,Vector3> flagstonePoint=(a,b)=>new Vector3(x+a,h(x+a,z+b)+.035f,z+b);
+        quad(v,indices[(ix+iz*5)%9==0?1:(ix+iz)%3==0?2:0],flagstonePoint(-w,-d),flagstonePoint(-w,d),flagstonePoint(w,d),flagstonePoint(w,-d),Vector3.up);
+    }
+    var paving=makeMesh(square,"오래 닳은 장터 돌바닥",v,indices,stone,false);
+    paving.GetComponent<MeshRenderer>().shadowCastingMode=UnityEngine.Rendering.ShadowCastingMode.Off;
+    var cube=Resources.GetBuiltinResource<Mesh>("Cube.fbx");
+    Action<float,float,float,float,float,int> shade=(x,z,yaw,width,depth,tone)=>{
+        var cover=child(square,"바람에 처진 천 차양");
+        cover.transform.SetPositionAndRotation(new Vector3(x,h(x,z),z),Quaternion.Euler(0,yaw,0));
+        const int rows=9,cols=13;
+        var cp=new System.Collections.Generic.List<Vector3>();var ct=Enumerable.Range(0,3).Select(i=>new System.Collections.Generic.List<int>()).ToArray();
+        Func<int,int,Vector3> clothAt=(i,j)=>{
+            float u=i/(float)cols,w=j/(float)rows;
+            return cover.transform.TransformPoint(new Vector3((u-.5f)*width,3.38f-.39f*w-.29f*Mathf.Sin(u*Mathf.PI)*Mathf.Sin(w*Mathf.PI)
+               +.049f*Mathf.Sin(u*28+w*7),(w-.5f)*depth+.08f*Mathf.Sin(u*12)));
+        };
+        for(int j=0;j<rows;j++)for(int i=0;i<cols;i++)
+            quad(cp,ct[i==1||i==11?1:tone],clothAt(i,j),clothAt(i,j+1),clothAt(i+1,j+1),clothAt(i+1,j),Vector3.up);
+        makeMesh(cover.transform,"천 차양",cp,ct,canvas,false);
+        var posts=new System.Collections.Generic.List<CombineInstance>();
+        foreach(float a0 in new[]{-width*.47f,width*.47f})foreach(float b0 in new[]{-depth*.47f,depth*.47f}){
+            var p=cover.transform.TransformPoint(new Vector3(a0,0,b0));float dy=h(p.x,p.z)-cover.transform.position.y;
+            float upper=b0>0?2.99f:3.42f;
+            posts.Add(new CombineInstance{mesh=cube,transform=Matrix4x4.TRS(new Vector3(a0,(dy+upper)*.5f,b0),Quaternion.Euler(1,0,Mathf.Sign(a0)*1.4f),new Vector3(.115f,upper-dy,.115f))});
+        }
+        for(int j=0;j<2;j++)posts.Add(new CombineInstance{mesh=cube,transform=Matrix4x4.TRS(new Vector3(0,3.36f-j*.36f,(j==0?-1:1)*depth*.465f),Quaternion.identity,new Vector3(width,.09f,.10f))});
+        var pm=new Mesh{name="차양 받침 목재"};pm.CombineMeshes(posts.ToArray(),true,true,false);assets.Add(pm);
+        var wood=child(cover.transform,"차양 목재");
+        wood.AddComponent<MeshFilter>().sharedMesh=pm;wood.AddComponent<MeshRenderer>().sharedMaterial=timber;
+    };
+    shade(3632.7f,1517.5f,4,7.5f,4.15f,0);
+    shade(3647.1f,1511.8f,17,7.0f,3.70f,2);
+    shade(3627.7f,1500.8f,-9,5.8f,2.85f,1);
+    var barrel=prefab("CargoBarrel");var crate=prefab("CargoCrate");var stall=prefab("MarketStall");var bench=prefab("TownBench");
+    Action<GameObject,float,float,float,float> objectAt=(src,x,z,yaw,scale)=>place(square,src,new Vector3(x,h(x,z)-.04f,z),yaw,Vector3.one*scale);
+    objectAt(stall,3647.9f,1512.7f,162,.85f);
+    objectAt(crate,3630.3f,1518.7f,22,1.05f);
+    objectAt(crate,3631.7f,1519.4f,64,.86f);
+    objectAt(barrel,3628.8f,1518.5f,13,.81f);
+    objectAt(barrel,3648.8f,1514.7f,62,.94f);
+    objectAt(crate,3645.2f,1513.1f,-14,.76f);
+    objectAt(bench,3628.7f,1501.2f,9,.81f);
+    var palms=market.Cast<Transform>().Where(t=>t.name.StartsWith("PalmTree_")).Take(3).ToArray();
+    foreach(var row in new[]{new Vector4(3609,1537,.91f,46),new Vector4(3632,1548,1.12f,172),new Vector4(3640,1537,.98f,243)}){
+        var template=PrefabUtility.GetCorrespondingObjectFromSource(palms[(int)row.w%palms.Length].gameObject);
+        var palm=place(topQuarter,template,new Vector3(row.x,level-.06f,row.y),row.w,Vector3.one*row.z);
+        var material=palms[0].GetComponentInChildren<MeshRenderer>().sharedMaterials;
+        foreach(var rr in palm.GetComponentsInChildren<MeshRenderer>()){
+           rr.sharedMaterials=material;PrefabUtility.RecordPrefabInstancePropertyModifications(rr);
+        }
+    }
+    AssetDatabase.CreateAsset(assets[0],assetPath);
+    foreach(var asset in assets.Skip(1))AssetDatabase.AddObjectToAsset(asset,assetPath);
+    AssetDatabase.SaveAssetIfDirty(assets[0]);
+    Undo.CollapseUndoOperations(group);
+    UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+    return "절벽 12개, 보행 주거단, 계단·마당, 주택 3채와 차양 3개 적용";
+}catch{Undo.RevertAllDownToGroup(group);throw;}

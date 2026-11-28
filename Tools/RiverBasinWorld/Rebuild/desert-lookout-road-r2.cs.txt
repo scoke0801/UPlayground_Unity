@@ -1,0 +1,431 @@
+// Unity MCP execute_code에서 실행한다. 기본은 검사, apply는 이 구간의 표면만 저장한다.
+const string world = "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34";
+const string meshName = "RiverBasinLookoutRoadR2";
+const string assetPath = world + "/Production/RegionArt/" + meshName + ".asset";
+const string reportPath = "docs/work-status/river-basin-road-evidence/r3-corridor.json";
+const string action = "validate"; // validate, apply, verify
+const float spacing = .5f;
+const float minimumRadius = 6f;
+const float maximumGrade = 25f;
+
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (scene.path != world + "/Preview/RiverBasin4km.unity" || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("저장된 RiverBasin4km 편집 씬이 필요합니다.");
+
+var terrain = Terrain.activeTerrains.Single(t => t.gameObject.scene == scene && t.transform.position.x == 3584 && t.transform.position.z == 1536);
+var road = scene.GetRootGameObjects().SelectMany(o => o.GetComponentsInChildren<MeshFilter>(true)).Single(o => o.name == "해안 전망대 샛길");
+var renderer = road.GetComponent<MeshRenderer>();
+if (renderer == null || !renderer.enabled || renderer.sharedMaterial == null ||
+    renderer.sharedMaterial.shader.name != "UPlayground/Environment/River Basin Trail")
+    throw new InvalidOperationException("기존 샛길 셰이더와 렌더러를 확인하세요.");
+var ground = terrain.terrainData;
+var origin = terrain.transform.position;
+var size = ground.size;
+var coastAnchors = new[]{
+ new Vector2(3724,1738), new Vector2(3744,1743), new Vector2(3768,1747),
+ new Vector2(3791,1760), new Vector2(3812,1761), new Vector2(3839,1759),
+ new Vector2(3865,1766), new Vector2(3897,1777), new Vector2(3916,1783),
+ new Vector2(3933,1786), new Vector2(3959,1779), new Vector2(3980,1774),
+ new Vector2(4007,1764), new Vector2(4034,1759.5f),new Vector2(4054,1761),new Vector2(4078,1768)
+};
+
+
+var filters = scene.GetRootGameObjects().SelectMany(o => o.GetComponentsInChildren<MeshFilter>(true)).ToArray();
+var mainRoad = filters.Single(o => o.name == "WB_P04_Road_R5");
+var outlook = filters.Single(o => o.name == "해안 조망 오솔길");
+var outlookRenderer = outlook.GetComponent<MeshRenderer>();
+const string originalR5Guid = "1417eb2a2b8955a4d89afa4ea82388bd";
+const long originalR5Id = 7487023700056056093;
+var originalR5 = AssetDatabase.LoadAllAssetsAtPath(AssetDatabase.GUIDToAssetPath(originalR5Guid)).OfType<Mesh>().Single(m =>
+{
+    string guid;
+    long id;
+    return AssetDatabase.TryGetGUIDAndLocalFileIdentifier(m, out guid, out id) && id == originalR5Id;
+});
+var r5Vertices = originalR5.vertices;
+var legacyRoad = UnityEngine.Object.Instantiate(originalR5);
+legacyRoad.name = "R5 원본 이음새";
+var originalColors = originalR5.colors32;
+const int firstRow = 953, lastRow = 1145;
+Func<int,Vector2> roadPoint = row =>
+{
+    var v = mainRoad.transform.TransformPoint(r5Vertices[row * 5 + 2]);
+    return new Vector2(v.x, v.z);
+};
+Func<float,float> smoother = t => Mathf.SmoothStep(0f, 1f, t);
+for (int row = firstRow; row <= lastRow; row++)
+{
+    float blend = 1f - smoother(Mathf.Min(row - firstRow, lastRow - row) / 14f);
+    for (int column = 0; column < 5; column++)
+    {
+        int i = row * 5 + column;
+        var paint = originalColors[i];
+        paint.a = (byte)Mathf.RoundToInt(paint.a * blend);
+        originalColors[i] = paint;
+    }
+}
+legacyRoad.colors32 = originalColors;
+var mainAnchors = new[] {
+    roadPoint(firstRow), roadPoint(firstRow + 13), new Vector2(3701,1792), new Vector2(3719,1786),
+    new Vector2(3728,1780), new Vector2(3733,1773), new Vector2(3734,1764), new Vector2(3729,1753),
+    new Vector2(3724,1738), roadPoint(lastRow - 29), roadPoint(lastRow - 12), roadPoint(lastRow)
+};
+var json = new System.Text.StringBuilder("{\n  \"links\": [\n");
+var errors = new System.Collections.Generic.List<string>();
+var meshes = new System.Collections.Generic.List<Mesh>();
+var pathCenters = new System.Collections.Generic.List<Vector2[]>();
+Physics.SyncTransforms();
+
+Action<Vector2[],bool> buildRibbon = (anchors, main) =>
+{
+    var dense = new System.Collections.Generic.List<Vector2> { anchors[0] };
+    for (int i = 1; i < anchors.Length - 1; i++)
+    {
+        Vector2 p = anchors[i], incoming = anchors[i - 1] - p, outgoing = anchors[i + 1] - p;
+        float trim = Mathf.Min(main ? 18f : 12f, .48f * Mathf.Min(incoming.magnitude, outgoing.magnitude));
+        Vector2 a = p + incoming.normalized * trim, b = p + outgoing.normalized * trim;
+        dense.Add(a);
+        for (int j = 1; j <= 32; j++)
+        {
+            float u = j / 32f;
+            dense.Add(Vector2.Lerp(Vector2.Lerp(a, p, u), Vector2.Lerp(p, b, u), u));
+        }
+    }
+    dense.Add(anchors.Last());
+    var arc = new float[dense.Count];
+    for (int i = 1; i < arc.Length; i++) arc[i] = arc[i - 1] + Vector2.Distance(dense[i - 1], dense[i]);
+    float length = arc.Last();
+    int count = Mathf.CeilToInt(length / spacing) + 1;
+    var path = new Vector2[count];
+    for (int i = 0, k = 1; i < count; i++)
+    {
+        float d = length * i / (count - 1);
+        while (k < arc.Length - 1 && arc[k] < d) k++;
+        path[i] = Vector2.Lerp(dense[k-1], dense[k], Mathf.InverseLerp(arc[k-1], arc[k], d));
+    }
+    pathCenters.Add(path);
+
+    const int across = 24, columns = across + 1;
+    float shoulder = main ? 4.0f : 3.8f;
+    var vertices = new Vector3[count * columns];
+    var normals = new Vector3[vertices.Length];
+    var colors = new Color32[vertices.Length];
+    var faces = new int[(count - 1) * across * 6];
+    float radius = float.PositiveInfinity, grade = 0f, cross = 0f;
+    var at = new Vector2[3];
+    var blockers = new System.Collections.Generic.HashSet<string>();
+    var colliders = new Collider[32];
+    for (int i = 0; i < count; i++)
+    {
+        Vector2 p = path[i], a = path[Mathf.Max(0, i - 1)], b = path[Mathf.Min(count - 1, i + 1)];
+        Vector2 tangent = (b - a).normalized, side = new Vector2(-tangent.y, tangent.x);
+        float d = length * i / (count - 1);
+        float envelope = main ? smoother(Mathf.Min(d, length - d) / 14f) :
+            Mathf.Lerp(.18f, 1f, smoother(d / 4f)) * smoother((length - d) / 8f);
+        float slow = Mathf.PerlinNoise(p.x * .046f, p.y * .046f);
+        float width = (main ? 2.09f : 1.59f) * Mathf.Lerp(.91f, 1.15f, slow);
+        if (main) width += .35f * (1f - smoother(Vector2.Distance(p, coastAnchors[0]) / 8f));
+        else width *= Mathf.Lerp(1.27f, 1f, smoother(d / 9f));
+        if (i > 0 && i < count - 1)
+        {
+            float angle = Vector2.Angle(p - a, b - p) * Mathf.Deg2Rad;
+            if (angle > .0001f)
+            {
+                float current = (Vector2.Distance(p, a) + Vector2.Distance(b, p)) * .5f / angle;
+                if (current < radius) { radius = current; at[0] = p; }
+            }
+        }
+        for (int j = 0; j < columns; j++)
+        {
+            int v = i * columns + j;
+            float offset = (j * 2f / across - 1f) * shoulder;
+            var q = p + side * offset;
+            float u = (q.x - origin.x) / size.x, w = (q.y - origin.z) / size.z;
+            if (u <= 0f || u >= 1f || w <= 0f || w >= 1f || ground.IsHole((int)(u * ground.holesResolution),(int)(w * ground.holesResolution)))
+                throw new InvalidOperationException("지면 누락 " + q);
+            float y = ground.GetInterpolatedHeight(u, w) + origin.y;
+            var foot = new Vector3(q.x, y, q.y);
+            vertices[v] = road.transform.InverseTransformPoint(foot + Vector3.up * .033f);
+            normals[v] = road.transform.InverseTransformDirection(ground.GetInterpolatedNormal(u, w));
+            float wind = Mathf.PerlinNoise(q.x * .14f + q.y * .11f, q.y * .20f);
+            float grit = Mathf.PerlinNoise(q.x * .91f + 6f, q.y * .89f);
+            float sideDrift = (Mathf.PerlinNoise(p.x * .102f, p.y * .122f) - .5f) * .88f;
+            float signed = offset + sideDrift;
+            float lateral = Mathf.Abs(signed);
+            float blow = Mathf.PerlinNoise(q.x * .168f - q.y * .21f + 3f, q.y * .081f);
+            float edgeVariation = (wind - .5f) * .37f + (grit - .5f) * .20f;
+            float coreWear = 1f - smoother((lateral - width * .47f + edgeVariation) / (width * .72f));
+            float shoulderWear = 1f - smoother((lateral - width + (wind - .5f) * 1.00f) / 1.02f);
+            float cut = Mathf.Lerp(.35f, 1f, smoother((blow - .26f) / .34f));
+            float used = main
+                ? 1f - smoother(Mathf.Abs(signed - width * Mathf.Lerp(-.47f, .44f, slow)) / 1.05f)
+                : 1f - smoother(lateral / 1.31f);
+            float deposited = (1f - smoother(Mathf.Abs(lateral - width * Mathf.Lerp(.67f, 1.38f, wind)) / 1.34f))
+                * smoother((wind * .56f + grit * .44f - .34f) / .46f);
+            float worn = Mathf.Clamp01(coreWear * (.71f + .16f * used + .14f * grit) + shoulderWear * .14f * cut);
+            float edgeCover = shoulderWear * (.16f + .19f * cut) + deposited * .13f;
+            float coverage = envelope * Mathf.Lerp(edgeCover, Mathf.Lerp(.61f, .73f, grit), coreWear);
+            if (j == 0 || j == across) coverage = 0f;
+            colors[v] = (Color32)new Color(worn, deposited, Mathf.Lerp(.27f, .82f, grit), Mathf.Clamp01(coverage));
+
+            if (i > 0)
+            {
+                var delta = vertices[v] - vertices[v - columns];
+                float angle = Mathf.Atan2(Mathf.Abs(delta.y), new Vector2(delta.x, delta.z).magnitude) * Mathf.Rad2Deg;
+                if (angle > grade) { grade = angle; at[1] = q; }
+            }
+            if (j > 0)
+            {
+                float angle = Mathf.Atan2(Mathf.Abs(vertices[v].y - vertices[v-1].y), 2f * shoulder / across) * Mathf.Rad2Deg;
+                if (angle > cross) { cross = angle; at[2] = q; }
+            }
+            int overlaps = Physics.OverlapCapsuleNonAlloc(foot + Vector3.up * .45f, foot + Vector3.up * 1.5f, .33f, colliders, ~0, QueryTriggerInteraction.Ignore);
+            if (overlaps == colliders.Length) throw new InvalidOperationException("충돌 검사 버퍼 초과 " + q);
+            for (int hit = 0; hit < overlaps; hit++)
+                if (!(colliders[hit] is TerrainCollider)) blockers.Add(colliders[hit].name + " @ " + q);
+            if (i == 0 || j == 0) continue;
+            int f = ((i - 1) * across + j - 1) * 6;
+            faces[f] = v - columns - 1; faces[f + 1] = v - columns; faces[f + 2] = v - 1;
+            faces[f + 3] = v - 1; faces[f + 4] = v - columns; faces[f + 5] = v;
+        }
+    }
+    if (Vector3.Dot(Vector3.Cross(vertices[faces[1]] - vertices[faces[0]], vertices[faces[2]] - vertices[faces[0]]), normals[faces[0]]) < 0)
+        for (int i = 0; i < faces.Length; i += 3)
+        { int swap = faces[i+1]; faces[i+1] = faces[i+2]; faces[i+2] = swap; }
+    string id = main ? "R5-junction" : "R5-lookout-coast";
+    if (radius < minimumRadius || grade > maximumGrade || cross > maximumGrade || blockers.Count > 0)
+        errors.Add(id + ": " + string.Join("; ", blockers.Take(12)));
+    string[] fields = { "curvatureAt", "longitudinalAt", "crossAt" };
+    var points = at.Select((p,i) => string.Format(System.Globalization.CultureInfo.InvariantCulture,
+        "\"{0}\":[{1:F2},{2:F2}]", fields[i], p.x, p.y));
+    json.AppendFormat(System.Globalization.CultureInfo.InvariantCulture,
+        "    {{\"edge\":\"{0}\",\"lengthMeters\":{1:F2},\"samples\":{2},\"widthMeters\":{3:F2},\"minRadiusM\":{4:F2},\"maxGradeDeg\":{5:F2},\"maxCrossDeg\":{6:F2},\"contacts\":{7},{8}}}{9}\n",
+        id, length, vertices.Length, shoulder*2f, radius, grade, cross, blockers.Count, string.Join(",",points), main ? "" : ",");
+    var mesh = new Mesh();
+    mesh.vertices = vertices; mesh.normals = normals; mesh.colors32 = colors; mesh.triangles = faces;
+    meshes.Add(mesh);
+};
+try
+{
+    buildRibbon(coastAnchors, false);
+    buildRibbon(mainAnchors, true);
+}
+catch
+{
+    foreach (var part in meshes) UnityEngine.Object.DestroyImmediate(part);
+    UnityEngine.Object.DestroyImmediate(legacyRoad);
+    throw;
+}
+var merged = new Mesh { name = "RiverBasinLookoutRoadR2" };
+merged.CombineMeshes(meshes.Select(m => new CombineInstance { mesh = m, transform = Matrix4x4.identity }).ToArray(), true, false);
+foreach (var part in meshes) UnityEngine.Object.DestroyImmediate(part);
+json.AppendLine("  ]");
+json.AppendLine("}");
+
+var stoneSource = filters.First(f => f.name == "SM_EastLands_FlatStone_03_LOD0"
+    && f.transform.position.x > 3790f && f.transform.position.x < 3890f);
+var stoneAsset = AssetDatabase.GetAssetPath(stoneSource.sharedMesh);
+var pebble = AssetDatabase.LoadAllAssetsAtPath(stoneAsset).OfType<Mesh>()
+    .Where(m => m.vertexCount > 30).OrderBy(m => m.vertexCount).First();
+var stoneMaterial = stoneSource.GetComponent<MeshRenderer>().sharedMaterial;
+var screeGroups = new[] {
+    new Vector4(3731.8f, 1731.7f, 2.1f, 1.9f),
+    new Vector4(3733.0f, 1747.2f, 3.7f, 2.0f),
+    new Vector4(3789.9f, 1751.2f, 6.2f, 2.7f),
+    new Vector4(3800.8f, 1752.6f, 4.3f, 1.8f),
+    new Vector4(3847.9f, 1767.5f, 3.9f, 2.5f),
+    new Vector4(3891.2f, 1781.5f, 4.7f, 2.2f),
+    new Vector4(3913.5f, 1788.3f, 3.7f, 2.3f)
+};
+var random = new System.Random(41);
+var stones = new System.Collections.Generic.List<CombineInstance>();
+for (int group = 0; group < screeGroups.Length; group++)
+{
+    Vector4 patch = screeGroups[group];
+    for (int i = 0; i < 23; i++)
+    {
+        float angle = (float)random.NextDouble() * Mathf.PI * 2f;
+        float radius = Mathf.Sqrt((float)random.NextDouble());
+        var q = new Vector2(patch.x + patch.z * Mathf.Cos(angle) * radius, patch.y + patch.w * Mathf.Sin(angle) * radius);
+        float width = i < 4 ? Mathf.Lerp(.39f, 1.06f, (float)random.NextDouble()) : Mathf.Lerp(.08f, .35f, (float)random.NextDouble());
+        if (pathCenters.Any(path => path.Any(p => (q-p).sqrMagnitude < (3.75f + width*.6f)*(3.75f + width*.6f)))) continue;
+        float u = (q.x - origin.x) / size.x, v = (q.y - origin.z) / size.z;
+        var foot = new Vector3(q.x, ground.GetInterpolatedHeight(u,v) + origin.y, q.y);
+        var tilt = Quaternion.FromToRotation(Vector3.up, ground.GetInterpolatedNormal(u,v)) *
+            Quaternion.AngleAxis((float)random.NextDouble() * 360f, Vector3.up);
+        var dimensions = pebble.bounds.size;
+        var scale = new Vector3(width/dimensions.x, width * Mathf.Lerp(.21f,.39f,(float)random.NextDouble())/dimensions.y,
+            width * Mathf.Lerp(.50f,1.18f,(float)random.NextDouble())/dimensions.z);
+        var pivot = pebble.bounds.center;
+        pivot.y = pebble.bounds.min.y + pebble.bounds.size.y * .35f;
+        var offset = tilt * Vector3.Scale(pivot,scale);
+        stones.Add(new CombineInstance { mesh = pebble,
+            transform = road.transform.worldToLocalMatrix * Matrix4x4.TRS(foot - offset, tilt, scale) });
+    }
+}
+var scree = new Mesh { name = "R5 사암 노견", indexFormat = UnityEngine.Rendering.IndexFormat.UInt32 };
+scree.CombineMeshes(stones.ToArray(), true, true);
+
+var pilotMat = new Material(renderer.sharedMaterial) { name = "해안 길 다짐과 퇴적" };
+pilotMat.SetFloat("_VertexSurface", 1f);
+pilotMat.SetColor("_Tint", new Color(1.02f, .97f, .90f));
+pilotMat.SetFloat("_TileMeters", 1.03f);
+var gravelLayer = ground.terrainLayers.Single(layerAsset => layerAsset.name == "Shore");
+pilotMat.SetTexture("_Gravel", gravelLayer.diffuseTexture);
+pilotMat.SetTexture("_GravelNormal", gravelLayer.normalMapTexture);
+
+const string dressingName = "R5 사암 노견";
+var assets = new UnityEngine.Object[] { merged, legacyRoad, scree, pilotMat };
+Func<Mesh,string> fingerprint = m =>
+{
+    using (var stream = new System.IO.MemoryStream())
+    using (var writer = new System.IO.BinaryWriter(stream))
+    using (var sha = System.Security.Cryptography.SHA256.Create())
+    {
+        foreach (var v in m.vertices) { writer.Write(v.x); writer.Write(v.y); writer.Write(v.z); }
+        foreach (var n in m.normals) { writer.Write(n.x); writer.Write(n.y); writer.Write(n.z); }
+        foreach (var c in m.colors32) { writer.Write(c.r); writer.Write(c.g); writer.Write(c.b); writer.Write(c.a); }
+        foreach (var uv in m.uv) { writer.Write(uv.x); writer.Write(uv.y); }
+        foreach (int t in m.triangles) writer.Write(t);
+        writer.Flush();
+        stream.Position = 0;
+        return System.BitConverter.ToString(sha.ComputeHash(stream)).Replace("-", "").ToLowerInvariant();
+    }
+};
+Func<UnityEngine.Object,UnityEngine.Object,bool> same = (a,b) =>
+{
+    if (a is Mesh) return fingerprint((Mesh)a) == fingerprint((Mesh)b);
+    var left = (Material)a;
+    var right = (Material)b;
+    return left.shader == right.shader && left.GetColor("_Tint") == right.GetColor("_Tint") &&
+        left.GetFloat("_TileMeters") == right.GetFloat("_TileMeters") &&
+        left.GetFloat("_VertexSurface") == right.GetFloat("_VertexSurface") &&
+        left.GetTexture("_Gravel") == right.GetTexture("_Gravel") &&
+        left.GetTexture("_GravelNormal") == right.GetTexture("_GravelNormal") &&
+        left.GetTexture("_Surface") == right.GetTexture("_Surface");
+};
+try
+{
+    int complete = 0, connections = 0, checkpoints = 0;
+    var unsupported = new System.Collections.Generic.List<string>();
+    foreach (var path in pathCenters)
+    {
+        Vector3? previousPoint = null;
+        for (int i = 0; ; i = Mathf.Min(i + 40, path.Length - 1))
+        {
+            Vector2 p = path[i];
+            float y = terrain.SampleHeight(new Vector3(p.x,0f,p.y)) + origin.y;
+            UnityEngine.AI.NavMeshHit hit;
+            bool hasSupport = UnityEngine.AI.NavMesh.SamplePosition(new Vector3(p.x,y,p.y), out hit, 1.5f, UnityEngine.AI.NavMesh.AllAreas);
+            checkpoints++;
+            if (!hasSupport)
+            {
+                unsupported.Add(string.Format(System.Globalization.CultureInfo.InvariantCulture, "[{0:F2},{1:F2}]", p.x,p.y));
+                // 기존 R5 서·남쪽 접속 바깥의 미발행 지점은 리포트에 남긴다.
+                if (path == pathCenters[0] || (p.x >= 3707f && p.y >= 1720f))
+                    errors.Add("NavMesh 지지 누락 " + p);
+            }
+            else if (previousPoint.HasValue)
+            {
+                var route = new UnityEngine.AI.NavMeshPath();
+                for (int direction = 0; direction < 2; direction++)
+                {
+                    Vector3 first = direction == 0 ? previousPoint.Value : hit.position;
+                    Vector3 second = direction == 0 ? hit.position : previousPoint.Value;
+                    connections++;
+                    if (UnityEngine.AI.NavMesh.CalculatePath(first, second, UnityEngine.AI.NavMesh.AllAreas, route) &&
+                        route.status == UnityEngine.AI.NavMeshPathStatus.PathComplete)
+                        complete++;
+                    else errors.Add("NavMesh 경로 누락 " + first + " → " + second);
+                }
+            }
+            previousPoint = hasSupport ? (Vector3?)hit.position : null;
+            if (i == path.Length - 1) break;
+        }
+    }
+    string stats = string.Format(System.Globalization.CultureInfo.InvariantCulture,
+        ",\n  \"checkpoints\": {0},\n  \"navmeshComplete\": {1},\n  \"navmeshAttempts\": {2},\n  \"shoulderStones\": {3},\n  \"surfaceMeshSha256\": \"{4}\",\n  \"sceneryMeshSha256\": \"{5}\",\n  \"existingNavmeshSupportMissesXZ\": [{6}]\n}}\n",
+        checkpoints, complete, connections, stones.Count, fingerprint(merged), fingerprint(scree), string.Join(",", unsupported));
+    string report = json.ToString().TrimEnd();
+    report = report.Remove(report.LastIndexOf('}')).TrimEnd() + stats;
+    System.IO.File.WriteAllText(reportPath, report);
+    if (errors.Count > 0) throw new InvalidOperationException(string.Join("\n",errors));
+    if (action == "validate") return report;
+    if (action != "apply" && action != "verify") throw new InvalidOperationException("지원하지 않는 도로 작업");
+
+    var previous = AssetDatabase.LoadMainAssetAtPath(assetPath);
+    UnityEngine.Object[] saved = previous == null ? null : assets.Select(candidate =>
+        AssetDatabase.LoadAllAssetsAtPath(assetPath).Single(a => a.GetType() == candidate.GetType() && a.name == candidate.name)).ToArray();
+    var dressing = road.transform.Find(dressingName);
+    if (action == "verify")
+    {
+        if (saved == null || !assets.Select((a,i)=>same(a,saved[i])).All(match=>match) ||
+            road.sharedMesh != saved[0] || mainRoad.sharedMesh != saved[1] || renderer.sharedMaterial != saved[3] ||
+            outlookRenderer.enabled || dressing == null || dressing.GetComponent<MeshFilter>().sharedMesh != saved[2] ||
+            dressing.GetComponent<MeshRenderer>().sharedMaterial != stoneMaterial || dressing.GetComponent<Collider>() != null)
+            throw new InvalidOperationException("저장한 노면, 재질, 원본 접속 또는 노견이 다릅니다.");
+        return report;
+    }
+
+    Undo.IncrementCurrentGroup();
+    int undoGroup = Undo.GetCurrentGroup();
+    Undo.SetCurrentGroupName("R5 해안길 2차 마감");
+    bool created = false;
+    try
+    {
+        if (saved == null)
+        {
+            AssetDatabase.CreateAsset(merged, assetPath);
+            created = true;
+            foreach (var item in assets.Skip(1)) AssetDatabase.AddObjectToAsset(item, merged);
+            saved = assets;
+            AssetDatabase.SaveAssetIfDirty(merged);
+            AssetDatabase.ImportAsset(assetPath, ImportAssetOptions.ForceSynchronousImport);
+        }
+        else
+        {
+            for (int i = 0; i < assets.Length; i++)
+            {
+                if (same(assets[i],saved[i])) continue;
+                Undo.RegisterCompleteObjectUndo(saved[i], "해안길 에셋 갱신");
+                EditorUtility.CopySerialized(assets[i],saved[i]);
+                EditorUtility.SetDirty(saved[i]);
+                AssetDatabase.SaveAssetIfDirty(saved[i]);
+            }
+        }
+        if (road.sharedMesh != saved[0] || mainRoad.sharedMesh != saved[1] || renderer.sharedMaterial != saved[3] || outlookRenderer.enabled)
+        {
+            Undo.RecordObjects(new UnityEngine.Object[] { road, mainRoad, renderer, outlookRenderer }, "해안길 표면 교체");
+            road.sharedMesh = (Mesh)saved[0];
+            mainRoad.sharedMesh = (Mesh)saved[1];
+            renderer.sharedMaterial = (Material)saved[3];
+            outlookRenderer.enabled = false;
+        }
+        if (dressing == null)
+        {
+            var go = new GameObject(dressingName);
+            go.transform.SetParent(road.transform, false);
+            go.AddComponent<MeshFilter>().sharedMesh = (Mesh)saved[2];
+            go.AddComponent<MeshRenderer>().sharedMaterial = stoneMaterial;
+            Undo.RegisterCreatedObjectUndo(go, "사암 노견");
+        }
+        Undo.FlushUndoRecordObjects();
+        if (scene.isDirty && !UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene))
+            throw new InvalidOperationException("씬을 저장하지 못했습니다.");
+        Undo.CollapseUndoOperations(undoGroup);
+    }
+    catch
+    {
+        Undo.RevertAllDownToGroup(undoGroup);
+        if (created) AssetDatabase.DeleteAsset(assetPath);
+        else if (saved != null) foreach (var item in saved) AssetDatabase.SaveAssetIfDirty(item);
+        throw;
+    }
+    return report;
+}
+finally
+{
+    foreach (var item in assets)
+        if (item != null && !AssetDatabase.Contains(item)) UnityEngine.Object.DestroyImmediate(item);
+}
+

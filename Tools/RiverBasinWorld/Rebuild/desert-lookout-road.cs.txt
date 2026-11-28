@@ -1,0 +1,255 @@
+// Unity MCP execute_code에서 실행한다. 기본은 검사, apply는 이 구간의 표면만 저장한다.
+const string world = "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34";
+const string meshName = "RiverBasinLookoutRoad";
+const string assetPath = world + "/Production/RegionArt/" + meshName + ".asset";
+const string reportPath = "docs/work-status/river-basin-road-evidence/corridor.json";
+const string action = "validate"; // validate, apply, verify
+const float spacing = .5f;
+const float core = 2.3f;
+const float shoulder = 5.8f;
+const float minimumRadius = 6f;
+const float maximumGrade = 25f;
+
+var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+if (scene.path != world + "/Preview/RiverBasin4km.unity" || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("저장된 RiverBasin4km 편집 씬이 필요합니다.");
+
+var terrain = Terrain.activeTerrains.Single(t => t.gameObject.scene == scene && t.transform.position.x == 3584 && t.transform.position.z == 1536);
+var road = scene.GetRootGameObjects().SelectMany(o => o.GetComponentsInChildren<MeshFilter>(true)).Single(o => o.name == "해안 전망대 샛길");
+var renderer = road.GetComponent<MeshRenderer>();
+if (renderer == null || !renderer.enabled || renderer.sharedMaterial == null ||
+    renderer.sharedMaterial.shader.name != "UPlayground/Environment/River Basin Trail")
+    throw new InvalidOperationException("기존 샛길 셰이더와 렌더러를 확인하세요.");
+var timer = System.Diagnostics.Stopwatch.StartNew();
+var ground = terrain.terrainData;
+var origin = terrain.transform.position;
+var size = ground.size;
+var anchors = new[]{
+    new Vector2(3724,1738), new Vector2(3746,1744), new Vector2(3777,1746),
+    new Vector2(3790,1760), new Vector2(3811,1760), new Vector2(3840,1757),
+    new Vector2(3866,1767), new Vector2(3897,1778), new Vector2(3918,1783),
+    new Vector2(3923,1784.5f)
+};
+
+// 기존 노면을 후보 회랑의 출발점으로 삼고 암석을 피하는 국소 꺾임만 둥글린다.
+var dense = new System.Collections.Generic.List<Vector2> { anchors[0] };
+for (int i = 1; i < anchors.Length - 1; i++)
+{
+    Vector2 p = anchors[i], incoming = anchors[i - 1] - p, outgoing = anchors[i + 1] - p;
+    float trim = Mathf.Min(9f, .45f * Mathf.Min(incoming.magnitude, outgoing.magnitude));
+    Vector2 a = p + incoming.normalized * trim, b = p + outgoing.normalized * trim;
+    dense.Add(a);
+    for (int j = 1; j <= 32; j++)
+    {
+        float u = j / 32f;
+        dense.Add(Vector2.Lerp(Vector2.Lerp(a, p, u), Vector2.Lerp(p, b, u), u));
+    }
+}
+dense.Add(anchors.Last());
+
+var arc = new float[dense.Count];
+for (int i = 1; i < arc.Length; i++)
+    arc[i] = arc[i - 1] + Vector2.Distance(dense[i - 1], dense[i]);
+float length = arc.Last();
+int sections = Mathf.CeilToInt(length / spacing);
+var path = new Vector2[sections + 1];
+for (int i = 0, k = 1; i <= sections; i++)
+{
+    float distance = length * i / sections;
+    while (k < arc.Length - 1 && arc[k] < distance) k++;
+    path[i] = Vector2.Lerp(dense[k - 1], dense[k], Mathf.InverseLerp(arc[k - 1], arc[k], distance));
+}
+
+const int halfIntervals = 12;
+const int columns = 2 * halfIntervals + 1;
+var vertices = new Vector3[path.Length * columns];
+var normals = new Vector3[vertices.Length];
+var colors = new Color32[vertices.Length];
+var faces = new int[sections * (columns - 1) * 6];
+var colliders = new Collider[32];
+var blockers = new System.Collections.Generic.HashSet<string>();
+var worst = new Vector2[3];
+var worstMeters = new float[3];
+float radius = float.PositiveInfinity, grade = 0, cross = 0, coreGrade = 0, coreCross = 0;
+Physics.SyncTransforms();
+
+for (int i = 0; i < path.Length; i++)
+{
+    Vector2 p = path[i], a = path[Mathf.Max(0, i - 1)], b = path[Mathf.Min(path.Length - 1, i + 1)];
+    var tangent = (b - a).normalized;
+    var side = new Vector2(-tangent.y, tangent.x);
+    float distance = length * i / sections;
+    float startBlend = Mathf.SmoothStep(0f, 1f, distance / 12f);
+    float finishBlend = Mathf.SmoothStep(0f, 1f, (length - distance) / 14f);
+    float widthScale = Mathf.Lerp(.52f, 1f, startBlend) * Mathf.Lerp(.63f, 1f, finishBlend);
+    float endWeight = Mathf.Lerp(.19f, 1f, Mathf.SmoothStep(0f, 1f, distance / 4f))
+        * Mathf.SmoothStep(0f, 1f, (length - distance) / 6f);
+    if (i > 0 && i < sections)
+    {
+        float angle = Vector2.Angle(p - a, b - p) * Mathf.Deg2Rad;
+        if (angle > .0001f)
+        {
+            float current = (Vector2.Distance(p, a) + Vector2.Distance(p, b)) * .5f / angle;
+            if (current < radius) { radius = current; worst[0] = p; worstMeters[0] = distance; }
+        }
+    }
+    for (int j = 0; j < columns; j++)
+    {
+        int v = i * columns + j;
+        float offset = (j - halfIntervals) / (float)halfIntervals * shoulder;
+        var q = p + side * offset;
+        float u = (q.x - origin.x) / size.x, w = (q.y - origin.z) / size.z;
+        if (u <= 0f || u >= 1f || w <= 0f || w >= 1f || ground.IsHole((int)(u * ground.holesResolution), (int)(w * ground.holesResolution)))
+            throw new InvalidOperationException("지면 누락 " + q);
+        float y = ground.GetInterpolatedHeight(u, w) + origin.y;
+        var foot = new Vector3(q.x, y, q.y);
+        vertices[v] = road.transform.InverseTransformPoint(foot + Vector3.up * .035f);
+        normals[v] = road.transform.InverseTransformDirection(ground.GetInterpolatedNormal(u, w));
+        float erosion = Mathf.PerlinNoise(q.x * .39f + 3.7f, q.y * .39f + 8f) - .5f;
+        float variation = Mathf.PerlinNoise(p.x * .064f, p.y * .064f) - .5f;
+        float fade = 1f - Mathf.SmoothStep(0f, 1f, (Mathf.Abs(offset) / widthScale - core - variation * .65f + erosion * .55f) / (shoulder - core - .7f));
+        float coverage = Mathf.Clamp01(fade * endWeight * (.66f + variation * .10f + erosion * .06f));
+        colors[v] = new Color32(255, 255, 255, (byte)Mathf.RoundToInt(coverage * 255f));
+
+        if (i > 0)
+        {
+            var delta = vertices[v] - vertices[v - columns];
+            float angle = Mathf.Atan2(Mathf.Abs(delta.y), new Vector2(delta.x, delta.z).magnitude) * Mathf.Rad2Deg;
+            if (Mathf.Abs(offset) <= core) coreGrade = Mathf.Max(coreGrade, angle);
+            if (angle > grade) { grade = angle; worst[1] = q; worstMeters[1] = distance; }
+        }
+        if (j > 0)
+        {
+            float angle = Mathf.Atan2(Mathf.Abs(vertices[v].y - vertices[v - 1].y), shoulder / halfIntervals) * Mathf.Rad2Deg;
+            if (Mathf.Abs(offset - shoulder / halfIntervals * .5f) <= core) coreCross = Mathf.Max(coreCross, angle);
+            if (angle > cross) { cross = angle; worst[2] = q; worstMeters[2] = distance; }
+        }
+        int count = Physics.OverlapCapsuleNonAlloc(foot + Vector3.up * .45f, foot + Vector3.up * 1.5f, .33f, colliders, ~0, QueryTriggerInteraction.Ignore);
+        if (count == colliders.Length) throw new InvalidOperationException("충돌 검사 버퍼 초과 " + q);
+        for (int hit = 0; hit < count; hit++)
+            if (!(colliders[hit] is TerrainCollider)) blockers.Add(colliders[hit].name + " @ " + q);
+
+        if (i == 0 || j == 0) continue;
+        int f = ((i - 1) * (columns - 1) + j - 1) * 6;
+        faces[f] = v - columns - 1; faces[f + 1] = v - 1; faces[f + 2] = v - columns;
+        faces[f + 3] = v - 1; faces[f + 4] = v; faces[f + 5] = v - columns;
+    }
+}
+
+var failures = new System.Collections.Generic.List<string>();
+if (radius < minimumRadius) failures.Add("최소 회전 반경");
+if (grade > maximumGrade || cross > maximumGrade) failures.Add("경사 상한");
+if (blockers.Count > 0) failures.Add("통행 회랑 충돌");
+var json = new System.Text.StringBuilder();
+var invariant = System.Globalization.CultureInfo.InvariantCulture;
+json.AppendFormat(invariant, "{{\n  \"edge\": \"R5-lookout\",\n  \"lengthMeters\": {0:F3},\n  \"checkCount\": {1},\n  \"corridorWidthMeters\": {2:F2},\n  \"blockerCount\": {3},\n  \"coreGradeDeg\": {4:F3},\n  \"coreCrossGradeDeg\": {5:F3},\n  \"terrainHeightDeltaMeters\": 0,\n  \"violations\": [\n", length, vertices.Length, shoulder * 2f, blockers.Count, coreGrade, coreCross);
+var checks = new[] { "minimumRadiusMeters", "maximumGradeDeg", "maximumCrossGradeDeg" };
+var results = new[] { radius, grade, cross };
+var limits = new[] { minimumRadius, maximumGrade, maximumGrade };
+for (int i = 0; i < checks.Length; i++)
+{
+    bool passed = i == 0 ? results[i] >= limits[i] : results[i] <= limits[i];
+    json.AppendFormat(invariant, "    {{\"check\": \"{0}\", \"distanceMeters\": {1:F3}, \"x\": {2:F3}, \"z\": {3:F3}, \"actual\": {4:F3}, \"limit\": {5:F3}, \"severity\": \"{6}\"}}{7}\n", checks[i], worstMeters[i], worst[i].x, worst[i].y, results[i], limits[i], passed ? "pass" : "error", i == checks.Length - 1 ? "" : ",");
+}
+json.AppendLine("  ],");
+System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(reportPath));
+
+
+var mesh = new Mesh { name = meshName };
+mesh.vertices = vertices;
+mesh.normals = normals;
+mesh.colors32 = colors;
+mesh.triangles = faces;
+mesh.RecalculateBounds();
+if (Vector3.Dot(Vector3.Cross(vertices[faces[1]] - vertices[faces[0]], vertices[faces[2]] - vertices[faces[0]]), normals[faces[0]]) < 0)
+{
+    for (int i = 0; i < faces.Length; i += 3)
+    {
+        int swap = faces[i + 1];
+        faces[i + 1] = faces[i + 2];
+        faces[i + 2] = swap;
+    }
+    mesh.triangles = faces;
+}
+
+Func<Mesh,string> fingerprint = candidate =>
+{
+    using (var bytes = new System.IO.MemoryStream())
+    using (var writer = new System.IO.BinaryWriter(bytes))
+    using (var sha = System.Security.Cryptography.SHA256.Create())
+    {
+        foreach (var v in candidate.vertices) { writer.Write(v.x); writer.Write(v.y); writer.Write(v.z); }
+        foreach (var n in candidate.normals) { writer.Write(n.x); writer.Write(n.y); writer.Write(n.z); }
+        foreach (var c in candidate.colors32) writer.Write(c.a);
+        foreach (int f in candidate.triangles) writer.Write(f);
+        writer.Flush();
+        bytes.Position = 0;
+        return System.BitConverter.ToString(sha.ComputeHash(bytes)).Replace("-", "").ToLowerInvariant();
+    }
+};
+string hash = fingerprint(mesh);
+json.AppendFormat(invariant, "  \"meshSha256\": \"{0}\",\n  \"geometryAndChecksMilliseconds\": {1}\n}}\n", hash, timer.ElapsedMilliseconds);
+try
+{
+    System.IO.File.WriteAllText(reportPath, json.ToString());
+    if (failures.Count > 0) throw new InvalidOperationException(string.Join(", ", failures) + "\n" + string.Join("\n", blockers));
+    if (action == "validate") return json.ToString();
+
+    var previous = AssetDatabase.LoadMainAssetAtPath(assetPath);
+    var saved = previous as Mesh;
+    if (previous != null && (saved == null || saved.name != mesh.name))
+        throw new InvalidOperationException("출력 경로에 다른 에셋이 있습니다.");
+
+    if (action == "verify")
+    {
+        if (saved == null || road.sharedMesh != saved || fingerprint(saved) != hash)
+            throw new InvalidOperationException("저장 씬 참조 또는 재생성 해시가 다릅니다.");
+        return json.ToString();
+    }
+    if (action != "apply") throw new InvalidOperationException("지원하지 않는 도로 작업");
+
+    Undo.IncrementCurrentGroup();
+    int group = Undo.GetCurrentGroup();
+    Undo.SetCurrentGroupName("해안 전망대 샛길 Bake");
+    bool created = false;
+    try
+    {
+        if (saved == null)
+        {
+            AssetDatabase.CreateAsset(mesh, assetPath);
+            created = true;
+            saved = mesh;
+        }
+        else if (fingerprint(saved) != hash)
+        {
+            Undo.RegisterCompleteObjectUndo(saved, "샛길 메시 갱신");
+            EditorUtility.CopySerialized(mesh, saved);
+            EditorUtility.SetDirty(saved);
+        }
+        AssetDatabase.SaveAssetIfDirty(saved);
+        if (road.sharedMesh != saved)
+        {
+            Undo.RecordObject(road, "샛길 노면 연결");
+            road.sharedMesh = saved;
+            EditorUtility.SetDirty(road);
+            Undo.FlushUndoRecordObjects();
+            UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+        }
+        if (scene.isDirty && !UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene))
+            throw new InvalidOperationException("씬을 저장하지 못했습니다.");
+        Undo.CollapseUndoOperations(group);
+        return json.ToString();
+    }
+    catch
+    {
+        Undo.RevertAllDownToGroup(group);
+        if (created) AssetDatabase.DeleteAsset(assetPath);
+        else if (saved != null) AssetDatabase.SaveAssetIfDirty(saved);
+        throw;
+    }
+}
+finally
+{
+    if (mesh != null && !AssetDatabase.Contains(mesh)) UnityEngine.Object.DestroyImmediate(mesh);
+}
+

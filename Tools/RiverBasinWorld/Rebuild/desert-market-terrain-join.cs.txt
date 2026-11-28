@@ -1,0 +1,105 @@
+// 사암 암반 뒤에 지형 사면을 연결하고 석회벽·옹벽 재질을 맞춘다.
+const string world="Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34";
+const string path=world+"/Production/RegionArt/RiverBasinDesertMarketComposition.asset";
+var scene=UnityEngine.SceneManagement.SceneManager.GetSceneByName("RiverBasin4km");
+var market=scene.GetRootGameObjects().Single(g=>g.name=="RiverBasin · 사막 물길과 해안 전망대").transform.GetChild(1);
+var work=market.Find("절벽 단과 우물 시장 골목");
+var relief=work.Find("지형에 묻은 사암 절벽과 사면");
+var main=AssetDatabase.LoadMainAssetAtPath(path);
+var sand=AssetDatabase.LoadAssetAtPath<TerrainLayer>(world+"/Production/Layers/Sandstone.terrainlayer");
+var shader=Shader.Find("Universal Render Pipeline/Lit");
+var paths=AssetDatabase.GetAllAssetPaths();
+Func<string,Texture2D> t=name=>AssetDatabase.LoadAssetAtPath<Texture2D>(paths.First(p=>p.EndsWith("/"+name+".tga")));
+var wallAlbedo=t("T_Farm_BrickWall_02_C");var wallNormal=t("T_Farm_BrickWall_02_N");
+var dirtAlbedo=t("T_Farm_DirtCobblestone_C");var dirtNormal=sand.normalMapTexture;
+var tileNames=new[]{"Terrain_6_3","Terrain_7_3"};
+var targets=Terrain.activeTerrains.Where(t0=>t0.gameObject.scene==scene&&tileNames.Contains(t0.name)).ToArray();
+if(targets.Length!=2||targets.Any(t0=>t0.terrainData.name.Contains("DesertMarketRidge")))throw new InvalidOperationException("사암 지형 원본이 이미 교체되었거나 누락되었습니다.");
+var terrainPlans=new System.Collections.Generic.List<System.Tuple<Terrain,TerrainData,string>>();
+float maxDelta=0;int changed=0;
+foreach(var tile in targets){
+    var source=tile.terrainData;
+    var newPath=world+"/Production/Terrain/"+tile.name+"_DesertMarketRidge.asset";
+    if(AssetDatabase.LoadMainAssetAtPath(newPath))throw new InvalidOperationException("이미 있는 지형 복제본 "+newPath);
+    var copy=UnityEngine.Object.Instantiate(source);copy.name=tile.name+"_DesertMarketRidge";
+    int n=copy.heightmapResolution, resolution=copy.alphamapResolution,layers=copy.alphamapLayers;
+    var ground=source.GetHeights(0,0,n,n);
+    var color=source.alphamapTextures.Select(a=>a.GetPixels32()).ToArray();
+    var weights=new float[resolution,resolution,layers];
+    for(int z=0;z<resolution;z++)for(int x=0;x<resolution;x++)for(int l=0;l<layers;l++){
+       var p=color[l/4][z*resolution+x];
+       weights[z,x,l]=(l%4==0?p.r:l%4==1?p.g:l%4==2?p.b:p.a)/255f;
+    }
+    copy.SetAlphamaps(0,0,weights);
+    var pos=tile.transform.position;
+    for(int row=0;row<n;row++)for(int col=0;col<n;col++){
+       float x=pos.x+copy.size.x*col/(n-1),z=pos.z+copy.size.z*row/(n-1);
+       if(x<3488||x>3668||z<1544||z>1734)continue;
+       float u=(x-3574)/82f;float dz=(z-1614)-.45f*(3574-x);
+       float v=dz/(dz<0?42f:57f);
+       float crest=22f*Mathf.Exp(-u*u*1.65f-v*v*1.78f);
+       float ins=(x-3627)/37f,j=(z-1589)/36f;
+       float above=15f*Mathf.Exp(-ins*ins*1.6f-j*j*1.38f);
+       float curtain=Mathf.SmoothStep(0,1,(x-3488)/46)*Mathf.SmoothStep(0,1,(3668-x)/31)
+         *Mathf.SmoothStep(0,1,(z-1544)/22)*Mathf.SmoothStep(0,1,(1734-z)/59);
+       float delta=(crest+above)*curtain*(.91f+.19f*Mathf.PerlinNoise(x*.057f,z*.057f));
+       if(delta<.015f)continue;
+       ground[row,col]+=delta/copy.size.y;changed++;maxDelta=Mathf.Max(delta,maxDelta);
+    }
+    copy.SetHeights(0,0,ground);
+    terrainPlans.Add(Tuple.Create(tile,copy,newPath));
+}
+var sorted=terrainPlans.OrderBy(p=>p.Item1.transform.position.x).ToArray();
+int seamN=sorted[0].Item2.heightmapResolution;
+var left=sorted[0].Item2.GetHeights(seamN-1,0,1,seamN);var right=sorted[1].Item2.GetHeights(0,0,1,seamN);
+if(Enumerable.Range(0,seamN).Any(i=>Mathf.Abs(left[i,0]-right[i,0])>.00008f))throw new InvalidOperationException("사암 사면 타일 사이 높이 차이");
+Undo.IncrementCurrentGroup();int group=Undo.GetCurrentGroup();Undo.SetCurrentGroupName("사암 절벽 지형 접합과 외장 재질");
+try{
+    foreach(var terrain in terrainPlans){
+       var collider=terrain.Item1.GetComponent<TerrainCollider>();
+       Undo.RecordObjects(new UnityEngine.Object[]{terrain.Item1,collider},"사암 사면 데이터 연결");
+       AssetDatabase.CreateAsset(terrain.Item2,terrain.Item3);
+       terrain.Item1.terrainData=terrain.Item2;collider.terrainData=terrain.Item2;terrain.Item1.Flush();
+       AssetDatabase.SaveAssetIfDirty(terrain.Item2);
+    }
+    var old=market.Find("교역소를 감싸는 사암 단애");
+    foreach(var rr in old.GetComponentsInChildren<Renderer>(true)){Undo.RecordObject(rr,"구형 단애 렌더링 보관");rr.enabled=false;}
+    var rockMats=new Material[4];
+    var colors=new[]{new Color(1.29f,.95f,.73f),new Color(1.38f,1.05f,.82f),new Color(1.17f,.84f,.66f),new Color(1.32f,.99f,.78f)};
+    for(int i=0;i<rockMats.Length;i++){
+      var m=new Material(shader){name="지형 단 적층 사암 "+i};
+      m.SetColor("_BaseColor",colors[i]);m.SetTexture("_BaseMap",sand.diffuseTexture);
+      m.SetTextureScale("_BaseMap",new Vector2(4.8f,4.8f));m.SetTexture("_BumpMap",sand.normalMapTexture);
+      m.SetTextureScale("_BumpMap",new Vector2(4.8f,4.8f));m.SetFloat("_BumpScale",.58f);m.SetFloat("_Smoothness",.12f);
+      m.EnableKeyword("_NORMALMAP");AssetDatabase.AddObjectToAsset(m,path);rockMats[i]=m;
+    }
+    int ordinal=0;
+    foreach(var cliff in relief.Cast<Transform>()){
+       var mat=rockMats[(ordinal*5+ordinal/3)%rockMats.Length];ordinal++;
+       foreach(var rr in cliff.GetComponentsInChildren<MeshRenderer>(true)){
+         Undo.RecordObject(rr,"절벽 사암 외장 연결");
+         rr.sharedMaterials=rr.sharedMaterials.Select(a=>mat).ToArray();PrefabUtility.RecordPrefabInstancePropertyModifications(rr);
+       }
+    }
+    foreach(var m in AssetDatabase.LoadAllAssetsAtPath(path).OfType<Material>().Where(a=>a.name=="오래된 붉은 사암"||a.name=="단 가장자리 밝은 석재"||a.name=="빗물에 밴 돌"||a==main)){
+      Undo.RecordObject(m,"절석 단 겉면 재질");
+      bool floor=m==main;
+      m.SetColor("_BaseColor",floor?new Color(1.07f,.95f,.81f):new Color(1.07f,.86f,.69f));
+      m.SetTexture("_BaseMap",floor?dirtAlbedo:wallAlbedo);m.SetTexture("_BumpMap",floor?dirtNormal:wallNormal);
+      m.SetTextureScale("_BaseMap",floor?new Vector2(.92f,.92f):new Vector2(.47f,.57f));
+      m.SetTextureScale("_BumpMap",m.GetTextureScale("_BaseMap"));m.EnableKeyword("_NORMALMAP");
+      EditorUtility.SetDirty(m);
+    }
+    var plaster=AssetDatabase.LoadAllAssetsAtPath(path).OfType<Material>().Single(m=>m.name=="상부 단 밝은 석회 미장");
+    plaster.SetColor("_BaseColor",new Color(1.19f,1.09f,.95f));EditorUtility.SetDirty(plaster);
+    var lower=market.Find("우물 교역소 건축");
+    foreach(var rr in lower.GetComponentsInChildren<MeshRenderer>(true)){
+       if(!rr.sharedMaterials.Any(m=>m&&m.name=="RiverBasinDesertArchitecture"))continue;
+       Undo.RecordObject(rr,"교역소 석회 미장");
+       rr.sharedMaterials=rr.sharedMaterials.Select(m=>m&&m.name=="RiverBasinDesertArchitecture"?plaster:m).ToArray();
+       PrefabUtility.RecordPrefabInstancePropertyModifications(rr);
+    }
+    EditorUtility.SetDirty(main);AssetDatabase.SaveAssetIfDirty(main);
+    Undo.CollapseUndoOperations(group);UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+    return "절벽 지형 연결 "+changed+" 표본, 2개 타일, 높이 추가 최대 "+maxDelta.ToString("F1")+"m.";
+}catch{Undo.RevertAllDownToGroup(group);throw;}

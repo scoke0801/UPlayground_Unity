@@ -1,0 +1,65 @@
+// 청크 경계의 노멀을 공유해 단애의 세로 줄을 없애고, 충돌은 국소 청크를 유지한다.
+const string world="Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34";
+const string asset=world+"/Production/RegionArt/RiverBasinDesertEscarpment.asset";
+var scene=UnityEngine.SceneManagement.SceneManager.GetSceneByPath(world+"/Preview/RiverBasin4km.unity");
+if(!scene.isLoaded||EditorApplication.isPlayingOrWillChangePlaymode)throw new InvalidOperationException("편집 씬 필요");
+if(scene.isDirty){
+    var check=scene.path.Replace("RiverBasin4km.unity","__EscarpmentRenderCheck.unity");
+    if(System.IO.File.Exists(check)||!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene,check,true)||
+        System.IO.File.ReadAllText(check)!=System.IO.File.ReadAllText(scene.path))
+        throw new InvalidOperationException("편집 중인 씬 확인 필요");
+}
+var root=scene.GetRootGameObjects().Single(g=>g.name.StartsWith("RiverBasin · 사막")).transform
+    .Find("붉은 사암골과 옛 취수장").Find("사암 단애와 침식 골짜기");
+var layer=AssetDatabase.LoadAssetAtPath<TerrainLayer>(world+"/Production/Layers/FineDesertSand.terrainlayer");
+var reference=AssetDatabase.LoadAssetAtPath<Material>(asset);
+var cap=AssetDatabase.LoadAllAssetsAtPath(asset).OfType<Material>().Single(m=>m.name=="모래가 덮인 절벽 마루");
+Undo.IncrementCurrentGroup();int undo=Undo.GetCurrentGroup();
+try{
+    Undo.RecordObject(cap,"사암 마루의 모래 표면");
+    cap.SetTexture("_BaseMap",layer.diffuseTexture);
+    cap.SetTexture("_BumpMap",layer.normalMapTexture);
+    cap.SetColor("_BaseColor",new Color(.93f,.86f,.80f));
+    cap.SetFloat("_BumpScale",.34f);
+    var totals=new System.Collections.Generic.List<string>();
+    foreach(string prefix in new[]{"해안 사암 단애","시장 쪽 낮은 암벽"}){
+        if(root.Find(prefix+" 표면"))throw new InvalidOperationException("표면이 이미 연결됨");
+        var parts=root.Cast<Transform>().Where(g=>g.name.StartsWith(prefix+" ",StringComparison.Ordinal)).ToArray();
+        var mats=parts[0].GetComponent<MeshRenderer>().sharedMaterials;
+        var anchor=parts[0].position;
+        var vertices=new System.Collections.Generic.List<Vector3>();
+        var uv=new System.Collections.Generic.List<Vector2>();
+        var ids=mats.Select(_=>new System.Collections.Generic.List<int>()).ToArray();
+        float seam=0;
+        for(int i=0;i<parts.Length;i++){
+            var piece=parts[i];var mesh=piece.GetComponent<MeshFilter>().sharedMesh;
+            var points=mesh.vertices.Select(v=>piece.TransformPoint(v)-anchor).ToArray();
+            const int heightRows=14;
+            int skip=i==0?0:heightRows, offset=vertices.Count-skip;
+            if(skip>0)for(int j=0;j<skip;j++)seam=Mathf.Max(seam,Vector3.Distance(vertices[offset+j],points[j]));
+            vertices.AddRange(points.Skip(skip));uv.AddRange(mesh.uv.Skip(skip));
+            for(int k=0;k<mats.Length;k++)ids[k].AddRange(mesh.GetTriangles(k).Select(j=>offset+j));
+            var renderer=piece.GetComponent<MeshRenderer>();
+            Undo.RecordObject(renderer,"암벽 표면 통합");
+            renderer.enabled=false;
+        }
+        if(seam>.001f)throw new InvalidOperationException("절벽 청크 위치 오차 "+seam);
+        var surface=new Mesh{name=prefix+" 표면"};
+        surface.vertices=vertices.ToArray();surface.uv=uv.ToArray();surface.subMeshCount=mats.Length;
+        for(int k=0;k<mats.Length;k++)surface.SetTriangles(ids[k],k);
+        surface.RecalculateNormals();surface.RecalculateTangents();surface.RecalculateBounds();
+        var go=new GameObject(surface.name);
+        go.transform.SetParent(root,false);go.transform.position=anchor;
+        Undo.RegisterCreatedObjectUndo(go,go.name);
+        go.AddComponent<MeshFilter>().sharedMesh=surface;
+        go.AddComponent<MeshRenderer>().sharedMaterials=mats;
+        AssetDatabase.AddObjectToAsset(surface,asset);
+        totals.Add(prefix+" "+vertices.Count+"정점, 접합 오차 "+seam+"m");
+    }
+    EditorUtility.SetDirty(cap);
+    AssetDatabase.SaveAssetIfDirty(reference);
+    UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+    if(!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene))throw new InvalidOperationException("씬 저장 실패");
+    Undo.CollapseUndoOperations(undo);
+    return string.Join("\n",totals);
+}catch{Undo.RevertAllDownToGroup(undo);throw;}

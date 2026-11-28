@@ -1,0 +1,316 @@
+// 저장된 RiverBasin4km의 남동쪽 사구와 취수장을 저작한다.
+const string world = "Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34";
+const string asset = world + "/Production/RegionArt/RiverBasinDesertWaterworks.asset";
+const string terrainAsset = world + "/Production/Terrain/Terrain_7_2_DesertWaterworks.asset";
+const string authoring = world + "/Authoring/DesertWaterworks/";
+const string groupName = "붉은 사암골과 옛 취수장";
+var scene = UnityEngine.SceneManagement.SceneManager.GetSceneByPath(world + "/Preview/RiverBasin4km.unity");
+if (!scene.isLoaded || scene.isDirty || EditorApplication.isPlayingOrWillChangePlaymode)
+    throw new InvalidOperationException("저장된 RiverBasin4km 편집 씬이 필요합니다.");
+var roots = scene.GetRootGameObjects();
+var region = roots.Single(g => g.name == "RiverBasin · 사막 물길과 해안 전망대").transform;
+if (region.Find(groupName) || AssetDatabase.LoadMainAssetAtPath(asset) || AssetDatabase.LoadMainAssetAtPath(terrainAsset))
+    throw new InvalidOperationException("기존 취수장 산출물이 있습니다.");
+
+var tiles = Terrain.activeTerrains.Where(t => t.gameObject.scene == scene).ToArray();
+var tile = tiles.Single(t => t.name == "Terrain_7_2");
+var collider = tile.GetComponent<TerrainCollider>();
+var original = tile.terrainData;
+if (AssetDatabase.GetAssetPath(original) != world + "/Production/Terrain/Terrain_7_2_DesertDunes.asset" || collider.terrainData != original)
+    throw new InvalidOperationException("사구 TerrainData가 다릅니다.");
+var texture = AssetDatabase.LoadAssetAtPath<Texture2D>(authoring + "Waterworks_Sandstone.png");
+var model = AssetDatabase.LoadAssetAtPath<GameObject>(authoring + "SM_DesertWindWaterworks.fbx");
+var lit = Shader.Find("Universal Render Pipeline/Lit");
+var landscape = AssetDatabase.LoadAllAssetsAtPath(world + "/Production/RegionArt/RiverBasinDesertLandscape.asset").OfType<Material>().ToArray();
+var canal = landscape.Single(m => m.name == "좁은 관개 수면");
+var coast = AssetDatabase.LoadAllAssetsAtPath(world + "/Production/RegionArt/RiverBasinDesertCoast.asset").OfType<Material>().ToArray();
+var bark = coast.Single(m => m.name == "야자수 줄기");
+var leaves = coast.Single(m => m.name == "야자수 잎");
+var palmModels = new[] { 1, 3, 5 }.Select(i => AssetDatabase.LoadAssetAtPath<GameObject>(world + "/Authoring/DesertPalms/PalmTree_" + i + ".fbx")).ToArray();
+if (!texture || !model || !lit || palmModels.Any(g => !g))
+    throw new InvalidOperationException("취수장 원본, 셰이더 또는 야자 모델이 누락됐습니다.");
+
+var originalRocks = roots.Single(g => g.name == "동부 사암 사막").transform.Cast<Transform>()
+    .GroupBy(t => t.name).ToDictionary(g => g.Key, g => g.First());
+var mainControls = new[] {
+    new Vector2(3701.5f,1523), new Vector2(3707,1496), new Vector2(3720,1451), new Vector2(3710,1409),
+    new Vector2(3716,1373), new Vector2(3727,1333), new Vector2(3724,1290), new Vector2(3734,1258),
+    new Vector2(3752,1227), new Vector2(3761,1196), new Vector2(3785,1169), new Vector2(3812,1151),
+    new Vector2(3830,1141), new Vector2(3830,1124), new Vector2(3830,1108)
+};
+var sideControls = new[] {
+    new Vector2(3716,1373), new Vector2(3742,1350), new Vector2(3770,1323), new Vector2(3763,1285),
+    new Vector2(3779,1234), new Vector2(3801,1207), new Vector2(3806,1176), new Vector2(3812,1151)
+};
+Func<Vector2[],Vector2[]> sampleRoute = points => {
+    var samples = new System.Collections.Generic.List<Vector2>();
+    for (int i = 0; i < points.Length - 1; i++) {
+        var a = points[Mathf.Max(0,i-1)];
+        var b = points[i];
+        var c = points[i+1];
+        var d = points[Mathf.Min(points.Length-1,i+2)];
+        int steps = Mathf.CeilToInt(Vector2.Distance(b,c)/1.8f);
+        for (int j=0; j<steps; j++) {
+            float u = j/(float)steps;
+            samples.Add(.5f*((2*b)+(-a+c)*u+(2*a-5*b+4*c-d)*u*u+(-a+3*b-3*c+d)*u*u*u));
+        }
+    }
+    samples.Add(points.Last());
+    return samples.ToArray();
+};
+var main = sampleRoute(mainControls);
+var side = sampleRoute(sideControls);
+Func<Vector2,Vector2[],float> distance = (p, points) => Mathf.Sqrt(points.Min(c => (p-c).sqrMagnitude));
+Func<float,float,float> h = (x,z) => {
+    var t = tiles.First(k => x >= k.transform.position.x && z >= k.transform.position.z &&
+        x < k.transform.position.x+k.terrainData.size.x && z < k.transform.position.z+k.terrainData.size.z);
+    return t.SampleHeight(new Vector3(x,0,z))+t.transform.position.y;
+};
+Func<float,float,float> fade = (a,b) => Mathf.SmoothStep(0,1,Mathf.InverseLerp(0,b,a));
+var deposit = new[] {
+    new Vector4(3761,1411,80,17), new Vector4(3695,1283,65,15),
+    new Vector4(3687,1173,90,16), new Vector4(3930,1101,102,22),
+    new Vector4(4016,1401,95,17), new Vector4(3996,1230,91,16)
+};
+Func<Vector2,int,float> relief = (p,i) => {
+    var f = deposit[i];
+    float angle = (i==4 || i==5 ? 75 : i==3 ? 22 : i==1 ? 48 : -33)*Mathf.Deg2Rad;
+    var d = p-new Vector2(f.x,f.y);
+    float along = (d.x*Mathf.Cos(angle)+d.y*Mathf.Sin(angle))/f.z;
+    float across = -d.x*Mathf.Sin(angle)+d.y*Mathf.Cos(angle)-12*along*along+4*Mathf.Sin(5*along+i);
+    float asym = across > 0 ? 26 : 15;
+    float noise = Mathf.PerlinNoise(p.x*.068f+i,p.y*.065f)-.5f;
+    float cap = 1-along*along-Mathf.Pow(across/asym,2)+noise*.18f;
+    return f.w*Mathf.Pow(Mathf.Clamp01(cap),.82f);
+};
+Vector2 pool = new Vector2(3819,1139);
+const float poolLevel = 64.64f;
+const float ruinLevel = 65.66f;
+var origin = tile.transform.position;
+int undo = Undo.GetCurrentGroup();
+Undo.IncrementCurrentGroup();
+undo = Undo.GetCurrentGroup();
+Undo.SetCurrentGroupName(groupName);
+var generated = new System.Collections.Generic.List<UnityEngine.Object>();
+try {
+    var copy = UnityEngine.Object.Instantiate(original);
+    copy.name = "Terrain_7_2_DesertWaterworks";
+    int res = original.heightmapResolution;
+    float[,] old = original.GetHeights(0,0,res,res);
+    float[,] heights = (float[,])old.Clone();
+    int changedHeights = 0;
+    for (int z=1; z<res-1; z++) for (int x=1; x<res-1; x++) {
+        var p = new Vector2(origin.x+x*original.size.x/(res-1),origin.z+z*original.size.z/(res-1));
+        if (p.y < 1048 || p.y > 1512 || p.x > 4083) continue;
+        float edge = fade(x,26)*fade(z,29)*fade(res-1-x,32)*fade(res-1-z,22);
+        float uplift = 0;
+        for (int i=0; i<deposit.Length; i++) uplift = Mathf.Max(uplift,relief(p,i));
+        if (uplift > 0) uplift *= fade(Mathf.Min(distance(p,main),distance(p,side))-4,19);
+        float raw = old[z,x]*copy.size.y+origin.y;
+        float y = raw+uplift*edge;
+        float pad = fade(26-Mathf.Abs(p.x-3830),10)*fade(19-Mathf.Abs(p.y-1124),9);
+        float corridor = fade(6-Mathf.Abs(p.x-3830),3)*fade(28-Mathf.Abs(p.y-1124),10);
+        y = Mathf.Lerp(y,ruinLevel,Mathf.Max(pad,corridor));
+        var basin = (p-pool);
+        float radii = new Vector2(basin.x/8.4f,basin.y/5.6f).magnitude;
+        y = Mathf.Lerp(y,Mathf.Lerp(poolLevel-.95f,poolLevel+.82f,Mathf.SmoothStep(0,1,radii)),fade(1.45f-radii,.46f));
+        if (Mathf.Abs(y-raw) < .015f) continue;
+        heights[z,x] = (y-origin.y)/copy.size.y;
+        changedHeights++;
+    }
+    copy.SetHeights(0,0,heights);
+    int alphaSize = copy.alphamapResolution;
+    float[,,] alpha = original.GetAlphamaps(0,0,alphaSize,alphaSize);
+    int sandrock = Array.FindIndex(copy.terrainLayers,l => l.name == "Sandstone");
+    int sand = Array.FindIndex(copy.terrainLayers,l => l.name == "FineDesertSand");
+    if (sandrock < 0 || sand < 0) throw new InvalidOperationException("사암과 모래 TerrainLayer 필요");
+    int changedPaint = 0;
+    for (int z=1; z<alphaSize-1; z++) for (int x=1; x<alphaSize-1; x++) {
+        var p = new Vector2(origin.x+x*copy.size.x/(alphaSize-1),origin.z+z*copy.size.z/(alphaSize-1));
+        if (p.y < 1048 || p.y > 1512 || p.x > 4083) continue;
+        float reliefHeight = 0;
+        for (int i=0; i<deposit.Length; i++) reliefHeight = Mathf.Max(reliefHeight,relief(p,i));
+        float n = Mathf.PerlinNoise(p.x*.051f,p.y*.06f);
+        float primary = distance(p,main), spur = distance(p,side);
+        float edge = fade(x,6)*fade(z,7)*fade(alphaSize-1-x,8)*fade(alphaSize-1-z,7);
+        float strata = fade(reliefHeight-(2.0f+5*n),9)*(.66f+.28f*n);
+        strata *= fade(Mathf.Min(primary,spur)-4,19);
+        float trace = (1-fade(primary,5.9f+2.5f*n))*(.18f+.28f*n);
+        trace = Mathf.Max(trace,(1-fade(spur,5.6f+2*n))*(.14f+.22f*n));
+        float apron = fade(23-Mathf.Abs(p.x-3830),9)*fade(22-Mathf.Abs(p.y-1125),10)*.58f;
+        float strength = Mathf.Max(apron,Mathf.Max(strata,trace))*edge;
+        if (strength < .012f || alpha[z,x,sand] < .15f) continue;
+        float transfer = alpha[z,x,sand]*strength;
+        alpha[z,x,sand] -= transfer;
+        alpha[z,x,sandrock] += transfer;
+        changedPaint++;
+    }
+    Undo.RecordObject(tile,groupName);
+    Undo.RecordObject(collider,groupName);
+    tile.terrainData = copy;
+    collider.terrainData = copy;
+    tile.Flush();
+
+    var section = new GameObject(groupName);
+    section.transform.SetParent(region,false);
+    Undo.RegisterCreatedObjectUndo(section,groupName);
+    Func<Transform,string,GameObject> child = (parent,name) => {
+        var go = new GameObject(name);
+        go.transform.SetParent(parent,false);
+        return go;
+    };
+    int groundLayer = LayerMask.NameToLayer("Ground");
+    Func<string,Color,Texture2D,Material> surface = (name,tint,tex) => {
+        var mat = new Material(lit) { name = name };
+        mat.SetColor("_BaseColor",tint);
+        mat.SetTexture("_BaseMap",tex);
+        mat.SetFloat("_Smoothness",.15f);
+        mat.enableInstancing = true;
+        generated.Add(mat);
+        return mat;
+    };
+    var sandstone = surface("취수장 · 적갈색 층리 사암",new Color(.82f,1.06f,1.15f),texture);
+    var dark = surface("취수장 · 풍화된 짙은 석재",new Color(.65f,.71f,.79f),texture);
+    var oxide = surface("취수장 · 산화 청동",new Color(.16f,.38f,.33f),null);
+    var ruin = (GameObject)PrefabUtility.InstantiatePrefab(model,section.transform);
+    ruin.name = "RB_DesertWaterworks";
+    ruin.transform.SetPositionAndRotation(new Vector3(3830,ruinLevel-.06f,1124),Quaternion.Euler(0,180,0));
+    var renderers = ruin.GetComponentsInChildren<MeshRenderer>(true);
+    if (renderers.Length == 0) throw new InvalidOperationException("취수장 렌더 메시가 없습니다.");
+    var slots = new System.Collections.Generic.HashSet<string>();
+    foreach (var renderer in renderers) {
+        if (renderer.name.StartsWith("UCX_",StringComparison.Ordinal)) continue;
+        renderer.sharedMaterials = renderer.sharedMaterials.Select(m => {
+            string slot = m == null ? "" : m.name;
+            slots.Add(slot);
+            if (slot.IndexOf("DarkStone",StringComparison.OrdinalIgnoreCase)>=0) return dark;
+            if (slot.IndexOf("Oxide",StringComparison.OrdinalIgnoreCase)>=0) return oxide;
+            if (slot.IndexOf("Sandstone",StringComparison.OrdinalIgnoreCase)>=0) return sandstone;
+            throw new InvalidOperationException("알 수 없는 FBX 재질 "+slot);
+        }).ToArray();
+        PrefabUtility.RecordPrefabInstancePropertyModifications(renderer);
+    }
+    var collision = ruin.GetComponentsInChildren<MeshFilter>(true).Where(m => m.name.StartsWith("UCX_",StringComparison.Ordinal)).ToArray();
+    if (collision.Length == 0) collision = ruin.GetComponentsInChildren<MeshFilter>(true);
+    foreach (var part in collision) {
+        part.gameObject.layer = groundLayer;
+        var renderer = part.GetComponent<MeshRenderer>();
+        if (part.name.StartsWith("UCX_",StringComparison.Ordinal) && renderer) renderer.enabled = false;
+        var mc = part.gameObject.AddComponent<MeshCollider>();
+        mc.sharedMesh = part.sharedMesh;
+        PrefabUtility.RecordPrefabInstancePropertyModifications(part.gameObject);
+        if (renderer) PrefabUtility.RecordPrefabInstancePropertyModifications(renderer);
+    }
+
+    var rockGroup = child(section.transform,"모랫길 · 드러난 사암층과 돌 표식").transform;
+    var rockVariants = new System.Collections.Generic.Dictionary<Material,Material>();
+    Func<Material,Material> rockMaterial = originalMaterial => {
+        Material variant;
+        if (rockVariants.TryGetValue(originalMaterial,out variant)) return variant;
+        variant = new Material(originalMaterial) { name = originalMaterial.name+"_RedRavine" };
+        variant.SetColor("_Color",new Color(.76f,.64f,.51f,1));
+        variant.SetColor("_Stylization_Color",new Color(.66f,.42f,.28f,1));
+        variant.SetColor("_Edgewear_Color",new Color(.90f,.74f,.57f,0));
+        rockVariants.Add(originalMaterial,variant);
+        generated.Add(variant);
+        return variant;
+    };
+    Action<string,float,float,float,Vector3,float> rock = (kind,x,z,yaw,scale,sink) => {
+        var sample = originalRocks["PF_EastLands_"+kind];
+        var source = PrefabUtility.GetCorrespondingObjectFromSource(sample.gameObject);
+        var go = (GameObject)PrefabUtility.InstantiatePrefab(source,rockGroup);
+        go.transform.SetPositionAndRotation(new Vector3(x,h(x,z)-sink,z),Quaternion.Euler(0,yaw,0)*source.transform.localRotation);
+        go.transform.localScale=Vector3.Scale(source.transform.localScale,scale);
+        var selected = sample.GetComponentsInChildren<MeshRenderer>(true);
+        var added = go.GetComponentsInChildren<MeshRenderer>(true);
+        if (added.Length!=selected.Length) throw new InvalidOperationException("암반 프리팹 렌더러가 바뀌었습니다.");
+        for (int i=0; i<added.Length; i++) {
+            added[i].sharedMaterials=selected[i].sharedMaterials.Select(rockMaterial).ToArray();
+            PrefabUtility.RecordPrefabInstancePropertyModifications(added[i]);
+        }
+    };
+    rock("Cliff_02",3762,1430,47,new Vector3(.84f,.71f,.51f),8.4f);
+    rock("Cliff_03",3781,1412,42,new Vector3(.72f,.71f,.55f),6.2f);
+    rock("Cliff_03",3754,1397,39,new Vector3(.56f,.53f,.48f),4.4f);
+    rock("BigBoulder_02",3738,1405,122,new Vector3(3.4f,2.2f,2.1f),3.1f);
+    rock("Cliff_03",3689,1292,135,new Vector3(.74f,.68f,.47f),6.6f);
+    rock("Cliff_02",3683,1268,128,new Vector3(.62f,.67f,.48f),6.1f);
+    rock("Cliff_03",3684,1171,133,new Vector3(.85f,.62f,.44f),6.8f);
+    rock("Cliff_03",3921,1101,92,new Vector3(.82f,.72f,.65f),6f);
+    rock("Cliff_02",3950,1097,80,new Vector3(.83f,.69f,.64f),7.4f);
+    rock("Cliff_03",3972,1107,75,new Vector3(.58f,.49f,.53f),4.2f);
+    rock("Cliff_03",4012,1383,13,new Vector3(.94f,.77f,.57f),6.2f);
+    rock("Cliff_02",4008,1418,17,new Vector3(.84f,.75f,.44f),8.7f);
+    rock("Cliff_03",3985,1237,40,new Vector3(.69f,.57f,.50f),5.9f);
+    var outwashes = new[] {new Vector2(3701,1477),new Vector2(3732,1383),new Vector2(3709,1338),
+        new Vector2(3782,1291),new Vector2(3746,1247),new Vector2(3773,1180),new Vector2(3852,1152),new Vector2(3864,1117)};
+    var random = new System.Random(7039);
+    foreach (var p in outwashes) for (int i=0; i<5; i++) {
+        float x = p.x+(float)(random.NextDouble()-.5)*13;
+        float z = p.y+(float)(random.NextDouble()-.5)*18;
+        var v = new Vector2(x,z);
+        if (Mathf.Min(distance(v,main),distance(v,side))<3.8f) continue;
+        float scale = .32f+(float)random.NextDouble()*.65f;
+        rock(i==0?"MedBoulder_03":i%2==0?"FlatStone_03":"SmallBoulder_02",x,z,random.Next(360),
+            new Vector3(scale*1.35f,scale*.87f,scale),.11f);
+    }
+
+    var water = child(section.transform,"사구 아래 물받이");
+    water.transform.position = new Vector3(pool.x,poolLevel,pool.y);
+    var waterMesh = new Mesh { name = "사구 아래 물받이 수면" };
+    var verts = new System.Collections.Generic.List<Vector3> { Vector3.zero };
+    var tris = new System.Collections.Generic.List<int>();
+    for (int i=0; i<48; i++) {
+        float ang = Mathf.PI*2*i/48;
+        verts.Add(new Vector3(8.5f*Mathf.Cos(ang),0,5.7f*Mathf.Sin(ang)));
+        tris.AddRange(new[]{0,1+(i+1)%48,1+i});
+    }
+    waterMesh.vertices = verts.ToArray();
+    waterMesh.uv = verts.Select(v => new Vector2(v.x*.25f,v.z*.25f)).ToArray();
+    waterMesh.triangles = tris.ToArray();
+    waterMesh.RecalculateNormals();
+    water.AddComponent<MeshFilter>().sharedMesh = waterMesh;
+    water.AddComponent<MeshRenderer>().sharedMaterial = canal;
+    generated.Add(waterMesh);
+    var palms = child(section.transform,"물받이 주변 야자 군락").transform;
+    var grove = new[] {new Vector4(3810,1140,32,1.08f),new Vector4(3811,1135,153,.78f),new Vector4(3817,1145,236,.89f),
+        new Vector4(3807,1138,108,.69f),new Vector4(3815,1148,48,.68f),new Vector4(3853,1140,275,.78f)};
+    for (int i=0; i<grove.Length; i++) {
+        var p = grove[i];
+        var source = palmModels[i%3];
+        var palm = (GameObject)PrefabUtility.InstantiatePrefab(source,palms);
+        palm.transform.SetPositionAndRotation(new Vector3(p.x,h(p.x,p.y)-.17f,p.y),Quaternion.Euler(0,p.z,0)*source.transform.localRotation);
+        palm.transform.localScale *= p.w;
+        foreach (var renderer in palm.GetComponentsInChildren<MeshRenderer>(true)) {
+            renderer.sharedMaterials=renderer.sharedMaterials.Select(m => m && m.name.IndexOf("leaves",StringComparison.OrdinalIgnoreCase)>=0?leaves:bark).ToArray();
+            PrefabUtility.RecordPrefabInstancePropertyModifications(renderer);
+        }
+    }
+
+    Physics.SyncTransforms();
+    RaycastHit hit;
+    var roofRay = new Ray(new Vector3(3830,ruinLevel+1.5f,1123),Vector3.up);
+    // 단면의 뒷면은 기본 레이가 검사하지 않으므로 지붕 위에서도 확인한다.
+    bool roof = Physics.Raycast(roofRay,out hit,20f,1<<groundLayer) ||
+        Physics.Raycast(new Vector3(3830,ruinLevel+25,1123),Vector3.down,out hit,22,1<<groundLayer)
+        && hit.transform.IsChildOf(ruin.transform);
+    if (!roof) throw new InvalidOperationException("중앙 통로의 지붕 콜라이더를 찾지 못했습니다.");
+    AssetDatabase.CreateAsset(copy,terrainAsset);
+    // 지형 에셋을 생성할 때 내부 도색 텍스처가 초기화되므로 생성 후에 기록한다.
+    copy.SetAlphamaps(0,0,alpha);
+    tile.Flush();
+    if(copy.GetAlphamaps(48,45,1,1)[0,0,sand]<.35f)
+        throw new InvalidOperationException("사막 도색 저장 실패");
+    AssetDatabase.CreateAsset(generated[0],asset);
+    foreach (var item in generated.Skip(1)) AssetDatabase.AddObjectToAsset(item,asset);
+    AssetDatabase.SaveAssetIfDirty(copy);
+    AssetDatabase.SaveAssetIfDirty(generated[0]);
+    UnityEditor.SceneManagement.EditorSceneManager.MarkSceneDirty(scene);
+    if (!UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene)) throw new InvalidOperationException("씬 저장 실패");
+    Undo.CollapseUndoOperations(undo);
+    return "지형 "+changedHeights+" 표본, 도색 "+changedPaint+" 표본, 재질 슬롯 "+string.Join(", ",slots)+
+        ", 충돌 "+collision.Length+", 암반 "+rockGroup.childCount+", 야자 "+palms.childCount;
+} catch {
+    Undo.RevertAllDownToGroup(undo);
+    throw;
+}

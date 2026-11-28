@@ -39,7 +39,7 @@
 | 스토리 플롯 | [스토리 플롯](Assets/docs/guide/STORY_PLOT_AUTHORING_GUIDE.md) | 이해·공감·몰입 3원칙과 최종 체크리스트 |
 | 대사(스토리·퀘스트·NPC) | [자연스러운 한국어 대사](Assets/docs/guide/game_dialogue_natural_korean_guide.md) | 구어체. Voice Profile·관계·발화 동기 먼저. 보이는 것 설명·억지 질문·앵무새 대꾸 금지 |
 | 컨텐츠(퀘스트·대화·아이템·제작·트리거·FlowGraph) | [컨텐츠 시스템](Assets/docs/guide/CONTENT_SYSTEM_AUTHORING_GUIDE.md) | 기존 ID·GUID 보존. 예상 밖 진행 순서와 저장/로드에서 진행 불능 방지 |
-| 오픈월드 맵·POI·지형 | [오픈월드 맵](Assets/docs/guide/OPENWORLD_MAP_AUTHORING_GUIDE.md), [배치 도구](Assets/docs/guide/MAP_PLACEMENT_TOOL_GUIDE.md), [지형·물 교훈](Assets/docs/guide/TERRAIN_WATER_ART_LESSONS.md) | 블록아웃 검증 후 아트 패스. 문서 수치는 예시이므로 이 프로젝트에서 직접 측정 |
+| 오픈월드 맵·POI·지형·환경 배치 | [오픈월드 맵](Assets/docs/guide/OPENWORLD_MAP_AUTHORING_GUIDE.md), [환경 배치 검수 기준](Assets/docs/guide/OPENWORLD_MAP_AUTHORING_GUIDE.md#환경-배치-검수-기준), [배치 도구](Assets/docs/guide/MAP_PLACEMENT_TOOL_GUIDE.md), [지형·물 교훈](Assets/docs/guide/TERRAIN_WATER_ART_LESSONS.md) | 블록아웃 검증 후 아트 패스. 예시 수치는 프로젝트에서 직접 측정. 중첩·경사면 접지·건물 반복을 검수하고 도로는 전용 지침을 따름 |
 | 건물·성벽·다리·키트 배치, 월드 재생성 | [카메라 가림](Assets/docs/guide/CAMERA_OCCLUSION_FADE_GUIDE.md) "신규 건물·구조물 배치 체크리스트" | 지정 원본은 `Assets/10.Datas/Camera/CameraOccluderNameRules.asset`. 프리팹·씬에 `CameraOccluder`를 심지 않음 |
 | 월드 도로 생성·재생성(RiverBasin4km) | [도로 제작·품질 검증 지침](docs/전달용/world_road/world_road_generation_guidelines.html) | 사막 문제 구간 한 곳에서 P0부터 시작. 노견 포함 전체 폭을 검사하고 탑뷰와 실제 TPS 카메라에서 시각 품질을 확인 |
 | 월드 툰 셰이더(WorldToon: Mesh·Foliage·Terrain4) | [통합 계약](Assets/docs/design/world-art/environment/WORLDTOON_EXISTING_INTEGRATION.md), [작업 상태](docs/work-status/worldtoon.md), [전달 원문](docs/전달용/WorldToon_Handoff/START_HERE.md) | 통합 계약이 원문보다 우선. 기존 lilToon·반응형 환경 재질 되돌림/덮어쓰기 금지, 원본 재질은 복제본에만 적용, Player 빌드는 별도 지시 전 `사용자 지시 대기` |

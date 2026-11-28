@@ -4,10 +4,12 @@ Shader "UPlayground/Environment/River Basin Trail"
     {
         _Surface ("지면", 2D) = "white" {}
         _Gravel ("잔돌과 흙", 2D) = "gray" {}
+        [Normal] _GravelNormal ("잔돌 요철", 2D) = "bump" {}
         _Tint ("지면 색", Color) = (1, 1, 1, 1)
         _TileMeters ("지면 타일 간격", Float) = 2
         _GravelMix ("잔돌 비율", Range(0, 1)) = 0.3
         _Saturation ("채도", Range(0, 1)) = 0.6
+        _VertexSurface ("정점별 다짐과 퇴적", Range(0, 1)) = 0
     }
 
     SubShader
@@ -44,12 +46,15 @@ Shader "UPlayground/Environment/River Basin Trail"
             SAMPLER(sampler_Surface);
             TEXTURE2D(_Gravel);
             SAMPLER(sampler_Gravel);
+            TEXTURE2D(_GravelNormal);
+            SAMPLER(sampler_GravelNormal);
 
             CBUFFER_START(UnityPerMaterial)
                 half4 _Tint;
                 float _TileMeters;
                 half _GravelMix;
                 half _Saturation;
+                half _VertexSurface;
             CBUFFER_END
 
             struct Attributes
@@ -65,6 +70,7 @@ Shader "UPlayground/Environment/River Basin Trail"
                 float3 positionWS : TEXCOORD0;
                 half3 normalWS : TEXCOORD1;
                 half2 fogAndCoverage : TEXCOORD2;
+                half3 surfaceWeights : TEXCOORD3;
             };
 
             Varyings TrailVertex(Attributes input)
@@ -75,6 +81,7 @@ Shader "UPlayground/Environment/River Basin Trail"
                 o.positionWS = position.positionWS;
                 o.normalWS = TransformObjectToWorldNormal(input.normalOS);
                 o.fogAndCoverage = half2(ComputeFogFactor(position.positionCS.z), input.color.a);
+                o.surfaceWeights = input.color.rgb;
                 return o;
             }
 
@@ -90,10 +97,27 @@ Shader "UPlayground/Environment/River Basin Trail"
                 half3 albedo = lerp(Luminance(surface).xxx, surface, _Saturation);
                 albedo *= _Tint.rgb * lerp(0.86h, 1.14h, macro);
                 half coverage = input.fogAndCoverage.y;
+                half3 normal = normalize(input.normalWS);
+                if (_VertexSurface > 0.0h)
+                {
+                    half worn = input.surfaceWeights.r;
+                    half deposits = input.surfaceWeights.g;
+                    half detail = SAMPLE_TEXTURE2D(_Gravel, sampler_Gravel, ground * 1.37).g;
+                    half stoneMix = saturate(deposits * lerp(0.16h, 2.0h, detail));
+                    half3 compacted = lerp(soil, coarse, saturate(worn * 0.78h + stoneMix));
+                    compacted *= _Tint.rgb * lerp(0.83h, 1.08h, input.surfaceWeights.b)
+                        * lerp(0.83h, 1.20h, detail);
+                    albedo = lerp(albedo, compacted, _VertexSurface);
+                    coverage *= lerp(0.72h, 1.22h, detail);
+                    half2 relief = UnpackNormal(SAMPLE_TEXTURE2D(_GravelNormal, sampler_GravelNormal, uv)).xy;
+                    half3 tangent = normalize(half3(1.0h, 0.0h, 0.0h) - normal * normal.x);
+                    half3 bitangent = cross(tangent, normal);
+                    normal = normalize(normal + (tangent * relief.x + bitangent * relief.y)
+                        * _VertexSurface * saturate(worn + deposits) * 0.42h);
+                }
                 half brokenEdge = (macro - 0.45h) * 0.38h * coverage;
                 half alpha = smoothstep(0.02h, 0.91h, coverage + brokenEdge);
 
-                half3 normal = normalize(input.normalWS);
                 // 한 삼각형이 캐스케이드 경계를 넘을 수 있다.
                 float4 shadowCoord = TransformWorldToShadowCoord(input.positionWS + normal * 0.10);
                 Light sun = GetMainLight(shadowCoord);

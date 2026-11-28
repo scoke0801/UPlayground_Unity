@@ -1,0 +1,13 @@
+{
+  "links": [
+    {"edge":"R5-lookout-coast","lengthMeters":365.73,"samples":18325,"widthMeters":7.60,"minRadiusM":33.17,"maxGradeDeg":18.88,"maxCrossDeg":22.50,"contacts":0,"curvatureAt":[3791.33,1758.88],"longitudinalAt":[3880.56,1768.00],"crossAt":[3811.66,1760.38]},
+    {"edge":"R5-junction","lengthMeters":175.35,"samples":8800,"widthMeters":8.00,"minRadiusM":14.91,"maxGradeDeg":21.33,"maxCrossDeg":16.33,"contacts":0,"curvatureAt":[3733.49,1764.53],"longitudinalAt":[3722.47,1783.67],"crossAt":[3671.00,1788.33]}
+  ],
+  "checkpoints": 30,
+  "navmeshComplete": 46,
+  "navmeshAttempts": 46,
+  "shoulderStones": 153,
+  "surfaceMeshSha256": "3ab4b9fd3b8536d33febd5eef7edd88dbdb9d55f73af4b81d0b7742d49546659",
+  "sceneryMeshSha256": "5c8d481baa11b498b9ed25b49bd03f1141ab16648336075a777ef705d668e3c7",
+  "existingNavmeshSupportMissesXZ": [[3671.00,1792.00],[3690.98,1792.00],[3724.00,1702.65],[3723.94,1682.67],[3723.20,1667.20]]
+}

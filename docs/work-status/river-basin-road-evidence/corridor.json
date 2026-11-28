@@ -1,0 +1,17 @@
+{
+  "edge": "R5-lookout",
+  "lengthMeters": 208.504,
+  "checkCount": 10475,
+  "corridorWidthMeters": 11.60,
+  "blockerCount": 0,
+  "coreGradeDeg": 18.242,
+  "coreCrossGradeDeg": 22.102,
+  "terrainHeightDeltaMeters": 0,
+  "violations": [
+    {"check": "minimumRadiusMeters", "distanceMeters": 71.829, "x": 3790.870, "z": 1758.502, "actual": 17.781, "limit": 6.000, "severity": "pass"},
+    {"check": "maximumGradeDeg", "distanceMeters": 163.611, "x": 3881.716, "z": 1766.935, "actual": 19.006, "limit": 25.000, "severity": "pass"},
+    {"check": "maximumCrossGradeDeg", "distanceMeters": 92.779, "x": 3811.671, "z": 1760.700, "actual": 22.102, "limit": 25.000, "severity": "pass"}
+  ],
+  "meshSha256": "cf00cbec33a5bbaffb2d2a480efd6f6af1c983ca6eec07eaf2ffde09eb1e6003",
+  "geometryAndChecksMilliseconds": 62
+}

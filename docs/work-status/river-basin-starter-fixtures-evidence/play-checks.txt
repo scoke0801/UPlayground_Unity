@@ -1,0 +1,8 @@
+12:00 호수 북서 출구: light=False, intensity=0.000, emission=RGBA(0.000, 0.000, 0.000, 0.000)
+12:00 호수 서안 내리막: light=False, intensity=0.000, emission=RGBA(0.000, 0.000, 0.000, 0.000)
+22:00 호수 북서 출구: light=True, intensity=1.420, emission=RGBA(1.700, 0.720, 0.230, 1.000)
+22:00 호수 서안 내리막: light=True, intensity=1.420, emission=RGBA(1.700, 0.720, 0.230, 1.000)
+LakeFixture_Signpost · 북서 B3 방향 편차 0.00°
+LakeFixture_Signpost · 동북 물가 방향 편차 0.00°
+Editor Play: 6 mesh instances, material and texture valid.
+scene=RiverBasin4km, dirty=False, save hashes match=True (5/5)

@@ -1,0 +1,14 @@
+Cart (0.860, 0.921, 2.229), 5494 vertices, 3 재질
+WashTub (0.948, 0.458, 0.950), 3836 vertices, 3 재질
+Barrel (1.155, 1.167, 1.151), 8476 vertices, 3 재질
+StrawPile (1.529, 0.310, 1.394), 5724 vertices, 1 재질
+FirewoodLog (4.645, 0.889, 0.920), 813 vertices, 2 재질
+PF_Farm_Cart_01 -> LakeStarter_Cart (2304.100, 36.004, 977.700), scale (0.900, 0.900, 0.900)
+TGV_Sack_02A -> LakeStarter_WashTub (2303.400, 36.004, 976.800), scale (0.860, 0.860, 0.860)
+CargoBarrel -> LakeStarter_Barrel (2298.300, 36.021, 975.300), scale (0.860, 0.860, 0.860)
+PF_Farm_Hay_Pile_04 -> LakeStarter_StrawPile (2300.400, 35.982, 977.000), scale (1.548, 1.200, 1.548)
+PF_Farm_Wood_Log_01 -> LakeStarter_FirewoodLog (2297.300, 35.901, 974.100), scale (0.830, 0.830, 0.830)
+CargoBarrel -> LakeStarter_Barrel (2340.580, 35.964, 962.370), scale (0.900, 0.900, 0.900)
+CargoBarrel -> LakeStarter_Barrel (2327.700, 35.979, 961.550), scale (0.830, 0.830, 0.830)
+PF_Farm_Cart_01 -> LakeStarter_Cart (2355.600, 36.245, 985.300), scale (0.820, 0.820, 0.820)
+보행 회랑 표본 4545 / 새 충돌체 겹침 0

@@ -1,0 +1,2 @@
+save=True (5/5), scene=RiverBasin4km, loaded=1, dirty=True, playing=False
+열린 사본/저장본 바이트 동일, 종료 dirty=False, playing=False

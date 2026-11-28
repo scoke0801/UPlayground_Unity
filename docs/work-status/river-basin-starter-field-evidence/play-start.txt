@@ -1,0 +1,1 @@
+Play=True, scene=RiverBasin4km, position=(2317.400, 36.007, 958.800), yaw=0.0, camera=남쪽 조감 카메라, camera position=(2317.400, 38.617, 953.949), camera forward=(0.000, -0.242, 0.970), time=27.28

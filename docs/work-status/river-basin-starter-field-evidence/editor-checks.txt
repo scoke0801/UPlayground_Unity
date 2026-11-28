@@ -1,0 +1,10 @@
+캡슐 표본 4286, 신규 충돌 종류 0
+누락 스크립트 0, 메시 또는 재질 오류 0
+카메라 전방 구체 레이 적중 0; 시작 (2317.400, 36.107, 958.800), 방위 0
+NavMesh 2319.5/971.5 PathComplete 2 모서리
+NavMesh 2277.0/1021.0 PathComplete 2 모서리
+NavMesh 2456.0/1079.0 미연결 0 모서리
+NavMesh 2472.0/1069.0 미연결 0 모서리
+저장된 씬: Assets/WorldBuilder/Worlds/6effd90b68ea4b3d8f8caa5197fcfe34/Preview/RiverBasin4km.unity
+작업마당 메시 정점: 5829
+서안 두 지점은 신규 그룹 비활성·우물 원위치 기준에서도 기존 NavMesh 표본 없음.

@@ -1,0 +1,9 @@
+LakeStarter_Barrel (2340.580, 35.964, 962.370): 4836 source tris, 3 재질, 접지 -0.018m
+LakeStarter_Cart (2304.100, 36.004, 977.700): 2928 source tris, 3 재질, 접지 -0.018m
+LakeStarter_WashTub (2303.400, 36.004, 976.800): 2292 source tris, 3 재질, 접지 -0.018m
+LakeStarter_FirewoodLog (2297.300, 35.901, 974.100): 1450 source tris, 2 재질, 접지 -0.140m
+LakeStarter_Barrel (2298.300, 36.021, 975.300): 4836 source tris, 3 재질, 접지 -0.018m
+LakeStarter_StrawPile (2300.400, 35.982, 977.000): 3208 source tris, 1 재질, 접지 -0.040m
+LakeStarter_Barrel (2327.700, 35.979, 961.550): 4836 source tris, 3 재질, 접지 -0.018m
+LakeStarter_Cart (2355.600, 36.245, 985.300): 2928 source tris, 3 재질, 접지 -0.018m
+scene=RiverBasin4km, dirty=False, save hashes match=True (5/5)

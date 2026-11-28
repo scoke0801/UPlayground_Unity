@@ -1,0 +1,8 @@
+Editor Play / 194 프레임
+(2330.00, 36.00, 970.20), panel=빨래 · 삼베 1, team=1, fixed=18, maxFixedDrift=0.0000m, hemMotion=0.0293m, hemFromRest=0.1249m
+(2330.00, 36.00, 970.20), panel=빨래 · 삼베 2, team=6, fixed=9, maxFixedDrift=0.0000m, hemMotion=0.0491m, hemFromRest=0.1887m
+(2330.00, 36.00, 970.20), panel=빨래 · 삼베 3, team=4, fixed=9, maxFixedDrift=0.0000m, hemMotion=0.0955m, hemFromRest=0.2390m
+(2356.60, 36.26, 982.20), panel=빨래 · 삼베 1, team=5, fixed=18, maxFixedDrift=0.0000m, hemMotion=0.0414m, hemFromRest=0.1797m
+(2356.60, 36.26, 982.20), panel=빨래 · 삼베 2, team=2, fixed=9, maxFixedDrift=0.0000m, hemMotion=0.0699m, hemFromRest=0.2097m
+(2356.60, 36.26, 982.20), panel=빨래 · 삼베 3, team=3, fixed=9, maxFixedDrift=0.0000m, hemMotion=0.0490m, hemFromRest=0.2246m
+scene=RiverBasin4km, dirty=False, cloth=6, winds=2, savesMatch=True (5/5)

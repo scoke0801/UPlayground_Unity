@@ -1,0 +1,17 @@
+Terrain boundary vs source (m): 0; splat boundary: 0; R4/R5 height delta (m): 0 (876 vertices)
+Terrain FootstepSurface: True; shader UPlayGround/Terrain/Sand Lit; sand reference sample 0.9333334
+Waterworks mesh: 6812 triangles, 11832 vertices, collider world bounds (28.90, 18.53, 14.06), UV0 11832
+Main length 464.2m, max sampled grade 29.0°, blocked 0/792
+Dune detour length 259.3m, max sampled grade 23.5°, blocked 0/441
+Roof collider: True; hit height 73.52
+Camera Auto + interior guard: True; missing/error materials 0; missing scripts 0
+NavMesh (3701.50, 1523.00) → (3716.00, 1373.00) PASS
+NavMesh (3716.00, 1373.00) → (3752.00, 1227.00) PASS
+NavMesh (3752.00, 1227.00) → (3812.00, 1151.00) PASS
+NavMesh (3716.00, 1373.00) → (3770.00, 1323.00) PASS
+NavMesh (3770.00, 1323.00) → (3801.00, 1207.00) PASS
+NavMesh (3801.00, 1207.00) → (3812.00, 1151.00) PASS
+NavMesh (3830.00, 1141.00) → (3830.00, 1108.00) PASS
+NavMesh (3830.00, 1108.00) → (3830.00, 1141.00) PASS
+Temporary NavMesh 8/8
+Cliff collision chunks 12, cliff render meshes 2, dam camera solid True, dam mesh collider True
